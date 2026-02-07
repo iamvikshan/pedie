@@ -1,4 +1,4 @@
-# 📱 Pedie Business Plan
+# 📱 Pedie Business Plan*Note: The 2.5% reserve figure is adequate assuming a ~5% claim rate with ~20% requiring independent inspection (≈KES 7.5/unit average inspection cost at Pedie's 50% share of KES 1,500) plus replacement/repair subsidies. Unit economics (Section 6.2) now reflects this reserve consistently.*
 
 ## Premium Refurbished Electronics — Import & Resale
 
@@ -14,16 +14,16 @@
 
 ---
 
-|                    |                                    |
-| ------------------ | ---------------------------------- |
-| **Company Name**   | Pedie                              |
-| **Legal Entity**   | _TBD (Sole Trader or LLC)_         |
-| **Founder**        | Vikshan                            |
-| **Location**       | Nairobi, Kenya                     |
-| **Industry**       | Consumer Electronics (Refurbished) |
-| **Business Model** | Direct Import + Local Resale       |
-| **Website**        | [pedie.tech](https://pedie.tech)   |
-| **Date**           | February 2026                      |
+|                    |                                      |
+| ------------------ | ------------------------------------ |
+| **Company Name**   | Pedie                                |
+| **Legal Entity**   | Sole Trader _(registration pending)_ |
+| **Founder**        | Vikshan                              |
+| **Location**       | Nairobi, Kenya                       |
+| **Industry**       | Consumer Electronics (Refurbished)   |
+| **Business Model** | Direct Import + Local Resale         |
+| **Website**        | [pedie.tech](https://pedie.tech)     |
+| **Date**           | February 2026                        |
 
 ---
 
@@ -145,7 +145,7 @@ Pedie solves this through:
 
 1. **🔍 Trusted Sourcing** — Only certified refurbished from Swappa, Reebelo, Back Market
 2. **✈️ Direct Import** — Via Aquantuo with transparent 7-10 day timelines
-3. **💰 Fair Pricing** — 10-15% below local premium retailers
+3. **💰 Fair Pricing** — up to ~17% (approximately 11–17%) below premium retailers like Badili
 4. **🛡️ 3-Month Warranty** — Covers manufacturing defects
 5. **📱 Personal QA** — Founder personally inspects every unit
 6. **💬 Transparent Communication** — Honest about timelines, conditions, policies
@@ -242,10 +242,10 @@ quadrantChart
 **Pedie's Competitive Edge:**
 
 - ✅ Certified sources (not grey market)
-- ✅ 10% cheaper than Badili
-- ✅ Personal quality inspection
+- ✅ Trust + transparency at fair prices (comparable to mid-tier, up to ~17% (approximately 11-17%) below premium retailers like Badili)
+- ✅ Personal quality inspection by founder
 - ✅ Transparent 7-10 day timeline
-- ✅ 3-month warranty (better than grey market)
+- ✅ Clear 3-month warranty (better than grey market/unclear competitors)
 - ✅ Founder-led customer service
 
 ### 2.5 SWOT Analysis
@@ -321,19 +321,30 @@ All products must meet:
 
 ### 3.4 Pricing Strategy
 
-**Philosophy:** 10-15% below local premium competitors, 10-20% above grey market.
+**Philosophy:** Trust + transparency at fair prices—comparable to mid-tier competitors, up to ~17% (approximately 11-17%) below premium retailers like Badili, and 14-29% above grey market.
+| Product | US Cost | Landed Cost | Selling Price | Gross Margin\* |
+| ------------------------- | ------- | ----------- | ------------- | -------------- |
+| iPhone 11 (64GB) | $199 | KES 30,370 | KES 40,000 | 24% |
+| iPhone 12 (128GB) | $249 | KES 36,870 | KES 50,000 | 26% |
+| iPhone 12 Pro Max (256GB) | $299 | KES 43,420 | KES 58,000 | 25% |
+| iPhone 13 Pro (256GB) | $369 | KES 52,520 | KES 68,000 | 23% |
+| iPhone 14 (128GB) | $599 | KES 82,420 | KES 95,000 | 13% |
+| MacBook Air M1 (256GB) | $699 | KES 95,420 | KES 120,000 | 20% |
+| MacBook Air M2 (256GB) | $899 | KES 121,420 | KES 145,000 | 16% |
 
-| Product                   | US Cost | Landed Cost | Selling Price | Margin |
-| ------------------------- | ------- | ----------- | ------------- | ------ |
-| iPhone 11 (64GB)          | $199    | KES 30,370  | KES 40,000    | 32%    |
-| iPhone 12 (128GB)         | $249    | KES 36,870  | KES 50,000    | 36%    |
-| iPhone 12 Pro Max (256GB) | $299    | KES 43,420  | KES 58,000    | 34%    |
-| iPhone 13 Pro (256GB)     | $369    | KES 52,520  | KES 68,000    | 29%    |
-| iPhone 14 (128GB)         | $599    | KES 82,420  | KES 95,000    | 15%    |
-| MacBook Air M1 (256GB)    | $699    | KES 95,420  | KES 120,000   | 26%    |
-| MacBook Air M2 (256GB)    | $899    | KES 121,420 | KES 145,000   | 19%    |
+_\*Gross Margin = (Selling Price - Landed Cost) / Selling Price. Excludes operating expenses (delivery, packaging, payment processing, warranty reserves). See Section 6.2 for a per-unit example (iPhone 12 Pro Max) net margin after operating costs (~18%), not the Year 1 P&L net profit figure. Landed cost includes product + $35 Aquantuo shipping @ KES 130/USD (rate as of 2026-02-07; baseline for forecasts). See Section 8.2 Currency Management Protocol for repricing triggers and review cadence._
 
-_Landed cost includes product + $35 Aquantuo shipping @ KES 130/USD_
+#### Supplier Cost Sensitivity Analysis
+
+Pedie sources from multiple US refurbishers. Costs vary by supplier:
+
+| Supplier             | Landed Cost (iPhone 12 PM) | Gross Margin | Margin Delta |
+| -------------------- | -------------------------- | ------------ | ------------ |
+| **Swappa (Primary)** | KES 43,420                 | 25%          | Baseline     |
+| Reebelo (Backup)     | KES 46,800                 | 19%          | -6pp         |
+| Back Market (Backup) | KES 48,750                 | 16%          | -9pp         |
+
+> ⚠️ **Risk Mitigation:** Swappa is the primary supplier due to best pricing. Reebelo and Back Market serve as backups for stockouts. When sourcing from higher-cost suppliers, either (a) adjust product-level pricing, (b) absorb temporarily using the 10-15% pricing buffer, or (c) decline the order if margin falls below 10%.
 
 ---
 
@@ -463,16 +474,26 @@ stateDiagram-v2
 
 ### 5.1 Marketing Funnel
 
+> 💡 _Note: The funnel chart below requires Mermaid v9.3+. If your renderer doesn't support it, see the table below._
+
 ```mermaid
-funnel
-    title Customer Acquisition Funnel
-    "Awareness (Social Media, Ads)" : 1000
-    "Interest (Website Visit)" : 300
-    "Consideration (Inquiry)" : 100
-    "Intent (Deposit Paid)" : 40
-    "Purchase (Order Complete)" : 35
-    "Loyalty (Repeat/Referral)" : 15
+xychart-beta
+    title "Customer Acquisition Funnel"
+    x-axis ["Awareness", "Interest", "Consider", "Intent", "Purchase", "Loyalty"]
+    y-axis "Leads" 0 --> 1000
+    bar [1000, 300, 100, 40, 35, 15]
 ```
+
+**Funnel Breakdown:**
+
+| Stage         | Volume | Conversion | Description                 |
+| ------------- | ------ | ---------- | --------------------------- |
+| Awareness     | 1,000  | -          | Social media, ads reach     |
+| Interest      | 300    | 30%        | Website visits              |
+| Consideration | 100    | 33%        | Inquiries via WhatsApp/chat |
+| Intent        | 40     | 40%        | Deposit paid                |
+| Purchase      | 35     | 88%        | Order completed             |
+| Loyalty       | 15     | 43%        | Repeat/referral customers   |
 
 ### 5.2 Go-to-Market Phases
 
@@ -561,7 +582,39 @@ mindmap
 | **Reserve**    | Buffer (10%)                    | 30,000          |
 |                | **TOTAL**                       | **KES 325,000** |
 
-> 💡 **Note:** With the preorder deposit model, actual capital requirement is lower. Customer deposits fund most imports.
+> ⚠️ **Working Capital Reality Check:**
+>
+> The preorder deposit model with tiered rates (phones 5%, laptops 10%) reduces but does not eliminate capital requirements:
+>
+> **Q1 Working Capital Gap:**
+>
+> - Projected Q1 volume: 30 phones + 8 laptops = 38 units
+> - Avg. landed cost: **KES 45,000/unit**  
+>   _Blended planning average across the Q1 mix (30 phones, 8 laptops), assuming phones skew to iPhone 11 (KES 30,370) and iPhone 12 (KES 36,870) landed costs and laptops skew to MacBook Air M1 landed cost (KES 95,420) from Section 3.4._
+>
+>   <details>
+>   <summary>📊 Blended cost derivation</summary>
+>   - Phone avg landed (50% iPhone 11 + 50% iPhone 12): (30,370 + 36,870) / 2 = **KES 33,620**
+>   - Laptop landed (MacBook Air M1): **KES 95,420**
+>   - Q1 weighted avg: (30 × 33,620 + 8 × 95,420) / 38 = **KES 46,630**
+>   - **KES 45,000** is a conservative planning round-down (~3% buffer)
+>
+>   </details>
+>
+> - **Tiered deposit collection** (based on selling prices per Section 7.1):
+>   - Phones: 30 units × 5% × KES 58,000 (avg selling price) = KES 87,000
+>   - Laptops: 8 units × 10% × KES 132,500 (midpoint of MacBook Air M1 KES 120,000 and M2 KES 145,000: (120,000 + 145,000) / 2 = KES 132,500) = KES 106,000
+>   - **Total deposits: KES 193,000** (~KES 5,100 per unit)
+>   - Deposit coverage: ~11.3% of total landed cost
+>   - Pedie fronts per unit: ~KES 39,900
+> - Working capital needed:
+>   - Total landed cost: 38 × KES 45,000 = **KES 1.71M**
+>   - Minus deposits: KES 193,000
+>   - **Net: ~KES 1.52M**
+> - Startup budget: KES 325,000
+> - **Shortfall: ~KES 1.19M**
+>
+> **Mitigation:** Batch orders to match available capital, start with 3-5 units, reinvest profits, or seek short-term trade financing. See **Section 11.1** for canonical working-capital figures and detailed funding scenarios.
 
 ### 6.2 Unit Economics
 
@@ -582,11 +635,11 @@ mindmap
 │   Local delivery support                   KES    500       │
 │   Packaging materials                      KES    650       │
 │   Payment processing (3%)                  KES  1,740       │
-│   Warranty reserve                         KES    500       │
+│   Warranty reserve (2.5%)                  KES  1,450       │
 │   ─────────────────────────────────────────────────────     │
-│   Total Costs                              KES 46,810       │
+│   Total Costs                              KES 47,760       │
 ├─────────────────────────────────────────────────────────────┤
-│ NET PROFIT PER UNIT                        KES 11,190 (19%) │
+│ NET PROFIT PER UNIT                        KES 10,240 (18%) │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -631,16 +684,18 @@ mindmap
 
 ```mermaid
 xychart-beta
-    title "Break-Even Analysis"
+    title "Break-Even Analysis (Monthly)"
     x-axis "Units Sold" [0, 5, 10, 15, 20, 25, 30]
-    y-axis "Profit (KES)" -100000 --> 350000
-    line "Profit" [-10000, 45000, 100000, 155000, 210000, 265000, 320000]
+    y-axis "Profit (KES)" -100000 --> 250000
+    line "Cumulative Profit" [-85417, -34217, 16983, 68183, 119383, 170583, 221783]
     line "Break-Even" [0, 0, 0, 0, 0, 0, 0]
 ```
 
-**Fixed Monthly Costs:** KES 10,000 (hosting, domain, insurance, misc)  
-**Profit per Unit:** ~KES 11,000  
-**Break-Even:** **1 unit/month** ✅
+**Fixed Monthly Costs:** KES 85,417 (annual OpEx KES 1,025,000 ÷ 12)  
+**Profit per Unit:** KES 10,240  
+**Break-Even:** **9 units/month** ✅
+
+_Note: Break-even = Fixed Costs ÷ Profit per Unit = 85,417 ÷ 10,240 = 8.34 → 9 units_
 
 ### 6.6 Cash Flow Model
 
@@ -678,10 +733,19 @@ sequenceDiagram
 | Stage          | Customer Action                | Refund Policy                      |
 | -------------- | ------------------------------ | ---------------------------------- |
 | **Inquiry**    | Asks about product             | No commitment                      |
-| **Deposit**    | Pays 5% (KES 2,900 on KES 58k) | Refundable if Pedie hasn't ordered |
-| **Ordered**    | Pedie places supplier order    | 5% non-refundable                  |
-| **In Transit** | Product shipping               | 5% non-refundable                  |
-| **Delivered**  | Pays 95% balance               | Full refund if defective           |
+| **Deposit**    | Pays deposit (see tiers below) | Refundable if Pedie hasn't ordered |
+| **Ordered**    | Pedie places supplier order    | Deposit non-refundable             |
+| **In Transit** | Product shipping               | Deposit non-refundable             |
+| **Delivered**  | Pays remaining balance         | Full refund if defective           |
+
+**Deposit Tiers:**
+
+To better manage working capital on higher-value orders, deposits are tiered by sale price:
+
+| Sale Price   | Deposit Rate | Example                               |
+| ------------ | ------------ | ------------------------------------- |
+| < KES 70,000 | 5%           | KES 58k iPhone = KES 2,900 deposit    |
+| ≥ KES 70,000 | 10%          | KES 120k MacBook = KES 12,000 deposit |
 
 **For In-Stock Items:**
 
@@ -700,17 +764,72 @@ sequenceDiagram
 | Non-functional ports/speakers        | Battery degradation >10% (normal)       |
 | Face ID / Touch ID failures          |                                         |
 
+**Warranty Reserve Recommendation:**
+
+Budget 2-3% of sale price per unit for warranty claims. The 2.5% reserve covers:
+
+- (a) Replacement device costs (from buffer inventory or next supplier batch)
+- (b) Independent inspection costs (~KES 750 per disputed claim — Pedie's 50% share of the KES 1,500 inspection fee; see "Independent Inspection" below)
+- (c) Repair subsidies/discounts (20% off market rate for denied claims, as noted under "Resolution")
+
+| Product        | Sale Price  | Reserve (2.5%) |
+| -------------- | ----------- | -------------- |
+| iPhone 12 PM   | KES 58,000  | KES 1,450      |
+| MacBook Air M1 | KES 120,000 | KES 3,000      |
+
+_Note: The 2.5% reserve figure is adequate assuming a ~5% claim rate with ~20% requiring independent inspection (≈KES 150/unit average inspection cost at Pedie's 50% share of KES 1,500) plus replacement/repair subsidies. Unit economics (Section 6.2) now reflects this reserve consistently._
+
+**Battery Testing Procedures:**
+
+| Device  | Testing Method                                 | Criteria              |
+| ------- | ---------------------------------------------- | --------------------- |
+| iOS     | Settings → Battery → Battery Health            | ≥80% Maximum Capacity |
+| Android | AccuBattery app (install, charge cycle)        | ≥80% Design Capacity  |
+| Backup  | Professional battery tester (e.g., ChargerLAB) | Cost: KES 15-25k      |
+
 **Warranty Process:**
 
 ```mermaid
 flowchart LR
     A[Customer Reports Issue] --> B{Troubleshoot}
     B -->|Software Fix| C[Resolved ✓]
-    B -->|Hardware Defect| D[Evidence Review]
-    D -->|Confirmed| E[Replacement/Refund]
-    D -->|User Damage| F[No Coverage]
-    F --> G[Offer Repair Discount]
+    B -->|Hardware Defect| D[Evidence Collection]
+    D --> E{Claim Validation}
+    E -->|Approved| F[Replacement/Refund]
+    E -->|Denied| G[No Coverage]
+    G --> H[Offer Repair Discount]
 ```
+
+**Claim Validation Workflow:**
+
+1. **Evidence Collection:**
+   - Customer provides photos of defect (minimum 3 angles)
+   - Video demonstrating issue (for intermittent problems)
+   - Screenshot of battery health (for battery claims)
+
+2. **Initial Review (by Pedie):**
+   - Compare against original QA photos from purchase
+   - Check for signs of physical damage not present at sale
+   - Verify warranty period hasn't expired
+
+3. **Independent Inspection (if disputed or high-value):**
+   - Third-party tech repair shop inspection
+   - Inspector: Authorized service center or trusted repair partner
+   - Cost: **Always split 50/50** — customer pays KES 750, Pedie pays KES 750 (total KES 1,500)
+   - Criteria: Written report on defect cause (manufacturing vs. user damage)
+
+4. **Resolution:**
+   - Approved: Replacement from inventory or refund
+   - Denied: Written explanation + repair discount offer (20% off market rate)
+
+**Replacement Sourcing Policy:**
+
+- **Primary:** Maintain 2-3 unit buffer inventory of popular models for quick replacement
+- **Secondary:** Source replacement from active supplier orders (add to next batch)
+- **Partner Agreement:** Establish relationship with 1-2 local repair shops for:
+  - Independent inspections (~KES 1,500/inspection; cost split 50/50 with customer)
+  - Repair services when replacement not available
+  - Formalize as "Pedie Authorized Service Partner"
 
 ### 7.3 Return & Refund Policy
 
@@ -746,7 +865,7 @@ quadrantChart
     quadrant-3 Accept
     quadrant-4 Prioritize
     "Price Competition": [0.7, 0.8]
-    "Currency Fluctuation": [0.6, 0.5]
+    "Currency Fluctuation": [0.8, 0.5]
     "Shipping Delays": [0.4, 0.3]
     "Supplier Stockouts": [0.5, 0.4]
     "Transit Damage": [0.6, 0.2]
@@ -755,14 +874,30 @@ quadrantChart
 
 ### 8.2 Risk Mitigation Strategies
 
-| Risk                     | Likelihood | Impact | Mitigation                                 |
-| ------------------------ | ---------- | ------ | ------------------------------------------ |
-| **Price Competition**    | High       | High   | Differentiate on service, not price alone  |
-| **Currency Fluctuation** | Medium     | Medium | Quarterly price adjustments, 5-10% buffer  |
-| **Supplier Stockouts**   | Medium     | Medium | Source from 3+ suppliers                   |
-| **Shipping Delays**      | Low        | Medium | Set realistic expectations, backup carrier |
-| **Transit Damage**       | Low        | High   | Inspect all units, file claims, insurance  |
-| **Regulatory Changes**   | Low        | High   | Monitor KEBS, maintain documentation       |
+| Risk                     | Likelihood | Impact | Mitigation                                                                                                                                                                               |
+| ------------------------ | ---------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Price Competition**    | High       | High   | Differentiate on service, not price alone                                                                                                                                                |
+| **Currency Fluctuation** | Medium     | High¹  | 10-15% pricing buffer; quarterly price adjustments; monitor KES/USD thresholds for real-time repricing; explore USD hedging instruments; seek suppliers accepting alternative currencies |
+| **Supplier Stockouts**   | Medium     | Medium | Source from 3+ suppliers                                                                                                                                                                 |
+| **Shipping Delays**      | Low        | Medium | Set realistic expectations, backup carrier                                                                                                                                               |
+| **Transit Damage**       | Low        | High   | Inspect all units, file claims, insurance                                                                                                                                                |
+| **Regulatory Changes**   | Low        | High   | Monitor KEBS, maintain documentation                                                                                                                                                     |
+
+> ¹ **Currency Risk Note:** 100% of COGS is denominated in USD, representing ~60% of revenue. A 10% USD/KES depreciation erodes gross margin by ~6 percentage points. This justifies "High" impact classification.
+
+#### Currency Management Protocol
+
+All pricing tables and landed-cost calculations use a **KES 130/USD baseline** (rate as of 2026-02-07).
+
+| Action                       | Frequency      | Detail                                                                                                                                                   |
+| ---------------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Monitor USD/KES rate**     | Weekly         | Track spot rate against the KES 130/USD baseline                                                                                                         |
+| **Repricing trigger**        | On breach      | If spot rate moves **>5%** from baseline (i.e., above ~KES 136.5 or below ~KES 123.5), update all pricing tables and landed-cost figures within 48 hours |
+| **Notify pending preorders** | On trigger     | Contact customers with outstanding preorders to confirm revised pricing or offer cancellation with full deposit refund                                   |
+| **Quarterly review**         | Every 3 months | Review USD/KES trend even if trigger has not fired; rebase the baseline rate if the market has shifted structurally                                      |
+| **Update baseline**          | After rebase   | Record new baseline rate and date in the pricing footnote (Section 3.4) and this protocol                                                                |
+
+> ⚠️ **Cross-reference:** The pricing table footnote (Section 3.4) states the current baseline rate and date. When a repricing trigger fires or a quarterly rebase occurs, update that footnote and re-derive landed costs accordingly.
 
 ---
 
@@ -775,7 +910,7 @@ gantt
     title Pedie Launch Timeline
     dateFormat  YYYY-MM
     section Setup
-    Business Registration      :done, 2026-01, 2026-02
+    Business Registration      :active, 2026-01, 2026-03
     Odoo Setup                 :done, 2026-01, 2026-02
     Branding & Website         :done, 2026-01, 2026-02
     section Soft Launch
@@ -850,9 +985,32 @@ flowchart TB
 
 ### 11.1 Current Status
 
-- **Funding Required:** KES 325,000 (startup costs)
+- **Funding Required:** KES 325,000 (startup costs) + working capital
 - **Funding Source:** Personal savings / bootstrapped
 - **External Investment:** Not seeking at this stage
+
+**Working Capital Requirements (Realistic Assessment):**
+
+| Assumption              | Value                  |
+| ----------------------- | ---------------------- |
+| Tiered deposits         | Phones 5%, laptops 10% |
+| Blended avg landed cost | KES 45,000             |
+| Blended avg deposit     | ~KES 4,900             |
+| Deposit coverage        | ~10.9% of landed cost  |
+| Pedie fronts per unit   | ~KES 40,100            |
+
+_Note: Avg. landed cost is a planning-weighted average based on the Q1 mix, with phones skewed toward iPhone 11 (KES 30,370) and iPhone 12 (KES 36,870) landed costs and laptops skewed toward MacBook Air M1 landed cost (KES 95,420) from Section 3.4._
+
+| Quarter | Units | Working Capital Needed      | Cumulative                                       |
+| ------- | ----- | --------------------------- | ------------------------------------------------ |
+| Q1      | 38    | KES 1.52M (38 × KES 40,100) | KES 1.52M                                        |
+| Q2      | 62    | KES 2.49M (62 × KES 40,100) | Additional ~KES 0.97M beyond Q1 profits required |
+
+> ⚠️ **Gap Analysis:** The KES 325,000 startup budget covers operational setup but not full Q1 working capital. Mitigation:
+>
+> - Start with 3-5 units, scale as profits reinvest (~4-6 weeks per cycle)
+> - Seek short-term trade financing (family/friends or bank overdraft)
+> - Apply tiered deposit policy per Section 7.1 (10% for items ≥ KES 70,000 like MacBooks)
 
 ### 11.2 Future Funding Scenarios
 
@@ -877,13 +1035,13 @@ flowchart TB
 
 ### A. Competitor Pricing Comparison
 
-| Product           | Badili      | Phone Place | Grey Market | Pedie           | Pedie Advantage  |
-| ----------------- | ----------- | ----------- | ----------- | --------------- | ---------------- |
-| iPhone 11 (64GB)  | KES 48,000  | KES 45,000  | KES 35,000  | **KES 40,000**  | 17% below Badili |
-| iPhone 12 (128GB) | KES 58,000  | KES 55,000  | KES 42,000  | **KES 50,000**  | 14% below Badili |
-| iPhone 12 Pro Max | KES 65,000  | KES 58,500  | KES 45,000  | **KES 58,000**  | 11% below Badili |
-| iPhone 13 Pro     | KES 78,000  | KES 72,000  | KES 55,000  | **KES 68,000**  | 13% below Badili |
-| MacBook Air M1    | KES 145,000 | KES 135,000 | KES 100,000 | **KES 120,000** | 17% below Badili |
+| Product           | Badili      | Phone Place | Grey Market | Pedie           | Pedie Advantage                           |
+| ----------------- | ----------- | ----------- | ----------- | --------------- | ----------------------------------------- |
+| iPhone 11 (64GB)  | KES 48,000  | KES 45,000  | KES 35,000  | **KES 40,000**  | 17% below Badili                          |
+| iPhone 12 (128GB) | KES 58,000  | KES 55,000  | KES 42,000  | **KES 50,000**  | 14% below Badili                          |
+| iPhone 12 Pro Max | KES 65,000  | KES 58,500  | KES 45,000  | **KES 58,000**  | 11% below Badili (overall range ~11–17%). |
+| iPhone 13 Pro     | KES 78,000  | KES 72,000  | KES 55,000  | **KES 68,000**  | 13% below Badili                          |
+| MacBook Air M1    | KES 145,000 | KES 135,000 | KES 100,000 | **KES 120,000** | 17% below Badili                          |
 
 ### B. Supplier Comparison
 
@@ -893,6 +1051,8 @@ flowchart TB
 | **Reebelo**        | Medium     | ⭐⭐⭐⭐⭐ | Free US  | ⭐⭐⭐⭐⭐       | MacBooks    |
 | **Back Market**    | Highest    | ⭐⭐⭐⭐   | Free US  | ⭐⭐⭐⭐         | Variety     |
 | **Amazon Renewed** | Medium     | ⭐⭐⭐⭐   | Prime    | ⭐⭐⭐⭐⭐       | Bulk orders |
+
+> 📊 **See Section 3.4** for detailed supplier cost sensitivity analysis showing margin impact by supplier (Swappa 25%, Reebelo 19%, Back Market 16%).
 
 ### C. Quality Assurance Rejection Criteria
 

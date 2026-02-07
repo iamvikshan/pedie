@@ -89,14 +89,14 @@ Before starting, ensure you have:
 
 ### 1.2 Instance Configuration
 
-| Setting               | Value                                                                |
-| --------------------- | -------------------------------------------------------------------- |
-| **Region**            | Europe (Frankfurt) or US East _(closest to Kenya for lower latency)_ |
-| **Availability Zone** | Default                                                              |
-| **Platform**          | Linux/Unix                                                           |
-| **Blueprint**         | OS Only → **Ubuntu 24.04 LTS**                                       |
-| **Instance Plan**     | **$7/month** (1 GB RAM, 2 vCPU, 40 GB SSD)                           |
-| **Instance Name**     | `pedie`                                                              |
+| Setting               | Value                                                                                                                                                                                                                                  |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Region**            | Africa (Cape Town) - `af-south-1` or Middle East (Bahrain) - `me-south-1` _(geographically closest to Kenya)_. If these regions are unavailable in Lightsail, choose the nearest available region (e.g., Europe Frankfurt or US East). |
+| **Availability Zone** | Default                                                                                                                                                                                                                                |
+| **Platform**          | Linux/Unix                                                                                                                                                                                                                             |
+| **Blueprint**         | OS Only → **Ubuntu 24.04 LTS**                                                                                                                                                                                                         |
+| **Instance Plan**     | **$7/month** (1 GB RAM, 2 vCPU, 40 GB SSD)                                                                                                                                                                                             |
+| **Instance Name**     | `pedie`                                                                                                                                                                                                                                |
 
 > ⚠️ **Note:** The $7/month plan has limited RAM. We'll add swap memory in [Step 4.4](#44-create-swap-memory) to compensate.
 
@@ -129,7 +129,7 @@ In the Lightsail console, under your instance's **Networking** tab, add these fi
 | HTTPS         | TCP      | 443  | Anywhere |
 | Custom (Odoo) | TCP      | 8069 | Anywhere |
 
-> 💡 **Tip:** Remove port 8069 after SSL is configured — access will be through Nginx on port 443.
+> 💡 **Tip:** Remove port 8069 after SSL is configured — access will be through Nginx on port 443. See [Phase 6: Secure Port 8069](#phase-6-secure-port-8069) for full instructions.
 
 ---
 
@@ -227,36 +227,41 @@ Mem:          966Mi       XXXMi       XXXMi       XXXMi       XXXMi       XXXMi
 Swap:         3.0Gi          0B       3.0Gi
 ```
 
-### 4.5 Create Odoo Directories
+### 4.5 Create Odoo User & Directories
 
 ```bash
-# Create directories
-sudo mkdir -p /opt/odoo /etc/odoo /var/log/odoo
+# Create a dedicated system user for Odoo (no sudo/SSH access)
+# This also creates the /opt/odoo home directory
+sudo adduser --system --group --home /opt/odoo --shell /usr/sbin/nologin odoo
 
-# Set ownership (so we don't need sudo for subsequent commands)
-sudo chown -R ubuntu:ubuntu /opt/odoo /etc/odoo /var/log/odoo
+# Create additional directories
+sudo mkdir -p /etc/odoo /var/log/odoo
+
+# Set ownership to the dedicated odoo user
+sudo chown -R odoo:odoo /opt/odoo /etc/odoo /var/log/odoo
 ```
+
+> 🔒 **Security:** Running Odoo under a dedicated `odoo` user (instead of `ubuntu`) follows the principle of least privilege. The `--shell /usr/sbin/nologin` flag prevents interactive login. For maintenance tasks, use `sudo -u odoo <command>`.
 
 ### 4.6 Install Odoo 19
 
 ```bash
-# Clone Odoo 19 (no sudo needed - we own the directory)
+# Clone Odoo 19 (running as the dedicated odoo user)
 cd /opt/odoo
-git clone https://github.com/odoo/odoo.git --depth 1 --branch 19.0 .
+sudo -u odoo git clone https://github.com/odoo/odoo.git --depth 1 --branch 19.0 .
 
 # Create virtual environment
-python3 -m venv /opt/odoo/venv
+sudo -u odoo python3 -m venv /opt/odoo/venv
 
-# Activate and install dependencies
-source /opt/odoo/venv/bin/activate
-pip install --upgrade pip wheel
-pip install -r requirements.txt
+# Install dependencies (using venv pip directly, no activate needed)
+sudo -u odoo /opt/odoo/venv/bin/pip install --upgrade pip wheel
+sudo -u odoo /opt/odoo/venv/bin/pip install -r requirements.txt
 
 # Install additional module dependencies
-pip install dropbox pyncclient nextcloud-api-wrapper boto3 paramiko
-
-deactivate
+sudo -u odoo /opt/odoo/venv/bin/pip install dropbox pyncclient nextcloud-api-wrapper boto3 paramiko
 ```
+
+> ⚠️ **Compatibility:** The additional packages (`dropbox`, `pyncclient`, `nextcloud-api-wrapper`, `boto3`, `paramiko`) are installed without version pins. Before deploying to production, validate that the installed versions are compatible with Odoo 19. Consider maintaining a `requirements-extra.txt` file with pinned versions tested against your Odoo deployment.
 
 > ⏱️ This step takes **5–10 minutes**. Be patient.
 
@@ -278,8 +283,11 @@ wget -q 'https://pub-acaeebdb26c442ce92ef891dfe093492.r2.dev/f1172e31561eb6eff1b
 
 # Extract and install each module
 for module in crest_theme_core theme_crest odoo_gpt_chat jazzy_backend_theme auto_database_backup website_denomination; do
-    unzip -q ${module}.zip && mv ${module} /opt/odoo/addons/ && rm ${module}.zip
+    unzip -q ${module}.zip && sudo mv ${module} /opt/odoo/addons/ && rm ${module}.zip
 done
+
+# Set ownership of new addons to odoo user
+sudo chown -R odoo:odoo /opt/odoo/addons/
 
 # Verify installation
 ls -la /opt/odoo/addons/ | grep -E 'crest|jazzy|odoo_gpt|auto_database|website_denomination'
@@ -298,8 +306,7 @@ Paste the following configuration:
 ```ini
 [options]
 ; === Security ===
-admin_passwd = YourMasterPassword!Change-This
-
+admin_passwd = REPLACE_WITH_STRONG_PASSWORD_MIN_20_CHARS
 ; === Database ===
 db_host = localhost
 db_port = 5432
@@ -315,8 +322,9 @@ http_port = 8069
 proxy_mode = True
 
 ; === Performance (optimized for 1GB RAM) ===
-workers = 2
+workers = 1
 max_cron_threads = 1
+gevent_port = 8072
 limit_memory_hard = 1677721600
 limit_memory_soft = 629145600
 limit_time_cpu = 600
@@ -329,13 +337,25 @@ log_level = warn
 
 > ⚠️ **Security:** Replace `admin_passwd` and `db_password` with your own secure passwords!
 
+> � **Security — `db_name = False` (Multi-Database Mode):**
+> Setting `db_name = False` enables multi-database mode, which exposes the database manager at `/web/database/manager` (e.g., `https://pedie.tech/web/database/manager`). This allows creating, duplicating, and dropping databases via the web interface.
+>
+> **Recommendations:**
+>
+> - Set a **strong `admin_passwd`** (the master password protects database management operations)
+> - **Restrict access** to `/web/database/manager` via Nginx IP allowlisting or firewall rules
+> - If you only run a single database, set `db_name = your_database_name` and add `list_db = False` to disable the database manager entirely
+> - Never leave `admin_passwd` as the default or a weak value in production
+
+> �💡 **Memory Tip:** After starting Odoo, monitor RAM usage with `free -h` or `btop`. Only increase `workers` to `2` if you have >200MB free after startup to avoid swap thrashing on 1GB instances.
+
 Save and exit: `Ctrl+O` → `Enter` → `Ctrl+X`
 
 ### 4.9 Set Permissions
 
 ```bash
-# Set config file permissions (directories already owned by ubuntu from 4.5)
-sudo chown ubuntu:ubuntu /etc/odoo/odoo.conf
+# Set config file permissions (directories already owned by odoo from 4.5)
+sudo chown odoo:odoo /etc/odoo/odoo.conf
 sudo chmod 640 /etc/odoo/odoo.conf
 ```
 
@@ -355,8 +375,8 @@ Requires=postgresql.service
 
 [Service]
 Type=simple
-User=ubuntu
-Group=ubuntu
+User=odoo
+Group=odoo
 ExecStart=/opt/odoo/venv/bin/python3 /opt/odoo/odoo-bin -c /etc/odoo/odoo.conf
 WorkingDirectory=/opt/odoo
 Restart=on-failure
@@ -480,7 +500,7 @@ server {
     # Security Headers
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header X-Content-Type-Options "nosniff" always;
-    add_header X-XSS-Protection "1; mode=block" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'self';" always;
 
     # Proxy Timeouts
     proxy_read_timeout 720s;
@@ -569,6 +589,17 @@ server: cloudflare
 - Open `http://pedie.tech` → Should auto-redirect to `https://pedie.tech`
 - Check the lock icon 🔒 → Connection is secure
 - Navigate through Odoo menus → Should stay on HTTPS
+
+### Phase 6: Secure Port 8069
+
+Now that SSL is configured, remove the direct Odoo access through port 8069 so all traffic flows through Nginx on port 443:
+
+1. Go to **Lightsail Console** → **Your Instance** → **Networking** tab
+2. Find the **Custom (Odoo) TCP 8069** rule in the firewall table
+3. Click the menu (⋮) next to the rule and select **Delete**
+4. Confirm deletion
+
+> ✅ Odoo is now only accessible via HTTPS through Nginx. Direct access to port 8069 is blocked.
 
 ---
 
@@ -671,6 +702,85 @@ If you installed the `auto_database_backup` module:
 
 **Lightsail Console** → **Your Instance** → **Snapshots** → **Enable automatic snapshots**
 
+### PostgreSQL-Native Backup
+
+Create an executable backup script that dumps the Odoo database daily and rotates old backups:
+
+```bash
+sudo nano /usr/local/bin/odoo-db-backup.sh
+```
+
+Paste:
+
+```bash
+#!/bin/bash
+# Odoo PostgreSQL Backup Script
+BACKUP_DIR="/opt/odoo/backups"
+DB_NAME="odoo"  # Replace with your database name
+TIMESTAMP=$(date +%Y-%m-%d_%H%M%S)
+RETENTION_DAYS=7
+
+# Create backup directory if it doesn't exist
+mkdir -p "$BACKUP_DIR"
+
+# Dump database (gzipped)
+sudo -u postgres pg_dump "$DB_NAME" | gzip > "$BACKUP_DIR/${DB_NAME}_${TIMESTAMP}.sql.gz"
+
+# Delete backups older than retention period
+find "$BACKUP_DIR" -name "*.sql.gz" -mtime +$RETENTION_DAYS -delete
+
+echo "$(date): Backup completed — ${DB_NAME}_${TIMESTAMP}.sql.gz" >> /var/log/odoo/backup.log
+```
+
+Make the script executable and create the backup directory:
+
+```bash
+sudo chmod +x /usr/local/bin/odoo-db-backup.sh
+sudo mkdir -p /opt/odoo/backups
+sudo chown odoo:odoo /opt/odoo/backups
+```
+
+Add a cron entry to run the backup daily at 02:00:
+
+```bash
+sudo crontab -e
+```
+
+Add this line:
+
+```
+0 2 * * * /usr/local/bin/odoo-db-backup.sh
+```
+
+> 💡 **Tip:** Test the script manually first with `sudo /usr/local/bin/odoo-db-backup.sh` and verify a `.sql.gz` file appears in `/opt/odoo/backups/`.
+
+### Log Rotation
+
+Create a logrotate configuration to manage Odoo log files:
+
+```bash
+sudo nano /etc/logrotate.d/odoo
+```
+
+Paste:
+
+```
+/var/log/odoo/*.log {
+    daily
+    rotate 14
+    compress
+    delaycompress
+    missingok
+    notifempty
+    copytruncate
+    postrotate
+        systemctl reload odoo > /dev/null 2>&1 || true
+    endscript
+}
+```
+
+> 💡 **Verify:** Test the configuration with `sudo logrotate -d /etc/logrotate.d/odoo` (dry-run mode).
+
 ### SSL Certificate Renewal
 
 Certbot automatically renews certificates. Verify the renewal process works:
@@ -706,6 +816,105 @@ free -h
 
 # Check running processes
 btop
+```
+
+### System Monitoring
+
+Set up proactive monitoring to detect issues before they affect users.
+
+**Install Prometheus Node Exporter:**
+
+```bash
+sudo apt install -y prometheus-node-exporter
+sudo systemctl enable prometheus-node-exporter
+sudo systemctl start prometheus-node-exporter
+```
+
+> 💡 Node Exporter exposes system metrics on port `9100`. Connect it to a Prometheus/Grafana instance for dashboards, or use it with external monitoring services.
+
+**Disk Space Check Script:**
+
+```bash
+sudo nano /usr/local/bin/check-disk-space.sh
+```
+
+Paste:
+
+```bash
+#!/bin/bash
+# Alert when disk usage exceeds threshold
+THRESHOLD=80  # percent
+MAILTO="admin@pedie.tech"  # Replace with your email
+
+USAGE=$(df / | tail -1 | awk '{print $5}' | tr -d '%')
+
+if [ "$USAGE" -ge "$THRESHOLD" ]; then
+    echo "⚠️ Disk usage at ${USAGE}% on $(hostname)" | \
+        mail -s "Disk Alert: $(hostname)" "$MAILTO"
+fi
+```
+
+```bash
+sudo chmod +x /usr/local/bin/check-disk-space.sh
+```
+
+Add a cron entry to check every 6 hours:
+
+```bash
+# Add to root's crontab (sudo crontab -e)
+0 */6 * * * /usr/local/bin/check-disk-space.sh
+```
+
+> 💡 **Email Setup:** For the `mail` command to work, install a mail utility: `sudo apt install -y mailutils` and configure an SMTP relay (e.g., AWS SES, SendGrid) via `/etc/ssmtp/ssmtp.conf` or Postfix.
+
+**External Uptime Monitoring:**
+
+Configure [UptimeRobot](https://uptimerobot.com/) (free tier available) for:
+
+| Monitor Type | Target                         | Interval | Alert                |
+| ------------ | ------------------------------ | -------- | -------------------- |
+| HTTP(s)      | `https://pedie.tech`           | 5 min    | Email/Slack/Telegram |
+| Port         | `pedie.tech:443`               | 5 min    | Email                |
+| Keyword      | `https://pedie.tech/web/login` | 5 min    | Check for "Log in"   |
+
+Also set up **SSL expiration alerts** in UptimeRobot or use Certbot's built-in check:
+
+```bash
+# Check SSL expiry (add to weekly cron)
+openssl s_client -connect pedie.tech:443 -servername pedie.tech 2>/dev/null | \
+    openssl x509 -noout -enddate
+```
+
+**Log Alert Cron Entry:**
+
+Scan Odoo logs for errors and send alerts:
+
+```bash
+sudo nano /usr/local/bin/check-odoo-errors.sh
+```
+
+Paste:
+
+```bash
+#!/bin/bash
+# Scan Odoo log for recent errors
+LOG="/var/log/odoo/odoo.log"
+MAILTO="admin@pedie.tech"  # Replace with your email
+ERRORS=$(grep -c "ERROR" "$LOG" 2>/dev/null || echo 0)
+
+if [ "$ERRORS" -gt 0 ]; then
+    tail -50 "$LOG" | grep "ERROR" | \
+        mail -s "Odoo Errors Detected: ${ERRORS} on $(hostname)" "$MAILTO"
+fi
+```
+
+```bash
+sudo chmod +x /usr/local/bin/check-odoo-errors.sh
+```
+
+```bash
+# Add to root's crontab — run every hour
+0 * * * * /usr/local/bin/check-odoo-errors.sh
 ```
 
 ### Common Issues & Solutions
@@ -811,10 +1020,100 @@ sudo systemctl restart odoo
 
 ### Performance Optimization Tips
 
-1. **Enable Redis caching** for sessions
-2. **Use S3** for attachment storage
-3. **Enable CloudFront CDN** for static assets
-4. **Regular database maintenance** (vacuum, reindex)
+#### Implementing Redis Session Caching
+
+Redis offloads session storage from PostgreSQL, reducing database load and improving response times.
+
+**Install Redis and the Python client:**
+
+```bash
+sudo apt install -y redis-server
+sudo systemctl enable redis-server
+sudo systemctl start redis-server
+
+# Install the Python Redis client in the Odoo venv
+sudo -u odoo /opt/odoo/venv/bin/pip install redis
+```
+
+**Configure Odoo** — add these keys to `/etc/odoo/odoo.conf`:
+
+```ini
+; === Session Store (Redis) ===
+session_store = redis
+redis_host = 127.0.0.1
+redis_port = 6379
+```
+
+Restart Odoo to apply: `sudo systemctl restart odoo`
+
+> 💡 **Verify:** Run `redis-cli ping` — you should get `PONG`. After restarting Odoo, check `redis-cli keys '*'` to confirm sessions are being stored.
+
+#### Configure S3 for Attachments
+
+Offloading file attachments to Amazon S3 frees local disk space and improves scalability.
+
+**1. Create an S3 bucket and IAM user:**
+
+- Create a private S3 bucket (e.g., `pedie-odoo-attachments`) in your preferred AWS region
+- Create an IAM user with programmatic access and attach a policy granting `s3:PutObject`, `s3:GetObject`, `s3:DeleteObject`, and `s3:ListBucket` on the bucket
+- Note the **Access Key ID** and **Secret Access Key**
+
+**2. Install boto3** (if not already installed):
+
+```bash
+sudo -u odoo /opt/odoo/venv/bin/pip install boto3
+```
+
+**3. Configure Odoo** — add these keys to `/etc/odoo/odoo.conf`:
+
+```ini
+; === S3 Attachment Storage ===
+ir_attachment_location = s3
+s3_access_key = YOUR_AWS_ACCESS_KEY_ID
+s3_secret_key = YOUR_AWS_SECRET_ACCESS_KEY
+s3_bucket = pedie-odoo-attachments
+s3_region = af-south-1
+data_dir = /opt/odoo/.local/share/Odoo
+```
+
+Restart Odoo to apply: `sudo systemctl restart odoo`
+
+> ⚠️ **Security:** Never commit AWS credentials to version control. Consider using IAM instance roles instead of access keys when running on AWS infrastructure.
+
+#### Database Maintenance
+
+Regular PostgreSQL maintenance prevents performance degradation from table bloat and index fragmentation.
+
+**Run maintenance commands:**
+
+```bash
+# VACUUM ANALYZE — reclaims storage and updates query planner statistics
+sudo -u postgres psql -d odoo -c "VACUUM ANALYZE;"
+
+# REINDEX — rebuilds indexes to eliminate bloat
+sudo -u postgres psql -d odoo -c "REINDEX DATABASE odoo;"
+```
+
+**Recommended cadence:**
+
+| Task             | Frequency | Command                                                     |
+| ---------------- | --------- | ----------------------------------------------------------- |
+| `VACUUM ANALYZE` | Weekly    | `sudo -u postgres psql -d odoo -c "VACUUM ANALYZE;"`        |
+| `REINDEX`        | Monthly   | `sudo -u postgres psql -d odoo -c "REINDEX DATABASE odoo;"` |
+
+Add a weekly cron entry for VACUUM:
+
+```bash
+# Add to postgres user's crontab
+sudo -u postgres crontab -e
+```
+
+```
+# Weekly VACUUM ANALYZE — Sundays at 03:00
+0 3 * * 0 psql -d odoo -c "VACUUM ANALYZE;" >> /var/log/odoo/vacuum.log 2>&1
+```
+
+> 💡 **CloudFront CDN:** For static assets, enable Amazon CloudFront or Cloudflare in front of your domain to cache CSS, JS, and images at edge locations. Configure the CDN to forward requests to your Odoo origin and set appropriate cache headers.
 
 ---
 
