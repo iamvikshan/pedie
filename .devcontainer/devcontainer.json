@@ -4,6 +4,13 @@
 
   // Add Docker-in-Docker feature
   "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "moby": true,
+      "azureDnsAutoDetection": true,
+      "installDockerBuildx": true,
+      "version": "latest",
+      "dockerDashComposeVersion": "v2"
+    },
     "ghcr.io/devcontainers/features/github-cli:1": {
       "installDirectlyFromGitHubRelease": true,
       "version": "latest"
@@ -17,11 +24,16 @@
   "customizations": {
     "vscode": {
       "extensions": [
+        "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
         "eamodio.gitlens",
         "oven.bun-vscode",
+        "ms-azuretools.vscode-docker",
         "WakaTime.vscode-wakatime",
-        "coderabbit.coderabbit-vscode"
+        "Supabase.vscode-supabase-extension",
+        "coderabbit.coderabbit-vscode",
+        "DeepScan.vscode-deepscan",
+        "jetbrains.qodana-code"
       ]
     }
   },

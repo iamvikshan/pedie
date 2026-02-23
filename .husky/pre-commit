@@ -58,4 +58,4 @@ fi
 
 # Run project checks (Formatting)
 echo "Running pre-commit checks..."
-bun run f:check
+bun run check

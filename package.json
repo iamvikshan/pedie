@@ -1,14 +1,44 @@
 {
+  "name": "pedie-store",
+  "version": "0.1.0",
+  "private": true,
   "engines": {
     "bun": ">=1.3.0"
   },
   "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
     "f": "prettier --write .",
     "f:check": "prettier --check .",
+    "check": "bun run lint && bun run f:check && tsc --noEmit",
+    "test": "bun test",
     "prepare": "husky"
   },
+  "dependencies": {
+    "@supabase/ssr": "^0.8.0",
+    "@supabase/supabase-js": "^2.97.0",
+    "googleapis": "^171.4.0",
+    "next": "16.1.6",
+    "react": "19.2.3",
+    "react-dom": "19.2.3"
+  },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/bun": "^1.3.9",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
     "husky": "^9.1.7",
-    "prettier": "^3.8.1"
-  }
+    "prettier": "^3.8.1",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  },
+  "trustedDependencies": [
+    "sharp",
+    "unrs-resolver"
+  ]
 }
