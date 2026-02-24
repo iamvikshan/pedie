@@ -68,14 +68,17 @@ export async function findOrCreateProduct(
 
   if (existing) return existing.id
 
-  // Find or create category using upsert to handle race conditions
+  // Find or create category — ignoreDuplicates avoids overwriting manually edited names
   const categoryName = categorySlug
     .replace(/-/g, ' ')
     .replace(/\b\w/g, c => c.toUpperCase())
 
   const { data: category, error: catError } = await supabase
     .from('categories')
-    .upsert({ name: categoryName, slug: categorySlug }, { onConflict: 'slug' })
+    .upsert(
+      { name: categoryName, slug: categorySlug },
+      { onConflict: 'slug', ignoreDuplicates: true }
+    )
     .select('id')
     .single()
 
@@ -84,6 +87,12 @@ export async function findOrCreateProduct(
   }
   const categoryId = category.id
 
+  // Generate slug from brand + model
+  const slug = `${brand}-${model}`
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')
+
   // Upsert product to handle race conditions on concurrent inserts
   const { data: newProduct, error: prodError } = await supabase
     .from('products')
@@ -91,6 +100,7 @@ export async function findOrCreateProduct(
       {
         brand,
         model,
+        slug,
         category_id: categoryId,
       },
       { onConflict: 'brand,model' }

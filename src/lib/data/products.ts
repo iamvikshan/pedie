@@ -87,7 +87,7 @@ export async function getDealListings(
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('listings')
-    .select('*, product:products(*, category:categories(*))')
+    .select('*, product:products!inner(*, category:categories(*))')
     .eq('status', 'available')
     .limit(limit * 3)
 

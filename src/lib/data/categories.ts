@@ -13,7 +13,7 @@ export async function getCategories(): Promise<Category[]> {
     return []
   }
 
-  return data as unknown as Category[]
+  return (data ?? []) as Category[]
 }
 
 export async function getCategoryBySlug(
@@ -31,5 +31,5 @@ export async function getCategoryBySlug(
     return null
   }
 
-  return data as unknown as Category
+  return data as Category
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Button } from '@components/ui/button'
 
 export function FooterNewsletterForm() {
@@ -8,6 +8,18 @@ export function FooterNewsletterForm() {
   const [status, setStatus] = useState<
     'idle' | 'loading' | 'success' | 'error'
   >('idle')
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    }
+  }, [])
+
+  const scheduleReset = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    timeoutRef.current = setTimeout(() => setStatus('idle'), 3000)
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -23,16 +35,16 @@ export function FooterNewsletterForm() {
 
       if (!res.ok) {
         setStatus('error')
-        setTimeout(() => setStatus('idle'), 3000)
+        scheduleReset()
         return
       }
 
       setStatus('success')
       setEmail('')
-      setTimeout(() => setStatus('idle'), 3000)
+      scheduleReset()
     } catch {
       setStatus('error')
-      setTimeout(() => setStatus('idle'), 3000)
+      scheduleReset()
     }
   }
 
@@ -42,7 +54,11 @@ export function FooterNewsletterForm() {
         Subscribe to our newsletter
       </h4>
       <form onSubmit={handleSubmit} className='flex gap-2'>
+        <label htmlFor='footer-newsletter-email' className='sr-only'>
+          Email address
+        </label>
         <input
+          id='footer-newsletter-email'
           type='email'
           value={email}
           onChange={e => setEmail(e.target.value)}
@@ -54,9 +70,7 @@ export function FooterNewsletterForm() {
         <Button
           type='submit'
           size='sm'
-          disabled={
-            status === 'loading' || status === 'success' || status === 'error'
-          }
+          disabled={status === 'loading' || status === 'success'}
         >
           {status === 'loading'
             ? '...'

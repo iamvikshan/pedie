@@ -63,9 +63,7 @@ export function NewsletterSignup() {
           <Button
             type='submit'
             size='lg'
-            disabled={
-              status === 'loading' || status === 'success' || status === 'error'
-            }
+            disabled={status === 'loading' || status === 'success'}
             className='sm:w-auto w-full'
           >
             {status === 'loading'

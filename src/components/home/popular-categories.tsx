@@ -2,12 +2,16 @@ import Link from 'next/link'
 import { getCategories } from '@lib/data/categories'
 
 const categoryIcons: Record<string, string> = {
-  phones: '📱',
+  // DB slugs
+  smartphones: '📱',
   laptops: '💻',
   tablets: '📟',
   audio: '🎧',
-  wearables: '⌚',
+  smartwatches: '⌚',
   accessories: '🔌',
+  // Additional common slugs
+  phones: '📱',
+  wearables: '⌚',
   gaming: '🎮',
   cameras: '📷',
 }

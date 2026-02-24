@@ -188,7 +188,7 @@ export function Footer() {
 
         <div className='mt-16 flex flex-col items-center justify-between gap-6 border-t border-pedie-border pt-8 md:flex-row'>
           <p className='text-sm text-pedie-text-muted'>
-            © 2026 Pedie Tech. All rights reserved.
+            © {new Date().getFullYear()} Pedie Tech. All rights reserved.
           </p>
 
           <div className='flex items-center gap-4'>

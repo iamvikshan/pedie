@@ -372,7 +372,7 @@ else
     # GET succeeded (HTTP 200), but this only proves READ access.
     # Check X-OAuth-Scopes header to verify the token also has WRITE access.
     # write:ssh_signing_key scope is required for adding signing keys.
-    OAUTH_SCOPES=$(echo "$SCOPE_CHECK_OUTPUT" | grep -i '^X-OAuth-Scopes:' | sed 's/^[^:]*:[[:space:]]*//' || true)
+    OAUTH_SCOPES=$(echo "$SCOPE_CHECK_OUTPUT" | grep -i '^X-OAuth-Scopes:' | sed 's/^[^:]*:[[:space:]]*//' | tr -d '\r' || true)
     if [[ -n "$OAUTH_SCOPES" ]]; then
         # Classic OAuth token / PAT - scopes header is present, check for required scope
         if ! echo "$OAUTH_SCOPES" | grep -qi 'write:ssh_signing_key\|admin:ssh_signing_key'; then

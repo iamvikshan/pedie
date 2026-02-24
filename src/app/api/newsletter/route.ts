@@ -9,7 +9,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Email is required' }, { status: 400 })
     }
 
-    if (email.length > 254) {
+    const normalizedEmail = email.trim().toLowerCase()
+
+    if (normalizedEmail.length > 254) {
       return NextResponse.json(
         { error: 'Email address is too long' },
         { status: 400 }
@@ -17,7 +19,7 @@ export async function POST(request: Request) {
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
+    if (!emailRegex.test(normalizedEmail)) {
       return NextResponse.json(
         { error: 'Invalid email format' },
         { status: 400 }
@@ -26,11 +28,28 @@ export async function POST(request: Request) {
 
     const supabase = createAdminClient()
 
+    // Check if user previously unsubscribed — don't force re-subscribe
+    const { data: existing } = (await supabase
+      .from('newsletter_subscribers')
+      .select('subscribed')
+      .eq('email', normalizedEmail)
+      .maybeSingle()) as { data: { subscribed: boolean } | null }
+
+    if (existing && existing.subscribed === false) {
+      return NextResponse.json(
+        {
+          error:
+            'This email was previously unsubscribed. Please contact support to re-subscribe.',
+        },
+        { status: 409 }
+      )
+    }
+
     const { error } = await supabase
       .from('newsletter_subscribers')
       .upsert(
-        { email, subscribed: true },
-        { onConflict: 'email', ignoreDuplicates: true }
+        { email: normalizedEmail, subscribed: true },
+        { onConflict: 'email' }
       )
 
     if (error) {

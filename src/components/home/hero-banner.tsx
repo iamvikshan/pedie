@@ -1,8 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import { Button } from '@components/ui/button'
 
 export const SLIDES = [
   {
@@ -27,16 +26,45 @@ export const SLIDES = [
 
 export function HeroBanner() {
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [isManuallyPaused, setIsManuallyPaused] = useState(false)
+  const [isInteractionPaused, setIsInteractionPaused] = useState(false)
+
+  const isPaused = isManuallyPaused || isInteractionPaused
 
   useEffect(() => {
+    if (isPaused) return
     const timer = setInterval(() => {
       setCurrentSlide(prev => (prev + 1) % SLIDES.length)
     }, 5000)
     return () => clearInterval(timer)
+  }, [isPaused])
+
+  const handleFocus = useCallback((e: React.FocusEvent<HTMLDivElement>) => {
+    if (
+      !e.relatedTarget ||
+      !e.currentTarget.contains(e.relatedTarget as Node)
+    ) {
+      setIsInteractionPaused(true)
+    }
+  }, [])
+
+  const handleBlur = useCallback((e: React.FocusEvent<HTMLDivElement>) => {
+    if (
+      !e.relatedTarget ||
+      !e.currentTarget.contains(e.relatedTarget as Node)
+    ) {
+      setIsInteractionPaused(false)
+    }
   }, [])
 
   return (
-    <div className='relative h-[400px] md:h-[500px] w-full overflow-hidden bg-pedie-dark'>
+    <div
+      className='relative h-[400px] md:h-[500px] w-full overflow-hidden bg-pedie-dark'
+      onMouseEnter={() => setIsInteractionPaused(true)}
+      onMouseLeave={() => setIsInteractionPaused(false)}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+    >
       {SLIDES.map((slide, index) => (
         <div
           key={index}
@@ -51,16 +79,17 @@ export function HeroBanner() {
             <p className='text-lg md:text-xl text-pedie-text-muted mb-8'>
               {slide.subtitle}
             </p>
-            <Link href={slide.link}>
-              <Button size='lg' className='text-lg px-8 py-6'>
-                {slide.cta}
-              </Button>
+            <Link
+              href={slide.link}
+              className='inline-flex items-center justify-center rounded-md bg-pedie-green px-8 py-4 text-lg font-medium text-white transition-colors hover:bg-pedie-green/90'
+            >
+              {slide.cta}
             </Link>
           </div>
         </div>
       ))}
 
-      <div className='absolute bottom-6 left-0 right-0 z-20 flex justify-center gap-3'>
+      <div className='absolute bottom-6 left-0 right-0 z-20 flex items-center justify-center gap-3'>
         {SLIDES.map((_, index) => (
           <button
             key={index}
@@ -70,6 +99,22 @@ export function HeroBanner() {
             aria-label={`Go to slide ${index + 1}`}
           />
         ))}
+        <button
+          type='button'
+          onClick={() => setIsManuallyPaused(p => !p)}
+          className='ml-2 flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/40 transition-colors'
+          aria-label={isPaused ? 'Resume slideshow' : 'Pause slideshow'}
+        >
+          {isPaused ? (
+            <svg className='h-3 w-3' viewBox='0 0 24 24' fill='currentColor'>
+              <path d='M8 5v14l11-7z' />
+            </svg>
+          ) : (
+            <svg className='h-3 w-3' viewBox='0 0 24 24' fill='currentColor'>
+              <path d='M6 4h4v16H6V4zm8 0h4v16h-4V4z' />
+            </svg>
+          )}
+        </button>
       </div>
     </div>
   )

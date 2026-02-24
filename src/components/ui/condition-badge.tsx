@@ -17,8 +17,8 @@ export function ConditionBadge({
         return 'bg-pedie-badge-good text-white'
       case 'acceptable':
         return 'bg-pedie-badge-acceptable text-white'
-      case 'fair':
-        return 'bg-pedie-badge-fair text-white'
+      case 'premium':
+        return 'bg-pedie-badge-premium text-white'
       default:
         return 'bg-gray-500 text-white'
     }

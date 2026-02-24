@@ -6,7 +6,7 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export type ConditionGrade = 'acceptable' | 'good' | 'excellent' | 'fair'
+export type ConditionGrade = 'acceptable' | 'good' | 'excellent' | 'premium'
 export type ListingStatus = 'available' | 'reserved' | 'sold' | 'unlisted'
 
 export type Category = {
@@ -34,6 +34,7 @@ export type Product = {
   created_at: string
   updated_at: string
   fts: unknown
+  category?: Category
 }
 export type Listing = {
   id: string

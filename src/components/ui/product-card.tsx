@@ -25,10 +25,7 @@ export function ProductCard({ listing }: ProductCardProps) {
   const imageUrl = listing.images?.[0] || product.images?.[0]
 
   return (
-    <Link
-      href={`/listings/${listing.listing_id}`}
-      className='group flex flex-col bg-pedie-card rounded-xl shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105 border border-pedie-border hover:border-pedie-accent'
-    >
+    <div className='group relative flex flex-col bg-pedie-card rounded-xl shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105 border border-pedie-border hover:border-pedie-accent'>
       {/* Image Section */}
       <div className='relative aspect-square bg-pedie-dark w-full overflow-hidden'>
         {imageUrl ? (
@@ -117,9 +114,8 @@ export function ProductCard({ listing }: ProductCardProps) {
           </div>
 
           <Button
-            className='w-full'
-            onClick={e => {
-              e.preventDefault()
+            className='w-full relative z-10'
+            onClick={() => {
               // TODO: integrate with cart store (Phase 4)
             }}
           >
@@ -127,6 +123,15 @@ export function ProductCard({ listing }: ProductCardProps) {
           </Button>
         </div>
       </div>
-    </Link>
+
+      {/* Stretched link covers entire card — last child to paint on top */}
+      <Link
+        href={`/listings/${listing.listing_id}`}
+        className='absolute inset-0 z-0'
+        aria-label={`View ${productName}`}
+      >
+        <span className='sr-only'>View {productName}</span>
+      </Link>
+    </div>
   )
 }

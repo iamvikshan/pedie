@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { Button } from '@components/ui/button'
 
 export function SustainabilitySection() {
   return (
@@ -70,10 +69,11 @@ export function SustainabilitySection() {
             </div>
           </div>
 
-          <Link href='/collections/smartphones'>
-            <Button size='lg' className='px-8'>
-              Start Shopping
-            </Button>
+          <Link
+            href='/collections/smartphones'
+            className='inline-flex items-center justify-center rounded-md bg-pedie-green px-8 py-3 text-base font-medium text-white transition-colors hover:bg-pedie-green/90'
+          >
+            Start Shopping
           </Link>
         </div>
       </div>

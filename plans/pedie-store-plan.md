@@ -13,6 +13,8 @@ Build a full-featured, custom-coded e-commerce store for Pedie Tech (pedie.tech)
 
 - **Objective:** Rename the repo, bootstrap the Next.js 16.1.6 project on Bun, design the Supabase schema with per-item listing IDs (each physical unit is a unique listing like Swappa, not batched by model), configure path aliases, set up Docker (mirroring Amina's patterns), and build the Google Sheets → Supabase inventory sync pipeline.
 
+IMPORTANT: STRICTLY DO NOT use `npm/npx/node`, use `bun` always, unless you must use node/npm/npx, which is very unlikely.
+
 - **Files/Functions to Modify/Create:**
   - Rename repo `pedie-tech/info` → `iamvikshan/pedie` via GitHub API
   - `package.json` — Next.js 16.1.6, TypeScript, Tailwind CSS 4, shadcn/ui, Bun runtime (`"packageManager": "bun"`)
@@ -276,7 +278,7 @@ Build a full-featured, custom-coded e-commerce store for Pedie Tech (pedie.tech)
   - `src/lib/email/gmail.ts` — Gmail API client
   - `src/lib/email/templates.ts` — HTML email templates
   - `src/app/api/email/send/route.ts` — send email API
-  - `src/middleware.ts` — auth-protect `/account/*`, `/checkout`, `/admin/*`
+  - `src/proxy.ts` — auth-protect `/account/*`, `/checkout`, `/admin/*` (Next.js 16 proxy convention, Node.js runtime)
 
 - **Tests to Write:**
   - `tests/components/auth/signin-form.test.tsx` — validation, submission
@@ -285,13 +287,13 @@ Build a full-featured, custom-coded e-commerce store for Pedie Tech (pedie.tech)
   - `tests/app/account/orders.test.tsx` — order list, pagination
   - `tests/app/account/wishlist.test.tsx` — renders, remove
   - `tests/lib/email/gmail.test.ts` — sending, templates
-  - `tests/middleware.test.ts` — redirects unauthenticated, admin role check
+  - `tests/proxy.test.ts` — redirects unauthenticated, admin role check
 
 - **Steps:**
   1. Configure Supabase Auth: email/password + Google OAuth + GitHub OAuth. Set redirect URLs.
-  2. Write tests for middleware — unauthenticated → redirect to `/auth/signin`, admin routes check `role === 'admin'`.
+  2. Write tests for proxy — unauthenticated → redirect to `/auth/signin`, admin routes check `role === 'admin'`.
   3. Run tests — red.
-  4. Implement `src/middleware.ts` with Supabase session + role checking.
+  4. Implement `src/proxy.ts` with Supabase session + role checking (exports `proxy` function, defaults to Node.js runtime).
   5. Run tests — green.
   6. Write tests for signin form and social signin.
   7. Run tests — red.

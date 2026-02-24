@@ -16,7 +16,18 @@ export interface SheetRow {
 }
 
 export function cleanNumericString(value: string): string {
-  return value.replace(/[^0-9.-]/g, '')
+  const hasLeadingMinus = value.trimStart().startsWith('-')
+  // Strip everything except digits and dots
+  const raw = value.replace(/[^0-9.]/g, '')
+  // Keep only the first decimal point
+  const firstDot = raw.indexOf('.')
+  const digits =
+    firstDot === -1
+      ? raw
+      : raw.slice(0, firstDot + 1) + raw.slice(firstDot + 1).replace(/\./g, '')
+  // Return empty string for invalid results
+  if (!digits || digits === '.') return ''
+  return hasLeadingMinus ? `-${digits}` : digits
 }
 
 export function parseSheetRow(
@@ -39,10 +50,14 @@ export function parseSheetRow(
     model: data.model,
     category: data.category,
     condition_grade: data.condition_grade || 'good',
-    price_usd: data.price_usd ? cleanNumericString(data.price_usd) : undefined,
-    price_kes: data.price_kes ? cleanNumericString(data.price_kes) : undefined,
+    price_usd: data.price_usd
+      ? cleanNumericString(data.price_usd) || undefined
+      : undefined,
+    price_kes: data.price_kes
+      ? cleanNumericString(data.price_kes) || undefined
+      : undefined,
     original_price_kes: data.original_price_kes
-      ? cleanNumericString(data.original_price_kes)
+      ? cleanNumericString(data.original_price_kes) || undefined
       : undefined,
     warranty_months: data.warranty_months || undefined,
     notes: data.notes || undefined,

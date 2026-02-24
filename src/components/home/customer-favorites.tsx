@@ -20,7 +20,7 @@ export function CustomerFavorites({ listings }: CustomerFavoritesProps) {
 
   const filtered = useMemo(() => {
     if (activeTab === 'all') return listings
-    return listings.filter(l => l.category?.slug === activeTab)
+    return listings.filter(l => l.product?.category?.slug === activeTab)
   }, [activeTab, listings])
 
   return (
