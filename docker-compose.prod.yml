@@ -35,4 +35,5 @@ services:
       - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
     restart: unless-stopped
     depends_on:
-      - store
+      store:
+        condition: service_healthy

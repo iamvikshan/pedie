@@ -16,7 +16,7 @@ export interface SheetRow {
 }
 
 export function cleanNumericString(value: string): string {
-  return value.replace(/[^0-9.]/g, '')
+  return value.replace(/[^0-9.-]/g, '')
 }
 
 export function parseSheetRow(

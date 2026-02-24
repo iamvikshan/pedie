@@ -32,5 +32,6 @@ export function formatKes(amount: number): string {
 
 export function calculateDiscount(original: number, current: number): number {
   if (original <= 0) return 0
-  return Math.round(((original - current) / original) * 100)
+  const discount = Math.round(((original - current) / original) * 100)
+  return Math.max(0, Math.min(100, discount))
 }

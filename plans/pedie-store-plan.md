@@ -20,7 +20,7 @@ Build a full-featured, custom-coded e-commerce store for Pedie Tech (pedie.tech)
   - `next.config.ts` — image domains (Supabase Storage), path aliases
   - `tsconfig.json` — path aliases: `@/*` → `src/*`, `@types/*` → `types/*`, `@lib/*` → `src/lib/*`, `@components/*` → `src/components/*`
   - `globals.css` — Tailwind CSS 4 uses CSS-first `@theme` blocks in `globals.css` for brand colors (green #4CAF50, dark, accent), fonts (replaces `tailwind.config.ts`)
-  - `.env.local` / `.env.example` — Supabase URL, anon key, Google Sheets credentials, Daraja keys
+  - `.env` / `.env.example` — Supabase URL, anon key, Google Sheets credentials, Daraja keys
   - `Dockerfile` — multi-stage Bun build (deps → build → runtime), matching Amina's pattern
   - `docker-compose.yml` — dev: build from local, volume mounts, port forwarding
   - `docker-compose.prod.yml` — prod: pre-built GHCR image, healthcheck, Watchtower auto-updates, Cloudflare Tunnel
@@ -58,10 +58,10 @@ Build a full-featured, custom-coded e-commerce store for Pedie Tech (pedie.tech)
   - `Listing ID` (auto-generated PD-XXXXX), `Brand`, `Model`, `Category`, `Storage`, `Color`, `Carrier`, `Condition` (Acceptable/Good/Excellent/Premium), `Battery Health %`, `Price KES`, `Source Price USD`, `Source` (Swappa/Reebelo/BackMarket), `Source Listing ID`, `Landed Cost KES`, `Status` (Available/Sold/Preorder/Reserved), `Images` (comma-separated URLs), `Notes`, `Date Added`
 
 - **Tests to Write (Bun native `bun test`):**
-  - `src/tests/lib/supabase/client.test.ts` — Supabase client initialization
-  - `src/tests/lib/sheets/sync.test.ts` — Sheets parsing, per-item upsert, listing ID generation, error handling
-  - `src/tests/api/sync.test.ts` — API route auth, trigger sync, response codes
-  - `src/tests/lib/constants.test.ts` — `usdToKes()`, `calculateDeposit()`, `generateListingId()`
+  - `tests/lib/supabase/client.test.ts` — Supabase client initialization
+  - `tests/lib/sheets/sync.test.ts` — Sheets parsing, per-item upsert, listing ID generation, error handling
+  - `tests/api/sync.test.ts` — API route auth, trigger sync, response codes
+  - `tests/lib/constants.test.ts` — `usdToKes()`, `calculateDeposit()`, `generateListingId()`
 
 - **Steps:**
   1. Rename repo `pedie-tech/info` → `iamvikshan/pedie` via GitHub API. Update git remote.
@@ -73,7 +73,7 @@ Build a full-featured, custom-coded e-commerce store for Pedie Tech (pedie.tech)
   7. Create `docker-compose.yml` (dev) and `docker-compose.prod.yml` (prod with GHCR image, healthcheck, Watchtower, Cloudflare Tunnel).
   8. Create `scripts/deploy.sh` (interactive VPS deployment matching Amina's `local.sh` pattern).
   9. Create `.github/workflows/docker.yml` (build + push to GHCR on main push).
-  10. Create Supabase project (free tier), save credentials to `.env.local`.
+  10. Create Supabase project (free tier), save credentials to `.env`.
   11. Write migration SQL for all tables with per-item listing model and RLS policies. Apply via Supabase CLI.
   12. Generate TypeScript database types from Supabase schema into `types/database.ts`.
   13. Write tests for Google Sheets sync — mock Sheets API, verify per-item upsert, listing ID format `PD-XXXXX`.
@@ -111,13 +111,13 @@ Build a full-featured, custom-coded e-commerce store for Pedie Tech (pedie.tech)
   - `src/lib/data/categories.ts` — server function to fetch categories
 
 - **Tests to Write:**
-  - `src/tests/components/layout/header.test.tsx` — renders logo, nav, search, cart, responsive
-  - `src/tests/components/layout/footer.test.tsx` — renders sections, newsletter form
-  - `src/tests/components/home/hero-banner.test.tsx` — carousel renders, auto-rotates
-  - `src/tests/components/home/customer-favorites.test.tsx` — tab switching, product display
-  - `src/tests/components/home/daily-deals.test.tsx` — countdown timer, deal cards
-  - `src/tests/components/ui/product-card.test.tsx` — renders listing info, discount calc, links
-  - `src/tests/lib/data/products.test.ts` — data fetch functions return correct shape
+  - `tests/components/layout/header.test.tsx` — renders logo, nav, search, cart, responsive
+  - `tests/components/layout/footer.test.tsx` — renders sections, newsletter form
+  - `tests/components/home/hero-banner.test.tsx` — carousel renders, auto-rotates
+  - `tests/components/home/customer-favorites.test.tsx` — tab switching, product display
+  - `tests/components/home/daily-deals.test.tsx` — countdown timer, deal cards
+  - `tests/components/ui/product-card.test.tsx` — renders listing info, discount calc, links
+  - `tests/lib/data/products.test.ts` — data fetch functions return correct shape
 
 - **Steps:**
   1. Install Stitch Skills (`google-labs-code/stitch-skills`). Use Stitch MCP to generate screen designs for homepage, header, footer as design reference.
@@ -169,12 +169,12 @@ Build a full-featured, custom-coded e-commerce store for Pedie Tech (pedie.tech)
   - `types/filters.ts` — filter/sort types
 
 - **Tests to Write:**
-  - `src/tests/app/collections/page.test.tsx` — renders collection with listings, applies filters, paginates
-  - `src/tests/components/catalog/filter-sidebar.test.tsx` — filter interactions update URL params
-  - `src/tests/app/listings/page.test.tsx` — renders listing detail, all info sections
-  - `src/tests/components/listing/image-gallery.test.tsx` — thumbnail click changes main image
-  - `src/tests/components/listing/customer-reviews.test.tsx` — renders reviews, histogram, load more
-  - `src/tests/lib/data/listings.test.ts` — query functions with filters, sorting, pagination
+  - `tests/app/collections/page.test.tsx` — renders collection with listings, applies filters, paginates
+  - `tests/components/catalog/filter-sidebar.test.tsx` — filter interactions update URL params
+  - `tests/app/listings/page.test.tsx` — renders listing detail, all info sections
+  - `tests/components/listing/image-gallery.test.tsx` — thumbnail click changes main image
+  - `tests/components/listing/customer-reviews.test.tsx` — renders reviews, histogram, load more
+  - `tests/lib/data/listings.test.ts` — query functions with filters, sorting, pagination
 
 - **Steps:**
   1. Write tests for `getListingsByCategory()` and `getListingById()` — verify shape, filters, sorting, pagination.
@@ -224,13 +224,13 @@ Build a full-featured, custom-coded e-commerce store for Pedie Tech (pedie.tech)
   - `src/lib/data/orders.ts` — order CRUD
 
 - **Tests to Write:**
-  - `src/tests/lib/cart/store.test.ts` — add, remove, totals, deposit calc, localStorage
-  - `src/tests/components/cart/cart-summary.test.tsx` — subtotal, deposit vs. balance
-  - `src/tests/components/checkout/shipping-form.test.tsx` — Kenyan phone validation, required fields
-  - `src/tests/lib/payments/mpesa.test.ts` — OAuth, STK Push formatting, callback parsing, status
-  - `src/tests/lib/payments/paypal.test.ts` — order create, capture
-  - `src/tests/api/orders.test.ts` — order CRUD, status transitions
-  - `src/tests/app/checkout/page.test.tsx` — multi-step flow, deposit logic
+  - `tests/lib/cart/store.test.ts` — add, remove, totals, deposit calc, localStorage
+  - `tests/components/cart/cart-summary.test.tsx` — subtotal, deposit vs. balance
+  - `tests/components/checkout/shipping-form.test.tsx` — Kenyan phone validation, required fields
+  - `tests/lib/payments/mpesa.test.ts` — OAuth, STK Push formatting, callback parsing, status
+  - `tests/lib/payments/paypal.test.ts` — order create, capture
+  - `tests/api/orders.test.ts` — order CRUD, status transitions
+  - `tests/app/checkout/page.test.tsx` — multi-step flow, deposit logic
 
 - **Steps:**
   1. Write tests for cart store — `addListing()`, `removeListing()`, `getTotal()`, `getDepositTotal()` (5% < KES 70k, 10% ≥ KES 70k), `clearCart()`, localStorage sync. Note: no quantity selector — each listing is a unique physical unit (qty always 1).
@@ -279,13 +279,13 @@ Build a full-featured, custom-coded e-commerce store for Pedie Tech (pedie.tech)
   - `src/middleware.ts` — auth-protect `/account/*`, `/checkout`, `/admin/*`
 
 - **Tests to Write:**
-  - `src/tests/components/auth/signin-form.test.tsx` — validation, submission
-  - `src/tests/components/auth/social-signin.test.tsx` — Google button renders, triggers OAuth
-  - `src/tests/app/account/profile.test.tsx` — loads user data, saves
-  - `src/tests/app/account/orders.test.tsx` — order list, pagination
-  - `src/tests/app/account/wishlist.test.tsx` — renders, remove
-  - `src/tests/lib/email/gmail.test.ts` — sending, templates
-  - `src/tests/middleware.test.ts` — redirects unauthenticated, admin role check
+  - `tests/components/auth/signin-form.test.tsx` — validation, submission
+  - `tests/components/auth/social-signin.test.tsx` — Google button renders, triggers OAuth
+  - `tests/app/account/profile.test.tsx` — loads user data, saves
+  - `tests/app/account/orders.test.tsx` — order list, pagination
+  - `tests/app/account/wishlist.test.tsx` — renders, remove
+  - `tests/lib/email/gmail.test.ts` — sending, templates
+  - `tests/middleware.test.ts` — redirects unauthenticated, admin role check
 
 - **Steps:**
   1. Configure Supabase Auth: email/password + Google OAuth + GitHub OAuth. Set redirect URLs.
@@ -344,15 +344,15 @@ Build a full-featured, custom-coded e-commerce store for Pedie Tech (pedie.tech)
   - `src/lib/data/admin.ts` — admin data functions
 
 - **Tests to Write:**
-  - `src/tests/app/admin/dashboard.test.tsx` — KPI cards render
-  - `src/tests/app/admin/listings.test.tsx` — list, create, edit
-  - `src/tests/app/admin/orders.test.tsx` — list, status update
-  - `src/tests/app/admin/prices.test.tsx` — comparison table renders
-  - `src/tests/scripts/crawlers/utils.test.ts` — price parsing, retry, rate limiting
-  - `src/tests/scripts/crawlers/badili.test.ts` — HTML parsing
-  - `src/tests/scripts/crawlers/swappa.test.ts` — HTML parsing
-  - `src/tests/scripts/crawlers/index.test.ts` — orchestrator, upserts
-  - `src/tests/lib/data/admin.test.ts` — KPIs, CRUD
+  - `tests/app/admin/dashboard.test.tsx` — KPI cards render
+  - `tests/app/admin/listings.test.tsx` — list, create, edit
+  - `tests/app/admin/orders.test.tsx` — list, status update
+  - `tests/app/admin/prices.test.tsx` — comparison table renders
+  - `tests/scripts/crawlers/utils.test.ts` — price parsing, retry, rate limiting
+  - `tests/scripts/crawlers/badili.test.ts` — HTML parsing
+  - `tests/scripts/crawlers/swappa.test.ts` — HTML parsing
+  - `tests/scripts/crawlers/index.test.ts` — orchestrator, upserts
+  - `tests/lib/data/admin.test.ts` — KPIs, CRUD
 
 - **Steps:**
   1. Write tests for admin data functions.
@@ -392,8 +392,8 @@ Build a full-featured, custom-coded e-commerce store for Pedie Tech (pedie.tech)
   - Update `scripts/deploy.sh` — production-ready VPS deployment
 
 - **Tests to Write:**
-  - `src/tests/seo/sitemap.test.ts` — sitemap includes all products and collections
-  - `src/tests/seo/metadata.test.ts` — pages have correct OpenGraph, Twitter, JSON-LD
+  - `tests/seo/sitemap.test.ts` — sitemap includes all products and collections
+  - `tests/seo/metadata.test.ts` — pages have correct OpenGraph, Twitter, JSON-LD
 
 - **Steps:**
   1. Deploy Next.js app to Vercel. Connect iamvikshan/pedie repo. Set environment variables.

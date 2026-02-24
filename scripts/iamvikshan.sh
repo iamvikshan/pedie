@@ -263,9 +263,9 @@ if [[ "$NEEDS_AUTH" = "true" ]]; then
     case $choice in
         1)
             echo "Starting web-based authentication..."
-            echo "  Requesting scopes: repo, workflow, write:packages, read:packages, admin:ssh_signing_key"
+            echo "  Requesting scopes: repo, workflow, write:packages, read:packages, write:ssh_signing_key"
             export GITHUB_TOKEN=""
-            gh auth login --hostname github.com --web --git-protocol https --scopes "repo,workflow,write:packages,read:packages,admin:ssh_signing_key"
+            gh auth login --hostname github.com --web --git-protocol https --scopes "repo,workflow,write:packages,read:packages,write:ssh_signing_key"
             
             # Verify the authenticated user is the intended user
             AUTHED_USER=$(gh api user --jq .login 2>/dev/null || echo "")
@@ -282,7 +282,7 @@ if [[ "$NEEDS_AUTH" = "true" ]]; then
         2)
             echo "Please provide your Personal Access Token for $GIT_USER"
             echo "You can create one at: https://github.com/settings/tokens"
-            echo "Required scopes: repo, workflow, write:packages, read:packages, admin:ssh_signing_key"
+            echo "Required scopes: repo, workflow, write:packages, read:packages, write:ssh_signing_key"
             
             # Use timed read for token input; skip on timeout
             token=""
@@ -335,11 +335,14 @@ fi
 echo "Step 3.1: Setting up SSH signing keys for commit verification..."
 export GITHUB_TOKEN=""
 
-# Check if admin:ssh_signing_key scope is available
-# Use gh api with -i flag to include HTTP headers for reliable status code detection
+# Check if write:ssh_signing_key scope is available
+# We need WRITE access to add signing keys; GET /user/ssh_signing_keys only proves READ access.
+# Use X-OAuth-Scopes header to verify the token actually has write:ssh_signing_key scope.
+# NOTE: Defensive '|| SCOPE_CHECK_EXIT=$?' pattern prevents 'set -e' from killing the script
+#       before we can handle the error.
 HAS_SIGNING_SCOPE=true
-SCOPE_CHECK_OUTPUT=$(gh api -i /user/ssh_signing_keys 2>&1)
-SCOPE_CHECK_EXIT=$?
+SCOPE_CHECK_EXIT=0
+SCOPE_CHECK_OUTPUT=$(gh api -i /user/ssh_signing_keys 2>&1) || SCOPE_CHECK_EXIT=$?
 
 # Extract HTTP status code from response headers (first line: "HTTP/2 200" or "HTTP/1.1 403")
 HTTP_STATUS=$(echo "$SCOPE_CHECK_OUTPUT" | head -n1 | awk '{print $2}' || true)
@@ -357,24 +360,38 @@ if [[ $SCOPE_CHECK_EXIT -ne 0 ]]; then
         HAS_SIGNING_SCOPE=false
     elif [[ -z "$HTTP_STATUS" ]]; then
         # No HTTP status found - likely network/connection issue or non-HTTP failure
-        # Common exit codes: 1 = general error, network issues often have specific codes
-        # Treat as transient/network error and warn
         echo "⚠️  Warning: Could not verify SSH signing scope due to network/API issue"
         echo "   Exit code: $SCOPE_CHECK_EXIT"
         echo "   Output: $SCOPE_CHECK_OUTPUT"
-        echo "   Assuming scope is available; if commit signing fails, run: gh auth refresh -h github.com -s admin:ssh_signing_key"
+        echo "   Assuming scope is available; if commit signing fails, run: gh auth refresh -h github.com -s write:ssh_signing_key"
     else
         # Other non-success HTTP status codes (4xx/5xx) - assume scope missing to be safe
         HAS_SIGNING_SCOPE=false
     fi
+else
+    # GET succeeded (HTTP 200), but this only proves READ access.
+    # Check X-OAuth-Scopes header to verify the token also has WRITE access.
+    # write:ssh_signing_key scope is required for adding signing keys.
+    OAUTH_SCOPES=$(echo "$SCOPE_CHECK_OUTPUT" | grep -i '^X-OAuth-Scopes:' | sed 's/^[^:]*:[[:space:]]*//' || true)
+    if [[ -n "$OAUTH_SCOPES" ]]; then
+        # Classic OAuth token / PAT - scopes header is present, check for required scope
+        if ! echo "$OAUTH_SCOPES" | grep -qi 'write:ssh_signing_key\|admin:ssh_signing_key'; then
+            HAS_SIGNING_SCOPE=false
+            echo "⚠️  Token can read signing keys but lacks write permission"
+            echo "   Current scopes: $OAUTH_SCOPES"
+            echo "   Required scope: write:ssh_signing_key"
+        fi
+    fi
+    # If X-OAuth-Scopes header is empty/missing, it may be a fine-grained token (no
+    # traditional scopes). We'll attempt the key upload later and handle failure there.
 fi
 
 if [[ "$HAS_SIGNING_SCOPE" != "true" ]]; then
-    echo "⚠️  Need 'admin:ssh_signing_key' scope for commit signing"
+    echo "⚠️  Need 'write:ssh_signing_key' scope for commit signing"
     
     if [[ "$IS_INTERACTIVE" != "true" ]]; then
         echo "   Skipping scope refresh (non-interactive mode)"
-        echo "   Run interactively or pre-authorize with: gh auth refresh -h github.com -s admin:ssh_signing_key"
+        echo "   Run interactively or pre-authorize with: gh auth refresh -h github.com -s write:ssh_signing_key"
     else
         echo "   This will open a browser for authorization..."
         confirm=""
@@ -382,8 +399,13 @@ if [[ "$HAS_SIGNING_SCOPE" != "true" ]]; then
             echo ""
             echo "   Timed out. Skipping scope refresh."
         else
-            gh auth refresh -h github.com -s admin:ssh_signing_key
-            echo "✓ Scope granted"
+            if gh auth refresh -h github.com -s write:ssh_signing_key; then
+                HAS_SIGNING_SCOPE=true
+                echo "✓ Scope granted"
+            else
+                echo "⚠️  Failed to refresh scope. SSH signing key upload will be skipped."
+                HAS_SIGNING_SCOPE=false
+            fi
         fi
     fi
 fi
@@ -417,26 +439,34 @@ else
 fi
 
 # Check if this key is already on GitHub and add if needed
-echo "Ensuring SSH signing key is added to GitHub..."
-KEY_FINGERPRINT=$(ssh-keygen -lf "$SIGNING_KEY_PUB" 2>/dev/null | awk '{print $2}' || echo "")
-
-# Try to add the key (will fail gracefully if already exists)
-# Exit code 1 with specific message indicates key already exists
-ADD_OUTPUT=$(gh ssh-key add "$SIGNING_KEY_PUB" --type signing --title "$GIT_USER signing key" 2>&1)
-ADD_EXIT_CODE=$?
-
-if [[ $ADD_EXIT_CODE -eq 0 ]]; then
-    echo "✓ SSH signing key added to GitHub"
+# Skip GitHub upload if we know the token lacks write scope (it will fail anyway)
+if [[ "$HAS_SIGNING_SCOPE" != "true" ]]; then
+    echo "⚠️  Skipping GitHub key upload (missing write:ssh_signing_key scope)"
+    echo "   The local signing key is configured, but GitHub won't show commits as 'Verified'"
+    echo "   To fix: gh auth refresh -h github.com -s write:ssh_signing_key"
+    echo "   Then re-run this script to upload the key"
 else
-    # Check if key is already on GitHub by verifying fingerprint in list
-    if [[ -n "$KEY_FINGERPRINT" ]] && gh ssh-key list --type signing 2>/dev/null | grep -q "$KEY_FINGERPRINT"; then
-        echo "✓ SSH signing key already exists on GitHub"
+    echo "Ensuring SSH signing key is added to GitHub..."
+    KEY_FINGERPRINT=$(ssh-keygen -lf "$SIGNING_KEY_PUB" 2>/dev/null | awk '{print $2}' || echo "")
+
+    # Try to add the key (will fail gracefully if already exists)
+    # NOTE: Defensive '|| ADD_EXIT_CODE=$?' pattern prevents 'set -e' from killing the script
+    ADD_EXIT_CODE=0
+    ADD_OUTPUT=$(gh ssh-key add "$SIGNING_KEY_PUB" --type signing --title "$GIT_USER signing key" 2>&1) || ADD_EXIT_CODE=$?
+
+    if [[ $ADD_EXIT_CODE -eq 0 ]]; then
+        echo "✓ SSH signing key added to GitHub"
     else
-        echo "⚠️  Failed to add SSH signing key to GitHub"
-        echo "   Exit code: $ADD_EXIT_CODE"
-        echo "   Output: $ADD_OUTPUT"
-        echo "   You may need to add it manually at: https://github.com/settings/keys"
-        echo "   Public key location: $SIGNING_KEY_PUB"
+        # Check if key is already on GitHub by verifying fingerprint in list
+        if [[ -n "$KEY_FINGERPRINT" ]] && gh api /user/ssh_signing_keys --paginate 2>/dev/null | grep -qF "$KEY_FINGERPRINT"; then
+            echo "✓ SSH signing key already exists on GitHub"
+        else
+            echo "⚠️  Failed to add SSH signing key to GitHub"
+            echo "   Exit code: $ADD_EXIT_CODE"
+            echo "   Output: $ADD_OUTPUT"
+            echo "   You may need to add it manually at: https://github.com/settings/keys"
+            echo "   Public key location: $SIGNING_KEY_PUB"
+        fi
     fi
 fi
 
@@ -463,7 +493,13 @@ if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
     
     if git remote | grep -q "^origin$"; then
         CURRENT_URL=$(git remote get-url origin)
-        if [ "$CURRENT_URL" != "$TARGET_REPO" ]; then
+        # Normalize URLs for comparison: strip trailing .git and trailing slash
+        # Both https://github.com/user/repo and https://github.com/user/repo.git are equivalent
+        NORMALIZED_CURRENT="${CURRENT_URL%.git}"
+        NORMALIZED_CURRENT="${NORMALIZED_CURRENT%/}"
+        NORMALIZED_TARGET="${TARGET_REPO%.git}"
+        NORMALIZED_TARGET="${NORMALIZED_TARGET%/}"
+        if [ "$NORMALIZED_CURRENT" != "$NORMALIZED_TARGET" ]; then
             echo ""
             echo "⚠️  Remote 'origin' URL differs from target:"
             echo "   Current URL:  $CURRENT_URL"
@@ -508,7 +544,7 @@ if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
                 echo "✓ Remote 'origin' updated"
             fi
         else
-            echo "Remote 'origin' is already set to $TARGET_REPO"
+            echo "Remote 'origin' is already set to $CURRENT_URL"
         fi
     else
         echo "Adding 'origin' remote..."

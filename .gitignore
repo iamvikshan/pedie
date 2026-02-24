@@ -13,7 +13,6 @@ out/
 
 # env
 .env
-.env.local
 .env*.local
 
 # misc
@@ -40,3 +39,4 @@ next-env.d.ts
 
 # vercel
 .vercel
+pedie-odoo-28fe583d4464.json

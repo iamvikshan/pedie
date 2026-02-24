@@ -13,7 +13,7 @@ Bootstrapped the Pedie Tech e-commerce store with Next.js 16.1.6 on Bun, configu
 - .gitignore (Next.js, env, IDE entries)
 - .prettierignore (.next/, out/, bun.lock)
 - .env.example (all required env vars)
-- .env.local (Supabase credentials)
+- .env (Supabase credentials)
 - types/database.ts (full Supabase Database interface)
 - types/product.ts (Product, Listing, ListingWithProduct, Category)
 - types/order.ts (Order, OrderItem, OrderWithItems, ShippingAddress)

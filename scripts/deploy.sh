@@ -71,6 +71,7 @@ deploy() {
   done
 
   warn "Health check timed out. Check logs with: docker compose -f docker-compose.prod.yml logs store"
+  return 1
 }
 
 # Main

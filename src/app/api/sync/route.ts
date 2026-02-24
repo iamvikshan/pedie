@@ -21,7 +21,10 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         success: false,
-        error: err instanceof Error ? err.message : 'Unknown error',
+        error:
+          process.env.NODE_ENV !== 'production' && err instanceof Error
+            ? err.message
+            : 'Internal server error',
       },
       { status: 500 }
     )

@@ -66,23 +66,22 @@ jobs:
           GIT_COMMITTER_NAME: ${{ github.actor }}
           GIT_COMMITTER_EMAIL: ${{ github.actor }}@users.noreply.github.com
         run: |
-          node -e "
-            const semanticRelease = require('semantic-release');
-            (async () => {
+          node --input-type=module -e "
+            import semanticRelease from 'semantic-release';
+            import { appendFileSync } from 'node:fs';
+            try {
               const result = await semanticRelease();
               if (result && result.nextRelease && result.nextRelease.version) {
-                const fs = require('fs');
-                fs.appendFileSync(process.env.GITHUB_OUTPUT, 'new_release_published=true\n');
+                appendFileSync(process.env.GITHUB_OUTPUT, 'new_release_published=true\n');
                 console.log('Published release ' + result.nextRelease.version);
               } else {
-                const fs = require('fs');
-                fs.appendFileSync(process.env.GITHUB_OUTPUT, 'new_release_published=false\n');
+                appendFileSync(process.env.GITHUB_OUTPUT, 'new_release_published=false\n');
                 console.log('No new release published');
               }
-            })().catch(err => {
+            } catch (err) {
               console.error(err);
               process.exit(1);
-            });
+            }
           "
 
   docker:

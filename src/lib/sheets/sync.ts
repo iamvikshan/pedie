@@ -21,9 +21,14 @@ export function getGoogleSheetsClient(): sheets_v4.Sheets {
     throw new Error('Missing GOOGLE_SHEETS_CREDENTIALS_BASE64 env var')
   }
 
-  const credentials = JSON.parse(
-    Buffer.from(credentialsBase64, 'base64').toString('utf-8')
-  )
+  let credentials: Record<string, unknown>
+  try {
+    credentials = JSON.parse(
+      Buffer.from(credentialsBase64, 'base64').toString('utf-8')
+    )
+  } catch {
+    throw new Error('Invalid GOOGLE_SHEETS_CREDENTIALS_BASE64: malformed JSON')
+  }
 
   const auth = new google.auth.GoogleAuth({
     credentials,
@@ -63,43 +68,33 @@ export async function findOrCreateProduct(
 
   if (existing) return existing.id
 
-  // Find or create category
-  let categoryId: string
-  const { data: existingCategory } = await supabase
+  // Find or create category using upsert to handle race conditions
+  const categoryName = categorySlug
+    .replace(/-/g, ' ')
+    .replace(/\b\w/g, c => c.toUpperCase())
+
+  const { data: category, error: catError } = await supabase
     .from('categories')
+    .upsert({ name: categoryName, slug: categorySlug }, { onConflict: 'slug' })
     .select('id')
-    .eq('slug', categorySlug)
-    .limit(1)
-    .maybeSingle()
+    .single()
 
-  if (existingCategory) {
-    categoryId = existingCategory.id
-  } else {
-    const { data: newCategory, error: catError } = await supabase
-      .from('categories')
-      .insert({
-        name: categorySlug
-          .replace(/-/g, ' ')
-          .replace(/\b\w/g, c => c.toUpperCase()),
-        slug: categorySlug,
-      })
-      .select('id')
-      .single()
-
-    if (catError || !newCategory) {
-      throw new Error(`Failed to create category: ${catError?.message}`)
-    }
-    categoryId = newCategory.id
+  if (catError || !category) {
+    throw new Error(`Failed to find or create category: ${catError?.message}`)
   }
+  const categoryId = category.id
 
-  // Create product
+  // Upsert product to handle race conditions on concurrent inserts
   const { data: newProduct, error: prodError } = await supabase
     .from('products')
-    .insert({
-      brand,
-      model,
-      category_id: categoryId,
-    })
+    .upsert(
+      {
+        brand,
+        model,
+        category_id: categoryId,
+      },
+      { onConflict: 'brand,model' }
+    )
     .select('id')
     .single()
 
@@ -170,8 +165,8 @@ export async function syncFromSheets(): Promise<SyncReport> {
           ? usdToKes(parseFloat(parsed.price_usd))
           : 0
 
-      if (priceKes === 0) {
-        report.details.push(`Row ${i + 1}: Skipped (no price)`)
+      if (priceKes === 0 || Number.isNaN(priceKes)) {
+        report.details.push(`Row ${i + 1}: Skipped (invalid or missing price)`)
         report.errors++
         continue
       }
@@ -187,7 +182,7 @@ export async function syncFromSheets(): Promise<SyncReport> {
           : null,
         deposit_amount: calculateDeposit(priceKes),
         warranty_months: parsed.warranty_months
-          ? parseInt(parsed.warranty_months, 10)
+          ? parseInt(parsed.warranty_months, 10) || 3
           : 3,
         notes: parsed.notes || null,
         source: parsed.source || null,
