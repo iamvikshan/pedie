@@ -30,8 +30,14 @@ export async function GET(request: Request) {
       })
     }
 
-    const page = Number(url.searchParams.get('page')) || 1
-    const limit = Number(url.searchParams.get('limit')) || 10
+    const page = Math.max(
+      1,
+      Math.floor(Number(url.searchParams.get('page')) || 1)
+    )
+    const limit = Math.max(
+      1,
+      Math.min(100, Math.floor(Number(url.searchParams.get('limit')) || 10))
+    )
 
     const result = await getNewsletterSubscribers({ page, limit })
     return NextResponse.json(result)

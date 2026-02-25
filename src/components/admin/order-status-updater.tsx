@@ -86,7 +86,13 @@ export function OrderStatusUpdater({
           {loading ? 'Updating…' : 'Update'}
         </button>
       </div>
-      {message && <p className='mt-2 text-sm text-pedie-muted'>{message}</p>}
+      {message && (
+        <p
+          className={`mt-2 text-sm ${message.includes('success') ? 'text-green-600' : 'text-red-600'}`}
+        >
+          {message}
+        </p>
+      )}
     </div>
   )
 }

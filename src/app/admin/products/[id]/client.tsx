@@ -22,8 +22,14 @@ export function EditProductClient({
     })
 
     if (!res.ok) {
-      const err = await res.json()
-      throw new Error(err.error || 'Failed to update product')
+      let message = 'Failed to update product'
+      try {
+        const err = await res.json()
+        message = err.error || message
+      } catch {
+        message = (await res.text()) || message
+      }
+      throw new Error(message)
     }
 
     router.push('/admin/products')

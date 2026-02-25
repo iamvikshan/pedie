@@ -102,7 +102,8 @@ describe('Admin Sync', () => {
       )
 
       expect(html).toContain('error')
-      expect(html).toContain('1') // 1 error
+      // 1 error in the errors array renders as cell content
+      expect(html).toContain('>1<')
     })
   })
 })

@@ -13,7 +13,7 @@ interface ReviewRow {
 }
 
 function renderStars(rating: number): string {
-  const clamped = Math.max(1, Math.min(5, rating))
+  const clamped = Math.max(0, Math.min(5, Math.round(rating)))
   return '★'.repeat(clamped) + '☆'.repeat(5 - clamped)
 }
 

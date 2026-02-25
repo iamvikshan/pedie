@@ -75,7 +75,6 @@ describe('Admin Layout', () => {
     })
     const html = renderToString(element)
 
-    expect(html).toContain('Admin Dashboard')
     expect(html).toContain('Admin Content')
     expect(html).toContain('Sidebar')
   })

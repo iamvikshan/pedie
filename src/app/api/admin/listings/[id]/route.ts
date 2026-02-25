@@ -43,7 +43,19 @@ export async function PUT(
       notes: body.notes,
     }
 
-    const listing = await updateListing(id, allowed)
+    // Filter out undefined values so only explicitly provided fields are updated
+    const filtered = Object.fromEntries(
+      Object.entries(allowed).filter(([, v]) => v !== undefined)
+    )
+
+    if (Object.keys(filtered).length === 0) {
+      return NextResponse.json(
+        { error: 'No updatable fields provided' },
+        { status: 400 }
+      )
+    }
+
+    const listing = await updateListing(id, filtered)
     return NextResponse.json(listing)
   } catch (error) {
     console.error('Failed to update listing:', error)

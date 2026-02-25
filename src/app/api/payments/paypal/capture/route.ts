@@ -39,7 +39,7 @@ export async function POST(request: Request) {
                 orderId,
                 amount: Number(capturedAmount?.value ?? 0),
                 paymentMethod: 'paypal',
-                receiptNumber: captureId ?? result.id ?? 'N/A',
+                receiptNumber: captureId ?? result.id ?? orderId,
               })
             }
           }
@@ -111,7 +111,7 @@ export async function GET(request: Request) {
                   orderId,
                   amount: Number(capturedAmount?.value ?? 0),
                   paymentMethod: 'paypal',
-                  receiptNumber: captureId ?? result.id ?? 'N/A',
+                  receiptNumber: captureId ?? result.id ?? orderId,
                 })
               }
             }

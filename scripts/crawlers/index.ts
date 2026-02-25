@@ -49,7 +49,7 @@ export async function runCrawlers(
       console.log(`  → ${results.length} result(s)`)
       allResults.push(...results)
     } catch (error) {
-      const msg = `${crawler.name} failed: ${(error as Error).message}`
+      const msg = `${crawler.name} failed: ${error instanceof Error ? error.message : String(error)}`
       console.error(`  ✗ ${msg}`)
       errors.push(msg)
     }

@@ -49,11 +49,19 @@ export const categoryColumns: ColumnDef<CategoryRow, unknown>[] = [
           <button
             type='button'
             className='text-sm text-red-600 hover:underline'
-            onClick={() => {
+            onClick={async () => {
               if (confirm('Delete this category?')) {
-                fetch(`/api/admin/categories/${category.id}`, {
-                  method: 'DELETE',
-                }).then(() => window.location.reload())
+                const response = await fetch(
+                  `/api/admin/categories/${category.id}`,
+                  {
+                    method: 'DELETE',
+                  }
+                )
+                if (response.ok) {
+                  window.location.reload()
+                } else {
+                  alert('Failed to delete category')
+                }
               }
             }}
           >

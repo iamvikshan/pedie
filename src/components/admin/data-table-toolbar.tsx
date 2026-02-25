@@ -39,6 +39,11 @@ export function DataTableToolbar({
 }: DataTableToolbarProps) {
   const [localSearch, setLocalSearch] = useState(searchValue)
 
+  // Sync localSearch when the external searchValue prop changes
+  useEffect(() => {
+    setLocalSearch(searchValue)
+  }, [searchValue])
+
   useEffect(() => {
     const timer = setTimeout(() => {
       if (localSearch !== searchValue) {

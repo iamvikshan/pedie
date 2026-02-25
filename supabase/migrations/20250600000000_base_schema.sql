@@ -109,7 +109,7 @@ CREATE TABLE IF NOT EXISTS profiles (
 -- Orders
 CREATE TABLE IF NOT EXISTS orders (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE RESTRICT,
   status order_status DEFAULT 'pending',
   payment_method payment_method,
   payment_ref TEXT,
@@ -130,7 +130,7 @@ CREATE TABLE IF NOT EXISTS order_items (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   order_id UUID NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
   listing_id UUID REFERENCES listings(id) ON DELETE SET NULL,
-  product_name TEXT,
+  product_name TEXT NOT NULL DEFAULT 'UNKNOWN',
   unit_price_kes NUMERIC NOT NULL,
   deposit_kes NUMERIC DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT now()
@@ -293,7 +293,7 @@ CREATE POLICY "Admin can manage newsletter" ON newsletter_subscribers FOR ALL US
   EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
 );
 
--- Price comparisons: public read, service role write (crawlers)
+-- Price comparisons: public read, admin write (crawlers use service role which bypasses RLS)
 CREATE POLICY "Anyone can view price comparisons" ON price_comparisons FOR SELECT USING (true);
 CREATE POLICY "Admin can manage price comparisons" ON price_comparisons FOR ALL USING (
   EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')

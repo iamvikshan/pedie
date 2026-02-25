@@ -238,6 +238,16 @@ describe('DELETE /api/admin/products/[id]', () => {
     expect(res.status).toBe(401)
   })
 
+  test('returns 403 when not admin', async () => {
+    mockGetUser.mockResolvedValue(normalUser)
+    mockIsUserAdmin.mockResolvedValue(false)
+    const req = makeRequest('DELETE')
+    const res = await DELETE(req, {
+      params: Promise.resolve({ id: 'prod-1' }),
+    })
+    expect(res.status).toBe(403)
+  })
+
   test('deletes product', async () => {
     mockGetUser.mockResolvedValue(adminUser)
     mockIsUserAdmin.mockResolvedValue(true)

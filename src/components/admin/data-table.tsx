@@ -14,8 +14,6 @@ import { DataTablePagination } from '@components/admin/data-table-pagination'
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
-  searchKey?: string
-  searchPlaceholder?: string
   totalPages?: number
   currentPage?: number
   onPageChange?: (page: number) => void
@@ -63,32 +61,39 @@ export function DataTable<TData, TValue>({
                   <th
                     key={header.id}
                     className='px-4 py-3 font-medium text-pedie-muted'
-                    onClick={header.column.getToggleSortingHandler()}
-                    onKeyDown={e => {
-                      if (
-                        header.column.getCanSort() &&
-                        (e.key === 'Enter' || e.key === ' ')
-                      ) {
-                        e.preventDefault()
-                        header.column.getToggleSortingHandler()?.(e)
-                      }
-                    }}
-                    tabIndex={header.column.getCanSort() ? 0 : undefined}
-                    role={header.column.getCanSort() ? 'button' : undefined}
+                    scope='col'
+                    aria-sort={
+                      header.column.getIsSorted() === 'asc'
+                        ? 'ascending'
+                        : header.column.getIsSorted() === 'desc'
+                          ? 'descending'
+                          : undefined
+                    }
                     style={{
                       cursor: header.column.getCanSort()
                         ? 'pointer'
                         : 'default',
                     }}
                   >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
+                    {header.isPlaceholder ? null : header.column.getCanSort() ? (
+                      <button
+                        type='button'
+                        className='inline-flex items-center gap-1 font-medium'
+                        onClick={header.column.getToggleSortingHandler()}
+                      >
+                        {flexRender(
                           header.column.columnDef.header,
                           header.getContext()
                         )}
-                    {header.column.getIsSorted() === 'asc' && ' ↑'}
-                    {header.column.getIsSorted() === 'desc' && ' ↓'}
+                        {header.column.getIsSorted() === 'asc' && ' ↑'}
+                        {header.column.getIsSorted() === 'desc' && ' ↓'}
+                      </button>
+                    ) : (
+                      flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )
+                    )}
                   </th>
                 ))}
               </tr>

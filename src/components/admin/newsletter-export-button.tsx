@@ -12,7 +12,7 @@ export function NewsletterExportButton() {
       a.href = url
       a.download = 'newsletter-subscribers.csv'
       a.click()
-      URL.revokeObjectURL(url)
+      setTimeout(() => URL.revokeObjectURL(url), 100)
     } catch (error) {
       console.error('Export failed:', error)
       alert('Failed to export subscribers')

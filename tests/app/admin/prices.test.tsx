@@ -187,7 +187,8 @@ describe('Admin Prices', () => {
       const html = renderToString(element)
 
       // Should show number of comparisons
-      expect(html).toContain('3')
+      expect(html).toContain('comparison(s)')
+      expect(html).toMatch(/3.*comparison/)
     })
 
     test('shows last crawl date', async () => {

@@ -42,6 +42,7 @@ export function ProductForm({
   onSubmit,
 }: ProductFormProps) {
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     brand: initialData?.brand ?? '',
     model: initialData?.model ?? '',
@@ -89,6 +90,7 @@ export function ProductForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    setError(null)
     try {
       const data: Record<string, unknown> = {
         ...formData,
@@ -99,6 +101,10 @@ export function ProductForm({
         key_features: keyFeatures.filter(f => f.trim() !== ''),
       }
       await onSubmit(data)
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'An unexpected error occurred'
+      )
     } finally {
       setLoading(false)
     }
@@ -106,6 +112,11 @@ export function ProductForm({
 
   return (
     <form onSubmit={handleSubmit} className='space-y-6'>
+      {error && (
+        <div className='rounded border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700'>
+          {error}
+        </div>
+      )}
       {/* Brand */}
       <div>
         <label

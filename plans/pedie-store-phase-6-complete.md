@@ -1,6 +1,6 @@
 ## Phase 6 Complete: Admin Dashboard & Price Crawlers
 
-Implemented a full admin dashboard with KPI cards (revenue, orders, customers, products, listings), revenue chart, reusable DataTable with URL-based pagination/search, and CRUD management for listings, products, categories, orders, customers, reviews, and newsletter subscribers. Added price crawlers for 4 competitor sites (Badili, PhonePlace, Swappa, BackMarket) running as a daily GitHub Actions cron job writing directly to Supabase, with a price comparison dashboard featuring margin indicators. Order status changes trigger transactional emails (shipping, delivery, cancellation). All 573 tests pass, `bun check` clean.
+Implemented a full admin dashboard with KPI cards (revenue, orders, customers, products, listings), revenue chart, reusable DataTable with URL-based pagination/search, and CRUD management for listings, products, categories, orders, customers, reviews, and newsletter subscribers. Added price crawlers for 7 competitor sites (Badili, PhonePlace, Swappa, BackMarket, Reebelo, Jiji, Jumia) running as a daily GitHub Actions cron job writing directly to Supabase, with a price comparison dashboard featuring margin indicators. Order status changes trigger transactional emails (shipping, delivery, cancellation). All 573 tests pass, `bun check` clean.
 
 **Files created/changed:**
 
@@ -68,7 +68,7 @@ Implemented a full admin dashboard with KPI cards (revenue, orders, customers, p
 ### Price Crawlers (6.9)
 - `scripts/crawlers/types.ts` — CrawlerProduct and PriceResult interfaces
 - `scripts/crawlers/utils.ts` — fetchWithRetry (with response.ok check and retry on 429/5xx), parseKesPrice, parseUsdPrice, rateLimiter, createCrawlerClient, getProductCatalog, upsertPriceComparisons
-- `scripts/crawlers/badili.ts`, `phoneplace.ts`, `swappa.ts`, `backmarket.ts` — Individual site crawlers
+- `scripts/crawlers/badili.ts`, `phoneplace.ts`, `swappa.ts`, `backmarket.ts`, `reebelo.ts`, `jiji.ts`, `jumia.ts` — Individual site crawlers
 - `scripts/crawlers/index.ts` — Orchestrator with runCrawlers + main()
 - `.github/workflows/price-crawler.yml` — Daily cron at 3 AM UTC using oven-sh/setup-bun@v2
 
@@ -91,7 +91,7 @@ Implemented a full admin dashboard with KPI cards (revenue, orders, customers, p
 - `sendShippingUpdate()`, `sendDeliveryConfirmation()`, `sendOrderCancelled()` — Email senders
 - `shippingUpdateEmail()`, `deliveryConfirmationEmail()`, `orderCancelledEmail()` — Email templates
 - `fetchWithRetry()`, `parseKesPrice()`, `parseUsdPrice()`, `rateLimiter()` — Crawler utilities
-- `crawlBadili()`, `crawlPhonePlace()`, `crawlSwappa()`, `crawlBackMarket()` — Site crawlers
+- `crawlBadili()`, `crawlPhonePlace()`, `crawlSwappa()`, `crawlBackMarket()`, `crawlReebelo()`, `crawlJiji()`, `crawlJumia()` — Site crawlers
 - `runCrawlers()` — Crawler orchestrator
 - `DataTableShell` — Client wrapper for URL-based pagination/search
 

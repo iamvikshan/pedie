@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import { getAdminOrderDetail } from '@lib/data/admin'
 import { formatKes } from '@lib/constants'
+import { formatAdminDate } from '@lib/utils/format'
 import { OrderStatusUpdater } from '@components/admin/order-status-updater'
 import { TrackingForm } from '@components/admin/tracking-form'
 import { OrderStatusTimeline } from '@components/orders/status-timeline'
@@ -100,7 +101,9 @@ export default async function AdminOrderDetailPage({
               <dt className='text-pedie-muted'>Created</dt>
               <dd className='text-pedie-text'>
                 {order.created_at
-                  ? new Date(order.created_at as string).toLocaleString()
+                  ? formatAdminDate(order.created_at as string, {
+                      includeTime: true,
+                    })
                   : '—'}
               </dd>
             </div>
@@ -187,7 +190,7 @@ export default async function AdminOrderDetailPage({
             </tr>
           </thead>
           <tbody>
-            {items.map(item => {
+            {(items ?? []).map(item => {
               const listing = item.listing as Record<string, unknown> | null
               const product = listing?.product as {
                 brand: string

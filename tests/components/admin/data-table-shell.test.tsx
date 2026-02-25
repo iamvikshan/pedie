@@ -74,7 +74,7 @@ describe('DataTableShell', () => {
 
     expect(html).toContain('Page')
     expect(html).toContain('2')
-    expect(html).toContain('of')
+    expect(html).toContain(' of ')
     expect(html).toContain('3')
     expect(html).toContain('Previous')
     expect(html).toContain('Next')

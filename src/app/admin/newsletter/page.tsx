@@ -10,8 +10,11 @@ export default async function AdminNewsletterPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
   const params = await searchParams
-  const page = Number(params.page) || 1
-  const limit = Number(params.limit) || 10
+  const page = Math.max(1, Math.floor(Number(params.page) || 1))
+  const limit = Math.max(
+    1,
+    Math.min(100, Math.floor(Number(params.limit) || 10))
+  )
 
   const result = await getNewsletterSubscribers({ page, limit })
 

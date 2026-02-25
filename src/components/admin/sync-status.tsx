@@ -15,7 +15,13 @@ export function SyncStatus() {
     setResult(null)
 
     try {
-      const res = await fetch('/api/admin/sync', { method: 'POST' })
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), 10000)
+      const res = await fetch('/api/admin/sync', {
+        method: 'POST',
+        signal: controller.signal,
+      })
+      clearTimeout(timeout)
       let data
       try {
         data = await res.json()

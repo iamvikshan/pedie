@@ -18,7 +18,10 @@ export async function GET(request: Request) {
     const url = new URL(request.url)
     const search = url.searchParams.get('search') ?? undefined
     const role = url.searchParams.get('role') ?? undefined
-    const page = Number(url.searchParams.get('page')) || 1
+    const page = Math.max(
+      1,
+      Math.floor(Number(url.searchParams.get('page')) || 1)
+    )
     const rawLimit = Number(url.searchParams.get('limit')) || 10
     const limit = Math.min(Math.max(rawLimit, 1), 100)
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { formatKes } from '@lib/constants'
+import { isSafeUrl } from '@lib/utils/format'
 import { MarginIndicator } from '@components/admin/margin-indicator'
 
 interface CompetitorEntry {
@@ -91,7 +92,7 @@ export function PriceComparisonTable({
                     )}
                   </td>
                   <td className='px-4 py-2'>
-                    {comp.url ? (
+                    {comp.url && isSafeUrl(comp.url) ? (
                       <a
                         href={comp.url}
                         target='_blank'

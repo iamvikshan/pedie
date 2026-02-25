@@ -17,14 +17,18 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url)
+    const rawPage = searchParams.get('page')
+      ? Number(searchParams.get('page'))
+      : undefined
     const filters = {
       status: searchParams.get('status') ?? undefined,
       condition: searchParams.get('condition') ?? undefined,
       search: searchParams.get('search') ?? undefined,
       categoryId: searchParams.get('categoryId') ?? undefined,
-      page: searchParams.get('page')
-        ? Number(searchParams.get('page'))
-        : undefined,
+      page:
+        rawPage !== undefined && Number.isFinite(rawPage)
+          ? Math.max(1, Math.floor(rawPage))
+          : undefined,
       limit: searchParams.get('limit')
         ? Math.min(Number(searchParams.get('limit')) || 20, 100)
         : undefined,

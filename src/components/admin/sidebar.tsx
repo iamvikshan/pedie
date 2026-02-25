@@ -34,13 +34,18 @@ export function AdminSidebar() {
         className='mb-4 rounded-lg border border-pedie-border bg-pedie-card p-2 md:hidden'
         onClick={() => setMobileOpen(!mobileOpen)}
         aria-label='Toggle admin menu'
+        aria-expanded={mobileOpen}
+        aria-controls='admin-sidebar'
       >
         <span className='text-xl'>{mobileOpen ? '✕' : '☰'}</span>
       </button>
 
       {/* Mobile overlay nav */}
       {mobileOpen && (
-        <nav className='mb-4 rounded-lg border border-pedie-border bg-pedie-card p-2 md:hidden'>
+        <nav
+          id='admin-sidebar'
+          className='mb-4 rounded-lg border border-pedie-border bg-pedie-card p-2 md:hidden'
+        >
           {navItems.map(item => (
             <Link
               key={item.href}
@@ -53,7 +58,7 @@ export function AdminSidebar() {
                   : 'text-pedie-text hover:bg-pedie-card-hover'
               }`}
             >
-              <span>{item.icon}</span>
+              <span aria-hidden='true'>{item.icon}</span>
               <span>{item.label}</span>
             </Link>
           ))}
@@ -74,7 +79,7 @@ export function AdminSidebar() {
                   : 'text-pedie-text hover:bg-pedie-card-hover'
               }`}
             >
-              <span>{item.icon}</span>
+              <span aria-hidden='true'>{item.icon}</span>
               <span>{item.label}</span>
             </Link>
           ))}

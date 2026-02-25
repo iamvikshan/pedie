@@ -13,7 +13,15 @@ export default async function AdminReviewsPage({
   const limit = Number(params.limit) || 10
   const ratingParam =
     typeof params.rating === 'string' ? params.rating : undefined
-  const rating = ratingParam ? Number(ratingParam) : undefined
+  const rawRating = ratingParam ? Number(ratingParam) : undefined
+  const rating =
+    rawRating !== undefined &&
+    Number.isFinite(rawRating) &&
+    Number.isInteger(rawRating) &&
+    rawRating >= 1 &&
+    rawRating <= 5
+      ? rawRating
+      : undefined
 
   const result = await getAdminReviews({ rating, page, limit })
 

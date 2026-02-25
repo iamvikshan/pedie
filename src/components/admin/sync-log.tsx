@@ -32,6 +32,15 @@ function countErrors(errors: unknown): number {
   return 0
 }
 
+const dateFormatter = new Intl.DateTimeFormat('en-KE', {
+  timeZone: 'Africa/Nairobi',
+  year: 'numeric',
+  month: 'short',
+  day: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+})
+
 export function SyncLog({ logs }: SyncLogProps) {
   if (logs.length === 0) {
     return (
@@ -83,7 +92,7 @@ export function SyncLog({ logs }: SyncLogProps) {
                 {countErrors(log.errors)}
               </td>
               <td className='px-4 py-3 text-pedie-text'>
-                {new Date(log.started_at).toLocaleString()}
+                {dateFormatter.format(new Date(log.started_at))}
               </td>
               <td className='px-4 py-3 text-pedie-text'>
                 {formatDuration(log.started_at, log.completed_at)}

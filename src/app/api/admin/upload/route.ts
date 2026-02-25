@@ -49,12 +49,22 @@ export async function POST(request: Request) {
 
     const supabase = createAdminClient()
 
-    // Sanitize filename: strip path traversal, keep only alphanumeric + hyphens + dots
+    // Derive extension from filename or MIME type
+    const mimeToExt: Record<string, string> = {
+      'image/jpeg': 'jpg',
+      'image/png': 'png',
+      'image/webp': 'webp',
+      'image/gif': 'gif',
+    }
     const rawName = file.name.replace(/[^a-zA-Z0-9.\-]/g, '')
-    const ext = rawName.split('.').pop() ?? 'jpg'
+    const dotIndex = rawName.lastIndexOf('.')
+    const ext =
+      dotIndex > 0
+        ? rawName.slice(dotIndex + 1)
+        : (mimeToExt[file.type] ?? 'jpg')
     const sanitizedExt = ext.replace(/[^a-zA-Z0-9]/g, '') || 'jpg'
     const fileName = `${crypto.randomUUID()}.${sanitizedExt}`
-    const path = `product-images/${fileName}`
+    const path = fileName
 
     const buffer = Buffer.from(await file.arrayBuffer())
 
@@ -78,8 +88,10 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ url: publicUrl }, { status: 201 })
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Internal server error'
-    return NextResponse.json({ error: message }, { status: 500 })
+    console.error('Failed to upload file:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
   }
 }

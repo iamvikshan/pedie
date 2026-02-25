@@ -23,11 +23,13 @@ export function TrackingForm({
   const [notes, setNotes] = useState(initialNotes ?? '')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
+  const [isError, setIsError] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
     setMessage(null)
+    setIsError(false)
 
     try {
       const trackingInfo: Record<string, string> = {}
@@ -45,12 +47,19 @@ export function TrackingForm({
       })
 
       if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error ?? 'Failed to update tracking')
+        let errorMessage = 'Failed to update tracking'
+        try {
+          const data = await res.json()
+          errorMessage = data.error ?? errorMessage
+        } catch {
+          // Response was not JSON
+        }
+        throw new Error(errorMessage)
       }
 
       setMessage('Tracking information saved')
     } catch (error) {
+      setIsError(true)
       setMessage(
         error instanceof Error ? error.message : 'Failed to update tracking'
       )
@@ -136,7 +145,13 @@ export function TrackingForm({
         >
           {loading ? 'Saving…' : 'Save Tracking'}
         </button>
-        {message && <p className='text-sm text-pedie-muted'>{message}</p>}
+        {message && (
+          <p
+            className={`text-sm ${isError ? 'text-red-600' : 'text-green-600'}`}
+          >
+            {message}
+          </p>
+        )}
       </div>
     </form>
   )

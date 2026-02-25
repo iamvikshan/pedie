@@ -22,8 +22,15 @@ export function EditListingClient({
     })
 
     if (!res.ok) {
-      const err = await res.json()
-      throw new Error(err.error || 'Failed to update listing')
+      let message = 'Failed to update listing'
+      const text = await res.text()
+      try {
+        const parsed = JSON.parse(text)
+        message = parsed.error || message
+      } catch {
+        message = text || message
+      }
+      throw new Error(message)
     }
 
     router.push('/admin/listings')

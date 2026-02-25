@@ -26,12 +26,16 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url)
+    const rawPage = searchParams.get('page')
+      ? Number(searchParams.get('page'))
+      : undefined
     const filters = {
       search: searchParams.get('search') ?? undefined,
       categoryId: searchParams.get('categoryId') ?? undefined,
-      page: searchParams.get('page')
-        ? Number(searchParams.get('page'))
-        : undefined,
+      page:
+        rawPage !== undefined && Number.isFinite(rawPage)
+          ? Math.max(1, Math.floor(rawPage))
+          : undefined,
       limit: searchParams.get('limit')
         ? Math.min(Number(searchParams.get('limit')) || 20, 100)
         : undefined,
@@ -39,7 +43,8 @@ export async function GET(request: Request) {
 
     const result = await getAdminProducts(filters)
     return NextResponse.json(result)
-  } catch {
+  } catch (error) {
+    console.error('Failed to fetch products:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -59,7 +64,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    const body = await request.json()
+    const body = await request.json().catch(() => null)
+
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      return NextResponse.json(
+        { error: 'Invalid or malformed JSON body' },
+        { status: 400 }
+      )
+    }
 
     const { brand, model } = body
 

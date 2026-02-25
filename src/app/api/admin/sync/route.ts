@@ -17,7 +17,8 @@ export async function GET() {
 
     const history = await getSyncHistory()
     return NextResponse.json(history)
-  } catch {
+  } catch (error) {
+    console.error('Failed to fetch sync history:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -49,7 +50,13 @@ export async function POST() {
           triggered_by: user.id,
           status: report.errors > 0 ? 'partial' : 'success',
           rows_synced: report.created + report.updated,
-          errors: report.errors > 0 ? (report.details as string[]) : undefined,
+          errors:
+            report.errors > 0 && Array.isArray(report.details)
+              ? (report.details as unknown[]).filter(
+                  (d): d is string => typeof d === 'string'
+                )
+              : undefined,
+          started_at: startedAt,
           completed_at: new Date().toISOString(),
         })
       } catch (logError) {
@@ -71,6 +78,7 @@ export async function POST() {
           status: 'error',
           rows_synced: 0,
           errors: [errorMessage] as string[],
+          started_at: startedAt,
           completed_at: new Date().toISOString(),
         })
       } catch (logError) {

@@ -23,27 +23,40 @@ interface CategoriesClientProps {
 export function CategoriesClient({ categories }: CategoriesClientProps) {
   const router = useRouter()
   const [showForm, setShowForm] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (data: Record<string, unknown>) => {
-    const res = await fetch('/api/admin/categories', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    })
+    setIsLoading(true)
+    setError(null)
+    try {
+      const res = await fetch('/api/admin/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      })
 
-    if (!res.ok) {
-      let message = 'Failed to create category'
-      try {
-        const err = await res.json()
-        message = err.error || 'Failed to create category'
-      } catch {
-        // Response was not JSON
+      if (!res.ok) {
+        let message = 'Failed to create category'
+        try {
+          const err = await res.json()
+          message = err.error || 'Failed to create category'
+        } catch {
+          // Response was not JSON
+        }
+        setError(message)
+        return
       }
-      throw new Error(message)
-    }
 
-    setShowForm(false)
-    router.refresh()
+      setShowForm(false)
+      router.refresh()
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'An unexpected error occurred'
+      )
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -52,11 +65,17 @@ export function CategoriesClient({ categories }: CategoriesClientProps) {
         <button
           type='button'
           onClick={() => setShowForm(!showForm)}
-          className='rounded bg-pedie-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90'
+          disabled={isLoading}
+          className='rounded bg-pedie-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50'
         >
           {showForm ? 'Cancel' : '+ New Category'}
         </button>
       </div>
+      {error && (
+        <div className='rounded border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700'>
+          {error}
+        </div>
+      )}
       {showForm && (
         <div className='max-w-xl rounded-lg border border-pedie-border bg-pedie-card p-6'>
           <CategoryForm categories={categories} onSubmit={handleSubmit} />

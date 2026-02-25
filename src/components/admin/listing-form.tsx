@@ -43,6 +43,7 @@ export function ListingForm({
   onSubmit,
 }: ListingFormProps) {
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     product_id: initialData?.product_id ?? '',
     listing_id: initialData?.listing_id ?? generateListingId(),
@@ -76,6 +77,7 @@ export function ListingForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    setError(null)
     try {
       const priceKes = Number(formData.price_kes)
       if (isNaN(priceKes) || priceKes < 0) {
@@ -84,17 +86,24 @@ export function ListingForm({
       const data: Record<string, unknown> = {
         ...formData,
         price_kes: priceKes,
-        battery_health: formData.battery_health
-          ? Number(formData.battery_health)
-          : null,
-        original_price_usd: formData.original_price_usd
-          ? Number(formData.original_price_usd)
-          : null,
-        landed_cost_kes: formData.landed_cost_kes
-          ? Number(formData.landed_cost_kes)
-          : null,
+        battery_health:
+          formData.battery_health !== ''
+            ? Number(formData.battery_health)
+            : null,
+        original_price_usd:
+          formData.original_price_usd !== ''
+            ? Number(formData.original_price_usd)
+            : null,
+        landed_cost_kes:
+          formData.landed_cost_kes !== ''
+            ? Number(formData.landed_cost_kes)
+            : null,
       }
       await onSubmit(data)
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'An unexpected error occurred'
+      )
     } finally {
       setLoading(false)
     }
@@ -102,6 +111,11 @@ export function ListingForm({
 
   return (
     <form onSubmit={handleSubmit} className='space-y-6'>
+      {error && (
+        <div className='rounded border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700'>
+          {error}
+        </div>
+      )}
       {/* Product Select */}
       <div>
         <label

@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import type { ColumnDef } from '@tanstack/react-table'
 
 interface CustomerRow {
@@ -43,7 +44,7 @@ export const customerColumns: ColumnDef<CustomerRow, unknown>[] = [
       }
       return (
         <span
-          className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium capitalize ${colors[role] ?? ''}`}
+          className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium capitalize ${colors[role] ?? 'bg-gray-100 text-gray-800'}`}
         >
           {role}
         </span>
@@ -67,12 +68,12 @@ export const customerColumns: ColumnDef<CustomerRow, unknown>[] = [
     id: 'actions',
     header: '',
     cell: ({ row }) => (
-      <a
+      <Link
         href={`/admin/customers/${row.original.id}`}
         className='text-sm text-pedie-primary hover:underline'
       >
         View
-      </a>
+      </Link>
     ),
     enableSorting: false,
   },

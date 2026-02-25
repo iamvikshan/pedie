@@ -55,8 +55,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'name is required' }, { status: 400 })
     }
 
-    // Auto-generate slug from name if not provided
-    const slug = body.slug || generateSlug(name)
+    // Normalize caller-supplied slug or auto-generate from name
+    const slug = generateSlug(body.slug || name)
+
+    if (!slug) {
+      return NextResponse.json(
+        { error: 'Could not generate a valid slug from the provided name' },
+        { status: 400 }
+      )
+    }
 
     const allowed = {
       name: body.name,

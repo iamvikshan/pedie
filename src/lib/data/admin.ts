@@ -78,9 +78,17 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
   const totalRevenue =
     revenueData?.reduce((sum, o) => sum + (o.total_kes || 0), 0) ?? 0
 
-  // Orders today
-  const todayStart = new Date()
-  todayStart.setHours(0, 0, 0, 0)
+  // Orders today (using EAT / UTC+3 timezone)
+  const now = new Date()
+  const eatOffset = 3 * 60 * 60 * 1000 // UTC+3
+  const eatNow = new Date(now.getTime() + eatOffset)
+  const todayStart = new Date(
+    Date.UTC(
+      eatNow.getUTCFullYear(),
+      eatNow.getUTCMonth(),
+      eatNow.getUTCDate()
+    ) - eatOffset
+  )
   const { count: ordersToday } = await supabase
     .from('orders')
     .select('*', { count: 'exact', head: true })
@@ -221,7 +229,8 @@ export async function getAdminListings(
     query = query.eq('condition', filters.condition as ConditionGrade)
   }
   if (filters.search) {
-    query = query.ilike('listing_id', `%${filters.search}%`)
+    const sanitized = filters.search.replace(/[^a-zA-Z0-9\s@._-]/g, '')
+    query = query.ilike('listing_id', `%${sanitized}%`)
   }
   if (filters.categoryId) {
     query = query.eq('product.category_id', filters.categoryId)
@@ -745,6 +754,7 @@ export async function logSyncResult(input: {
   status: string
   rows_synced: number
   errors?: Json
+  started_at?: string
   completed_at?: string
 }): Promise<Record<string, unknown>> {
   const supabase = createAdminClient()
@@ -756,6 +766,7 @@ export async function logSyncResult(input: {
       status: input.status,
       rows_synced: input.rows_synced,
       errors: input.errors ?? ([] as unknown as Json),
+      started_at: input.started_at ?? new Date().toISOString(),
       completed_at: input.completed_at ?? new Date().toISOString(),
     })
     .select()

@@ -78,7 +78,7 @@ export default async function AdminPricesPage() {
         <span>
           Last crawl:{' '}
           {latestCrawl
-            ? latestCrawl.toLocaleDateString('en-KE', {
+            ? latestCrawl.toLocaleString('en-KE', {
                 year: 'numeric',
                 month: 'short',
                 day: 'numeric',

@@ -21,6 +21,7 @@ export async function GET(request: Request) {
     const rating =
       rawRating !== undefined &&
       Number.isFinite(rawRating) &&
+      Number.isInteger(rawRating) &&
       rawRating >= 1 &&
       rawRating <= 5
         ? rawRating
@@ -32,7 +33,8 @@ export async function GET(request: Request) {
 
     const result = await getAdminReviews({ rating, page, limit })
     return NextResponse.json(result)
-  } catch {
+  } catch (error) {
+    console.error('Failed to fetch reviews:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

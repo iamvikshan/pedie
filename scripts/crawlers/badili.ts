@@ -42,10 +42,10 @@ export async function crawlBadili(
   products: CrawlerProduct[]
 ): Promise<PriceResult[]> {
   const results: PriceResult[] = []
-  const now = new Date().toISOString()
 
   for (const product of products) {
     try {
+      const now = new Date().toISOString()
       const searchQuery = encodeURIComponent(
         `${product.brand} ${product.model}`
       )
@@ -65,13 +65,13 @@ export async function crawlBadili(
           crawled_at: now,
         })
       }
-
-      await rateLimiter(1500)
     } catch (error) {
       console.error(
         `Error crawling Badili for ${product.brand} ${product.model}:`,
         error
       )
+    } finally {
+      await rateLimiter(1500)
     }
   }
 

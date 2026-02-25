@@ -60,6 +60,14 @@ export async function PUT(
       )
     }
 
+    // Prevent admin from demoting themselves
+    if (id === user.id && role === 'customer') {
+      return NextResponse.json(
+        { error: 'Cannot demote yourself' },
+        { status: 400 }
+      )
+    }
+
     const profile = await updateUserRole(id, role)
     return NextResponse.json(profile)
   } catch (error) {

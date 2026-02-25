@@ -124,11 +124,19 @@ export const listingColumns: ColumnDef<ListingRow, unknown>[] = [
           <button
             type='button'
             className='text-sm text-red-600 hover:underline'
-            onClick={() => {
+            onClick={async () => {
               if (confirm('Delete this listing?')) {
-                fetch(`/api/admin/listings/${listing.id}`, {
-                  method: 'DELETE',
-                }).then(() => window.location.reload())
+                const response = await fetch(
+                  `/api/admin/listings/${listing.id}`,
+                  {
+                    method: 'DELETE',
+                  }
+                )
+                if (response.ok) {
+                  window.location.reload()
+                } else {
+                  alert('Failed to delete listing')
+                }
               }
             }}
           >

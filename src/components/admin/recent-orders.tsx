@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { formatKes } from '@lib/constants'
+import { formatAdminDate } from '@lib/utils/format'
 
 interface RecentOrdersProps {
   orders: Record<string, unknown>[]
@@ -42,7 +43,7 @@ export function RecentOrders({ orders }: RecentOrdersProps) {
                 const customerName = (profile?.full_name as string) ?? 'Unknown'
                 const total = (order.total_kes as number) ?? 0
                 const date = order.created_at
-                  ? new Date(order.created_at as string).toLocaleDateString()
+                  ? formatAdminDate(order.created_at as string)
                   : '—'
 
                 return (

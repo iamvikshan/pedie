@@ -82,11 +82,24 @@ export const productColumns: ColumnDef<ProductRow, unknown>[] = [
           <button
             type='button'
             className='text-sm text-red-600 hover:underline'
-            onClick={() => {
+            onClick={async () => {
               if (confirm('Delete this product?')) {
-                fetch(`/api/admin/products/${product.id}`, {
-                  method: 'DELETE',
-                }).then(() => window.location.reload())
+                try {
+                  const response = await fetch(
+                    `/api/admin/products/${product.id}`,
+                    {
+                      method: 'DELETE',
+                    }
+                  )
+                  if (response.ok) {
+                    window.location.reload()
+                  } else {
+                    alert('Failed to delete product')
+                  }
+                } catch (error) {
+                  console.error('Delete product failed:', error)
+                  alert('Network error deleting product')
+                }
               }
             }}
           >

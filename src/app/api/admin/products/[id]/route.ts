@@ -21,12 +21,37 @@ export async function PUT(
     const { id } = await params
     const body = await request.json()
 
-    const product = await updateProduct(id, body)
+    // Allowlist body fields to prevent injection of unexpected properties
+    const allowed = {
+      brand: body.brand,
+      model: body.model,
+      slug: body.slug,
+      category_id: body.category_id,
+      description: body.description,
+      images: body.images,
+      key_features: body.key_features,
+      original_price_kes: body.original_price_kes,
+      specs: body.specs,
+    }
+    const filtered = Object.fromEntries(
+      Object.entries(allowed).filter(([, v]) => v !== undefined)
+    )
+
+    if (Object.keys(filtered).length === 0) {
+      return NextResponse.json(
+        { error: 'No updatable fields provided' },
+        { status: 400 }
+      )
+    }
+
+    const product = await updateProduct(id, filtered)
     return NextResponse.json(product)
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Internal server error'
-    return NextResponse.json({ error: message }, { status: 500 })
+    console.error('Failed to update product:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
   }
 }
 
@@ -49,8 +74,10 @@ export async function DELETE(
     await deleteProduct(id)
     return NextResponse.json({ success: true })
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Internal server error'
-    return NextResponse.json({ error: message }, { status: 500 })
+    console.error('Failed to delete product:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
   }
 }

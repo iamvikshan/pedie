@@ -93,6 +93,13 @@ export async function PUT(
     if (tracking_info !== undefined) updateData.tracking_info = tracking_info
     if (notes !== undefined) updateData.notes = notes
 
+    if (Object.keys(updateData).length === 0) {
+      return NextResponse.json(
+        { error: 'No valid update fields provided' },
+        { status: 400 }
+      )
+    }
+
     const order = await updateOrder(id, updateData)
 
     // Fire-and-forget email notifications on status change
