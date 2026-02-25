@@ -334,65 +334,156 @@ IMPORTANT: STRICTLY DO NOT use `npm/npx/node`, use `bun` always, unless you must
 
 ### 6. **Phase 6: Admin Dashboard & Price Crawler**
 
-- **Objective:** Build a custom admin dashboard (gated to your account) for managing listings, orders, customers, and Sheets sync. Implement GitHub Actions crawlers for competitor prices (Badili, Phone Place, Jiji, Jumia) and source prices (Swappa, Reebelo, Back Market), storing in `price_comparisons`. Deploy crawlers to run on GCP VM via Docker.
+- **Objective:** Build a full-featured admin CMS using custom shadcn/ui + @tanstack/react-table + recharts (matches existing stack — no heavyweight framework). Admin can manage everything: listings, products, categories, orders, users, reviews, newsletter, and Sheets sync. Price crawlers run as GitHub Actions on a daily cron, writing results directly to Supabase `price_comparisons` table (simpler than routing through Google Sheets). Images stored in Supabase Storage bucket. Sync log persisted in a `sync_log` table for production reliability.
 
+- **Architecture Decisions:**
+  - **Custom build over React Admin / Refine** — project already uses shadcn/ui + Tailwind CSS 4 + App Router + `@supabase/ssr`. Introducing React Admin (MUI + react-router SPA) or Refine would create a style/architecture split.
+  - **New deps:** `@tanstack/react-table` (data tables), `recharts` (dashboard charts)
+  - **Crawlers → Supabase DB directly** — GitHub Actions writing to Supabase via service-role key. Google Sheets remains the source for manually managed inventory; crawlers are for automated competitor price intelligence.
+  - **Images in Supabase Storage** — single server for data + images, simpler delete/update lifecycle
+  - **Crawl all catalog products** — compare prices for entire product catalog, not just a subset
+  - **`sync_log` table** — persists sync history for production (timestamp, status, rows synced, errors)
+  - **Order status email templates** — "Shipped", "Delivered", "Cancelled" emails sent when admin updates order status
+
+- **Sub-phases (10):**
+
+#### Phase 6.1: Admin Data Layer & Infrastructure
+- **Objective:** Install new dependencies, create admin data functions for all CRUD operations across all tables, build admin layout with role-gated access, and create `sync_log` migration.
 - **Files/Functions to Modify/Create:**
-  - `src/app/admin/layout.tsx` — admin layout with sidebar (role-gated to your account)
-  - `src/app/admin/page.tsx` — dashboard (KPIs: orders, revenue, pending, low stock)
-  - `src/app/admin/listings/page.tsx` — listings list with search, filter, bulk actions
-  - `src/app/admin/listings/[id]/page.tsx` — listing editor
-  - `src/app/admin/listings/new/page.tsx` — create listing
-  - `src/app/admin/orders/page.tsx` — order list with status filters
-  - `src/app/admin/orders/[id]/page.tsx` — order detail with status updater (triggers email)
-  - `src/app/admin/customers/page.tsx` — customer list
-  - `src/app/admin/sync/page.tsx` — Sheets sync status, manual trigger, log
-  - `src/app/admin/prices/page.tsx` — price comparison dashboard
-  - `src/components/admin/sidebar.tsx` — navigation
-  - `src/components/admin/kpi-cards.tsx` — stat cards
-  - `src/components/admin/listing-form.tsx` — create/edit listing form
-  - `src/components/admin/order-status-updater.tsx` — status dropdown with email trigger
-  - `src/components/admin/price-comparison-table.tsx` — Pedie vs. competitors matrix
-  - `.github/workflows/price-crawler.yml` — cron: daily 3 AM UTC (6 AM EAT)
-  - `scripts/crawlers/badili.ts` — Badili.co.ke prices
-  - `scripts/crawlers/phoneplace.ts` — Phone Place Kenya prices
-  - `scripts/crawlers/jiji.ts` — Jiji.co.ke listings
-  - `scripts/crawlers/jumia.ts` — Jumia.co.ke prices
-  - `scripts/crawlers/swappa.ts` — Swappa source prices
-  - `scripts/crawlers/reebelo.ts` — Reebelo source prices
-  - `scripts/crawlers/backmarket.ts` — Back Market source prices
-  - `scripts/crawlers/utils.ts` — shared: fetch with retry, price parsing, rate limiting
-  - `scripts/crawlers/index.ts` — orchestrator: runs all, upserts to Supabase
-  - `src/lib/data/admin.ts` — admin data functions
-
+  - `package.json` — add `@tanstack/react-table`, `recharts`
+  - `supabase/migrations/XXXX_sync_log.sql` — `sync_log` table (id, triggered_by, status, rows_synced, errors, started_at, completed_at)
+  - `src/lib/data/admin.ts` — Admin CRUD: `getAdminDashboardStats()`, `getAdminOrders()`, `getAdminListings()`, `getAdminProducts()`, `getAdminCategories()`, `getAdminCustomers()`, `getAdminReviews()`, `getNewsletterSubscribers()`, `updateCategory()`, `deleteCategory()`, `createCategory()`, `updateProduct()`, `deleteProduct()`, `createListing()`, `updateListing()`, `deleteListing()`, `updateOrder()`, `updateUserRole()`, `deleteReview()`, `getSyncHistory()`, `logSyncResult()`
+  - `src/app/admin/layout.tsx` — Admin layout with sidebar, `requireAuth()` + `isAdmin()` gate
+  - `src/components/admin/sidebar.tsx` — Navigation (Dashboard, Products, Listings, Orders, Customers, Categories, Reviews, Newsletter, Sync, Prices)
 - **Tests to Write:**
-  - `tests/app/admin/dashboard.test.tsx` — KPI cards render
-  - `tests/app/admin/listings.test.tsx` — list, create, edit
-  - `tests/app/admin/orders.test.tsx` — list, status update
-  - `tests/app/admin/prices.test.tsx` — comparison table renders
-  - `tests/scripts/crawlers/utils.test.ts` — price parsing, retry, rate limiting
-  - `tests/scripts/crawlers/badili.test.ts` — HTML parsing
-  - `tests/scripts/crawlers/swappa.test.ts` — HTML parsing
-  - `tests/scripts/crawlers/index.test.ts` — orchestrator, upserts
-  - `tests/lib/data/admin.test.ts` — KPIs, CRUD
+  - `tests/lib/data/admin.test.ts` — all CRUD functions, auth checks, error handling
+  - `tests/app/admin/layout.test.tsx` — role gate redirects non-admin
 
-- **Steps:**
-  1. Write tests for admin data functions.
-  2. Run tests — red.
-  3. Implement admin data functions. Add RLS allowing only `role = 'admin'` for admin queries.
-  4. Run tests — green.
-  5. Build admin layout with sidebar: Dashboard, Listings, Orders, Customers, Sheets Sync, Price Monitor. Gate with admin role check.
-  6. Build dashboard with KPI cards + recent orders + low stock alerts.
-  7. Build listing management: list (data table, search, filter by category/condition/status), create/edit form (all fields, image upload to Supabase Storage, listing ID auto-generation).
-  8. Build order management: list (status badges, payment, date, customer), detail (status updater triggers email).
-  9. Build Sheets sync page: last sync, status, manual "Sync Now", log.
-  10. Write tests for crawler utilities.
-  11. Run tests — red.
-  12. Implement crawlers. Each: fetches listings for target models (iPhone 11, 12, 12 Pro Max, 13 Pro, MacBook Air M1), parses prices, returns `{competitor, product, price_kes, url, crawled_at}`. Use Playwright for JS-rendered (Jiji, Jumia), cheerio for static (Badili, Phone Place, Swappa).
-  13. Implement orchestrator → upserts to `price_comparisons`.
-  14. Run tests — green.
-  15. Create `.github/workflows/price-crawler.yml` — daily cron, runs orchestrator, uses Supabase secrets.
-  16. Build price comparison dashboard: table per product, Pedie vs. competitors + sources, margin calc, trend indicators, alerts when undercut.
-  17. Verify full admin flow: login → dashboard → manage listings → update order → sync → price comparison.
+#### Phase 6.2: Admin Dashboard (KPIs & Overview)
+- **Objective:** Build main admin dashboard with KPI cards, recent orders, revenue chart, quick-action links.
+- **Files/Functions to Modify/Create:**
+  - `src/app/admin/page.tsx` — Dashboard page (server component)
+  - `src/components/admin/kpi-cards.tsx` — Stat cards (revenue, orders today, pending, active listings, low stock)
+  - `src/components/admin/revenue-chart.tsx` — Revenue over time (recharts)
+  - `src/components/admin/recent-orders.tsx` — Last 10 orders with status badges
+- **Tests to Write:**
+  - `tests/app/admin/dashboard.test.tsx` — KPIs render, chart renders, recent orders
+
+#### Phase 6.3: Reusable Admin Data Table Component
+- **Objective:** Build generic `<DataTable>` powered by @tanstack/react-table with search, column sorting, pagination, row selection, bulk actions — reused across all admin list pages.
+- **Files/Functions to Modify/Create:**
+  - `src/components/admin/data-table.tsx` — Generic DataTable
+  - `src/components/admin/data-table-pagination.tsx` — Pagination controls
+  - `src/components/admin/data-table-toolbar.tsx` — Search + filter dropdowns + bulk actions
+  - `src/components/admin/data-table-column-header.tsx` — Sortable column headers
+- **Tests to Write:**
+  - `tests/components/admin/data-table.test.tsx` — renders columns, pagination, search, sort, row selection
+
+#### Phase 6.4: Listing Management
+- **Objective:** Listing CRUD pages: list with DataTable, create/edit forms, image upload to Supabase Storage, listing ID auto-generation.
+- **Files/Functions to Modify/Create:**
+  - `src/app/admin/listings/page.tsx` — Listings list using DataTable
+  - `src/app/admin/listings/columns.tsx` — Column definitions
+  - `src/app/admin/listings/new/page.tsx` — Create listing
+  - `src/app/admin/listings/[id]/page.tsx` — Edit listing
+  - `src/components/admin/listing-form.tsx` — Create/edit form with image upload
+  - `src/app/api/admin/listings/route.ts` — POST/GET
+  - `src/app/api/admin/listings/[id]/route.ts` — PUT/DELETE
+  - `src/app/api/admin/upload/route.ts` — Image upload to Supabase Storage
+- **Tests to Write:**
+  - `tests/app/admin/listings.test.tsx` — list, create, edit, delete
+  - `tests/app/api/admin/listings.test.ts` — CRUD API routes
+
+#### Phase 6.5: Product & Category Management
+- **Objective:** Product CRUD and category management with parent/child hierarchy.
+- **Files/Functions to Modify/Create:**
+  - `src/app/admin/products/page.tsx` — Products list
+  - `src/app/admin/products/columns.tsx` — Column definitions
+  - `src/app/admin/products/[id]/page.tsx` — Edit product
+  - `src/app/admin/products/new/page.tsx` — Create product
+  - `src/components/admin/product-form.tsx` — Product form
+  - `src/app/admin/categories/page.tsx` — Categories list with hierarchy
+  - `src/components/admin/category-form.tsx` — Category form
+  - `src/app/api/admin/products/route.ts` — CRUD
+  - `src/app/api/admin/products/[id]/route.ts` — CRUD
+  - `src/app/api/admin/categories/route.ts` — CRUD
+  - `src/app/api/admin/categories/[id]/route.ts` — CRUD
+- **Tests to Write:**
+  - `tests/app/admin/products.test.tsx` — list, create, edit
+  - `tests/app/admin/categories.test.tsx` — list, create, edit, hierarchy
+  - `tests/app/api/admin/products.test.ts` — CRUD API routes
+  - `tests/app/api/admin/categories.test.ts` — CRUD API routes
+
+#### Phase 6.6: Order Management
+- **Objective:** Order management: list with filters, detail with status updater (triggers "Shipped"/"Delivered"/"Cancelled" emails), tracking info editor.
+- **Files/Functions to Modify/Create:**
+  - `src/app/admin/orders/page.tsx` — Orders list with status filters
+  - `src/app/admin/orders/columns.tsx` — Column definitions
+  - `src/app/admin/orders/[id]/page.tsx` — Order detail with status updater
+  - `src/components/admin/order-status-updater.tsx` — Status dropdown + email trigger
+  - `src/components/admin/tracking-form.tsx` — Tracking info editor
+  - `src/lib/email/templates.ts` — add `shippingUpdateTemplate()`, `deliveryConfirmationTemplate()`, `orderCancelledTemplate()`
+  - `src/lib/email/send.ts` — add `sendShippingUpdate()`, `sendDeliveryConfirmation()`, `sendOrderCancelled()`
+  - `src/app/api/admin/orders/route.ts` — GET (list)
+  - `src/app/api/admin/orders/[id]/route.ts` — PUT (status, tracking, notes)
+- **Tests to Write:**
+  - `tests/app/admin/orders.test.tsx` — list, detail, status update
+  - `tests/app/api/admin/orders.test.ts` — API routes
+
+#### Phase 6.7: Customer, Review & Newsletter Management
+- **Objective:** Customer list + role management, review moderation, newsletter subscribers + CSV export.
+- **Files/Functions to Modify/Create:**
+  - `src/app/admin/customers/page.tsx` — Customer list
+  - `src/app/admin/customers/columns.tsx`
+  - `src/app/admin/customers/[id]/page.tsx` — Customer detail
+  - `src/app/admin/reviews/page.tsx` — Review list + moderation
+  - `src/app/admin/reviews/columns.tsx`
+  - `src/app/admin/newsletter/page.tsx` — Subscriber list + CSV export
+  - `src/app/api/admin/customers/route.ts` — GET, role management
+  - `src/app/api/admin/customers/[id]/route.ts` — GET detail, PUT role
+  - `src/app/api/admin/reviews/route.ts` — GET, DELETE
+  - `src/app/api/admin/newsletter/route.ts` — GET, export
+- **Tests to Write:**
+  - `tests/app/admin/customers.test.tsx`
+  - `tests/app/admin/reviews.test.tsx`
+  - `tests/app/admin/newsletter.test.tsx`
+  - `tests/app/api/admin/customers.test.ts`
+
+#### Phase 6.8: Sheets Sync Dashboard
+- **Objective:** Sync management page: last sync, status, manual "Sync Now", sync log from `sync_log` table.
+- **Files/Functions to Modify/Create:**
+  - `src/app/admin/sync/page.tsx` — Sync dashboard
+  - `src/components/admin/sync-status.tsx` — Status display + trigger button
+  - `src/components/admin/sync-log.tsx` — Sync history from `sync_log` table
+  - `src/app/api/admin/sync/route.ts` — POST trigger, GET status/history
+- **Tests to Write:**
+  - `tests/app/admin/sync.test.tsx`
+  - `tests/app/api/admin/sync.test.ts`
+
+#### Phase 6.9: Price Crawlers (GitHub Actions)
+- **Objective:** TypeScript price crawlers running via GitHub Actions daily cron. Crawl all catalog products against competitors (Badili, Phone Place Kenya) + sources (Swappa, Back Market). Write results to Supabase `price_comparisons`.
+- **Files/Functions to Modify/Create:**
+  - `scripts/crawlers/utils.ts` — Shared: fetch with retry, price parsing, rate limiting, Supabase client
+  - `scripts/crawlers/badili.ts` — Crawl badili.ke
+  - `scripts/crawlers/phoneplace.ts` — Crawl phoneplacekenya.com
+  - `scripts/crawlers/swappa.ts` — Crawl swappa.com
+  - `scripts/crawlers/backmarket.ts` — Crawl backmarket.com
+  - `scripts/crawlers/index.ts` — Orchestrator: runs all, upserts to Supabase
+  - `.github/workflows/price-crawler.yml` — Daily cron (3 AM UTC / 6 AM EAT)
+- **Tests to Write:**
+  - `tests/scripts/crawlers/utils.test.ts` — price parsing, retry
+  - `tests/scripts/crawlers/badili.test.ts` — HTML fixture parsing
+  - `tests/scripts/crawlers/index.test.ts` — orchestrator, DB upsert
+
+#### Phase 6.10: Price Comparison Dashboard
+- **Objective:** Admin price comparison page with product × competitor matrix, margin calculations, trend indicators.
+- **Files/Functions to Modify/Create:**
+  - `src/app/admin/prices/page.tsx` — Price comparison dashboard
+  - `src/components/admin/price-comparison-table.tsx` — Product × competitor matrix
+  - `src/components/admin/margin-indicator.tsx` — Visual margin indicator
+  - `src/lib/data/admin.ts` — add `getPriceComparisons()`, `getLatestCrawlDate()`
+- **Tests to Write:**
+  - `tests/app/admin/prices.test.tsx` — table renders, margin calculations
 
 ---
 
@@ -449,3 +540,21 @@ IMPORTANT: STRICTLY DO NOT use `npm/npx/node`, use `bun` always, unless you must
 | 8   | Types?                   | **Root `types/` directory** with path aliases (`@types/*`)                                      |
 | 9   | Docker?                  | **Amina patterns** — multi-stage Dockerfile, docker-compose dev/prod, deploy script, Watchtower |
 | 10  | Product model?           | **Per-item listings** with unique IDs (like Swappa), not batched by model                       |
+
+---
+
+### Deferred Items (from CodeRabbit review, Phase 6)
+
+The following items were identified during CodeRabbit review but deferred to future phases:
+
+**Phase 7 (Deployment & Production Polish):**
+- **Upload route magic bytes validation:** Use file magic bytes instead of client-provided MIME type in `src/app/api/admin/upload/route.ts` for robust file type validation
+- **Privacy policy page:** Already planned in Phase 7 steps
+- **SYNC_API_KEY and CLOUDFLARE_TUNNEL_TOKEN setup docs:** Add to `docs/ops/` setup guides
+
+**Future Improvement (Post-Launch):**
+- **BackMarket headless browser:** backmarket.com may require a headless browser or official API for reliable crawling — current CSS-selector approach is fragile. Evaluate Playwright/Puppeteer or BackMarket Partner API.
+- **Product detail page data layer:** Extract `src/app/admin/products/[id]/page.tsx` database queries into `src/lib/data/products.ts` helper functions for consistency
+- **Column-level window.location.reload():** The column definition files (`categories/columns.tsx`, `listings/columns.tsx`, `products/columns.tsx`, `reviews/columns.tsx`) use `window.location.reload()` in action callbacks. These cannot use `useRouter()` since they are not React components. Consider refactoring column definitions to accept a `refresh` callback prop or using React context.
+- **Email field in customers columns:** `src/app/admin/customers/columns.tsx` has an email column that may not be populated from the profiles table (email is in auth.users). Either remove the column or add a join to fetch email from auth admin API.
+

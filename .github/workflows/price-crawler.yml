@@ -1,0 +1,23 @@
+name: Price Crawler
+
+on:
+  schedule:
+    - cron: "0 3 * * *" # Daily at 3 AM UTC (6 AM EAT)
+  workflow_dispatch: # Allow manual trigger
+
+permissions: {}
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6.0.2
+
+      - name: Setup Bun and install dependencies
+        uses: iamvikshan/.github/.github/actions/setup-bun@main
+
+      - run: bun scripts/crawlers/index.ts
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}

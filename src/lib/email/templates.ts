@@ -117,6 +117,95 @@ export function orderConfirmationEmail(data: {
   }
 }
 
+export function shippingUpdateEmail(data: {
+  userName: string
+  orderId: string
+  trackingInfo?: string
+  carrier?: string
+}): EmailTemplate {
+  const trackingSection = data.trackingInfo
+    ? `<p style="margin:0 0 8px 0;color:#3f3f46;"><strong>Tracking Number:</strong> ${escapeHtml(data.trackingInfo)}</p>`
+    : ''
+  const carrierSection = data.carrier
+    ? `<p style="margin:0 0 8px 0;color:#3f3f46;"><strong>Carrier:</strong> ${escapeHtml(data.carrier)}</p>`
+    : ''
+
+  const content = `
+    <h2 style="color:#18181b;margin:0 0 16px 0;">Your Order Has Shipped!</h2>
+    <p style="color:#3f3f46;line-height:1.6;margin:0 0 16px 0;">
+      Hi ${escapeHtml(data.userName)}, your order <strong>${escapeHtml(data.orderId)}</strong> is on its way!
+    </p>
+    <div style="margin:16px 0;padding:16px;background-color:#f4f4f5;border-radius:6px;">
+      ${carrierSection}
+      ${trackingSection}
+    </div>
+    <p style="color:#3f3f46;line-height:1.6;margin:16px 0 0 0;">
+      We'll let you know once it's been delivered. Thank you for shopping with Pedie Tech!
+    </p>
+  `
+
+  return {
+    subject: `Shipping Update — ${data.orderId}`,
+    html: wrapInLayout(content),
+  }
+}
+
+export function deliveryConfirmationEmail(data: {
+  userName: string
+  orderId: string
+}): EmailTemplate {
+  const content = `
+    <h2 style="color:#18181b;margin:0 0 16px 0;">Your Order Has Been Delivered!</h2>
+    <p style="color:#3f3f46;line-height:1.6;margin:0 0 16px 0;">
+      Hi ${escapeHtml(data.userName)}, your order <strong>${escapeHtml(data.orderId)}</strong> has been delivered.
+    </p>
+    <p style="color:#3f3f46;line-height:1.6;margin:0 0 16px 0;">
+      We hope you love your purchase! If you have any questions or feedback, don't hesitate to reach out.
+    </p>
+    <div style="text-align:center;margin:24px 0;">
+      <a href="https://pedietech.com/account/orders" style="display:inline-block;background-color:#22c55e;color:#ffffff;text-decoration:none;padding:12px 32px;border-radius:6px;font-weight:bold;">
+        View Your Orders
+      </a>
+    </div>
+  `
+
+  return {
+    subject: `Delivery Confirmation — ${data.orderId}`,
+    html: wrapInLayout(content),
+  }
+}
+
+export function orderCancelledEmail(data: {
+  userName: string
+  orderId: string
+  reason?: string
+}): EmailTemplate {
+  const reasonSection = data.reason
+    ? `<p style="color:#3f3f46;line-height:1.6;margin:0 0 16px 0;"><strong>Reason:</strong> ${escapeHtml(data.reason)}</p>`
+    : ''
+
+  const content = `
+    <h2 style="color:#18181b;margin:0 0 16px 0;">Order Cancelled</h2>
+    <p style="color:#3f3f46;line-height:1.6;margin:0 0 16px 0;">
+      Hi ${escapeHtml(data.userName)}, your order <strong>${escapeHtml(data.orderId)}</strong> has been cancelled.
+    </p>
+    ${reasonSection}
+    <p style="color:#3f3f46;line-height:1.6;margin:0 0 16px 0;">
+      If you believe this was a mistake or need assistance, please contact our support team.
+    </p>
+    <div style="text-align:center;margin:24px 0;">
+      <a href="https://pedietech.com" style="display:inline-block;background-color:#22c55e;color:#ffffff;text-decoration:none;padding:12px 32px;border-radius:6px;font-weight:bold;">
+        Continue Shopping
+      </a>
+    </div>
+  `
+
+  return {
+    subject: `Order Cancelled — ${data.orderId}`,
+    html: wrapInLayout(content),
+  }
+}
+
 export function paymentConfirmationEmail(data: {
   userName: string
   orderId: string

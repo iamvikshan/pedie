@@ -1,0 +1,97 @@
+interface SyncLogEntry {
+  id: string
+  triggered_by: string
+  status: string
+  rows_synced: number | null
+  errors: unknown | null
+  started_at: string
+  completed_at: string | null
+}
+
+interface SyncLogProps {
+  logs: SyncLogEntry[]
+}
+
+const statusColors: Record<string, string> = {
+  success: 'bg-green-100 text-green-800',
+  partial: 'bg-yellow-100 text-yellow-800',
+  error: 'bg-red-100 text-red-800',
+}
+
+function formatDuration(startedAt: string, completedAt: string | null): string {
+  if (!completedAt) return '—'
+  const start = new Date(startedAt).getTime()
+  const end = new Date(completedAt).getTime()
+  const seconds = Math.round((end - start) / 1000)
+  if (seconds < 60) return `${seconds}s`
+  return `${Math.floor(seconds / 60)}m ${seconds % 60}s`
+}
+
+function countErrors(errors: unknown): number {
+  if (Array.isArray(errors)) return errors.length
+  return 0
+}
+
+export function SyncLog({ logs }: SyncLogProps) {
+  if (logs.length === 0) {
+    return (
+      <div className='rounded-lg border border-pedie-border bg-pedie-card p-4'>
+        <p className='text-sm text-pedie-muted'>No sync history yet.</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className='rounded-lg border border-pedie-border bg-pedie-card'>
+      <table className='w-full text-left text-sm'>
+        <thead>
+          <tr className='border-b border-pedie-border bg-pedie-card'>
+            <th className='px-4 py-3 font-medium text-pedie-muted'>
+              Triggered By
+            </th>
+            <th className='px-4 py-3 font-medium text-pedie-muted'>Status</th>
+            <th className='px-4 py-3 font-medium text-pedie-muted'>
+              Rows Synced
+            </th>
+            <th className='px-4 py-3 font-medium text-pedie-muted'>Errors</th>
+            <th className='px-4 py-3 font-medium text-pedie-muted'>
+              Started At
+            </th>
+            <th className='px-4 py-3 font-medium text-pedie-muted'>Duration</th>
+          </tr>
+        </thead>
+        <tbody>
+          {logs.map(log => (
+            <tr
+              key={log.id}
+              className='border-b border-pedie-border last:border-0'
+            >
+              <td className='px-4 py-3 font-mono text-xs text-pedie-text'>
+                {log.triggered_by.slice(0, 8)}…
+              </td>
+              <td className='px-4 py-3'>
+                <span
+                  className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium capitalize ${statusColors[log.status] ?? 'bg-gray-100 text-gray-800'}`}
+                >
+                  {log.status}
+                </span>
+              </td>
+              <td className='px-4 py-3 text-pedie-text'>
+                {log.rows_synced ?? 0}
+              </td>
+              <td className='px-4 py-3 text-pedie-text'>
+                {countErrors(log.errors)}
+              </td>
+              <td className='px-4 py-3 text-pedie-text'>
+                {new Date(log.started_at).toLocaleString()}
+              </td>
+              <td className='px-4 py-3 text-pedie-text'>
+                {formatDuration(log.started_at, log.completed_at)}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}

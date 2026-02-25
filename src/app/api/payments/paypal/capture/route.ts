@@ -79,6 +79,13 @@ export async function GET(request: Request) {
 
   try {
     const result = await capturePayPalPayment(token)
+
+    if (!result) {
+      return NextResponse.redirect(
+        new URL('/checkout?error=invalid_response', request.url)
+      )
+    }
+
     const orderId = result.purchase_units?.[0]?.reference_id
     const captureId = result.purchase_units?.[0]?.payments?.captures?.[0]?.id
 

@@ -435,6 +435,36 @@ export type Database = {
           },
         ]
       }
+      sync_log: {
+        Row: {
+          id: string
+          triggered_by: string
+          status: string
+          rows_synced: number | null
+          errors: Json | null
+          started_at: string
+          completed_at: string | null
+        }
+        Insert: {
+          id?: string
+          triggered_by?: string
+          status?: string
+          rows_synced?: number | null
+          errors?: Json | null
+          started_at?: string
+          completed_at?: string | null
+        }
+        Update: {
+          id?: string
+          triggered_by?: string
+          status?: string
+          rows_synced?: number | null
+          errors?: Json | null
+          started_at?: string
+          completed_at?: string | null
+        }
+        Relationships: []
+      }
       wishlist: {
         Row: {
           created_at: string | null

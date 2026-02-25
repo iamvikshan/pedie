@@ -1,0 +1,82 @@
+import { NextResponse } from 'next/server'
+import { getUser } from '@lib/auth/helpers'
+import { isUserAdmin } from '@lib/auth/admin'
+import { updateListing, deleteListing } from '@lib/data/admin'
+
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const user = await getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const admin = await isUserAdmin(user.id)
+    if (!admin) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    const { id } = await params
+    const body = await request.json()
+
+    const allowed = {
+      product_id: body.product_id,
+      storage: body.storage,
+      color: body.color,
+      carrier: body.carrier,
+      condition: body.condition,
+      battery_health: body.battery_health,
+      price_kes: body.price_kes,
+      original_price_usd: body.original_price_usd,
+      landed_cost_kes: body.landed_cost_kes,
+      images: body.images,
+      is_preorder: body.is_preorder,
+      is_sold: body.is_sold,
+      is_featured: body.is_featured,
+      status: body.status,
+      source: body.source,
+      source_url: body.source_url,
+      source_listing_id: body.source_listing_id,
+      sheets_row_id: body.sheets_row_id,
+      notes: body.notes,
+    }
+
+    const listing = await updateListing(id, allowed)
+    return NextResponse.json(listing)
+  } catch (error) {
+    console.error('Failed to update listing:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const user = await getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const admin = await isUserAdmin(user.id)
+    if (!admin) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    const { id } = await params
+    await deleteListing(id)
+    return NextResponse.json({ success: true })
+  } catch (error) {
+    console.error('Failed to delete listing:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
