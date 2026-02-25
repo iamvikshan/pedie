@@ -82,6 +82,34 @@ mock.module('@lib/data/listings', () => ({
       })
     return Promise.resolve(null)
   }),
+  getSimilarListings: mock(() => Promise.resolve([])),
+}))
+
+// Mock @lib/data/reviews
+mock.module('@lib/data/reviews', () => ({
+  getProductReviews: mock(() =>
+    Promise.resolve({ data: [], count: 0 })
+  ),
+  getReviewStats: mock(() =>
+    Promise.resolve({
+      averageRating: 0,
+      totalReviews: 0,
+      distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+    })
+  ),
+}))
+
+// Mock @lib/cart/store
+mock.module('@lib/cart/store', () => ({
+  useCartStore: mock((selector: (state: Record<string, unknown>) => unknown) => {
+    const state = {
+      items: [],
+      addListing: mock(),
+      removeListing: mock(),
+      hasListing: () => false,
+    }
+    return selector(state)
+  }),
 }))
 
 // Import components after mocking

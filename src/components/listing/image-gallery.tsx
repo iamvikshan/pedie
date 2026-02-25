@@ -11,6 +11,10 @@ interface ImageGalleryProps {
 export function ImageGallery({ images, productName }: ImageGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0)
 
+  // Clamp selectedIndex to valid range without useEffect to avoid cascading renders
+  const safeIndex =
+    images.length === 0 ? 0 : Math.min(selectedIndex, images.length - 1)
+
   if (!images || images.length === 0) {
     return (
       <div className='flex items-center justify-center rounded-lg border border-pedie-border bg-pedie-card aspect-square'>
@@ -39,7 +43,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
     <div>
       <div className='relative aspect-square rounded-lg border border-pedie-border bg-pedie-card overflow-hidden'>
         <Image
-          src={images[selectedIndex]}
+          src={images[safeIndex]}
           alt={productName}
           fill
           className='object-contain'
@@ -54,12 +58,12 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
               key={index}
               onClick={() => setSelectedIndex(index)}
               className={`relative h-16 w-16 flex-shrink-0 rounded-md border overflow-hidden ${
-                index === selectedIndex
+                index === safeIndex
                   ? 'border-pedie-green ring-2 ring-pedie-green'
                   : 'border-pedie-border hover:border-pedie-text-muted'
               }`}
               aria-label={`View image ${index + 1}`}
-              aria-pressed={index === selectedIndex}
+              aria-pressed={index === safeIndex}
             >
               <Image
                 src={image}

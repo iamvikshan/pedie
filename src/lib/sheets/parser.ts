@@ -16,7 +16,14 @@ export interface SheetRow {
 }
 
 export function cleanNumericString(value: string): string {
-  const hasLeadingMinus = value.trimStart().startsWith('-')
+  if (value == null) return ''
+  if (typeof value !== 'string') value = String(value)
+  // Detect negative: find a minus sign before the first digit
+  const firstDigitIndex = value.search(/\d/)
+  const hasNegative =
+    firstDigitIndex > -1
+      ? value.slice(0, firstDigitIndex).includes('-')
+      : value.includes('-')
   // Strip everything except digits and dots
   const raw = value.replace(/[^0-9.]/g, '')
   // Keep only the first decimal point
@@ -27,7 +34,7 @@ export function cleanNumericString(value: string): string {
       : raw.slice(0, firstDot + 1) + raw.slice(firstDot + 1).replace(/\./g, '')
   // Return empty string for invalid results
   if (!digits || digits === '.') return ''
-  return hasLeadingMinus ? `-${digits}` : digits
+  return hasNegative ? `-${digits}` : digits
 }
 
 export function parseSheetRow(

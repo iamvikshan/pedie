@@ -81,11 +81,7 @@ export default async function ListingPage({ params }: PageProps) {
             depositAmount={deposit}
           />
 
-          <AddToCart
-            listingId={listing.listing_id}
-            isPreorder={listing.is_preorder}
-            isSold={listing.is_sold}
-          />
+          <AddToCart listing={listing} />
 
           <ShippingInfo />
         </div>

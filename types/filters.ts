@@ -1,5 +1,6 @@
 import type { ConditionGrade } from '@app-types/product'
 
+// 'best-selling' intentionally omitted — requires sales data aggregation (deferred to Phase 6: Admin Dashboard)
 export type SortOption = 'newest' | 'price-asc' | 'price-desc'
 
 export interface ListingFilters {

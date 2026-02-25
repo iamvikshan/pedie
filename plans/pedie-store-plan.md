@@ -3,6 +3,8 @@
 Build a full-featured, custom-coded e-commerce store for Pedie Tech (pedie.tech) — a refurbished electronics reseller in Kenya — modeled after Reebelo's UX. The stack uses **Next.js 16.1.6** (App Router) on **Bun**, **Supabase** for DB/auth, **Google Sheets** as inventory source with per-item listing IDs (à la Swappa), **M-Pesa Daraja API** + **PayPal** for payments, **GitHub Actions** for automated price crawling, and **Docker** for GCP VM deployment (following Amina's patterns). The **Flutter** mobile app is deferred to a follow-up project.
 
 **Runtime:** Bun (native tests, scripts, package management)
+**⚠️ IMPORTANT:** Always use `bun` for all commands — `bun test`, `bun run build`, `bun install`, `bun run lint`, `bun check`, etc. Do NOT use `npm`, `npx`, or `node` directly. Bun is significantly faster and is the project's designated runtime.
+**✅ Quality Gate:** Every phase MUST pass `bun check` (`bun lint && tsc --noEmit`) before completion. Run `bun f && bun check && bun test` at the end of every phase to verify formatting, linting, type-checking, and tests all pass.
 **Hosting:** Vercel (Next.js frontend/SSR) + self-hosted GCP VM (containerized services, crawlers, sync workers)
 **Repo:** Repurpose `pedie-tech/info` → rename to `iamvikshan/pedie`, develop in-place
 **UI Design:** Google Stitch MCP (with stitch-skills installed) for screen generation
@@ -199,7 +201,9 @@ IMPORTANT: STRICTLY DO NOT use `npm/npx/node`, use `bun` always, unless you must
 
 ### 4. **Phase 4: Shopping Cart, Checkout & Payment Integration**
 
-- **Objective:** Implement shopping cart (Zustand + localStorage), multi-step checkout, M-Pesa Daraja API (STK Push, sandbox first), PayPal, and the preorder deposit flow (5% phones < KES 70k, 10% laptops ≥ KES 70k). Each cart item is a specific listing (unique unit), not a generic product. Include order confirmation and tracking pages.
+- **Objective:** Implement shopping cart (Zustand + localStorage), multi-step checkout, M-Pesa Daraja API (STK Push, sandbox first), PayPal, and the preorder deposit flow (5% phones < KES 70k, 10% laptops ≥ KES 70k). Each cart item is a specific listing (unique unit), not a generic product. Include order confirmation and tracking pages. Use popup/AJAX-based payment processing to avoid excessive page navigation.
+
+  **Note:** Cart uses localStorage only in this phase. Abandoned cart tracking and server-side cart sync for authenticated users are deferred to Phase 5.
 
 - **Files/Functions to Modify/Create:**
   - `src/lib/cart/store.ts` — Zustand cart store with localStorage persistence
@@ -257,17 +261,22 @@ IMPORTANT: STRICTLY DO NOT use `npm/npx/node`, use `bun` always, unless you must
 
 ### 5. **Phase 5: Authentication, User Accounts & Email**
 
-- **Objective:** Implement Supabase Auth with Google Sign-In (customers) and Gmail/GitHub (admin — just you), user profiles, order history, wishlist, and transactional email via Gmail API. Admin auth: single admin identified by your email, with `role: admin` in `profiles` table.
+- **Objective:** Implement Supabase Auth with Email/Password + Google Sign-In, user profiles, order history, wishlist, abandoned cart tracking (server-side cart sync for authenticated users), and transactional email via Gmail API. Checkout requires authentication for order tracking and updates. Admin access: single admin identified by email/user ID stored in `profiles` table with `role: admin`. Admin dashboard is accessed via an "Admin" button on the profile page (which re-authenticates if needed and navigates to Phase 6 admin dashboard). PayPal is payment-only (not an auth provider) — implementing a custom PayPal OAuth flow would add significant complexity for minimal benefit since Google covers the same users.
+
+- **Deferred Items (from Phase 5 reviews):**
+  - Server-side cart sync for authenticated users / abandoned cart tracking — deferred to Phase 6 or later
+  - M-Pesa callback IP allowlisting — deferred until production deployment (Phase 7)
+  - `src/proxy.ts` (Next.js 16 proxy convention) — not implemented; middleware + server-side `requireAuth()` used instead
 
 - **Files/Functions to Modify/Create:**
-  - `src/lib/auth/config.ts` — Supabase Auth config (Google + GitHub OAuth)
+  - `src/lib/auth/config.ts` — Supabase Auth config (Email/Password + Google OAuth)
   - `src/app/auth/signin/page.tsx` — sign in (email/password + Google)
   - `src/app/auth/signup/page.tsx` — sign up
   - `src/app/auth/callback/route.ts` — OAuth callback
   - `src/components/auth/signin-form.tsx` — email + password form
   - `src/components/auth/social-signin.tsx` — "Continue with Google" button
   - `src/components/auth/auth-provider.tsx` — React context for auth state
-  - `src/app/account/page.tsx` — user dashboard
+  - `src/app/account/page.tsx` — user dashboard (shows "Admin" button if user is admin)
   - `src/app/account/profile/page.tsx` — edit profile
   - `src/app/account/orders/page.tsx` — order history
   - `src/app/account/orders/[id]/page.tsx` — order detail
@@ -275,33 +284,36 @@ IMPORTANT: STRICTLY DO NOT use `npm/npx/node`, use `bun` always, unless you must
   - `src/components/account/profile-form.tsx` — editable profile
   - `src/components/account/order-list.tsx` — paginated orders
   - `src/components/account/wishlist-grid.tsx` — wishlist items
+  - `src/lib/auth/admin.ts` — admin check helper (`isAdmin(userId)` — checks `profiles.role === 'admin'`)
+  - ~~`src/lib/cart/sync.ts`~~ — **[DEFERRED to Phase 6]** server-side cart sync for authenticated users (abandoned cart tracking)
   - `src/lib/email/gmail.ts` — Gmail API client
   - `src/lib/email/templates.ts` — HTML email templates
   - `src/app/api/email/send/route.ts` — send email API
-  - `src/proxy.ts` — auth-protect `/account/*`, `/checkout`, `/admin/*` (Next.js 16 proxy convention, Node.js runtime)
+  - ~~`src/proxy.ts`~~ — **[DEFERRED / not implemented]** Next.js 16 proxy convention; middleware + server-side `requireAuth()` used instead
 
 - **Tests to Write:**
   - `tests/components/auth/signin-form.test.tsx` — validation, submission
   - `tests/components/auth/social-signin.test.tsx` — Google button renders, triggers OAuth
-  - `tests/app/account/profile.test.tsx` — loads user data, saves
+  - `tests/app/account/profile.test.tsx` — loads user data, saves, shows Admin button for admin user
   - `tests/app/account/orders.test.tsx` — order list, pagination
   - `tests/app/account/wishlist.test.tsx` — renders, remove
   - `tests/lib/email/gmail.test.ts` — sending, templates
+  - `tests/lib/auth/admin.test.ts` — admin role check
   - `tests/proxy.test.ts` — redirects unauthenticated, admin role check
 
 - **Steps:**
-  1. Configure Supabase Auth: email/password + Google OAuth + GitHub OAuth. Set redirect URLs.
+  1. Configure Supabase Auth: email/password + Google OAuth. Set redirect URLs.
   2. Write tests for proxy — unauthenticated → redirect to `/auth/signin`, admin routes check `role === 'admin'`.
   3. Run tests — red.
   4. Implement `src/proxy.ts` with Supabase session + role checking (exports `proxy` function, defaults to Node.js runtime).
   5. Run tests — green.
   6. Write tests for signin form and social signin.
   7. Run tests — red.
-  8. Build signin page (email/password + "Continue with Google"), signup page, OAuth callback. For admin: also show "Continue with GitHub" on `/admin` login.
+  8. Build signin page (email/password + "Continue with Google"), signup page, OAuth callback.
   9. Run tests — green.
   10. Write tests for profile, order history, wishlist pages.
   11. Run tests — red.
-  12. Build account pages: dashboard, profile editor (name, phone, Kenyan address), order history, wishlist.
+  12. Build account pages: dashboard (with "Admin" button for admin user), profile editor (name, phone, Kenyan address), order history, wishlist.
   13. Run tests — green.
   14. Write tests for Gmail API email sending and templates.
   15. Run tests — red.
@@ -309,7 +321,14 @@ IMPORTANT: STRICTLY DO NOT use `npm/npx/node`, use `bun` always, unless you must
   17. Run tests — green.
   18. Integrate email triggers into order flow.
   19. Add wishlist heart icon to product-card. Update header with logged-in user menu.
-  20. Set your email as admin in `profiles.role` via Supabase dashboard or migration seed.
+  20. Implement server-side cart sync for authenticated users — sync localStorage cart to Supabase on login, track abandoned carts for follow-up emails.
+  21. Set your email as admin in `profiles.role` via Supabase dashboard or migration seed. The "Admin" button on the profile page navigates to `/admin` (Phase 6).
+  22. **[Deferred from Phase 4 Review]** Secure API routes with auth:
+      - `src/app/api/orders/route.ts` — Replace `body.userId || 'anonymous'` with authenticated user ID from server session (currently allows userId spoofing).
+      - `src/app/api/orders/[id]/route.ts` — Add auth check so users can only view their own orders.
+      - `src/app/orders/[id]/page.tsx` — Add auth guard so users can only view their own order detail page.
+      - `src/app/api/payments/mpesa/status/route.ts` — Add auth check to prevent unauthenticated payment status queries.
+      - `src/app/api/payments/mpesa/callback/route.ts` — Add IP allowlisting for Safaricom IPs (secret token check already added in Phase 4 review fixes).
 
 ---
 
@@ -392,6 +411,7 @@ IMPORTANT: STRICTLY DO NOT use `npm/npx/node`, use `bun` always, unless you must
   - `.github/workflows/sheets-rebuild.yml` — Google Sheets webhook → trigger Vercel redeploy / ISR revalidation
   - Update `docker-compose.prod.yml` — finalize GCP VM services
   - Update `scripts/deploy.sh` — production-ready VPS deployment
+  - `src/proxy.ts` — **Migrate `middleware.ts` → `proxy.ts`**: rename the exported `middleware` function to `proxy` (or run `npx @next/codemod@canary middleware-to-proxy .`). Proxy runs on Node.js runtime; middleware continues only for Edge runtime needs. This is the Next.js 16 proxy convention replacing the deprecated middleware pattern.
 
 - **Tests to Write:**
   - `tests/seo/sitemap.test.ts` — sitemap includes all products and collections
@@ -409,8 +429,9 @@ IMPORTANT: STRICTLY DO NOT use `npm/npx/node`, use `bun` always, unless you must
   9. Create Sheets webhook → GitHub Actions workflow: Sheet update → trigger Vercel revalidation.
   10. Lighthouse audit: target 90+ on Performance, Accessibility, SEO, Best Practices.
   11. Security review: RLS policies, API route auth, CSRF, rate limiting.
-  12. Production smoke test: browse → add to cart → checkout → M-Pesa sandbox → order confirmation.
-  13. Go live. 🚀
+  12. Add privacy policy page disclosing `@vercel/speed-insights` telemetry (Web Vitals, page URLs, user-agent collection), including purposes, legal basis under Kenya DPA and GDPR, third-party transfer to Vercel, retention period, and opt-out mechanisms. Consider adding a consent UI or server-side opt-out flag for SpeedInsights.
+  13. Production smoke test: browse → add to cart → checkout → M-Pesa sandbox → order confirmation.
+  14. Go live. 🚀
 
 ---
 

@@ -58,9 +58,20 @@ export default async function CollectionPage({
   const filters: ListingFilters = {}
 
   if (resolvedSearchParams.condition) {
-    filters.condition = resolvedSearchParams.condition.split(
-      ','
-    ) as ConditionGrade[]
+    const allowedGrades: ConditionGrade[] = [
+      'acceptable',
+      'good',
+      'excellent',
+      'premium',
+    ]
+    const validGrades = resolvedSearchParams.condition
+      .split(',')
+      .filter((g): g is ConditionGrade =>
+        allowedGrades.includes(g as ConditionGrade)
+      )
+    if (validGrades.length > 0) {
+      filters.condition = validGrades
+    }
   }
   if (resolvedSearchParams.brand) {
     filters.brand = resolvedSearchParams.brand.split(',')

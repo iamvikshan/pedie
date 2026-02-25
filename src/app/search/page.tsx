@@ -105,21 +105,72 @@ export default async function SearchPage({ searchParams }: PageProps) {
                 </Link>
               )}
 
-              {Array.from({ length: results.totalPages }, (_, i) => i + 1).map(
-                p => (
-                  <Link
-                    key={p}
-                    href={`/search?q=${encodeURIComponent(query)}${p > 1 ? `&page=${p}` : ''}`}
-                    className={`inline-flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium transition-colors ${
-                      p === page
-                        ? 'bg-pedie-green text-white'
-                        : 'border border-pedie-border bg-pedie-card text-pedie-text hover:bg-pedie-border'
-                    }`}
-                  >
-                    {p}
-                  </Link>
-                )
-              )}
+              {(() => {
+                const maxVisible = 5
+                const half = Math.floor(maxVisible / 2)
+                let start = Math.max(1, page - half)
+                const end = Math.min(results.totalPages, start + maxVisible - 1)
+                if (end - start + 1 < maxVisible) {
+                  start = Math.max(1, end - maxVisible + 1)
+                }
+                const pages: React.ReactNode[] = []
+                if (start > 1) {
+                  pages.push(
+                    <Link
+                      key={1}
+                      href={`/search?q=${encodeURIComponent(query)}`}
+                      className='inline-flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium transition-colors border border-pedie-border bg-pedie-card text-pedie-text hover:bg-pedie-border'
+                    >
+                      1
+                    </Link>
+                  )
+                  if (start > 2)
+                    pages.push(
+                      <span
+                        key='start-ellipsis'
+                        className='px-1 text-pedie-text-muted'
+                      >
+                        …
+                      </span>
+                    )
+                }
+                for (let p = start; p <= end; p++) {
+                  pages.push(
+                    <Link
+                      key={p}
+                      href={`/search?q=${encodeURIComponent(query)}${p > 1 ? `&page=${p}` : ''}`}
+                      className={`inline-flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+                        p === page
+                          ? 'bg-pedie-green text-white'
+                          : 'border border-pedie-border bg-pedie-card text-pedie-text hover:bg-pedie-border'
+                      }`}
+                    >
+                      {p}
+                    </Link>
+                  )
+                }
+                if (end < results.totalPages) {
+                  if (end < results.totalPages - 1)
+                    pages.push(
+                      <span
+                        key='end-ellipsis'
+                        className='px-1 text-pedie-text-muted'
+                      >
+                        …
+                      </span>
+                    )
+                  pages.push(
+                    <Link
+                      key={results.totalPages}
+                      href={`/search?q=${encodeURIComponent(query)}&page=${results.totalPages}`}
+                      className='inline-flex h-10 w-10 items-center justify-center rounded-lg text-sm font-medium transition-colors border border-pedie-border bg-pedie-card text-pedie-text hover:bg-pedie-border'
+                    >
+                      {results.totalPages}
+                    </Link>
+                  )
+                }
+                return pages
+              })()}
 
               {page < results.totalPages && (
                 <Link

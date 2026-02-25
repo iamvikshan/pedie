@@ -3,6 +3,9 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { Header } from '@components/layout/header'
 import { Footer } from '@components/layout/footer'
+import { CartHydration } from '@components/cart/cart-hydration'
+import { AuthProvider } from '@components/auth/auth-provider'
+import { WishlistProvider } from '@components/wishlist/wishlist-provider'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 
 const inter = Inter({
@@ -26,9 +29,14 @@ export default function RootLayout({
       <body
         className={`${inter.variable} antialiased bg-pedie-dark text-pedie-text min-h-screen flex flex-col`}
       >
-        <Header />
-        <main className='flex-1'>{children}</main>
-        <Footer />
+        <AuthProvider>
+          <WishlistProvider>
+            <CartHydration />
+            <Header />
+            <main className='flex-1'>{children}</main>
+            <Footer />
+          </WishlistProvider>
+        </AuthProvider>
         <SpeedInsights />
       </body>
     </html>

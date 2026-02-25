@@ -3,8 +3,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
 import { SearchBar } from './search-bar'
+import { useAuth } from '@components/auth/auth-provider'
+import { createClient } from '@lib/supabase/client'
+import { useRouter } from 'next/navigation'
 
 export function MobileNav() {
+  const { user, loading, profile } = useAuth()
+  const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const hamburgerRef = useRef<HTMLButtonElement>(null)
@@ -182,23 +187,81 @@ export function MobileNav() {
             </nav>
 
             <div className='mt-auto pt-6 border-t border-pedie-border'>
-              <button className='flex items-center gap-3 text-lg font-medium text-pedie-text hover:text-pedie-green transition-colors w-full'>
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  width='24'
-                  height='24'
-                  viewBox='0 0 24 24'
-                  fill='none'
-                  stroke='currentColor'
-                  strokeWidth='2'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                >
-                  <path d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2' />
-                  <circle cx='12' cy='7' r='4' />
-                </svg>
-                Sign In
-              </button>
+              {loading ? (
+                <div className='h-10 rounded-lg bg-pedie-card animate-pulse' />
+              ) : user ? (
+                <div className='flex flex-col gap-3'>
+                  <p className='text-sm font-medium text-pedie-text truncate'>
+                    {profile?.full_name ||
+                      user.user_metadata?.full_name ||
+                      'User'}
+                  </p>
+                  <Link
+                    href='/account'
+                    onClick={close}
+                    className='text-base text-pedie-text hover:text-pedie-green transition-colors'
+                  >
+                    My Account
+                  </Link>
+                  <Link
+                    href='/account/orders'
+                    onClick={close}
+                    className='text-base text-pedie-text hover:text-pedie-green transition-colors'
+                  >
+                    My Orders
+                  </Link>
+                  <Link
+                    href='/account/wishlist'
+                    onClick={close}
+                    className='text-base text-pedie-text hover:text-pedie-green transition-colors'
+                  >
+                    Wishlist
+                  </Link>
+                  <button
+                    onClick={async () => {
+                      const supabase = createClient()
+                      await supabase.auth.signOut()
+                      close()
+                      router.push('/')
+                      router.refresh()
+                    }}
+                    className='text-left text-base text-red-400 hover:text-red-300 transition-colors'
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              ) : (
+                <div className='flex flex-col gap-3'>
+                  <Link
+                    href='/auth/signin'
+                    onClick={close}
+                    className='flex items-center gap-3 text-lg font-medium text-pedie-text hover:text-pedie-green transition-colors'
+                  >
+                    <svg
+                      xmlns='http://www.w3.org/2000/svg'
+                      width='24'
+                      height='24'
+                      viewBox='0 0 24 24'
+                      fill='none'
+                      stroke='currentColor'
+                      strokeWidth='2'
+                      strokeLinecap='round'
+                      strokeLinejoin='round'
+                    >
+                      <path d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2' />
+                      <circle cx='12' cy='7' r='4' />
+                    </svg>
+                    Sign In
+                  </Link>
+                  <Link
+                    href='/auth/signup'
+                    onClick={close}
+                    className='text-base text-pedie-green hover:underline'
+                  >
+                    Create Account
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </>

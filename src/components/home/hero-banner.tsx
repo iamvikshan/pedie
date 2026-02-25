@@ -103,9 +103,9 @@ export function HeroBanner() {
           type='button'
           onClick={() => setIsManuallyPaused(p => !p)}
           className='ml-2 flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/40 transition-colors'
-          aria-label={isPaused ? 'Resume slideshow' : 'Pause slideshow'}
+          aria-label={isManuallyPaused ? 'Resume slideshow' : 'Pause slideshow'}
         >
-          {isPaused ? (
+          {isManuallyPaused ? (
             <svg className='h-3 w-3' viewBox='0 0 24 24' fill='currentColor'>
               <path d='M8 5v14l11-7z' />
             </svg>

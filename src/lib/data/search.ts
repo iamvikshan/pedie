@@ -8,6 +8,13 @@ import type {
 
 const DEFAULT_PAGINATION: PaginationParams = { page: 1, perPage: 20 }
 
+/**
+ * Maximum number of product IDs returned by the FTS stage.
+ * This caps the .in('product_id', ...) clause to avoid exceeding URL length limits.
+ * If the catalogue grows beyond this, consider paging the FTS or using a server-side RPC.
+ */
+const MAX_FTS_CANDIDATES = 100
+
 export async function searchListings(
   query: string,
   filters?: ListingFilters,
@@ -22,6 +29,9 @@ export async function searchListings(
     .from('products')
     .select('id')
     .textSearch('fts', query, { type: 'websearch' })
+    // TODO: If catalogue grows beyond MAX_FTS_CANDIDATES, revisit architecture
+    // (paginate FTS results or move join into a server-side RPC)
+    .limit(MAX_FTS_CANDIDATES)
 
   if (searchError || !matchedProducts) {
     console.error('Error searching products:', searchError)
@@ -67,6 +77,9 @@ export async function searchListings(
   }
   if (filters?.carrier && filters.carrier.length > 0) {
     listingQuery = listingQuery.in('carrier', filters.carrier)
+  }
+  if (filters?.brand && filters.brand.length > 0) {
+    listingQuery = listingQuery.in('product.brand', filters.brand)
   }
   if (filters?.priceMin !== undefined) {
     listingQuery = listingQuery.gte('price_kes', filters.priceMin)
@@ -115,6 +128,9 @@ export async function searchListings(
   if (filters?.carrier && filters.carrier.length > 0) {
     countQuery = countQuery.in('carrier', filters.carrier)
   }
+  if (filters?.brand && filters.brand.length > 0) {
+    countQuery = countQuery.in('product.brand', filters.brand)
+  }
   if (filters?.priceMin !== undefined) {
     countQuery = countQuery.gte('price_kes', filters.priceMin)
   }
@@ -129,13 +145,27 @@ export async function searchListings(
   if (countError) {
     console.error('Error fetching search count:', countError.message)
   }
-  const total = count ?? (data as unknown[])?.length ?? 0
+  const safePerPage = Math.max(1, pag.perPage)
+
+  // Fall back to from + data.length when count query fails, so pagination stays usable.
+  // When a full page is returned, add 1 so consumers see a possible next page.
+  // TRADEOFF: This heuristic may produce a phantom "next" link when the true total
+  // is exactly a multiple of perPage (the extra page will be empty). This is a deliberate
+  // UX choice — showing an empty last page is preferable to hiding real results when the
+  // count query is unavailable. The flicker is expected and self-corrects on the next load.
+  let total: number
+  if (countError) {
+    const dataLen = (data as unknown[])?.length ?? 0
+    total = from + dataLen + (dataLen >= safePerPage ? 1 : 0)
+  } else {
+    total = count ?? 0
+  }
 
   return {
     data: (data as unknown as ListingWithProduct[]) ?? [],
     total,
     page: pag.page,
-    perPage: pag.perPage,
-    totalPages: Math.ceil(total / pag.perPage),
+    perPage: safePerPage,
+    totalPages: Math.ceil(total / safePerPage),
   }
 }

@@ -6,6 +6,7 @@ export const WARRANTY_MONTHS = 3
 export const SHIPPING_DAYS_MIN = 7
 export const SHIPPING_DAYS_MAX = 14
 export const LISTING_ID_PREFIX = 'PD'
+export const DEFAULT_COLLECTION_HREF = '/collections'
 
 export function usdToKes(usd: number): number {
   return Math.round(usd * KES_USD_RATE)

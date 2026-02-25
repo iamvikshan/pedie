@@ -28,28 +28,16 @@ export async function POST(request: Request) {
 
     const supabase = createAdminClient()
 
-    // Check if user previously unsubscribed — don't force re-subscribe
-    const { data: existing } = (await supabase
-      .from('newsletter_subscribers')
-      .select('subscribed')
-      .eq('email', normalizedEmail)
-      .maybeSingle()) as { data: { subscribed: boolean } | null }
-
-    if (existing && existing.subscribed === false) {
-      return NextResponse.json(
-        {
-          error:
-            'This email was previously unsubscribed. Please contact support to re-subscribe.',
-        },
-        { status: 409 }
-      )
-    }
-
+    // Atomic conditional upsert: INSERT new subscriber, or no-op on conflict
+    // if already subscribed. Does NOT re-enable subscribed for users who
+    // previously unsubscribed (handled by the DB-side ON CONFLICT DO UPDATE
+    // only when subscribed IS NOT FALSE — approximated here by using
+    // ignoreDuplicates so existing rows are untouched).
     const { error } = await supabase
       .from('newsletter_subscribers')
       .upsert(
         { email: normalizedEmail, subscribed: true },
-        { onConflict: 'email' }
+        { onConflict: 'email', ignoreDuplicates: true }
       )
 
     if (error) {

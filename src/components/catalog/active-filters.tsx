@@ -15,7 +15,9 @@ export function ActiveFilters({
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  const hasFilters = Object.keys(currentFilters).length > 0
+  const hasFilters = Object.values(currentFilters).some(v =>
+    Array.isArray(v) ? v.length > 0 : Boolean(v)
+  )
   if (!hasFilters) return null
 
   const removeFilter = (key: string, valueToRemove?: string) => {

@@ -2,8 +2,12 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import type { ListingWithProduct } from '@app-types/product'
 import { formatKes, calculateDiscount } from '@lib/constants'
+import { useCartStore } from '@lib/cart/store'
+import { useWishlist } from '@lib/wishlist/use-wishlist'
+import { useAuth } from '@components/auth/auth-provider'
 import { ConditionBadge } from './condition-badge'
 import { Button } from './button'
 
@@ -12,6 +16,12 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ listing }: ProductCardProps) {
+  const addListing = useCartStore(s => s.addListing)
+  const inCart = useCartStore(s => s.hasListing(listing.listing_id))
+  const { user } = useAuth()
+  const { isWishlisted, toggleWishlist } = useWishlist()
+  const router = useRouter()
+
   if (!listing.product) return null
 
   const { product } = listing
@@ -44,6 +54,7 @@ export function ProductCard({ listing }: ProductCardProps) {
               stroke='currentColor'
               viewBox='0 0 24 24'
               xmlns='http://www.w3.org/2000/svg'
+              aria-hidden='true'
             >
               <path
                 strokeLinecap='round'
@@ -64,6 +75,45 @@ export function ProductCard({ listing }: ProductCardProps) {
             </span>
           )}
         </div>
+
+        {/* Wishlist Heart */}
+        <button
+          type='button'
+          className='absolute top-2 right-2 relative z-10 p-1.5 rounded-full bg-black/40 hover:bg-black/60 transition-colors'
+          onClick={e => {
+            e.preventDefault()
+            e.stopPropagation()
+            if (!user) {
+              router.push('/auth/signin')
+              return
+            }
+            toggleWishlist(listing.product.id)
+          }}
+          aria-label={
+            isWishlisted(listing.product.id)
+              ? `Remove ${productName} from wishlist`
+              : `Add ${productName} to wishlist`
+          }
+        >
+          <svg
+            className={`w-5 h-5 transition-colors ${
+              isWishlisted(listing.product.id)
+                ? 'fill-red-500 text-red-500'
+                : 'fill-none text-white'
+            }`}
+            stroke='currentColor'
+            viewBox='0 0 24 24'
+            xmlns='http://www.w3.org/2000/svg'
+            aria-hidden='true'
+          >
+            <path
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              strokeWidth={2}
+              d='M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z'
+            />
+          </svg>
+        </button>
       </div>
 
       {/* Content Section */}
@@ -78,6 +128,7 @@ export function ProductCard({ listing }: ProductCardProps) {
                 stroke='currentColor'
                 viewBox='0 0 24 24'
                 xmlns='http://www.w3.org/2000/svg'
+                aria-hidden='true'
               >
                 <path
                   strokeLinecap='round'
@@ -115,11 +166,34 @@ export function ProductCard({ listing }: ProductCardProps) {
 
           <Button
             className='w-full relative z-10'
-            onClick={() => {
-              // TODO: integrate with cart store (Phase 4)
+            variant={inCart ? 'secondary' : 'primary'}
+            disabled={inCart}
+            onClick={e => {
+              e.preventDefault()
+              addListing(listing)
             }}
           >
-            Add to Cart
+            {inCart ? (
+              <>
+                <svg
+                  className='mr-2 h-4 w-4'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                  aria-hidden='true'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth={2}
+                    d='M5 13l4 4L19 7'
+                  />
+                </svg>
+                In Cart
+              </>
+            ) : (
+              'Add to Cart'
+            )}
           </Button>
         </div>
       </div>

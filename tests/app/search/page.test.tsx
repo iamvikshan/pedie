@@ -85,6 +85,19 @@ mock.module('next/image', () => ({
   ),
 }))
 
+// Mock @lib/cart/store
+mock.module('@lib/cart/store', () => ({
+  useCartStore: mock((selector: (state: Record<string, unknown>) => unknown) => {
+    const state = {
+      items: [],
+      addListing: mock(),
+      removeListing: mock(),
+      hasListing: () => false,
+    }
+    return selector(state)
+  }),
+}))
+
 import SearchPage from '@/app/search/page'
 
 describe('SearchPage', () => {

@@ -71,7 +71,7 @@ export function SustainabilitySection() {
 
           <Link
             href='/collections/smartphones'
-            className='inline-flex items-center justify-center rounded-md bg-pedie-green px-8 py-3 text-base font-medium text-white transition-colors hover:bg-pedie-green/90'
+            className='inline-flex items-center justify-center rounded-md bg-pedie-green px-8 py-3 text-base font-medium text-white transition-colors hover:bg-pedie-green/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pedie-green focus-visible:ring-offset-2 focus-visible:ring-offset-pedie-dark'
           >
             Start Shopping
           </Link>

@@ -51,6 +51,7 @@ export function SearchBar() {
         <input
           type='search'
           placeholder='Search for devices...'
+          aria-label='Search devices'
           value={query}
           onChange={e => setQuery(e.target.value)}
           className={`h-10 w-full bg-transparent px-2 text-sm text-pedie-text placeholder:text-pedie-text-muted focus:outline-none ${isExpanded ? 'opacity-100' : 'opacity-0 md:opacity-100'}`}
