@@ -9,3 +9,5 @@ types/
 plans/
 docs/
 CHANGELOG.md
+.husky/
+*ignore

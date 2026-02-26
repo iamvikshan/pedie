@@ -8,7 +8,47 @@ import { createAdminClient } from '@lib/supabase/admin'
 /** Terminal states that should not be overwritten */
 const TERMINAL_STATES = new Set(['confirmed', 'delivered', 'cancelled'])
 
+/**
+ * Safaricom's documented IP ranges for M-Pesa STK Push callbacks.
+ *
+ * Source: Safaricom Daraja API documentation & developer portal
+ * (https://developer.safaricom.co.ke) — "API Security" section.
+ *
+ * These /24 blocks cover Safaricom's M-Pesa callback infrastructure:
+ *   - 196.201.212.0/24
+ *   - 196.201.213.0/24
+ *   - 196.201.214.0/24
+ *
+ * Maintenance: Verify these ranges annually or when onboarding a new
+ * Daraja environment by contacting Safaricom Developer Support
+ * (apisupport@safaricom.co.ke) or checking the Daraja portal.
+ * Monitor production logs for rejected IPs that may indicate new ranges.
+ */
+const SAFARICOM_IP_RANGES = ['196.201.214.', '196.201.212.', '196.201.213.']
+
 export async function POST(request: Request) {
+  // IP allowlist: only allow Safaricom IPs in production
+  // Prefer non-spoofable platform headers, fall back to rightmost x-forwarded-for
+  const clientIp =
+    request.headers.get('x-real-ip')?.trim() ||
+    request.headers.get('x-vercel-forwarded-for')?.trim() ||
+    (() => {
+      const forwarded = request.headers.get('x-forwarded-for')
+      if (!forwarded) return ''
+      const parts = forwarded.split(',')
+      return parts[parts.length - 1]?.trim() ?? ''
+    })()
+
+  if (process.env.DARAJA_ENV === 'production') {
+    const isAllowed = SAFARICOM_IP_RANGES.some(prefix =>
+      clientIp.startsWith(prefix)
+    )
+    if (!isAllowed) {
+      console.warn(`M-Pesa callback: rejected IP ${clientIp}`)
+      return NextResponse.json({ ResultCode: 0, ResultDesc: 'Accepted' })
+    }
+  }
+
   // Validate callback secret via header (not query param, to avoid logging)
   const expectedSecret = process.env.MPESA_CALLBACK_SECRET
   if (expectedSecret) {

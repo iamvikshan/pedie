@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { getUser } from '@lib/auth/helpers'
 import { isUserAdmin } from '@lib/auth/admin'
 import { createAdminClient } from '@lib/supabase/admin'
+import { validateMagicBytes } from '@lib/security/magic-bytes'
 
 export async function POST(request: Request) {
   try {
@@ -67,6 +68,13 @@ export async function POST(request: Request) {
     const path = fileName
 
     const buffer = Buffer.from(await file.arrayBuffer())
+
+    if (!validateMagicBytes(buffer, file.type)) {
+      return NextResponse.json(
+        { error: 'File content does not match declared type' },
+        { status: 400 }
+      )
+    }
 
     const { error } = await supabase.storage
       .from('product-images')

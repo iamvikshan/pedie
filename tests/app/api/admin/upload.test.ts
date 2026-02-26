@@ -120,7 +120,11 @@ describe('POST /api/admin/upload', () => {
   test('accepts valid image upload', async () => {
     mockGetUser.mockResolvedValue(adminUser)
     mockIsUserAdmin.mockResolvedValue(true)
-    const file = new File(['test-image-data'], 'photo.png', {
+    // PNG magic bytes (min 12 bytes for magic byte detection)
+    const pngBytes = new Uint8Array([
+      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0,
+    ])
+    const file = new File([pngBytes], 'photo.png', {
       type: 'image/png',
     })
     const res = await POST(makeFileRequest(file))
@@ -132,7 +136,11 @@ describe('POST /api/admin/upload', () => {
   test('accepts webp images', async () => {
     mockGetUser.mockResolvedValue(adminUser)
     mockIsUserAdmin.mockResolvedValue(true)
-    const file = new File(['test'], 'photo.webp', { type: 'image/webp' })
+    // WebP magic bytes: RIFF....WEBP
+    const webpBytes = new Uint8Array([
+      0x52, 0x49, 0x46, 0x46, 0, 0, 0, 0, 0x57, 0x45, 0x42, 0x50,
+    ])
+    const file = new File([webpBytes], 'photo.webp', { type: 'image/webp' })
     const res = await POST(makeFileRequest(file))
     expect(res.status).toBe(201)
   })
@@ -140,8 +148,26 @@ describe('POST /api/admin/upload', () => {
   test('accepts gif images', async () => {
     mockGetUser.mockResolvedValue(adminUser)
     mockIsUserAdmin.mockResolvedValue(true)
-    const file = new File(['test'], 'anim.gif', { type: 'image/gif' })
+    // GIF magic bytes
+    const gifBytes = new Uint8Array([
+      0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0, 0, 0, 0, 0, 0,
+    ])
+    const file = new File([gifBytes], 'anim.gif', { type: 'image/gif' })
     const res = await POST(makeFileRequest(file))
     expect(res.status).toBe(201)
+  })
+
+  test('returns 400 when magic bytes do not match MIME type', async () => {
+    mockGetUser.mockResolvedValue(adminUser)
+    mockIsUserAdmin.mockResolvedValue(true)
+    // PNG magic bytes but claiming JPEG MIME type
+    const pngBytes = new Uint8Array([
+      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0,
+    ])
+    const file = new File([pngBytes], 'fake.jpg', { type: 'image/jpeg' })
+    const res = await POST(makeFileRequest(file))
+    expect(res.status).toBe(400)
+    const data = await res.json()
+    expect(data.error).toContain('File content does not match declared type')
   })
 })

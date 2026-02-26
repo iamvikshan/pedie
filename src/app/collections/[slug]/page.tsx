@@ -8,6 +8,11 @@ import type {
   PaginationParams,
 } from '@app-types/filters'
 import type { ConditionGrade } from '@app-types/product'
+import {
+  collectionJsonLd,
+  breadcrumbJsonLd,
+  safeJsonLd,
+} from '@lib/seo/structured-data'
 
 import { CollectionBanner } from '@components/catalog/collection-banner'
 import { FilterSidebar } from '@components/catalog/filter-sidebar'
@@ -34,10 +39,17 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${category.name} | Pedie`,
+    title: category.name,
     description:
       category.description ||
       `Browse our collection of ${category.name.toLowerCase()} at Pedie.`,
+    openGraph: {
+      title: `${category.name} | Pedie Tech`,
+      description:
+        category.description ||
+        `Browse our collection of ${category.name.toLowerCase()} at Pedie.`,
+      images: category.image_url ? [category.image_url] : undefined,
+    },
   }
 }
 
@@ -114,43 +126,65 @@ export default async function CollectionPage({
   ])
 
   return (
-    <div className='container mx-auto px-4 py-8'>
-      <CollectionBanner
-        category={category}
-        listingCount={paginatedResult.total}
+    <>
+      <script
+        type='application/ld+json'
+        dangerouslySetInnerHTML={{
+          __html: safeJsonLd(collectionJsonLd(category, paginatedResult.total)),
+        }}
       />
+      <script
+        type='application/ld+json'
+        dangerouslySetInnerHTML={{
+          __html: safeJsonLd(
+            breadcrumbJsonLd([
+              { name: 'Home', url: 'https://pedie.tech' },
+              {
+                name: category.name,
+                url: `https://pedie.tech/collections/${category.slug}`,
+              },
+            ])
+          ),
+        }}
+      />
+      <div className='container mx-auto px-4 py-8'>
+        <CollectionBanner
+          category={category}
+          listingCount={paginatedResult.total}
+        />
 
-      <div className='flex flex-col lg:flex-row gap-8'>
-        {/* Sidebar */}
-        <aside className='w-full lg:w-1/4 flex-shrink-0'>
-          <FilterSidebar
-            availableFilters={availableFilters}
-            currentFilters={filters}
-            categorySlug={slug}
-          />
-        </aside>
+        <div className='flex flex-col lg:flex-row gap-8'>
+          {/* Sidebar */}
+          <aside className='w-full lg:w-1/4 flex-shrink-0'>
+            <FilterSidebar
+              availableFilters={availableFilters}
+              currentFilters={filters}
+              categorySlug={slug}
+            />
+          </aside>
 
-        {/* Main Content */}
-        <main className='w-full lg:w-3/4'>
-          <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4'>
-            <h2 className='text-xl font-semibold text-pedie-text'>
-              {paginatedResult.total}{' '}
-              {paginatedResult.total === 1 ? 'Result' : 'Results'}
-            </h2>
-            <SortDropdown currentSort={sort} categorySlug={slug} />
-          </div>
+          {/* Main Content */}
+          <main className='w-full lg:w-3/4'>
+            <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4'>
+              <h2 className='text-xl font-semibold text-pedie-text'>
+                {paginatedResult.total}{' '}
+                {paginatedResult.total === 1 ? 'Result' : 'Results'}
+              </h2>
+              <SortDropdown currentSort={sort} categorySlug={slug} />
+            </div>
 
-          <ActiveFilters currentFilters={filters} categorySlug={slug} />
+            <ActiveFilters currentFilters={filters} categorySlug={slug} />
 
-          <ProductGrid listings={paginatedResult.data} />
+            <ProductGrid listings={paginatedResult.data} />
 
-          <Pagination
-            currentPage={paginatedResult.page}
-            totalPages={paginatedResult.totalPages}
-            categorySlug={slug}
-          />
-        </main>
+            <Pagination
+              currentPage={paginatedResult.page}
+              totalPages={paginatedResult.totalPages}
+              categorySlug={slug}
+            />
+          </main>
+        </div>
       </div>
-    </div>
+    </>
   )
 }

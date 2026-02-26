@@ -33,7 +33,8 @@
         "Supabase.vscode-supabase-extension",
         "coderabbit.coderabbit-vscode",
         "DeepScan.vscode-deepscan",
-        "jetbrains.qodana-code"
+        "jetbrains.qodana-code",
+        "shenyq.gs-lang"
       ]
     }
   },

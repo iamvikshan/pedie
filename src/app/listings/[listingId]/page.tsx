@@ -3,6 +3,11 @@ import type { Metadata } from 'next'
 import { getListingById, getSimilarListings } from '@lib/data/listings'
 import { getProductReviews, getReviewStats } from '@lib/data/reviews'
 import { formatKes, calculateDeposit } from '@lib/constants'
+import {
+  productJsonLd,
+  breadcrumbJsonLd,
+  safeJsonLd,
+} from '@lib/seo/structured-data'
 
 import { ImageGallery } from '@components/listing/image-gallery'
 import { ListingInfo } from '@components/listing/listing-info'
@@ -29,9 +34,19 @@ export async function generateMetadata({
     return { title: 'Listing Not Found | Pedie' }
   }
 
+  const allImages = [
+    ...(listing.images || []),
+    ...(listing.product.images || []),
+  ].filter(Boolean)
+
   return {
-    title: `${listing.product.brand} ${listing.product.model} - ${listing.listing_id} | Pedie`,
+    title: `${listing.product.brand} ${listing.product.model} - ${listing.listing_id}`,
     description: `Buy ${listing.product.brand} ${listing.product.model} (${listing.condition}) for ${formatKes(listing.price_kes)}`,
+    openGraph: {
+      title: `${listing.product.brand} ${listing.product.model}`,
+      description: `${listing.condition} condition - ${formatKes(listing.price_kes)}`,
+      images: allImages.length > 0 ? [allImages[0]] : undefined,
+    },
   }
 }
 
@@ -57,54 +72,82 @@ export default async function ListingPage({ params }: PageProps) {
   ])
 
   return (
-    <main className='mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
-      {/* Above the fold: image + info */}
-      <div className='grid grid-cols-1 gap-8 md:grid-cols-2'>
-        {/* Left column: Image Gallery */}
-        <ImageGallery
-          images={allImages}
-          productName={`${product.brand} ${product.model}`}
-        />
-
-        {/* Right column: Listing Info */}
-        <div className='flex flex-col gap-4'>
-          <ListingInfo listing={listing} />
-
-          <PriceDisplay
-            priceKes={listing.price_kes}
-            originalPriceKes={product.original_price_kes}
-            isPreorder={listing.is_preorder}
+    <>
+      <script
+        type='application/ld+json'
+        dangerouslySetInnerHTML={{
+          __html: safeJsonLd(productJsonLd(listing)),
+        }}
+      />
+      <script
+        type='application/ld+json'
+        dangerouslySetInnerHTML={{
+          __html: safeJsonLd(
+            breadcrumbJsonLd([
+              { name: 'Home', url: 'https://pedie.tech' },
+              {
+                name: listing.product.category?.name || 'Products',
+                url: listing.product.category?.slug
+                  ? `https://pedie.tech/collections/${listing.product.category.slug}`
+                  : 'https://pedie.tech/collections',
+              },
+              {
+                name: `${listing.product.brand} ${listing.product.model}`,
+                url: `https://pedie.tech/listings/${listing.listing_id}`,
+              },
+            ])
+          ),
+        }}
+      />
+      <main className='mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
+        {/* Above the fold: image + info */}
+        <div className='grid grid-cols-1 gap-8 md:grid-cols-2'>
+          {/* Left column: Image Gallery */}
+          <ImageGallery
+            images={allImages}
+            productName={`${product.brand} ${product.model}`}
           />
 
-          <PreorderBadge
-            isPreorder={listing.is_preorder}
-            depositAmount={deposit}
-          />
+          {/* Right column: Listing Info */}
+          <div className='flex flex-col gap-4'>
+            <ListingInfo listing={listing} />
 
-          <AddToCart listing={listing} />
+            <PriceDisplay
+              priceKes={listing.price_kes}
+              originalPriceKes={product.original_price_kes}
+              isPreorder={listing.is_preorder}
+            />
 
-          <ShippingInfo />
+            <PreorderBadge
+              isPreorder={listing.is_preorder}
+              depositAmount={deposit}
+            />
+
+            <AddToCart listing={listing} />
+
+            <ShippingInfo />
+          </div>
         </div>
-      </div>
 
-      {/* Below the fold: specs, description */}
-      <div className='mt-12 grid grid-cols-1 gap-8 lg:grid-cols-2'>
-        <ProductSpecs specs={product.specs} />
-        <ProductDescription
-          description={product.description}
-          keyFeatures={product.key_features}
-        />
-      </div>
+        {/* Below the fold: specs, description */}
+        <div className='mt-12 grid grid-cols-1 gap-8 lg:grid-cols-2'>
+          <ProductSpecs specs={product.specs} />
+          <ProductDescription
+            description={product.description}
+            keyFeatures={product.key_features}
+          />
+        </div>
 
-      {/* Below the fold: related & reviews */}
-      <div className='mt-12'>
-        <SimilarListings listings={similarListings} />
-        <CustomerReviews
-          reviews={reviews.data}
-          stats={reviewStats}
-          totalReviews={reviewStats.totalReviews}
-        />
-      </div>
-    </main>
+        {/* Below the fold: related & reviews */}
+        <div className='mt-12'>
+          <SimilarListings listings={similarListings} />
+          <CustomerReviews
+            reviews={reviews.data}
+            stats={reviewStats}
+            totalReviews={reviewStats.totalReviews}
+          />
+        </div>
+      </main>
+    </>
   )
 }
