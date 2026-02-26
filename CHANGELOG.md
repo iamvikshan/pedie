@@ -1,3 +1,14 @@
+## [1.1.0](https://github.com/iamvikshan/pedie/compare/v1.0.0...v1.1.0) (2026-02-26)
+
+### Features
+
+* add admin dashboard and price crawlers ([8dd7dc6](https://github.com/iamvikshan/pedie/commit/8dd7dc64433188ab854b1cbb5be07b6ca70760c2))
+* complete Phase 7 - security, CI/CD, and deployment ([26bd576](https://github.com/iamvikshan/pedie/commit/26bd576444199a56c2acda2d3ca324e112f19119))
+
+### Bug Fixes
+
+* resolve CodeRabbit findings across admin dashboard ([01437b5](https://github.com/iamvikshan/pedie/commit/01437b5ab38004f51fb599b70a996043c0359c43))
+
 ## [1.1.0](https://github.com/iamvikshan/pedie/compare/v1.0.0...v1.1.0) (2026-02-25)
 
 ### Features
