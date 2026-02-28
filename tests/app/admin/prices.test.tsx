@@ -56,10 +56,10 @@ mock.module('next/navigation', () => ({
 
 // Import AFTER mocking
 const { PriceComparisonTable } = await import(
-  '@components/admin/price-comparison-table'
+  '@components/admin/priceComparisonTable'
 )
 const { MarginIndicator } = await import(
-  '@components/admin/margin-indicator'
+  '@components/admin/marginIndicator'
 )
 
 // ── Tests ──────────────────────────────────────────────────────────────────
@@ -172,7 +172,7 @@ describe('Admin Prices', () => {
 
   describe('Prices Page', () => {
     test('renders page with last crawl date', async () => {
-      const AdminPricesPage = (await import('@/app/admin/prices/page'))
+      const AdminPricesPage = (await import('@/app/(admin)/admin/prices/page'))
         .default
       const element = await AdminPricesPage()
       const html = renderToString(element)
@@ -181,7 +181,7 @@ describe('Admin Prices', () => {
     })
 
     test('shows total comparisons count', async () => {
-      const AdminPricesPage = (await import('@/app/admin/prices/page'))
+      const AdminPricesPage = (await import('@/app/(admin)/admin/prices/page'))
         .default
       const element = await AdminPricesPage()
       const html = renderToString(element)
@@ -192,7 +192,7 @@ describe('Admin Prices', () => {
     })
 
     test('shows last crawl date', async () => {
-      const AdminPricesPage = (await import('@/app/admin/prices/page'))
+      const AdminPricesPage = (await import('@/app/(admin)/admin/prices/page'))
         .default
       const element = await AdminPricesPage()
       const html = renderToString(element)

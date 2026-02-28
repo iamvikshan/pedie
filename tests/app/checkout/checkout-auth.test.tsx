@@ -24,7 +24,7 @@ mock.module('next/navigation', () => ({
   }),
 }))
 
-mock.module('@components/auth/auth-provider', () => ({
+mock.module('@components/auth/authProvider', () => ({
   useAuth: () => mockUseAuth(),
   AuthProvider: ({ children }: { children: React.ReactNode }) =>
     React.createElement('div', null, children),
@@ -40,37 +40,37 @@ mock.module('@lib/cart/store', () => ({
     }),
 }))
 
-mock.module('@lib/constants', () => ({
+mock.module('@helpers', () => ({
   formatKes: mock((amount: number) => `KES ${amount.toLocaleString('en-KE')}`),
   calculateDeposit: mock((price: number) => Math.round(price * 0.05)),
   KES_USD_RATE: 130,
 }))
 
-mock.module('@components/checkout/checkout-steps', () => ({
+mock.module('@components/checkout/checkoutSteps', () => ({
   CheckoutSteps: mock(() =>
     React.createElement('div', { 'data-testid': 'checkout-steps' })
   ),
 }))
 
-mock.module('@components/checkout/shipping-form', () => ({
+mock.module('@components/checkout/shippingForm', () => ({
   ShippingForm: mock(() =>
     React.createElement('div', { 'data-testid': 'shipping-form' })
   ),
 }))
 
-mock.module('@components/checkout/payment-selector', () => ({
+mock.module('@components/checkout/paymentSelector', () => ({
   PaymentSelector: mock(() =>
     React.createElement('div', { 'data-testid': 'payment-selector' })
   ),
 }))
 
-mock.module('@components/checkout/mpesa-payment', () => ({
+mock.module('@components/checkout/mpesaPayment', () => ({
   MpesaPayment: mock(() =>
     React.createElement('div', { 'data-testid': 'mpesa-payment' })
   ),
 }))
 
-mock.module('@components/checkout/paypal-payment', () => ({
+mock.module('@components/checkout/paypalPayment', () => ({
   PaypalPayment: mock(() =>
     React.createElement('div', { 'data-testid': 'paypal-payment' })
   ),
@@ -83,7 +83,7 @@ mock.module('@components/ui/button', () => ({
 }))
 
 // Import AFTER mocking
-const { default: CheckoutPage } = await import('@/app/checkout/page')
+const { default: CheckoutPage } = await import('@/app/(store)/checkout/page')
 
 // ── Tests ──────────────────────────────────────────────────────────────────
 

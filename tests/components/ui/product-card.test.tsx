@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'bun:test'
 import type { ListingWithProduct } from '@app-types/product'
-import { calculateDiscount, formatKes } from '@lib/constants'
+import { calculateDiscount, formatKes } from '@helpers'
 
 /**
  * ProductCard uses React hooks (useCartStore) which require a DOM environment.

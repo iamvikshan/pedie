@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getUser, isAdmin } from '@lib/auth/helpers'
+import { getUser, isAdmin } from '@helpers/auth'
 import { sendEmail, isEmailConfigured } from '@lib/email/gmail'
 
 export async function POST(request: Request) {

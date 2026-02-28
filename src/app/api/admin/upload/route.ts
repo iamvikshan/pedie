@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
-import { getUser } from '@lib/auth/helpers'
+import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
 import { createAdminClient } from '@lib/supabase/admin'
-import { validateMagicBytes } from '@lib/security/magic-bytes'
+import { validateMagicBytes } from '@lib/security/magicBytes'
 
 export async function POST(request: Request) {
   try {

@@ -31,7 +31,7 @@ const mockRequireAuth = mock(
   () => Promise.resolve({ id: 'user-1' }) as any
 )
 
-mock.module('@lib/auth/helpers', () => ({
+mock.module('@helpers/auth', () => ({
   requireAuth: mockRequireAuth,
   getUser: mock(() => Promise.resolve(null)),
   getProfile: mock(() => Promise.resolve(null)),
@@ -51,7 +51,7 @@ mock.module('@components/admin/sidebar', () => ({
   ),
 }))
 
-const AdminLayout = (await import('@/app/admin/layout')).default
+const AdminLayout = (await import('@/app/(admin)/admin/layout')).default
 
 // ── Tests ──────────────────────────────────────────────────────────────────
 

@@ -22,7 +22,12 @@
       "@/*": ["./src/*"],
       "@app-types/*": ["./types/*"],
       "@lib/*": ["./src/lib/*"],
-      "@components/*": ["./src/components/*"]
+      "@components/*": ["./src/components/*"],
+      "@config": ["./packages/config"],
+      "@config/*": ["./packages/config/*"],
+      "@utils/*": ["./packages/utils/*"],
+      "@helpers": ["./packages/helpers"],
+      "@helpers/*": ["./packages/helpers/*"]
     }
   },
   "include": [

@@ -1,11 +1,11 @@
 'use client'
 
 import Link from 'next/link'
-import { SearchBar } from './search-bar'
-import { MobileNav } from './mobile-nav'
+import { SearchBar } from './searchBar'
+import { MobileNav } from './mobileNav'
 import { useCartStore } from '@lib/cart/store'
-import { useAuth } from '@components/auth/auth-provider'
-import { UserMenu } from '@components/auth/user-menu'
+import { useAuth } from '@components/auth/authProvider'
+import { UserMenu } from '@components/auth/userMenu'
 
 export function Header() {
   const itemCount = useCartStore(s => s.getItemCount())

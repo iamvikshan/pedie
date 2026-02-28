@@ -3,11 +3,11 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { Header } from '@components/layout/header'
 import { Footer } from '@components/layout/footer'
-import { CartHydration } from '@components/cart/cart-hydration'
-import { AuthProvider } from '@components/auth/auth-provider'
-import { WishlistProvider } from '@components/wishlist/wishlist-provider'
+import { CartHydration } from '@components/cart/cartHydration'
+import { AuthProvider } from '@components/auth/authProvider'
+import { WishlistProvider } from '@components/wishlist/wishlistProvider'
 import { SpeedInsights } from '@vercel/speed-insights/next'
-import { organizationJsonLd, safeJsonLd } from '@lib/seo/structured-data'
+import { organizationJsonLd, safeJsonLd } from '@lib/seo/structuredData'
 
 const inter = Inter({
   variable: '--font-inter',

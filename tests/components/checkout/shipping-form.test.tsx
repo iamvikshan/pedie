@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test'
-import { validateKenyanPhone } from '@components/checkout/shipping-form'
+import { validateKenyanPhone } from '@components/checkout/shippingForm'
 
 describe('ShippingForm', () => {
   describe('validateKenyanPhone', () => {

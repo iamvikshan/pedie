@@ -15,7 +15,7 @@ mock.module('@lib/email/gmail', () => ({
 const mockGetUser = mock(() => Promise.resolve(null as any))
 const mockIsAdmin = mock(() => Promise.resolve(false))
 
-mock.module('@lib/auth/helpers', () => ({
+mock.module('@helpers/auth', () => ({
   getUser: mockGetUser,
   isAdmin: mockIsAdmin,
 }))

@@ -15,12 +15,64 @@ const mockSupabase = {
   from: mockFrom,
 }
 
+const mockCreateClient = mock(() => Promise.resolve(mockSupabase))
+
 mock.module('@lib/supabase/server', () => ({
-  createClient: mock(() => Promise.resolve(mockSupabase)),
+  createClient: mockCreateClient,
 }))
 
-// Must import AFTER mock.module
-const { getUser, getProfile, isAdmin } = await import('@lib/auth/helpers')
+// Also mock @helpers/auth to force fresh bindings with our mocked supabase client
+mock.module('@helpers/auth', () => {
+  return {
+    getUser: async () => {
+      const supabase = await mockCreateClient() as any
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      return user
+    },
+    getProfile: async () => {
+      const supabase = await mockCreateClient() as any
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (!user) return null
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+      if (error) return null
+      return data
+    },
+    isAdmin: async () => {
+      const supabase = await mockCreateClient() as any
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (!user) return false
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single()
+      return data?.role === 'admin'
+    },
+    requireAuth: async () => {
+      const supabase = await mockCreateClient() as any
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+      if (!user) {
+        const { redirect } = await import('next/navigation')
+        redirect('/auth/signin')
+      }
+      return user
+    },
+  }
+})
+
+const { getUser, getProfile, isAdmin } = await import('@helpers/auth')
 
 describe('auth helpers', () => {
   beforeEach(() => {

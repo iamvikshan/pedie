@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'bun:test'
 import React from 'react'
 import { renderToString } from 'react-dom/server'
-import { PriceDisplay } from '@components/listing/price-display'
+import { PriceDisplay } from '@components/listing/priceDisplay'
 
 describe('PriceDisplay', () => {
   test('shows formatted price', () => {

@@ -34,43 +34,73 @@
 ## Project Structure
 
 ```
+packages/                   # Shared, framework-agnostic modules
+ config/                   # Business constants & non-secret config (@config)
+ helpers/                  # Business-logic helper functions (@helpers)
+   ├── pricing.ts            # usdToKes, calculateDeposit, formatKes, calculateDiscount
+   ├── listing.ts            # generateListingId
+   ├── auth.ts               # getUser, getProfile, isAdmin, requireAuth
+   └── index.ts              # Barrel export
+ utils/                    # Pure utility functions (@utils/*)
+   ├── currency.ts           # KES ↔ USD conversion
+   ├── format.ts             # Date formatting, URL validation
+   └── slug.ts               # Slug generation (shared across admin forms & API)
 src/
- app/                    # Next.js App Router pages & API routes
-   ├── admin/              # Admin dashboard (10 management pages)
-   ├── account/            # User account (orders, wishlist, settings)
-   ├── api/                # API routes (payments, sync, revalidate, admin)
-   ├── auth/               # Sign in/up pages
-   ├── cart/               # Shopping cart
-   ├── checkout/           # Multi-step checkout
-   ├── collections/[slug]/ # Category browsing with filters
-   ├── listings/[id]/      # Individual listing detail
-   └── privacy/            # Privacy policy
- components/             # React components
-   ├── admin/              # Admin UI (DataTable, forms, charts)
-   ├── catalog/            # Filters, grid, pagination
-   ├── home/               # Homepage sections
-   ├── layout/             # Header, footer, mobile nav
-   ├── listing/            # Listing detail components
-   └── ui/                 # Reusable primitives (button, badge, card)
- lib/                    # Business logic
-   ├── auth/               # Auth helpers (getUser, requireAuth, isAdmin)
-   ├── cart/               # Zustand cart store
-   ├── data/               # Supabase data layer (products, orders, admin)
-   ├── email/              # Gmail API client + templates
-   ├── payments/           # M-Pesa Daraja + PayPal clients
-   ├── security/           # Magic bytes validation
-   ├── seo/                # JSON-LD structured data helpers
-   └── supabase/           # Client, server, admin Supabase clients
- proxy.ts                # Next.js 16 proxy (session refresh + security headers)
+ app/                      # Next.js App Router
+   ├── (store)/              # Public storefront routes
+   │   ├── listings/[id]/    #   Listing detail page
+   │   ├── collections/[slug]/ # Category browsing with filters
+   │   ├── search/           #   Search results
+   │   ├── cart/             #   Shopping cart
+   │   ├── checkout/         #   Multi-step checkout
+   │   ├── orders/[id]/      #   Order tracking
+   │   └── privacy/          #   Privacy policy
+   ├── (auth)/               # Auth routes (sign in/up)
+   ├── (account)/            # User account (orders, wishlist, settings)
+   ├── (admin)/              # Admin dashboard (10 management pages)
+   ├── api/                  # API routes (payments, sync, admin, etc.)
+   ├── layout.tsx            # Root layout (header, footer, providers)
+   └── page.tsx              # Homepage
+ components/               # React components
+   ├── admin/                # Admin UI (DataTable, forms, charts)
+   ├── catalog/              # Filters, grid, pagination
+   ├── home/                 # Homepage sections
+   ├── layout/               # Header, footer, mobile nav
+   ├── listing/              # Listing detail components
+   └── ui/                   # Reusable primitives (Button, Badge, ProductCard)
+ lib/                      # Server-side & app-specific logic
+   ├── api/                  # API route helpers (withApiHandler)
+   ├── auth/                 # Auth helpers + admin guard (requireAdmin)
+   ├── cart/                 # Zustand cart store
+   ├── data/                 # Supabase data layer (products, orders, admin)
+   ├── email/                # Gmail API client + templates
+   ├── payments/             # M-Pesa Daraja + PayPal clients
+   ├── security/             # Magic bytes validation
+   ├── seo/                  # JSON-LD structured data helpers
+   └── supabase/             # Client, server, admin Supabase clients
+ proxy.ts                  # Next.js 16 proxy (session refresh + security headers)
 types/                      # TypeScript types (database, product, order, user, cart, filters)
 scripts/
- crawlers/               # Price crawlers (7 sites)
- google-apps-script/     # Sheets inventory sync
- seed.ts                 # Database seed (20 products, 28 listings)
- deploy.sh               # VPS deployment script
-tests/                      # 662 tests across 84 files
+ crawlers/                 # Price crawlers (7 competitor sites)
+ google-apps-script/       # Sheets inventory sync
+ seed.ts                   # Database seed (20 products, 28 listings)
+ deploy.sh                 # VPS deployment script
+tests/                      # 678 tests across 88 files
 docs/ops/                   # Deployment guides (Next.js, Odoo, WooCommerce)
 ```
+
+### Path Aliases
+
+| Alias           | Maps to              | Use for                                  |
+| --------------- | -------------------- | ---------------------------------------- |
+| `@/*`           | `src/*`              | App code (components, lib, app routes)   |
+| `@config`       | `packages/config`    | Business constants & non-secret config   |
+| `@helpers`      | `packages/helpers`   | Business-logic helper functions          |
+| `@helpers/*`    | `packages/helpers/*` | Individual helper modules                |
+| `@utils/*`      | `packages/utils/*`   | Pure utility functions                   |
+| `@lib/*`        | `src/lib/*`          | Server-side logic (data, auth, payments) |
+| `@components/*` | `src/components/*`   | React components                         |
+| `@app-types/*`  | `types/*`            | TypeScript type definitions              |
 
 ## Quick Start
 
@@ -98,7 +128,7 @@ bun f                       # format with Prettier
 | `bun build` | Production build                |
 | `bun start` | Start production server         |
 | `bun check` | ESLint + TypeScript type check  |
-| `bun test`  | Run 662 tests                   |
+| `bun test`  | Run 678 tests                   |
 | `bun f`     | Format all files (Prettier)     |
 | `bun seed`  | Seed database with sample data  |
 | `bun crawl` | Run price crawlers manually     |

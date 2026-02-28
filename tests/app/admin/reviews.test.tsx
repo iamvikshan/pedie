@@ -49,7 +49,7 @@ mock.module('next/navigation', () => ({
 }))
 
 // Import AFTER mocking
-const { reviewColumns } = await import('@/app/admin/reviews/columns')
+const { reviewColumns } = await import('@/app/(admin)/admin/reviews/columns')
 
 // ── Tests ──────────────────────────────────────────────────────────────────
 

@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'bun:test'
 import { renderToString } from 'react-dom/server'
-import { CustomerReviews } from '@components/listing/customer-reviews'
+import { CustomerReviews } from '@components/listing/customerReviews'
 
 const mockStats = {
   averageRating: 4.2,

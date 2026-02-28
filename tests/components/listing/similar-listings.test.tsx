@@ -22,7 +22,7 @@ mock.module('next/image', () => ({
   ),
 }))
 
-import { SimilarListings } from '@components/listing/similar-listings'
+import { SimilarListings } from '@components/listing/similarListings'
 
 const mockListing = {
   id: 'uuid-1',

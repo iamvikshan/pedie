@@ -50,10 +50,10 @@ mock.module('next/navigation', () => ({
 
 // Import AFTER mocking
 const { newsletterColumns } = await import(
-  '@/app/admin/newsletter/columns'
+  '@/app/(admin)/admin/newsletter/columns'
 )
 const { NewsletterExportButton } = await import(
-  '@components/admin/newsletter-export-button'
+  '@components/admin/newsletterExportButton'
 )
 
 // ── Tests ──────────────────────────────────────────────────────────────────

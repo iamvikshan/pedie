@@ -1,7 +1,7 @@
 import { describe, test, expect, mock } from 'bun:test'
 import React from 'react'
 import { renderToString } from 'react-dom/server'
-import { ProductGrid } from '@components/catalog/product-grid'
+import { ProductGrid } from '@components/catalog/productGrid'
 import type { ListingWithProduct } from '@app-types/product'
 
 // Mock next/link

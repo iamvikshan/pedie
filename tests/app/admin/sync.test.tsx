@@ -34,8 +34,8 @@ mock.module('next/navigation', () => ({
 }))
 
 // Import AFTER mocking
-const { SyncStatus } = await import('@components/admin/sync-status')
-const { SyncLog } = await import('@components/admin/sync-log')
+const { SyncStatus } = await import('@components/admin/syncStatus')
+const { SyncLog } = await import('@components/admin/syncLog')
 
 // ── Tests ──────────────────────────────────────────────────────────────────
 

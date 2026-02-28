@@ -114,7 +114,7 @@ mock.module('@lib/cart/store', () => ({
 
 // Import components after mocking
 const { default: ListingPage, generateMetadata } =
-  await import('@/app/listings/[listingId]/page')
+  await import('@/app/(store)/listings/[listingId]/page')
 const { getListingById } = await import('@lib/data/listings')
 
 describe('ListingPage', () => {

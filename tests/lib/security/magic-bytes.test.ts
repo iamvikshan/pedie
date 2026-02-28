@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test'
-import { detectMimeType, validateMagicBytes } from '@lib/security/magic-bytes'
+import { detectMimeType, validateMagicBytes } from '@lib/security/magicBytes'
 
 describe('magic-bytes', () => {
   test('detects JPEG', () => {

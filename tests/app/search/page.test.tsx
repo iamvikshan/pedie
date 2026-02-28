@@ -98,7 +98,7 @@ mock.module('@lib/cart/store', () => ({
   }),
 }))
 
-import SearchPage from '@/app/search/page'
+import SearchPage from '@/app/(store)/search/page'
 
 describe('SearchPage', () => {
   test('renders search results for query', async () => {

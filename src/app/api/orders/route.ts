@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getUser } from '@lib/auth/helpers'
+import { getUser } from '@helpers/auth'
 import { createOrder } from '@lib/data/orders'
 import type { CreateOrderInput } from '@lib/data/orders'
 import { sendOrderConfirmation } from '@lib/email/send'

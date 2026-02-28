@@ -36,7 +36,7 @@ const mockGetUser = mock(() => Promise.resolve(null as any))
 const mockGetProfile = mock(() => Promise.resolve(null as any))
 const mockRequireAuth = mock(() => Promise.resolve(null as any))
 
-mock.module('@lib/auth/helpers', () => ({
+mock.module('@helpers/auth', () => ({
   getUser: mockGetUser,
   getProfile: mockGetProfile,
   requireAuth: mockRequireAuth,
@@ -54,13 +54,13 @@ mock.module('@lib/data/orders', () => ({
 }))
 
 // Mock order sub-components
-mock.module('@components/orders/status-timeline', () => ({
+mock.module('@components/orders/statusTimeline', () => ({
   OrderStatusTimeline: mock(({ status }: { status: string }) =>
     React.createElement('div', { 'data-testid': 'status-timeline' }, status)
   ),
 }))
 
-mock.module('@components/orders/order-items', () => ({
+mock.module('@components/orders/orderItems', () => ({
   OrderItemsList: mock(({ items }: { items: any[] }) =>
     React.createElement(
       'div',
@@ -71,7 +71,7 @@ mock.module('@components/orders/order-items', () => ({
 }))
 
 // Mock @lib/constants
-mock.module('@lib/constants', () => ({
+mock.module('@config', () => ({
   formatKes: mock((amount: number) => `KES ${amount.toLocaleString('en-KE')}`),
   calculateDeposit: mock((price: number) => Math.round(price * 0.05)),
   KES_USD_RATE: 130,
@@ -79,14 +79,14 @@ mock.module('@lib/constants', () => ({
 
 // Mock client-side hooks used by WishlistPage
 const mockUseAuth = mock(() => ({ user: null as { id: string; email: string } | null, loading: false, profile: null }))
-mock.module('@components/auth/auth-provider', () => ({
+mock.module('@components/auth/authProvider', () => ({
   useAuth: mockUseAuth,
 }))
 
 const mockRemoveFromWishlist = mock(() => Promise.resolve())
 const mockToggleWishlist = mock(() => Promise.resolve())
 
-mock.module('@components/wishlist/wishlist-provider', () => ({
+mock.module('@components/wishlist/wishlistProvider', () => ({
   useWishlistContext: mock(() => ({
     productIds: new Set(),
     isWishlisted: mock(() => false),
@@ -96,7 +96,7 @@ mock.module('@components/wishlist/wishlist-provider', () => ({
   })),
 }))
 
-mock.module('@lib/wishlist/use-wishlist', () => ({
+mock.module('@lib/wishlist/useWishlist', () => ({
   useWishlist: mock(() => ({
     isWishlisted: mock(() => false),
     toggleWishlist: mock(() => Promise.resolve()),
@@ -107,17 +107,17 @@ mock.module('@lib/wishlist/use-wishlist', () => ({
 }))
 
 // Import components AFTER mocking
-const { default: AccountDashboard } = await import('@/app/account/page')
+const { default: AccountDashboard } = await import('@/app/(account)/account/page')
 const { default: OrdersListPage } = await import(
-  '@/app/account/orders/page'
+  '@/app/(account)/account/orders/page'
 )
 const { default: OrderDetailPage } = await import(
-  '@/app/account/orders/[id]/page'
+  '@/app/(account)/account/orders/[id]/page'
 )
 const { default: WishlistPage } = await import(
-  '@/app/account/wishlist/page'
+  '@/app/(account)/account/wishlist/page'
 )
-const { default: AccountLayout } = await import('@/app/account/layout')
+const { default: AccountLayout } = await import('@/app/(account)/account/layout')
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 

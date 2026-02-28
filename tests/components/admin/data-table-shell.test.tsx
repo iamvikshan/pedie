@@ -19,7 +19,7 @@ mock.module('next/navigation', () => ({
 
 // Import AFTER mocking
 const { DataTableShell } = await import(
-  '@components/admin/data-table-shell'
+  '@components/admin/dataTableShell'
 )
 
 // ── Test Data ──────────────────────────────────────────────────────────────

@@ -4,7 +4,7 @@ import {
   organizationJsonLd,
   breadcrumbJsonLd,
   collectionJsonLd,
-} from '@lib/seo/structured-data'
+} from '@lib/seo/structuredData'
 import type { ListingWithProduct, Category } from '@app-types/product'
 
 const mockListing: ListingWithProduct = {

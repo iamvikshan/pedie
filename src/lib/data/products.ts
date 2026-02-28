@@ -1,6 +1,6 @@
 import { createClient } from '@lib/supabase/server'
 import type { ListingWithProduct } from '@app-types/product'
-import { calculateDiscount } from '@lib/constants'
+import { calculateDiscount } from '@helpers'
 
 export async function getFeaturedListings(
   limit: number = 10

@@ -81,9 +81,9 @@ mock.module('recharts', () => ({
 }))
 
 // Import AFTER mocking
-const AdminDashboardPage = (await import('@/app/admin/page')).default
-const { KpiCards } = await import('@components/admin/kpi-cards')
-const { RecentOrders } = await import('@components/admin/recent-orders')
+const AdminDashboardPage = (await import('@/app/(admin)/admin/page')).default
+const { KpiCards } = await import('@components/admin/kpiCards')
+const { RecentOrders } = await import('@components/admin/recentOrders')
 
 // ── Tests ──────────────────────────────────────────────────────────────────
 

@@ -14,7 +14,7 @@ mock.module('next/image', () => ({
   }),
 }))
 
-const { ImageGallery } = await import('@components/listing/image-gallery')
+const { ImageGallery } = await import('@components/listing/imageGallery')
 
 describe('ImageGallery', () => {
   test('renders main image', () => {

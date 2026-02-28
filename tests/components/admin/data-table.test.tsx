@@ -15,15 +15,15 @@ mock.module('next/navigation', () => ({
 }))
 
 // Import AFTER mocking
-const { DataTable } = await import('@components/admin/data-table')
+const { DataTable } = await import('@components/admin/dataTable')
 const { DataTablePagination } = await import(
-  '@components/admin/data-table-pagination'
+  '@components/admin/dataTablePagination'
 )
 const { DataTableToolbar } = await import(
-  '@components/admin/data-table-toolbar'
+  '@components/admin/dataTableToolbar'
 )
 const { DataTableColumnHeader } = await import(
-  '@components/admin/data-table-column-header'
+  '@components/admin/dataTableColumnHeader'
 )
 
 // ── Test Data ──────────────────────────────────────────────────────────────

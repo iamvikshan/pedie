@@ -1,7 +1,7 @@
 import { describe, test, expect, mock } from 'bun:test'
 import React from 'react'
 import { renderToString } from 'react-dom/server'
-import { FilterSidebar } from '@components/catalog/filter-sidebar'
+import { FilterSidebar } from '@components/catalog/filterSidebar'
 import type { AvailableFilters, ListingFilters } from '@app-types/filters'
 
 // Mock next/navigation

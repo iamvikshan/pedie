@@ -64,9 +64,9 @@ mock.module('next/navigation', () => ({
 }))
 
 // Import AFTER mocking
-const { customerColumns } = await import('@/app/admin/customers/columns')
+const { customerColumns } = await import('@/app/(admin)/admin/customers/columns')
 const { CustomerRoleSwitcher } = await import(
-  '@components/admin/customer-role-switcher'
+  '@components/admin/customerRoleSwitcher'
 )
 
 // ── Tests ──────────────────────────────────────────────────────────────────

@@ -1,5 +1,24 @@
-import { describe, expect, test } from 'bun:test'
-import { createAdminClient } from '@lib/supabase/admin'
+import { describe, expect, test, mock } from 'bun:test'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import type { Database } from '@app-types/database'
+
+// Override any mock.module from other test files with the real implementation
+mock.module('@lib/supabase/admin', () => ({
+  createAdminClient: () => {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+    if (!supabaseUrl || !serviceRoleKey) {
+      throw new Error(
+        'Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY'
+      )
+    }
+    return createSupabaseClient<Database>(supabaseUrl, serviceRoleKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    })
+  },
+}))
+
+const { createAdminClient } = await import('@lib/supabase/admin')
 
 describe('Supabase client', () => {
   test('environment variables are set', () => {

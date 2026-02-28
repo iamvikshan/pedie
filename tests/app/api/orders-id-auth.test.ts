@@ -6,7 +6,7 @@ import { describe, test, expect, mock, beforeEach } from 'bun:test'
 
 const mockGetUser = mock(() => Promise.resolve(null as any))
 
-mock.module('@lib/auth/helpers', () => ({
+mock.module('@helpers/auth', () => ({
   getUser: () => mockGetUser(),
 }))
 

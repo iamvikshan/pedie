@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test'
-import { mapConditionToPedie } from '@lib/sync/condition-mapping'
+import { mapConditionToPedie } from '@lib/sync/conditionMapping'
 
 describe('mapConditionToPedie', () => {
   describe('Reebelo (1:1 mapping)', () => {

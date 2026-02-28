@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getUser } from '@lib/auth/helpers'
+import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
 import { getAdminCustomers } from '@lib/data/admin'
 

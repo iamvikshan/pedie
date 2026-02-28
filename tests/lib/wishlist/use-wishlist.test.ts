@@ -10,12 +10,12 @@ const mockUseContext = mock(() => ({
   loading: false,
 }))
 
-mock.module('@components/wishlist/wishlist-provider', () => ({
+mock.module('@components/wishlist/wishlistProvider', () => ({
   useWishlistContext: mockUseContext,
 }))
 
 // Import AFTER mocking
-const { useWishlist } = await import('@lib/wishlist/use-wishlist')
+const { useWishlist } = await import('@lib/wishlist/useWishlist')
 
 // ── Tests ──────────────────────────────────────────────────────────────────
 

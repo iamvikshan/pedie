@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'bun:test'
 // Test that the privacy page module exports correctly
-import PrivacyPage, { metadata } from '@/app/privacy/page'
+import PrivacyPage, { metadata } from '@/app/(store)/privacy/page'
 
 describe('Privacy Page', () => {
   test('exports metadata with title', () => {

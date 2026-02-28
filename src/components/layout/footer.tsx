@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { FooterNewsletterForm } from './footer-newsletter-form'
+import { FooterNewsletterForm } from './footerNewsletterForm'
 
 export function Footer() {
   return (

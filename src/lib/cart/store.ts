@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { ListingWithProduct } from '@app-types/product'
-import { calculateDeposit } from '@lib/constants'
+import { calculateDeposit } from '@helpers'
 
 interface CartStore {
   items: ListingWithProduct[]

@@ -28,13 +28,13 @@ mock.module('@lib/supabase/client', () => ({
 
 describe('SignUpForm', () => {
   test('module exports the component', async () => {
-    const mod = await import('@components/auth/signup-form')
+    const mod = await import('@components/auth/signupForm')
     expect(mod.SignUpForm).toBeDefined()
     expect(typeof mod.SignUpForm).toBe('function')
   })
 
   test('renders full name, email, and password fields', async () => {
-    const { SignUpForm } = await import('@components/auth/signup-form')
+    const { SignUpForm } = await import('@components/auth/signupForm')
     const html = renderToString(<SignUpForm />)
 
     expect(html).toContain('Full Name')
@@ -46,28 +46,28 @@ describe('SignUpForm', () => {
   })
 
   test('renders Google sign up button', async () => {
-    const { SignUpForm } = await import('@components/auth/signup-form')
+    const { SignUpForm } = await import('@components/auth/signupForm')
     const html = renderToString(<SignUpForm />)
 
     expect(html).toContain('Continue with Google')
   })
 
   test('renders create account submit button', async () => {
-    const { SignUpForm } = await import('@components/auth/signup-form')
+    const { SignUpForm } = await import('@components/auth/signupForm')
     const html = renderToString(<SignUpForm />)
 
     expect(html).toContain('Create Account')
   })
 
   test('renders divider between OAuth and email form', async () => {
-    const { SignUpForm } = await import('@components/auth/signup-form')
+    const { SignUpForm } = await import('@components/auth/signupForm')
     const html = renderToString(<SignUpForm />)
 
     expect(html).toMatch(/text-pedie-text-muted">or<\/span>/)
   })
 
   test('renders placeholder text for inputs', async () => {
-    const { SignUpForm } = await import('@components/auth/signup-form')
+    const { SignUpForm } = await import('@components/auth/signupForm')
     const html = renderToString(<SignUpForm />)
 
     expect(html).toContain('you@example.com')
@@ -76,7 +76,7 @@ describe('SignUpForm', () => {
   })
 
   test('password input has minLength of 6', async () => {
-    const { SignUpForm } = await import('@components/auth/signup-form')
+    const { SignUpForm } = await import('@components/auth/signupForm')
     const html = renderToString(<SignUpForm />)
 
     expect(html).toContain('minLength="6"')

@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test'
-import { kesToUsd } from '@lib/utils/currency'
+import { kesToUsd } from '@utils/currency'
 import { getApprovalUrl } from '@lib/payments/paypal'
 import type { PayPalOrder } from '@lib/payments/paypal'
 

@@ -46,8 +46,8 @@ mock.module('next/navigation', () => ({
 }))
 
 // Import AFTER mocking
-const { CategoryForm } = await import('@components/admin/category-form')
-const { categoryColumns } = await import('@/app/admin/categories/columns')
+const { CategoryForm } = await import('@components/admin/categoryForm')
+const { categoryColumns } = await import('@/app/(admin)/admin/categories/columns')
 
 // ── Tests ──────────────────────────────────────────────────────────────────
 

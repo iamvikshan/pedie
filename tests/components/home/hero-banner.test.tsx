@@ -2,20 +2,20 @@ import { describe, test, expect } from 'bun:test'
 
 describe('HeroBanner', () => {
   test('module exports the component', async () => {
-    const mod = await import('@components/home/hero-banner')
+    const mod = await import('@components/home/heroBanner')
     expect(mod.HeroBanner).toBeDefined()
     expect(typeof mod.HeroBanner).toBe('function')
   })
 
   test('exports SLIDES constant with 3 slides', async () => {
-    const mod = await import('@components/home/hero-banner')
+    const mod = await import('@components/home/heroBanner')
     expect(mod.SLIDES).toBeDefined()
     expect(Array.isArray(mod.SLIDES)).toBe(true)
     expect(mod.SLIDES.length).toBe(3)
   })
 
   test('each slide has title, subtitle, cta, and link', async () => {
-    const { SLIDES } = await import('@components/home/hero-banner')
+    const { SLIDES } = await import('@components/home/heroBanner')
     for (const slide of SLIDES) {
       expect(typeof slide.title).toBe('string')
       expect(typeof slide.subtitle).toBe('string')

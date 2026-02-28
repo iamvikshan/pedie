@@ -68,8 +68,8 @@ mock.module('next/navigation', () => ({
 }))
 
 // Import AFTER mocking
-const { ListingForm } = await import('@components/admin/listing-form')
-const { listingColumns } = await import('@/app/admin/listings/columns')
+const { ListingForm } = await import('@components/admin/listingForm')
+const { listingColumns } = await import('@/app/(admin)/admin/listings/columns')
 
 // ── Tests ──────────────────────────────────────────────────────────────────
 

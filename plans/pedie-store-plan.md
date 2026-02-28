@@ -8,13 +8,25 @@ Build a full-featured, custom-coded e-commerce store for Pedie Tech (pedie.tech)
 **Hosting:** Vercel (Next.js frontend/SSR) + self-hosted GCP VM (containerized services, crawlers, sync workers)
 **Repo:** `iamvikshan/pedie` (formerly `pedie-tech/info`)
 **UI Design:** Google Stitch MCP (with stitch-skills installed) for screen generation
-**Final Test Count:** 662 tests (661 pass, 1 pre-existing Supabase ordering issue)
+**Final Test Count:** 678 tests (678 pass, 0 fail)
+
+### Code Conventions & Preferences
+
+The following conventions are enforced project-wide and MUST be followed in all future phases:
+
+| Convention | Rule |
+|---|---|
+| **File naming** | `camelCase.ts` / `camelCase.tsx` for all source files (except `tests/` which keeps its existing naming). E.g., `productCard.tsx`, `adminGuard.ts`. |
+| **Variable/function naming** | `camelCase` for variables, functions, and local constants. `UPPER_SNAKE_CASE` for module-level constants (e.g., `KES_USD_RATE`). |
+| **Path aliases** | Always import via aliases (`@config`, `@helpers`, `@utils/*`, `@lib/*`, `@components/*`, `@app-types/*`). Never use relative `../../` across package boundaries. |
+| **Barrel exports** | Each module in `packages/` has an `index.ts` barrel. Import from barrel (`@helpers`) unless a specific sub-module is needed (`@helpers/pricing`). |
+| **Modularity** | Keep files focused and single-purpose. Extract shared logic into `packages/helpers/` or `packages/utils/`. Avoid duplicating functions across files. |
+| **Minimal duplication** | Shared constants live in `@config`, shared helpers in `@helpers`, shared utilities in `@utils/*`. Never re-export from wrapper files — import from the source module directly. |
+| **Packages structure** | `packages/config` (pure constants, no functions), `packages/helpers` (business-logic functions), `packages/utils` (pure utility functions). |
 
 ### Known Issues
 
-| Issue | Impact | Status | Notes |
-|-------|--------|--------|-------|
-| Supabase admin client ordering test (`tests/lib/supabase/admin.test.ts`) | 1 test failure — `getOrderByPaymentRef` returns rows in non-deterministic order when multiple rows match | Low — does not affect production; ordering is handled by the query's `.order()` clause which works correctly against a live Supabase instance | Deferred — test environment limitation; will be resolved when Supabase local dev containers support deterministic ordering or the test is refactored to use `.toContainEqual()` |
+None — all 678 tests pass.
 
 ---
 
@@ -32,6 +44,8 @@ Build a full-featured, custom-coded e-commerce store for Pedie Tech (pedie.tech)
 | 7.1 | SEO & Dynamic Metadata | ✅ Complete | 52 (638 total) | `feat: add SEO infrastructure with sitemap, robots, and JSON-LD` |
 | 7.2 | Proxy Migration, Security & Privacy | ✅ Complete | 13 (651 total) | `feat: add proxy, magic bytes, privacy policy & security hardening` |
 | 7.3 | CI/CD Enhancement & Production Deployment | ✅ Complete | 11 (662 total) | `feat: complete Phase 7 - security, CI/CD, and deployment` |
+| 8 | Repo Restructuring (monorepo, packages/, route groups) | ✅ Complete | +16 (678 total) | `refactor: restructure to monorepo with packages/, route groups, deduplication` |
+| 8.1 | Config Cleanup (helpers, wrappers, camelCase, test fixes) | ✅ Complete | 0 (678 total) | `refactor: extract helpers, remove wrappers, camelCase rename` |
 
 ---
 
@@ -45,7 +59,7 @@ Build a full-featured, custom-coded e-commerce store for Pedie Tech (pedie.tech)
   - Google Sheets → Supabase sync pipeline with per-item listing IDs (PD-XXXXX)
   - Multi-stage Dockerfile (Bun/Alpine), docker-compose dev/prod, deploy script
   - CI/CD via GitHub Actions (GHCR push)
-  - Path aliases: `@/*` → `src/*`, `@app-types/*` → `types/*`, `@lib/*` → `src/lib/*`, `@components/*` → `src/components/*`
+  - Path aliases: `@/*` → `src/*`, `@app-types/*` → `types/*`, `@lib/*` → `src/lib/*`, `@components/*` → `src/components/*`, `@config` → `packages/config`, `@helpers` → `packages/helpers`, `@utils/*` → `packages/utils/*`
   - 46 tests passing
 
 - **Database Schema (per-item listing model):**
@@ -221,3 +235,4 @@ The following items were identified during CodeRabbit reviews and are deferred p
 - **Email field in customers columns:** `src/app/admin/customers/columns.tsx` has an email column that may not be populated from the profiles table. Either remove the column or add a join to fetch email from auth admin API.
 - **Server-side cart sync / abandoned cart tracking:** Deferred from Phase 5 — sync localStorage cart to Supabase on login, track abandoned carts for follow-up emails.
 - **Flutter mobile app:** Planned as separate project with shared Supabase backend.
+- **YouMayAlsoLike recommendations:** Wire up the `YouMayAlsoLike` component (commented out in `src/components/listing/you-may-also-like.tsx`) on listing detail pages. The component is ready — just needs to be imported and passed similar/recommended listings from the data layer.

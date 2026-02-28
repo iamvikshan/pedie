@@ -1,17 +1,8 @@
 import { NextResponse } from 'next/server'
-import { getUser } from '@lib/auth/helpers'
+import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
 import { getAdminCategories, createCategory } from '@lib/data/admin'
-
-function generateSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .trim()
-}
+import { slugify } from '@utils/slug'
 
 export async function GET() {
   try {
@@ -56,7 +47,7 @@ export async function POST(request: Request) {
     }
 
     // Normalize caller-supplied slug or auto-generate from name
-    const slug = generateSlug(body.slug || name)
+    const slug = slugify(body.slug || name)
 
     if (!slug) {
       return NextResponse.json(

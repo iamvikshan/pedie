@@ -1,17 +1,8 @@
 import { NextResponse } from 'next/server'
-import { getUser } from '@lib/auth/helpers'
+import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
 import { getAdminProducts, createProduct } from '@lib/data/admin'
-
-function generateSlug(brand: string, model: string): string {
-  return `${brand}-${model}`
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .trim()
-}
+import { productSlug } from '@utils/slug'
 
 export async function GET(request: Request) {
   try {
@@ -83,7 +74,7 @@ export async function POST(request: Request) {
     }
 
     // Auto-generate slug if not provided
-    const slug = body.slug || generateSlug(brand, model)
+    const slug = body.slug || productSlug(brand, model)
 
     const allowed = {
       brand: body.brand,

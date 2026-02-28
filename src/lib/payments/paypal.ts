@@ -3,7 +3,7 @@
  * Server-side only — uses client secret
  */
 
-import { kesToUsd } from '@lib/utils/currency'
+import { kesToUsd } from '@utils/currency'
 
 // Re-export for callers that need the conversion
 export { kesToUsd }

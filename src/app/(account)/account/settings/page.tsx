@@ -1,0 +1,35 @@
+import { requireAuth, getProfile } from '@helpers/auth'
+import { ProfileForm } from '@components/account/profileForm'
+
+export default async function SettingsPage() {
+  await requireAuth()
+  const profile = await getProfile()
+
+  return (
+    <div className='space-y-6'>
+      <h1 className='text-2xl font-bold text-pedie-text'>Profile Settings</h1>
+
+      <div className='rounded-lg border border-pedie-border bg-pedie-card p-6'>
+        <ProfileForm
+          initialData={{
+            fullName: profile?.full_name || '',
+            phone: profile?.phone || '',
+            address: (profile?.address as {
+              street?: string
+              city?: string
+              county?: string
+              postal_code?: string
+              country?: string
+            }) || {
+              street: '',
+              city: '',
+              county: '',
+              postal_code: '',
+              country: 'Kenya',
+            },
+          }}
+        />
+      </div>
+    </div>
+  )
+}
