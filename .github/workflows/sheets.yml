@@ -1,0 +1,35 @@
+name: Sync DB → Google Sheets
+
+on:
+  schedule:
+    - cron: "0 */6 * * *" # Every 6 hours
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Sync mode"
+        required: false
+        default: "additive"
+        type: choice
+        options:
+          - additive
+          - full
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6.0.2
+
+      - name: Setup Bun and install dependencies
+        uses: iamvikshan/.github/.github/actions/setup-bun@main
+
+      - name: Export listings to Google Sheets
+        run: bun scripts/sheets.ts --mode ${{ inputs.mode || 'additive' }}
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GCP_SERVICE_ACC: ${{ secrets.GCP_SERVICE_ACC }}
+          GS_SPREADSHEET_ID: ${{ secrets.GS_SPREADSHEET_ID }}

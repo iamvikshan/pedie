@@ -411,7 +411,6 @@ export async function syncToSheets(
     .select(
       '*, products:product_id(brand, model, slug, original_price_kes, categories:category_id(slug))'
     )
-    .neq('status', 'unlisted' as never)
     .order('listing_id')
 
   if (error) {

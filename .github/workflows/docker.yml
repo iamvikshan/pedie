@@ -4,13 +4,11 @@ on:
   push:
     branches: [main]
     paths:
-      paths:
-        - "src/**"
-        - "types/**"
-        - "types/**"
-        - "Dockerfile"
-        - "package.json"
-        - "tsconfig.json"
+      - "src/**"
+      - "types/**"
+      - "Dockerfile"
+      - "package.json"
+      - "tsconfig.json"
   pull_request:
     branches: [main]
   workflow_dispatch: # Allow manual trigger
