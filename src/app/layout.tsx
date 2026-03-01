@@ -8,6 +8,8 @@ import { AuthProvider } from '@components/auth/authProvider'
 import { WishlistProvider } from '@components/wishlist/wishlistProvider'
 import { SpeedInsights } from '@vercel/speed-insights/next'
 import { organizationJsonLd, safeJsonLd } from '@lib/seo/structuredData'
+import { ThemeProvider } from 'next-themes'
+import { SITE_URL } from '@/config'
 
 const inter = Inter({
   variable: '--font-inter',
@@ -15,16 +17,16 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://pedie.tech'),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Pedie Tech | Quality Refurbished Electronics in Kenya',
-    template: '%s | Pedie Tech',
+    default: 'Pedie | Quality Refurbished Electronics in Kenya',
+    template: '%s | Pedie',
   },
   description:
     'Shop quality refurbished smartphones, laptops, and electronics at affordable prices in Kenya. Every device tested, graded, and backed by a 3-month warranty.',
   openGraph: {
     type: 'website',
-    siteName: 'Pedie Tech',
+    siteName: 'Pedie',
     locale: 'en_KE',
   },
   twitter: {
@@ -42,7 +44,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang='en'>
+    <html lang='en' suppressHydrationWarning>
       <head>
         <script
           type='application/ld+json'
@@ -52,16 +54,18 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} antialiased bg-pedie-dark text-pedie-text min-h-screen flex flex-col`}
+        className={`${inter.variable} antialiased bg-pedie-bg text-pedie-text min-h-screen flex flex-col`}
       >
-        <AuthProvider>
-          <WishlistProvider>
-            <CartHydration />
-            <Header />
-            <main className='flex-1'>{children}</main>
-            <Footer />
-          </WishlistProvider>
-        </AuthProvider>
+        <ThemeProvider attribute='class' defaultTheme='system' enableSystem>
+          <AuthProvider>
+            <WishlistProvider>
+              <CartHydration />
+              <Header />
+              <main className='flex-1'>{children}</main>
+              <Footer />
+            </WishlistProvider>
+          </AuthProvider>
+        </ThemeProvider>
         <SpeedInsights />
       </body>
     </html>

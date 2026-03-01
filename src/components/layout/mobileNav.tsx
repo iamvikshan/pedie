@@ -111,8 +111,9 @@ export function MobileNav() {
                 className='flex items-center gap-1 text-xl font-bold tracking-tight'
                 onClick={close}
               >
-                <span className='text-pedie-green'>PEDIE</span>
-                <span className='text-pedie-text'>TECH</span>
+                <span className='text-2xl font-bold tracking-tight text-pedie-green'>
+                  pedie
+                </span>
               </Link>
               <button
                 ref={closeButtonRef}

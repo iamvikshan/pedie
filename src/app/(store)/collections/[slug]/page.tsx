@@ -20,6 +20,7 @@ import { SortDropdown } from '@components/catalog/sortDropdown'
 import { ActiveFilters } from '@components/catalog/activeFilters'
 import { ProductGrid } from '@components/catalog/productGrid'
 import { Pagination } from '@components/catalog/pagination'
+import { SITE_URL } from '@/config'
 
 interface CollectionPageProps {
   params: Promise<{ slug: string }>
@@ -138,10 +139,10 @@ export default async function CollectionPage({
         dangerouslySetInnerHTML={{
           __html: safeJsonLd(
             breadcrumbJsonLd([
-              { name: 'Home', url: 'https://pedie.tech' },
+              { name: 'Home', url: SITE_URL },
               {
                 name: category.name,
-                url: `https://pedie.tech/collections/${category.slug}`,
+                url: `${SITE_URL}/collections/${category.slug}`,
               },
             ])
           ),

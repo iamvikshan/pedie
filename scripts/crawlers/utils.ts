@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import type { CrawlerProduct, PriceResult } from './types'
-
+import { SITE_URL } from '@/config'
 /**
  * Fetch with exponential backoff retry.
  */
@@ -16,8 +16,7 @@ export async function fetchWithRetry(
       const response = await fetch(url, {
         ...options,
         headers: {
-          'User-Agent':
-            'Mozilla/5.0 (compatible; PedieCrawler/1.0; +https://pedie.tech)',
+          'User-Agent': `Mozilla/5.0 (compatible; PedieCrawler/1.0; +${SITE_URL})`,
           ...options.headers,
         },
       })

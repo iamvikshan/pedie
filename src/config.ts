@@ -23,8 +23,18 @@ export const DEFAULT_COLLECTION_HREF = '/collections'
 export const SHEETS_TAB_NAME = 'inv'
 
 // ── Site metadata (non-secret) ────────────────────────────────────
-export const SITE_NAME = 'Pedie Tech'
+export const SITE_NAME = 'Pedie'
 export const SITE_DESCRIPTION =
   'Quality refurbished electronics in Kenya — phones, laptops & tablets with warranty.'
 export const SITE_URL = 'https://pedie.tech'
 export const SUPPORT_EMAIL = 'pedietech@gmail.com'
+
+export const URLS = {
+  social: {
+    x: 'https://x.com/iamvikshan',
+    youtube: 'https://youtube.com/@vikshan',
+    instagram: 'https://instagram.com/iamvikshan',
+    github: 'https://github.com/iamvikshan',
+    tiktok: 'https://tiktok.com/@iamvikshan',
+  },
+} as const

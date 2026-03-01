@@ -104,7 +104,7 @@ describe('structured data edge cases', () => {
     }
     const result = collectionJsonLd(category, 0)
     expect(result.numberOfItems).toBe(0)
-    expect(result.description).toBe('Browse Empty Category at Pedie Tech')
+    expect(result.description).toBe('Browse Empty Category at Pedie')
   })
 
   test('productJsonLd with premium condition returns RefurbishedCondition', () => {

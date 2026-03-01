@@ -1,5 +1,13 @@
 import Link from 'next/link'
 import { FooterNewsletterForm } from './footerNewsletterForm'
+import { URLS } from '@/config'
+import {
+  TbBrandTiktok,
+  TbBrandInstagram,
+  TbBrandX,
+  TbBrandYoutube,
+  TbBrandGithub,
+} from 'react-icons/tb'
 
 export function Footer() {
   return (
@@ -11,8 +19,9 @@ export function Footer() {
               href='/'
               className='flex items-center gap-1 text-2xl font-bold tracking-tight mb-4'
             >
-              <span className='text-pedie-green'>PEDIE</span>
-              <span className='text-pedie-text'>TECH</span>
+              <span className='text-2xl font-bold tracking-tight text-pedie-green'>
+                pedie
+              </span>
             </Link>
             <p className='text-pedie-text-muted mb-6 max-w-sm'>
               Quality refurbished electronics for Kenya. Every device tested,
@@ -23,7 +32,7 @@ export function Footer() {
 
           <div>
             <h3 className='mb-4 text-lg font-semibold text-pedie-text'>
-              About Pedie Tech
+              About Pedie
             </h3>
             <ul className='flex flex-col gap-3 text-sm text-pedie-text-muted'>
               <li>
@@ -188,7 +197,7 @@ export function Footer() {
 
         <div className='mt-16 flex flex-col items-center justify-between gap-6 border-t border-pedie-border pt-8 md:flex-row'>
           <p className='text-sm text-pedie-text-muted'>
-            © {new Date().getFullYear()} Pedie Tech. All rights reserved.
+            © {new Date().getFullYear()} Pedie. All rights reserved.
           </p>
 
           <div className='flex items-center gap-4'>
@@ -202,69 +211,49 @@ export function Footer() {
 
           <div className='flex items-center gap-4 text-pedie-text-muted'>
             <a
-              href='https://tiktok.com/@pedietech'
+              href={URLS.social.tiktok}
               target='_blank'
               rel='noopener noreferrer'
               className='hover:text-pedie-green transition-colors'
               aria-label='TikTok'
             >
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='20'
-                height='20'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-              >
-                <path d='M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5' />
-              </svg>
+              <TbBrandTiktok className='h-5 w-5' />
             </a>
             <a
-              href='https://instagram.com/pedietech'
+              href={URLS.social.instagram}
               target='_blank'
               rel='noopener noreferrer'
               className='hover:text-pedie-green transition-colors'
               aria-label='Instagram'
             >
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='20'
-                height='20'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-              >
-                <rect width='20' height='20' x='2' y='2' rx='5' ry='5' />
-                <path d='M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z' />
-                <line x1='17.5' x2='17.51' y1='6.5' y2='6.5' />
-              </svg>
+              <TbBrandInstagram className='h-5 w-5' />
             </a>
             <a
-              href='https://x.com/pedietech'
+              href={URLS.social.x}
               target='_blank'
               rel='noopener noreferrer'
               className='hover:text-pedie-green transition-colors'
               aria-label='X (Twitter)'
             >
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='20'
-                height='20'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-              >
-                <path d='M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z' />
-              </svg>
+              <TbBrandX className='h-5 w-5' />
+            </a>
+            <a
+              href={URLS.social.youtube}
+              target='_blank'
+              rel='noopener noreferrer'
+              className='hover:text-pedie-green transition-colors'
+              aria-label='YouTube'
+            >
+              <TbBrandYoutube className='h-5 w-5' />
+            </a>
+            <a
+              href={URLS.social.github}
+              target='_blank'
+              rel='noopener noreferrer'
+              className='hover:text-pedie-green transition-colors'
+              aria-label='GitHub'
+            >
+              <TbBrandGithub className='h-5 w-5' />
             </a>
           </div>
         </div>

@@ -1,7 +1,7 @@
 import * as React from 'react'
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost'
+  variant?: 'primary' | 'secondary' | 'outline' | 'ghost'
   size?: 'sm' | 'md' | 'lg'
 }
 
@@ -11,13 +11,15 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      'inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pedie-accent disabled:pointer-events-none disabled:opacity-50'
+      'inline-flex items-center justify-center rounded-xl font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pedie-accent disabled:pointer-events-none disabled:opacity-50'
 
     const variants = {
       primary: 'bg-pedie-green text-white hover:bg-pedie-green-dark',
       secondary:
         'border border-pedie-border bg-transparent hover:bg-pedie-card-hover text-pedie-text',
-      ghost: 'hover:bg-pedie-card-hover text-pedie-text hover:text-white',
+      outline:
+        'border border-pedie-green bg-transparent text-pedie-green hover:bg-pedie-green hover:text-white',
+      ghost: 'hover:bg-pedie-card-hover text-pedie-text hover:text-pedie-green',
     }
 
     const sizes = {

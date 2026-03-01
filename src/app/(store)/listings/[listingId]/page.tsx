@@ -19,6 +19,7 @@ import { PreorderBadge } from '@components/listing/preorderBadge'
 import { ShippingInfo } from '@components/listing/shippingInfo'
 import { SimilarListings } from '@components/listing/similarListings'
 import { CustomerReviews } from '@components/listing/customerReviews'
+import { SITE_URL } from '@/config'
 
 type PageProps = {
   params: Promise<{ listingId: string }>
@@ -84,16 +85,16 @@ export default async function ListingPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{
           __html: safeJsonLd(
             breadcrumbJsonLd([
-              { name: 'Home', url: 'https://pedie.tech' },
+              { name: 'Home', url: SITE_URL },
               {
                 name: listing.product.category?.name || 'Products',
                 url: listing.product.category?.slug
-                  ? `https://pedie.tech/collections/${listing.product.category.slug}`
-                  : 'https://pedie.tech/collections',
+                  ? `${SITE_URL}/collections/${listing.product.category.slug}`
+                  : `${SITE_URL}/collections`,
               },
               {
                 name: `${listing.product.brand} ${listing.product.model}`,
-                url: `https://pedie.tech/listings/${listing.listing_id}`,
+                url: `${SITE_URL}/listings/${listing.listing_id}`,
               },
             ])
           ),

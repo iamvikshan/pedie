@@ -162,7 +162,7 @@ describe('organizationJsonLd', () => {
 
   test('returns correct name', () => {
     const result = organizationJsonLd()
-    expect(result.name).toBe('Pedie Tech')
+    expect(result.name).toBe('Pedie')
   })
 
   test('returns correct url', () => {
@@ -255,7 +255,7 @@ describe('collectionJsonLd', () => {
   test('falls back to generated description when category description is null', () => {
     const noDescCategory = { ...mockCategory, description: null }
     const result = collectionJsonLd(noDescCategory, 10)
-    expect(result.description).toBe('Browse Smartphones at Pedie Tech')
+    expect(result.description).toBe('Browse Smartphones at Pedie')
   })
 
   test('returns correct url', () => {
@@ -266,7 +266,7 @@ describe('collectionJsonLd', () => {
   test('includes isPartOf with WebSite', () => {
     const result = collectionJsonLd(mockCategory, 10)
     expect(result.isPartOf['@type']).toBe('WebSite')
-    expect(result.isPartOf.name).toBe('Pedie Tech')
+    expect(result.isPartOf.name).toBe('Pedie')
   })
 })
 
@@ -310,6 +310,6 @@ describe('safeJsonLd', () => {
     // Parse it back (escaped chars are valid JSON unicode escapes)
     const parsed = JSON.parse(result)
     expect(parsed['@type']).toBe('Organization')
-    expect(parsed.name).toBe('Pedie Tech')
+    expect(parsed.name).toBe('Pedie')
   })
 })

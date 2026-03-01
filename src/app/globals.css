@@ -1,25 +1,76 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-pedie-green: #4caf50;
-  --color-pedie-green-light: #66bb6a;
-  --color-pedie-green-dark: #388e3c;
+  /* Green palette — built around #22c55e */
+  --color-pedie-green: #22c55e;
+  --color-pedie-green-light: #4ade80;
+  --color-pedie-green-dark: #16a34a;
+
+  /* Static colors (don't change with theme) */
   --color-pedie-dark: #0f1117;
+
+  /* Semantic colors — light mode defaults */
+  --color-pedie-bg: #fafafa;
+  --color-pedie-surface: #ffffff;
+  --color-pedie-card: #ffffff;
+  --color-pedie-card-hover: #f5f5f5;
+  --color-pedie-border: #e5e7eb;
+  --color-pedie-text: #111827;
+  --color-pedie-text-muted: #6b7280;
+  --color-pedie-accent: #22c55e;
+
+  /* Badge colors */
+  --color-pedie-badge-excellent: #22c55e;
+  --color-pedie-badge-good: #3b82f6;
+  --color-pedie-badge-acceptable: #f59e0b;
+  --color-pedie-badge-premium: #a855f7;
+  --color-pedie-discount: #ef4444;
+
+  /* Glass tokens */
+  --color-pedie-glass: rgba(255, 255, 255, 0.7);
+  --color-pedie-glass-border: rgba(255, 255, 255, 0.2);
+  --color-pedie-glass-hover: rgba(255, 255, 255, 0.85);
+
+  /* Typography */
+  --font-sans: var(--font-inter);
+}
+
+/* Dark mode overrides via next-themes class strategy */
+.dark {
+  --color-pedie-bg: #0f1117;
+  --color-pedie-surface: #161922;
   --color-pedie-card: #1a1d27;
   --color-pedie-card-hover: #242836;
   --color-pedie-border: #2a2e3a;
   --color-pedie-text: #e8e8ed;
   --color-pedie-text-muted: #9ca3af;
-  --color-pedie-accent: #4caf50;
-  --color-pedie-badge-excellent: #4caf50;
-  --color-pedie-badge-good: #2196f3;
-  --color-pedie-badge-acceptable: #ff9800;
-  --color-pedie-badge-premium: #9c27b0;
-  --color-pedie-discount: #ff5252;
-  --font-sans: var(--font-inter);
+
+  --color-pedie-glass: rgba(15, 17, 23, 0.7);
+  --color-pedie-glass-border: rgba(255, 255, 255, 0.08);
+  --color-pedie-glass-hover: rgba(15, 17, 23, 0.85);
 }
 
 body {
-  background-color: var(--color-pedie-dark);
+  background-color: var(--color-pedie-bg);
   color: var(--color-pedie-text);
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+/* Glass utility */
+.glass {
+  background: var(--color-pedie-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--color-pedie-glass-border);
+}
+
+/* Hide scrollbar utility */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
 }

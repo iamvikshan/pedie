@@ -6,4 +6,10 @@ describe('Footer', () => {
     expect(mod.Footer).toBeDefined()
     expect(typeof mod.Footer).toBe('function')
   })
+
+  test('config uses Pedie branding', async () => {
+    const { SITE_NAME } = await import('@/config')
+    expect(SITE_NAME).toBe('Pedie')
+    expect(SITE_NAME).not.toContain('Tech')
+  })
 })

@@ -6,6 +6,7 @@ import { MobileNav } from './mobileNav'
 import { useCartStore } from '@lib/cart/store'
 import { useAuth } from '@components/auth/authProvider'
 import { UserMenu } from '@components/auth/userMenu'
+import { ThemeToggle } from '@components/ui/themeToggle'
 
 export function Header() {
   const itemCount = useCartStore(s => s.getItemCount())
@@ -19,8 +20,9 @@ export function Header() {
             href='/'
             className='flex items-center gap-1 text-xl font-bold tracking-tight'
           >
-            <span className='text-pedie-green'>PEDIE</span>
-            <span className='text-pedie-text'>TECH</span>
+            <span className='text-2xl font-bold tracking-tight text-pedie-green'>
+              pedie
+            </span>
           </Link>
         </div>
 
@@ -95,6 +97,8 @@ export function Header() {
             )}
             <span className='sr-only'>Cart: {itemCount} items</span>
           </Link>
+
+          <ThemeToggle />
 
           {loading ? (
             <div className='hidden md:block h-8 w-8 rounded-full bg-pedie-card animate-pulse' />

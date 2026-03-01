@@ -1,5 +1,5 @@
 import type { ListingWithProduct, Category } from '@app-types/product'
-import { SITE_URL, SITE_NAME } from '@/config'
+import { SITE_URL, SITE_NAME, URLS } from '@/config'
 
 /**
  * Safely serialize a JSON-LD object for embedding in a <script> tag.
@@ -57,6 +57,7 @@ export function organizationJsonLd() {
       contactType: 'customer service',
       availableLanguage: ['English', 'Swahili'],
     },
+    sameAs: Object.values(URLS.social),
   }
 }
 

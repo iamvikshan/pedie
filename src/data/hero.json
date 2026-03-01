@@ -1,0 +1,23 @@
+[
+  {
+    "title": "Premium Refurbished Smartphones",
+    "subtitle": "Save up to 40% on quality-tested devices with a 3-month warranty",
+    "cta": "Shop Smartphones",
+    "link": "/collections/smartphones",
+    "image": "/images/hero/smartphones.jpg"
+  },
+  {
+    "title": "Laptops That Perform",
+    "subtitle": "Certified refurbished laptops for work, school, and everything in between",
+    "cta": "Shop Laptops",
+    "link": "/collections/laptops",
+    "image": "/images/hero/laptops.jpg"
+  },
+  {
+    "title": "Every Device Backed by Warranty",
+    "subtitle": "3-month warranty, quality tested, and graded for your peace of mind",
+    "cta": "Learn More",
+    "link": "/about",
+    "image": "/images/hero/warranty.jpg"
+  }
+]
