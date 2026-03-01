@@ -1,7 +1,6 @@
 import type { MetadataRoute } from 'next'
 import { createAdminClient } from '@lib/supabase/admin'
-
-const SITE_URL = 'https://pedie.tech'
+import { SITE_URL } from '@config'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = createAdminClient()

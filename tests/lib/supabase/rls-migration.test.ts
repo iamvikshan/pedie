@@ -95,13 +95,18 @@ describe('RLS recursion fix migration', () => {
     expect(createCount).toBe(ADMIN_POLICIES.length)
   })
 
-  test('does NOT contain the old inline subquery pattern', async () => {
+  test('does NOT contain the old inline subquery pattern in policies', async () => {
     if (!sql) sql = await Bun.file(MIGRATION_PATH).text()
 
-    // The old pattern that caused recursion should not appear in any policy
-    expect(sql).not.toContain(
-      "EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')"
-    )
+    // Extract CREATE POLICY ... ; blocks and verify none use the old inline subquery
+    const policyBlocks = sql.match(/CREATE POLICY[^;]*;/g) || []
+    expect(policyBlocks.length).toBeGreaterThan(0)
+
+    for (const block of policyBlocks) {
+      expect(block).not.toContain(
+        "EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')"
+      )
+    }
   })
 
   test('does NOT touch non-admin policies', async () => {

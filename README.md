@@ -34,7 +34,7 @@
 ## Project Structure
 
 ```
-packages/                   # Shared, framework-agnostic modules
+src/                   # Shared, framework-agnostic modules
  config/                   # Business constants & non-secret config (@config)
  helpers/                  # Business-logic helper functions (@helpers)
    ├── pricing.ts            # usdToKes, calculateDeposit, formatKes, calculateDiscount
@@ -85,22 +85,22 @@ scripts/
  google-apps-script/       # Sheets inventory sync
  seed.ts                   # Database seed (20 products, 28 listings)
  deploy.sh                 # VPS deployment script
-tests/                      # 678 tests across 88 files
+tests/                      # 692 tests across 88 files
 docs/ops/                   # Deployment guides (Next.js, Odoo, WooCommerce)
 ```
 
 ### Path Aliases
 
-| Alias           | Maps to              | Use for                                  |
-| --------------- | -------------------- | ---------------------------------------- |
-| `@/*`           | `src/*`              | App code (components, lib, app routes)   |
-| `@config`       | `packages/config`    | Business constants & non-secret config   |
-| `@helpers`      | `packages/helpers`   | Business-logic helper functions          |
-| `@helpers/*`    | `packages/helpers/*` | Individual helper modules                |
-| `@utils/*`      | `packages/utils/*`   | Pure utility functions                   |
-| `@lib/*`        | `src/lib/*`          | Server-side logic (data, auth, payments) |
-| `@components/*` | `src/components/*`   | React components                         |
-| `@app-types/*`  | `types/*`            | TypeScript type definitions              |
+| Alias           | Maps to            | Use for                                  |
+| --------------- | ------------------ | ---------------------------------------- |
+| `@/*`           | `src/*`            | App code (components, lib, app routes)   |
+| `@config`       | `src/config`       | Business constants & non-secret config   |
+| `@helpers`      | `src/helpers`      | Business-logic helper functions          |
+| `@helpers/*`    | `src/helpers/*`    | Individual helper modules                |
+| `@utils/*`      | `src/utils/*`      | Pure utility functions                   |
+| `@lib/*`        | `src/lib/*`        | Server-side logic (data, auth, payments) |
+| `@components/*` | `src/components/*` | React components                         |
+| `@app-types/*`  | `types/*`          | TypeScript type definitions              |
 
 ## Quick Start
 
@@ -128,7 +128,7 @@ bun f                       # format with Prettier
 | `bun build` | Production build                |
 | `bun start` | Start production server         |
 | `bun check` | ESLint + TypeScript type check  |
-| `bun test`  | Run 678 tests                   |
+| `bun test`  | Run 692 tests                   |
 | `bun f`     | Format all files (Prettier)     |
 | `bun seed`  | Seed database with sample data  |
 | `bun crawl` | Run price crawlers manually     |

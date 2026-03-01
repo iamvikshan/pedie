@@ -19,6 +19,9 @@ export const SHIPPING_DAYS_MAX = 14
 export const LISTING_ID_PREFIX = 'PD'
 export const DEFAULT_COLLECTION_HREF = '/collections'
 
+// ── Google Sheets sync ────────────────────────────────────────────
+export const SHEETS_TAB_NAME = 'inv'
+
 // ── Site metadata (non-secret) ────────────────────────────────────
 export const SITE_NAME = 'Pedie Tech'
 export const SITE_DESCRIPTION =

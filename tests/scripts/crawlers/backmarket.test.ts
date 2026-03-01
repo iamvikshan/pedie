@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test'
-import { KES_USD_RATE } from '../../../packages/config'
+import { KES_USD_RATE } from '../../../src/config'
 
 const { parseBackMarketPage } = await import(
   '../../../scripts/crawlers/backmarket'

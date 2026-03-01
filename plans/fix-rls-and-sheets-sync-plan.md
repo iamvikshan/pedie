@@ -13,7 +13,7 @@ Fix the empty homepage caused by infinite recursion in Supabase RLS admin polici
     - **Objective:** Eliminate the `42P17` infinite recursion error by replacing all inline `EXISTS (SELECT 1 FROM profiles ...)` admin policy checks with a `SECURITY DEFINER` function `is_admin()`. This breaks the recursion chain because `SECURITY DEFINER` functions execute with the definer's privileges, bypassing RLS on the queried table.
     - **Files/Functions to Modify/Create:**
       - `supabase/migrations/20250704000000_fix_rls_recursion.sql` — new migration
-      - `tests/lib/supabase/rls.test.ts` — new test file for RLS policy verification
+      - `tests/lib/supabase/rls-migration.test.ts` — new test file for RLS policy verification
     - **Tests to Write:**
       - `should create is_admin function` — verify the function exists
       - `should allow anonymous SELECT on public tables` — verify listings, products, categories are readable without auth
@@ -31,7 +31,7 @@ Fix the empty homepage caused by infinite recursion in Supabase RLS admin polici
 2. **Phase 2: Fix & Enhance Google Sheets Sync**
     - **Objective:** Fix the wrong sheet tab name, add deletion handling, add images column support, implement reverse DB→Sheets sync, and update docs.
     - **Files/Functions to Modify/Create:**
-      - `packages/config/index.ts` — add `SHEETS_TAB_NAME = 'inv'`
+      - `src/config/index.ts` — add `SHEETS_TAB_NAME = 'inv'`
       - `src/lib/sheets/parser.ts` — add `images` field to `SheetRow`, update `parseSheetRow()` and `EXPECTED_HEADERS`
       - `src/lib/sheets/sync.ts` — import tab name from config, add deletion handling, add images to upsert, upgrade auth scope from `readonly` to `spreadsheets`, add `syncToSheets()` function
       - `src/app/api/sync/export/route.ts` — new route for manual DB→Sheets trigger
@@ -47,10 +47,10 @@ Fix the empty homepage caused by infinite recursion in Supabase RLS admin polici
       - `should handle empty images gracefully` — verify parser edge case
     - **Steps:**
       1. Write tests for the new parser fields, deletion detection, and reverse sync (tests fail initially)
-      2. Add `SHEETS_TAB_NAME = 'inv'` to `packages/config/index.ts`
+      2. Add `SHEETS_TAB_NAME = 'inv'` to `src/config/index.ts`
       3. Update `src/lib/sheets/parser.ts`: add `images` field (comma-separated Supabase Storage URLs) to `SheetRow` interface, update `EXPECTED_HEADERS` and `parseSheetRow()`
       4. Update `src/lib/sheets/sync.ts`:
-         - Import `SHEETS_TAB_NAME` from `@packages/config` instead of reading `GS_SHEET_NAME` from env
+         - Import `SHEETS_TAB_NAME` from `@src/config` instead of reading `GS_SHEET_NAME` from env
          - Upgrade Google auth scope from `spreadsheets.readonly` to `spreadsheets`
          - Add `images` array to the listing upsert
          - Add deletion detection: after upserting, compare synced `source_listing_id` set against DB listings for the same sources, hard-delete any not present in sheet (soft-delete via `status='delisted'` if FK constraints prevent hard delete)
@@ -61,7 +61,7 @@ Fix the empty homepage caused by infinite recursion in Supabase RLS admin polici
       8. Run all tests to confirm everything passes, lint, typecheck
 
 **Open Questions (Resolved)**
-1. Tab name → `inv`, stored in `packages/config/index.ts` (not `.env`)
+1. Tab name → `inv`, stored in `src/config/index.ts` (not `.env`)
 2. Deletions → hard delete; soft-delete (`status='delisted'`) if FK constraints block
 3. DB→Sheets → both automatic and manual (export route + potential cron)
 4. Images → Supabase Storage public URLs in `products.images` or `listings.images` array column

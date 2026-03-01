@@ -1,5 +1,5 @@
 /**
- * Legacy re-export — canonical sources are now packages/config and packages/helpers.
+ * Legacy re-export — canonical sources are now src/config and src/helpers.
  * Prefer importing from '@config' or '@helpers' directly in new code.
  */
 export {
@@ -15,7 +15,7 @@ export {
   SITE_DESCRIPTION,
   SITE_URL,
   SUPPORT_EMAIL,
-} from '../../packages/config'
+} from '../../src/config'
 
 export {
   usdToKes,
@@ -23,4 +23,4 @@ export {
   generateListingId,
   formatKes,
   calculateDiscount,
-} from '../../packages/helpers'
+} from '../../src/helpers'

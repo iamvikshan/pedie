@@ -254,3 +254,73 @@ describe('crawler field validation', () => {
     })
   }
 })
+
+describe('images column support', () => {
+  const headersWithImages = [
+    'listing_id',
+    'brand',
+    'model',
+    'category',
+    'condition_grade',
+    'price_usd',
+    'price_kes',
+    'original_price_kes',
+    'warranty_months',
+    'notes',
+    'source',
+    'source_listing_id',
+    'source_url',
+    'status',
+    'images',
+  ]
+
+  test('should parse images column from sheet row', () => {
+    const row = [
+      '',
+      'Apple',
+      'iPhone 15',
+      'smartphones',
+      'premium',
+      '500',
+      '65000',
+      '75000',
+      '6',
+      '',
+      '',
+      '',
+      '',
+      'available',
+      'https://store.example.com/img1.jpg,https://store.example.com/img2.jpg',
+    ]
+
+    const result = parseSheetRow(row, headersWithImages)
+    expect(result).not.toBeNull()
+    expect(result!.images).toBe(
+      'https://store.example.com/img1.jpg,https://store.example.com/img2.jpg'
+    )
+  })
+
+  test('should handle empty images gracefully', () => {
+    const row = [
+      '',
+      'Samsung',
+      'Galaxy S23',
+      'smartphones',
+      'good',
+      '400',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+    ]
+
+    const result = parseSheetRow(row, headersWithImages)
+    expect(result).not.toBeNull()
+    expect(result!.images).toBeUndefined()
+  })
+})

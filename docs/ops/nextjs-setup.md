@@ -311,23 +311,25 @@ base64 -i service-account.json | tr -d '\n'
 ```
 GCP_SERVICE_ACC=<base64-encoded-json>
 GS_SPREADSHEET_ID=<spreadsheet-id-from-url>
-GS_SHEET_NAME=Inventory
 ```
+
+> **Note:** The sheet tab name is configured in `src/config/index.ts` (`SHEETS_TAB_NAME`), not as an env var.
 
 ### Install the Apps Script
 
-The Apps Script code lives at `scripts/google-apps-script/sheets-sync.gs` in this repo.
+The Apps Script code lives at `scripts/gAppS/sheetsSync.gs` in this repo.
 
 1. Open your inventory spreadsheet in Google Sheets
 2. Go to **Extensions → Apps Script**
-3. Replace the default `Code.gs` with the contents of `scripts/google-apps-script/sheets-sync.gs`
+3. Replace the default `Code.gs` with the contents of `scripts/gAppS/sheetsSync.gs`
 4. Set **Script Properties** (Project Settings → Script Properties):
 
-   | Property              | Value                                |
-   | --------------------- | ------------------------------------ |
-   | `SITE_URL`            | `https://pedie.tech` (no trailing /) |
-   | `REVALIDATION_SECRET` | Same as your `REVALIDATION_SECRET`   |
-   | `SYNC_API_KEY`        | Same as your `SYNC_API_KEY`          |
+   | Property              | Value                                           |
+   | --------------------- | ----------------------------------------------- |
+   | `SITE_URL`            | `https://pedie.tech` (no trailing /)             |
+   | `REVALIDATION_SECRET` | Same as your `REVALIDATION_SECRET`               |
+   | `SYNC_API_KEY`        | Same as your `SYNC_API_KEY`                      |
+   | `SHEET_TAB_NAME`      | Inventory tab name (default: `inv`)              |
 
 5. Save and run `testRevalidation()` once to authorize the script
 6. Add a trigger:
@@ -719,7 +721,6 @@ The repo uses [Renovate](https://renovatebot.com/) for automated dependency upda
 | `SUPABASE_SERVICE_ROLE_KEY` | ✅ | Supabase Dashboard → Settings → API |
 | `GCP_SERVICE_ACC` | ✅ | Google Cloud → Service Account JSON → base64 |
 | `GS_SPREADSHEET_ID` | ✅ | From Google Sheets URL |
-| `GS_SHEET_NAME` | ✅ | Sheet tab name (default: `Inventory`) |
 | `SYNC_API_KEY` | ✅ | Generate any secure string |
 | `REVALIDATION_SECRET` | ✅ | Generate: `openssl rand -base64 32` |
 | `DARAJA_CONSUMER_KEY` | ✅ | Safaricom Developer Portal |
@@ -739,6 +740,8 @@ The repo uses [Renovate](https://renovatebot.com/) for automated dependency upda
 | `CF_TUNNEL` | 🔧 | Cloudflare Dashboard (for VPS) |
 
  = Required for core functionality | ⚡ = Required for email features | 🔧 = Required for self-hosted deployment
+
+> **Note:** `GS_SHEET_NAME` has been removed. The sheet tab name is now configured in `src/config/index.ts` as `SHEETS_TAB_NAME`.
 
 ---
 
@@ -773,7 +776,15 @@ bun check
 - Verify Apps Script trigger is installed (Extensions → Apps Script → Triggers)
 - Check Script Properties are set correctly (`SITE_URL`, `REVALIDATION_SECRET`)
 - Run `testRevalidation()` manually from the Apps Script editor to check logs
-- Ensure the spreadsheet sheet name matches `Inventory` (case-sensitive)
+- Ensure the spreadsheet tab name matches `inv` (configurable via `SHEET_TAB_NAME` Script Property; default configured in `src/config/index.ts`)
+
+#### Images
+
+Images are stored as Supabase Storage public URLs in the `images TEXT[]` column on listings. In the Google Sheet, images are stored as comma-separated URLs in the `images` column. During sync, the comma-separated string is parsed into a `string[]` for the database.
+
+#### DB → Sheets export
+
+Use `POST /api/sync/export` (with `x-api-key` header) to push all listings from the database back to Google Sheets. This is useful for seeding the sheet from existing DB data.
 
 #### Docker build fails
 - Ensure `bun.lock` is committed (the Dockerfile uses `--frozen-lockfile`)

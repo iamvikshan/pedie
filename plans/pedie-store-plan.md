@@ -8,7 +8,7 @@ Build a full-featured, custom-coded e-commerce store for Pedie Tech (pedie.tech)
 **Hosting:** Vercel (Next.js frontend/SSR) + self-hosted GCP VM (containerized services, crawlers, sync workers)
 **Repo:** `iamvikshan/pedie` (formerly `pedie-tech/info`)
 **UI Design:** Google Stitch MCP (with stitch-skills installed) for screen generation
-**Final Test Count:** 678 tests (678 pass, 0 fail)
+**Final Test Count:** 692 tests (692 pass, 0 fail)
 
 ### Code Conventions & Preferences
 
@@ -19,14 +19,14 @@ The following conventions are enforced project-wide and MUST be followed in all 
 | **File naming** | `camelCase.ts` / `camelCase.tsx` for all source files (except `tests/` which keeps its existing naming). E.g., `productCard.tsx`, `adminGuard.ts`. |
 | **Variable/function naming** | `camelCase` for variables, functions, and local constants. `UPPER_SNAKE_CASE` for module-level constants (e.g., `KES_USD_RATE`). |
 | **Path aliases** | Always import via aliases (`@config`, `@helpers`, `@utils/*`, `@lib/*`, `@components/*`, `@app-types/*`). Never use relative `../../` across package boundaries. |
-| **Barrel exports** | Each module in `packages/` has an `index.ts` barrel. Import from barrel (`@helpers`) unless a specific sub-module is needed (`@helpers/pricing`). |
-| **Modularity** | Keep files focused and single-purpose. Extract shared logic into `packages/helpers/` or `packages/utils/`. Avoid duplicating functions across files. |
+| **Barrel exports** | Each module in `src/` has an `index.ts` barrel. Import from barrel (`@helpers`) unless a specific sub-module is needed (`@helpers/pricing`). |
+| **Modularity** | Keep files focused and single-purpose. Extract shared logic into `src/helpers/` or `src/utils/`. Avoid duplicating functions across files. |
 | **Minimal duplication** | Shared constants live in `@config`, shared helpers in `@helpers`, shared utilities in `@utils/*`. Never re-export from wrapper files — import from the source module directly. |
-| **Packages structure** | `packages/config` (pure constants, no functions), `packages/helpers` (business-logic functions), `packages/utils` (pure utility functions). |
+| **Packages structure** | `src/config` (pure constants, no functions), `src/helpers` (business-logic functions), `src/utils` (pure utility functions). |
 
 ### Known Issues
 
-None — all 678 tests pass.
+None — all 692 tests pass.
 
 ---
 
@@ -44,8 +44,8 @@ None — all 678 tests pass.
 | 7.1 | SEO & Dynamic Metadata | ✅ Complete | 52 (638 total) | `feat: add SEO infrastructure with sitemap, robots, and JSON-LD` |
 | 7.2 | Proxy Migration, Security & Privacy | ✅ Complete | 13 (651 total) | `feat: add proxy, magic bytes, privacy policy & security hardening` |
 | 7.3 | CI/CD Enhancement & Production Deployment | ✅ Complete | 11 (662 total) | `feat: complete Phase 7 - security, CI/CD, and deployment` |
-| 8 | Repo Restructuring (monorepo, packages/, route groups) | ✅ Complete | +16 (678 total) | `refactor: restructure to monorepo with packages/, route groups, deduplication` |
-| 8.1 | Config Cleanup (helpers, wrappers, camelCase, test fixes) | ✅ Complete | 0 (678 total) | `refactor: extract helpers, remove wrappers, camelCase rename` |
+| 8 | Repo Restructuring (monorepo, src/, route groups) | ✅ Complete | +16 (692 total) | `refactor: restructure to monorepo with src/, route groups, deduplication` |
+| 8.1 | Config Cleanup (helpers, wrappers, camelCase, test fixes) | ✅ Complete | 0 (692 total) | `refactor: extract helpers, remove wrappers, camelCase rename` |
 
 ---
 
@@ -59,7 +59,7 @@ None — all 678 tests pass.
   - Google Sheets → Supabase sync pipeline with per-item listing IDs (PD-XXXXX)
   - Multi-stage Dockerfile (Bun/Alpine), docker-compose dev/prod, deploy script
   - CI/CD via GitHub Actions (GHCR push)
-  - Path aliases: `@/*` → `src/*`, `@app-types/*` → `types/*`, `@lib/*` → `src/lib/*`, `@components/*` → `src/components/*`, `@config` → `packages/config`, `@helpers` → `packages/helpers`, `@utils/*` → `packages/utils/*`
+  - Path aliases: `@/*` → `src/*`, `@app-types/*` → `types/*`, `@lib/*` → `src/lib/*`, `@components/*` → `src/components/*`, `@config` → `src/config`, `@helpers` → `src/helpers`, `@utils/*` → `src/utils/*`
   - 46 tests passing
 
 - **Database Schema (per-item listing model):**

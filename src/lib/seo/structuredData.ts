@@ -1,7 +1,5 @@
 import type { ListingWithProduct, Category } from '@app-types/product'
-
-const SITE_URL = 'https://pedie.tech'
-const SITE_NAME = 'Pedie Tech'
+import { SITE_URL, SITE_NAME } from '@config'
 
 /**
  * Safely serialize a JSON-LD object for embedding in a <script> tag.
