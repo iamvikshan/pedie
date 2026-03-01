@@ -1,7 +1,7 @@
 import { google, type sheets_v4 } from 'googleapis'
 import { createAdminClient } from '@lib/supabase/admin'
 import { generateListingId, usdToKes } from '@helpers'
-import { SHEETS_TAB_NAME } from '@config'
+import { SHEETS_TAB_NAME } from '@/config'
 import { parseSheetRow } from '@lib/sheets/parser'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '@app-types/database'

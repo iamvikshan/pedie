@@ -23,8 +23,6 @@
       "@app-types/*": ["./types/*"],
       "@lib/*": ["./src/lib/*"],
       "@components/*": ["./src/components/*"],
-      "@config": ["./src/config"],
-      "@config/*": ["./src/config/*"],
       "@utils/*": ["./src/utils/*"],
       "@helpers": ["./src/helpers"],
       "@helpers/*": ["./src/helpers/*"]

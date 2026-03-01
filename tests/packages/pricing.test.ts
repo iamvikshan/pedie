@@ -5,7 +5,7 @@ import {
   formatKes,
   calculateDiscount,
 } from '@helpers/pricing'
-import { KES_USD_RATE, DEPOSIT_THRESHOLD_KES } from '@config'
+import { KES_USD_RATE, DEPOSIT_THRESHOLD_KES } from '@/config'
 
 describe('usdToKes', () => {
   test('converts USD to KES at rate 130', () => {

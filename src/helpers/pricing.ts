@@ -8,7 +8,7 @@ import {
   DEPOSIT_THRESHOLD_KES,
   DEPOSIT_RATE_LOW,
   DEPOSIT_RATE_HIGH,
-} from '@config'
+} from '@/config'
 
 export function usdToKes(usd: number): number {
   return Math.round(usd * KES_USD_RATE)

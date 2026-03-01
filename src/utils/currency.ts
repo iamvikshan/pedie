@@ -5,16 +5,10 @@
  * Import from '@utils/currency'.
  */
 
-import { KES_USD_RATE } from '../config'
-
-/** Re-export the canonical rate for callers that need it */
-export const DEFAULT_KES_PER_USD = KES_USD_RATE
+import { KES_USD_RATE } from '@/config'
 
 /** Convert KES to USD string with 2 decimal places */
-export function kesToUsd(
-  kes: number,
-  rate: number = DEFAULT_KES_PER_USD
-): string {
+export function kesToUsd(kes: number, rate: number = KES_USD_RATE): string {
   if (!Number.isFinite(kes) || !Number.isFinite(rate) || rate <= 0) {
     return '0.00'
   }

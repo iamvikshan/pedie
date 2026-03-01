@@ -1,7 +1,7 @@
 /**
  * Pedie business configuration — non-secret values.
  *
- * Import from '@config'.
+ * Import from '@/config'.
  * For actual secrets use environment variables (.env).
  */
 

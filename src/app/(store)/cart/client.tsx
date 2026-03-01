@@ -5,7 +5,7 @@ import { useCartStore, useHasHydrated } from '@lib/cart/store'
 import { CartItem } from '@components/cart/cartItem'
 import { CartSummary } from '@components/cart/cartSummary'
 import { Button } from '@components/ui/button'
-import { DEFAULT_COLLECTION_HREF } from '@config'
+import { DEFAULT_COLLECTION_HREF } from '@/config'
 
 export function CartPageClient() {
   const items = useCartStore(s => s.items)

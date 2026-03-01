@@ -3,7 +3,7 @@
  * Import from '@helpers' (barrel) or '@helpers/listing'.
  */
 
-import { LISTING_ID_PREFIX } from '@config'
+import { LISTING_ID_PREFIX } from '@/config'
 
 export function generateListingId(): string {
   const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
