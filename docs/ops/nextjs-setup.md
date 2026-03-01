@@ -192,8 +192,8 @@ Used for sending order confirmations, payment receipts, welcome emails, etc.
 ### Set Environment Variables
 
 ```
-GMAIL_CLIENT_ID=<client-id>.apps.googleusercontent.com
-GMAIL_CLIENT_SECRET=GOCSPX-<secret>
+GCP_CLIENT_ID=<client-id>.apps.googleusercontent.com
+GCP_CLIENT_SECRET=GOCSPX-<secret>
 GMAIL_REFRESH_TOKEN=1//<long-refresh-token>
 GMAIL_SENDER_EMAIL=pedietech@gmail.com
 ```
@@ -309,9 +309,9 @@ base64 -i service-account.json | tr -d '\n'
 2. Click **Share** → add the service account email as **Editor**
 
 ```
-GOOGLE_SHEETS_CREDENTIALS_BASE64=<base64-encoded-json>
-GOOGLE_SHEETS_SPREADSHEET_ID=<spreadsheet-id-from-url>
-GOOGLE_SHEETS_SHEET_NAME=Inventory
+GCP_SERVICE_ACC=<base64-encoded-json>
+GS_SPREADSHEET_ID=<spreadsheet-id-from-url>
+GS_SHEET_NAME=Inventory
 ```
 
 ### Install the Apps Script
@@ -577,7 +577,7 @@ If you'd rather avoid managing SSL certificates:
 3. Configure the tunnel to point to `http://localhost:3000`
 
 ```
-CLOUDFLARE_TUNNEL_TOKEN=<tunnel-token>
+CF_TUNNEL=<tunnel-token>
 ```
 
 ---
@@ -717,9 +717,9 @@ The repo uses [Renovate](https://renovatebot.com/) for automated dependency upda
 | `NEXT_PUBLIC_SUPABASE_URL` | ✅ | Supabase Dashboard → Settings → API |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ✅ | Supabase Dashboard → Settings → API (legacy anon key) |
 | `SUPABASE_SERVICE_ROLE_KEY` | ✅ | Supabase Dashboard → Settings → API |
-| `GOOGLE_SHEETS_CREDENTIALS_BASE64` | ✅ | Google Cloud → Service Account JSON → base64 |
-| `GOOGLE_SHEETS_SPREADSHEET_ID` | ✅ | From Google Sheets URL |
-| `GOOGLE_SHEETS_SHEET_NAME` | ✅ | Sheet tab name (default: `Inventory`) |
+| `GCP_SERVICE_ACC` | ✅ | Google Cloud → Service Account JSON → base64 |
+| `GS_SPREADSHEET_ID` | ✅ | From Google Sheets URL |
+| `GS_SHEET_NAME` | ✅ | Sheet tab name (default: `Inventory`) |
 | `SYNC_API_KEY` | ✅ | Generate any secure string |
 | `REVALIDATION_SECRET` | ✅ | Generate: `openssl rand -base64 32` |
 | `DARAJA_CONSUMER_KEY` | ✅ | Safaricom Developer Portal |
@@ -732,11 +732,11 @@ The repo uses [Renovate](https://renovatebot.com/) for automated dependency upda
 | `PAYPAL_CLIENT_ID` | ✅ | PayPal Developer Dashboard |
 | `PAYPAL_CLIENT_SECRET` | ✅ | PayPal Developer Dashboard |
 | `PAYPAL_ENV` | ✅ | `sandbox` or `production` |
-| `GMAIL_CLIENT_ID` | ⚡ | Google Cloud → OAuth2 Credentials |
-| `GMAIL_CLIENT_SECRET` | ⚡ | Google Cloud → OAuth2 Credentials |
+| `GCP_CLIENT_ID` | ⚡ | Google Cloud → OAuth2 Credentials |
+| `GCP_CLIENT_SECRET` | ⚡ | Google Cloud → OAuth2 Credentials |
 | `GMAIL_REFRESH_TOKEN` | ⚡ | OAuth Playground (see Step 3) |
 | `GMAIL_SENDER_EMAIL` | ⚡ | Your sender email address |
-| `CLOUDFLARE_TUNNEL_TOKEN` | 🔧 | Cloudflare Dashboard (for VPS) |
+| `CF_TUNNEL` | 🔧 | Cloudflare Dashboard (for VPS) |
 
  = Required for core functionality | ⚡ = Required for email features | 🔧 = Required for self-hosted deployment
 

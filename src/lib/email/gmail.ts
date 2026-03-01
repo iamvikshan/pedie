@@ -5,8 +5,8 @@ import { google } from 'googleapis'
  */
 export function isEmailConfigured(): boolean {
   return !!(
-    process.env.GMAIL_CLIENT_ID &&
-    process.env.GMAIL_CLIENT_SECRET &&
+    process.env.GCP_CLIENT_ID &&
+    process.env.GCP_CLIENT_SECRET &&
     process.env.GMAIL_REFRESH_TOKEN &&
     process.env.GMAIL_SENDER_EMAIL
   )
@@ -26,8 +26,8 @@ export async function sendEmail(
   const sanitizedSubject = subject.replace(/[\r\n]/g, '')
 
   const oauth2Client = new google.auth.OAuth2(
-    process.env.GMAIL_CLIENT_ID,
-    process.env.GMAIL_CLIENT_SECRET
+    process.env.GCP_CLIENT_ID,
+    process.env.GCP_CLIENT_SECRET
   )
 
   oauth2Client.setCredentials({

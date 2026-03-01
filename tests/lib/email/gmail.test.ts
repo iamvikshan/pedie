@@ -40,26 +40,26 @@ describe('isEmailConfigured', () => {
   })
 
   test('returns true when all env vars are set', () => {
-    process.env.GMAIL_CLIENT_ID = 'client-id'
-    process.env.GMAIL_CLIENT_SECRET = 'client-secret'
+    process.env.GCP_CLIENT_ID = 'client-id'
+    process.env.GCP_CLIENT_SECRET = 'client-secret'
     process.env.GMAIL_REFRESH_TOKEN = 'refresh-token'
     process.env.GMAIL_SENDER_EMAIL = 'sender@example.com'
 
     expect(isEmailConfigured()).toBe(true)
   })
 
-  test('returns false when GMAIL_CLIENT_ID is missing', () => {
-    delete process.env.GMAIL_CLIENT_ID
-    process.env.GMAIL_CLIENT_SECRET = 'client-secret'
+  test('returns false when GCP_CLIENT_ID is missing', () => {
+    delete process.env.GCP_CLIENT_ID
+    process.env.GCP_CLIENT_SECRET = 'client-secret'
     process.env.GMAIL_REFRESH_TOKEN = 'refresh-token'
     process.env.GMAIL_SENDER_EMAIL = 'sender@example.com'
 
     expect(isEmailConfigured()).toBe(false)
   })
 
-  test('returns false when GMAIL_CLIENT_SECRET is missing', () => {
-    process.env.GMAIL_CLIENT_ID = 'client-id'
-    delete process.env.GMAIL_CLIENT_SECRET
+  test('returns false when GCP_CLIENT_SECRET is missing', () => {
+    process.env.GCP_CLIENT_ID = 'client-id'
+    delete process.env.GCP_CLIENT_SECRET
     process.env.GMAIL_REFRESH_TOKEN = 'refresh-token'
     process.env.GMAIL_SENDER_EMAIL = 'sender@example.com'
 
@@ -67,8 +67,8 @@ describe('isEmailConfigured', () => {
   })
 
   test('returns false when GMAIL_REFRESH_TOKEN is missing', () => {
-    process.env.GMAIL_CLIENT_ID = 'client-id'
-    process.env.GMAIL_CLIENT_SECRET = 'client-secret'
+    process.env.GCP_CLIENT_ID = 'client-id'
+    process.env.GCP_CLIENT_SECRET = 'client-secret'
     delete process.env.GMAIL_REFRESH_TOKEN
     process.env.GMAIL_SENDER_EMAIL = 'sender@example.com'
 
@@ -76,8 +76,8 @@ describe('isEmailConfigured', () => {
   })
 
   test('returns false when GMAIL_SENDER_EMAIL is missing', () => {
-    process.env.GMAIL_CLIENT_ID = 'client-id'
-    process.env.GMAIL_CLIENT_SECRET = 'client-secret'
+    process.env.GCP_CLIENT_ID = 'client-id'
+    process.env.GCP_CLIENT_SECRET = 'client-secret'
     process.env.GMAIL_REFRESH_TOKEN = 'refresh-token'
     delete process.env.GMAIL_SENDER_EMAIL
 
@@ -85,8 +85,8 @@ describe('isEmailConfigured', () => {
   })
 
   test('returns false when env vars are empty strings', () => {
-    process.env.GMAIL_CLIENT_ID = ''
-    process.env.GMAIL_CLIENT_SECRET = 'client-secret'
+    process.env.GCP_CLIENT_ID = ''
+    process.env.GCP_CLIENT_SECRET = 'client-secret'
     process.env.GMAIL_REFRESH_TOKEN = 'refresh-token'
     process.env.GMAIL_SENDER_EMAIL = 'sender@example.com'
 
@@ -96,8 +96,8 @@ describe('isEmailConfigured', () => {
 
 describe('sendEmail', () => {
   beforeEach(() => {
-    process.env.GMAIL_CLIENT_ID = 'client-id'
-    process.env.GMAIL_CLIENT_SECRET = 'client-secret'
+    process.env.GCP_CLIENT_ID = 'client-id'
+    process.env.GCP_CLIENT_SECRET = 'client-secret'
     process.env.GMAIL_REFRESH_TOKEN = 'refresh-token'
     process.env.GMAIL_SENDER_EMAIL = 'sender@example.com'
     mockSend.mockClear()

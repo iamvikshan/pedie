@@ -32,7 +32,7 @@ services:
     container_name: cloudflared
     command: tunnel run
     environment:
-      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+      - TUNNEL_TOKEN=${CF_TUNNEL}
     restart: unless-stopped
     depends_on:
       store:

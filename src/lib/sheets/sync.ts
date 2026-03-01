@@ -16,9 +16,9 @@ export interface SyncReport {
 }
 
 export function getGoogleSheetsClient(): sheets_v4.Sheets {
-  const credentialsBase64 = process.env.GOOGLE_SHEETS_CREDENTIALS_BASE64
+  const credentialsBase64 = process.env.GCP_SERVICE_ACC
   if (!credentialsBase64) {
-    throw new Error('Missing GOOGLE_SHEETS_CREDENTIALS_BASE64 env var')
+    throw new Error('Missing GCP_SERVICE_ACC env var')
   }
 
   let credentials: Record<string, unknown>
@@ -27,7 +27,7 @@ export function getGoogleSheetsClient(): sheets_v4.Sheets {
       Buffer.from(credentialsBase64, 'base64').toString('utf-8')
     )
   } catch {
-    throw new Error('Invalid GOOGLE_SHEETS_CREDENTIALS_BASE64: malformed JSON')
+    throw new Error('Invalid GCP_SERVICE_ACC: malformed JSON')
   }
 
   const auth = new google.auth.GoogleAuth({
@@ -118,11 +118,11 @@ export async function findOrCreateProduct(
 export async function syncFromSheets(): Promise<SyncReport> {
   const report: SyncReport = { created: 0, updated: 0, errors: 0, details: [] }
 
-  const spreadsheetId = process.env.GOOGLE_SHEETS_SPREADSHEET_ID
-  const sheetName = process.env.GOOGLE_SHEETS_SHEET_NAME || 'Inventory'
+  const spreadsheetId = process.env.GS_SPREADSHEET_ID
+  const sheetName = process.env.GS_SHEET_NAME || 'Inventory'
 
   if (!spreadsheetId) {
-    throw new Error('Missing GOOGLE_SHEETS_SPREADSHEET_ID env var')
+    throw new Error('Missing GS_SPREADSHEET_ID env var')
   }
 
   const sheetsClient = getGoogleSheetsClient()
