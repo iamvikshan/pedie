@@ -47,6 +47,7 @@ const mockListings: ListingWithProduct[] = [
 		is_preorder: false,
 		is_sold: false,
 		is_featured: false,
+		is_on_sale: false,
 		status: "available",
 		sheets_row_id: null,
 		notes: null,

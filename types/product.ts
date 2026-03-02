@@ -55,6 +55,7 @@ export type Listing = {
 	is_preorder: boolean;
 	is_sold: boolean;
 	is_featured: boolean;
+	is_on_sale: boolean;
 	status: ListingStatus;
 	sheets_row_id: string | null;
 	notes: string | null;

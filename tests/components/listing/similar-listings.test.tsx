@@ -36,6 +36,7 @@ const mockListing = {
 	is_preorder: false,
 	is_sold: false,
 	is_featured: false,
+	is_on_sale: false,
 	status: "available" as const,
 	images: [],
 	original_price_usd: 400,

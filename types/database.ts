@@ -65,6 +65,7 @@ export type Database = {
 					id: string;
 					images: string[] | null;
 					is_featured: boolean | null;
+					is_on_sale: boolean;
 					is_preorder: boolean | null;
 					is_sold: boolean | null;
 					landed_cost_kes: number | null;
@@ -90,6 +91,7 @@ export type Database = {
 					id?: string;
 					images?: string[] | null;
 					is_featured?: boolean | null;
+					is_on_sale?: boolean;
 					is_preorder?: boolean | null;
 					is_sold?: boolean | null;
 					landed_cost_kes?: number | null;
@@ -115,6 +117,7 @@ export type Database = {
 					id?: string;
 					images?: string[] | null;
 					is_featured?: boolean | null;
+					is_on_sale?: boolean;
 					is_preorder?: boolean | null;
 					is_sold?: boolean | null;
 					landed_cost_kes?: number | null;

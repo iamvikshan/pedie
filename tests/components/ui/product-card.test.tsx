@@ -26,6 +26,7 @@ describe("ProductCard Component", () => {
 		is_preorder: false,
 		is_sold: false,
 		is_featured: true,
+		is_on_sale: false,
 		status: "available",
 		sheets_row_id: "row1",
 		notes: null,

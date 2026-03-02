@@ -324,3 +324,123 @@ describe("images column support", () => {
 		expect(result!.images).toBeUndefined();
 	});
 });
+
+describe("is_on_sale column support", () => {
+	const headersWithSale = [
+		"listing_id",
+		"brand",
+		"model",
+		"category",
+		"condition_grade",
+		"price_usd",
+		"price_kes",
+		"original_price_kes",
+		"warranty_months",
+		"notes",
+		"source",
+		"source_listing_id",
+		"source_url",
+		"status",
+		"images",
+		"is_on_sale",
+	];
+
+	test("should parse is_on_sale as 'true'", () => {
+		const row = [
+			"PD-01003",
+			"Apple",
+			"iPhone 15 Pro",
+			"smartphones",
+			"good",
+			"899",
+			"135000",
+			"195000",
+			"",
+			"",
+			"swappa",
+			"",
+			"",
+			"available",
+			"",
+			"true",
+		];
+
+		const result = parseSheetRow(row, headersWithSale);
+		expect(result).not.toBeNull();
+		expect(result!.is_on_sale).toBe("true");
+	});
+
+	test("should parse is_on_sale as 'false'", () => {
+		const row = [
+			"PD-01001",
+			"Apple",
+			"iPhone 16 Pro Max",
+			"smartphones",
+			"excellent",
+			"1099",
+			"195000",
+			"250000",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"available",
+			"",
+			"false",
+		];
+
+		const result = parseSheetRow(row, headersWithSale);
+		expect(result).not.toBeNull();
+		expect(result!.is_on_sale).toBe("false");
+	});
+
+	test("should handle missing is_on_sale gracefully", () => {
+		const row = [
+			"",
+			"Samsung",
+			"Galaxy S24",
+			"smartphones",
+			"excellent",
+			"800",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+		];
+
+		const result = parseSheetRow(row, headersWithSale);
+		expect(result).not.toBeNull();
+		expect(result!.is_on_sale).toBeUndefined();
+	});
+
+	test("should handle empty is_on_sale as undefined", () => {
+		const row = [
+			"",
+			"Google",
+			"Pixel 8",
+			"smartphones",
+			"good",
+			"500",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+		];
+
+		const result = parseSheetRow(row, headersWithSale);
+		expect(result).not.toBeNull();
+		expect(result!.is_on_sale).toBeUndefined();
+	});
+});

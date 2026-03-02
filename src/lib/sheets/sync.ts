@@ -237,6 +237,7 @@ export async function syncFromSheets(): Promise<SyncReport> {
         source: parsed.source || null,
         source_listing_id: parsed.source_listing_id || null,
         source_url: parsed.source_url || null,
+        is_on_sale: parsed.is_on_sale?.toLowerCase() === 'true' ? true : false,
         status:
           (parsed.status as Database['public']['Enums']['listing_status']) ||
           'available',
@@ -391,6 +392,7 @@ const SHEET_HEADERS = [
   'source_url',
   'status',
   'images',
+  'is_on_sale',
 ]
 
 export async function syncToSheets(
@@ -475,6 +477,7 @@ export async function syncToSheets(
       listing.source_url || '',
       (listing.status as string) || '',
       Array.isArray(listing.images) ? listing.images.join(',') : '',
+      listing.is_on_sale ? 'true' : 'false',
     ]
   }
 

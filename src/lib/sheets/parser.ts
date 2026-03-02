@@ -14,6 +14,7 @@ export interface SheetRow {
   source_url?: string
   status?: string
   images?: string
+  is_on_sale?: string
 }
 
 export function cleanNumericString(value: string): string {
@@ -74,5 +75,6 @@ export function parseSheetRow(
     source_url: data.source_url || undefined,
     status: data.status || undefined,
     images: data.images || undefined,
+    is_on_sale: data.is_on_sale || undefined,
   }
 }
