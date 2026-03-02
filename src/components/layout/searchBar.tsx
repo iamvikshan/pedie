@@ -4,8 +4,12 @@ import { useRouter } from 'next/navigation'
 import { useRef, useState } from 'react'
 import { TbSearch } from 'react-icons/tb'
 
-export function SearchBar() {
-  const [isExpanded, setIsExpanded] = useState(false)
+interface SearchBarProps {
+  defaultExpanded?: boolean
+}
+
+export function SearchBar({ defaultExpanded = false }: SearchBarProps) {
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded)
   const [query, setQuery] = useState('')
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)

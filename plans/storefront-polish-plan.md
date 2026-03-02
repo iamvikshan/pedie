@@ -60,8 +60,9 @@ Post-redesign fixes and enhancements: responsive layout, mobile navigation UX, p
         7. Run seed to populate dev DB
         8. Run quality gate
 
-3. **Phase 3: Mobile Nav UX, Newsletter Redesign & All Items Panel**
+3. **✅ Phase 3: Mobile Nav UX, Newsletter Redesign & All Items Panel**
     - **Objective:** Fix mobile nav issues: expand search bar by default in drawer, redesign category cards to match desktop "All Items" style, add useful quick links. Extract newsletter form to standalone eye-catching component. Fix All Items panel: replace emoji with Tabler icon for Hot Deals, show brand logos from `brands.json` with logo image + text.
+    - **Changes from plan:** Added image failure fallback pattern (data-fallback) for category cards in both mobileNav and allItemsPanel, ensuring graceful degradation when CDN/images fail.
     - **Files/Functions to Modify/Create:**
         - `src/components/layout/mobileNav.tsx` — replace icon-only category grid with card-style categories (image + gradient overlay + text, matching `allItemsPanel.tsx` style), add expanded SearchBar by default (pass `defaultExpanded` prop), add quick links section (Deals, New Arrivals, Best Sellers)
         - `src/components/layout/searchBar.tsx` — add `defaultExpanded?: boolean` prop so mobile drawer can render it expanded by default without conflict

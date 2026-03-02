@@ -51,4 +51,9 @@ describe("Footer", () => {
 	test("source uses glass-footer class", () => {
 		expect(SOURCE).toContain("glass-footer");
 	});
+
+	test('uses NewsletterSignup component (not FooterNewsletterForm)', () => {
+		expect(SOURCE).toContain('NewsletterSignup')
+		expect(SOURCE).not.toContain('FooterNewsletterForm')
+	})
 });

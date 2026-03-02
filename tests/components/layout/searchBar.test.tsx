@@ -49,4 +49,12 @@ describe("SearchBar", () => {
 		expect(searchBarSource).toContain("handleBlur");
 		expect(searchBarSource).toContain("!query");
 	});
+
+	test('accepts defaultExpanded prop', () => {
+		expect(searchBarSource).toContain('defaultExpanded')
+	})
+
+	test('initializes isExpanded from defaultExpanded prop', () => {
+		expect(searchBarSource).toContain('useState(defaultExpanded)')
+	})
 });

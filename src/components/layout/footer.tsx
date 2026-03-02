@@ -7,7 +7,7 @@ import {
   TbBrandYoutube,
 } from 'react-icons/tb'
 import { URLS, FOOTER_LINKS } from '@/config'
-import { FooterNewsletterForm } from './footerNewsletterForm'
+import { NewsletterSignup } from './newsletterSignup'
 
 export { FOOTER_LINKS }
 
@@ -42,7 +42,7 @@ export function Footer() {
               Quality refurbished electronics for Kenya. Every device tested,
               graded, and backed by a 3-month warranty.
             </p>
-            <FooterNewsletterForm />
+            <NewsletterSignup />
           </div>
 
           {/* Links Grid */}

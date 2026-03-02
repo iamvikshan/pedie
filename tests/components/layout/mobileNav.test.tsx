@@ -69,9 +69,33 @@ describe("MobileNav", () => {
 		expect(mobileNavSource).toContain("className='md:hidden'");
 	});
 
-	test("renders SearchBar inside the drawer", () => {
-		expect(mobileNavSource).toContain("<SearchBar />");
-	});
+	test('renders SearchBar inside the drawer', () => {
+		expect(mobileNavSource).toContain('SearchBar')
+	})
+
+	test('passes defaultExpanded to SearchBar', () => {
+		expect(mobileNavSource).toContain('<SearchBar defaultExpanded')
+	})
+
+	test('uses card-style categories with images', () => {
+		expect(mobileNavSource).toContain('CATEGORY_IMAGES')
+		expect(mobileNavSource).toContain("import Image from 'next/image'")
+		expect(mobileNavSource).toContain('group-hover:scale-105')
+	})
+
+	test('has quick links section', () => {
+		expect(mobileNavSource).toContain('QUICK_LINKS')
+		expect(mobileNavSource).toContain('Quick Links')
+		expect(mobileNavSource).toContain('/deals')
+		expect(mobileNavSource).toContain('New Arrivals')
+		expect(mobileNavSource).toContain('Best Sellers')
+	})
+
+	test('quick links use Tabler icons', () => {
+		expect(mobileNavSource).toContain('TbFlame')
+		expect(mobileNavSource).toContain('TbSparkles')
+		expect(mobileNavSource).toContain('TbTrendingUp')
+	})
 
 	test("sign-out handler destructures error from signOut result", () => {
 		expect(src).toContain("const { error } = await supabase.auth.signOut()");

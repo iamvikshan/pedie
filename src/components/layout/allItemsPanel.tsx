@@ -4,22 +4,14 @@ import { AnimatePresence, motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useCallback, useEffect, useRef } from 'react'
-import { TbX } from 'react-icons/tb'
+import { TbFlame, TbX } from 'react-icons/tb'
+import brands from '@/data/brands.json'
 import { CATEGORIES } from './categoryNav'
 
 const FEATURED_COLLECTIONS = [
   { name: 'Best Sellers', href: '/collections/best-sellers' },
   { name: 'New Arrivals', href: '/collections/new-arrivals' },
   { name: 'Staff Picks', href: '/collections/staff-picks' },
-] as const
-
-const POPULAR_BRANDS = [
-  'Apple',
-  'Samsung',
-  'Google',
-  'OnePlus',
-  'Sony',
-  'Xiaomi',
 ] as const
 
 const HELP_LINKS = [
@@ -144,23 +136,35 @@ export function AllItemsPanel({ isOpen, onClose }: AllItemsPanelProps) {
                         onClick={onClose}
                         className='group relative overflow-hidden rounded-lg border border-pedie-glass-border'
                       >
-                        {CATEGORY_IMAGES[slug] ? (
-                          <Image
-                            src={CATEGORY_IMAGES[slug]}
-                            alt={cat.name}
-                            width={160}
-                            height={100}
-                            className='h-20 w-full object-cover transition-transform duration-300 group-hover:scale-105'
-                            onError={e => {
-                              const target = e.currentTarget
-                              target.style.display = 'none'
+                        <div className='relative h-20 w-full'>
+                          {CATEGORY_IMAGES[slug] ? (
+                            <Image
+                              src={CATEGORY_IMAGES[slug]}
+                              alt={cat.name}
+                              width={160}
+                              height={100}
+                              className='h-20 w-full object-cover transition-transform duration-300 group-hover:scale-105'
+                              onError={e => {
+                                const target = e.currentTarget
+                                target.style.display = 'none'
+                                const fallback =
+                                  target.parentElement?.querySelector<HTMLElement>(
+                                    '[data-fallback]'
+                                  )
+                                if (fallback) fallback.style.display = 'flex'
+                              }}
+                            />
+                          ) : null}
+                          <div
+                            data-fallback
+                            className='flex h-20 w-full items-center justify-center bg-pedie-card text-pedie-text-muted text-xs'
+                            style={{
+                              display: CATEGORY_IMAGES[slug] ? 'none' : 'flex',
                             }}
-                          />
-                        ) : (
-                          <div className='flex h-20 w-full items-center justify-center bg-pedie-card text-pedie-text-muted text-xs'>
+                          >
                             {cat.name}
                           </div>
-                        )}
+                        </div>
                         <span className='absolute inset-0 flex items-end bg-gradient-to-t from-pedie-bg/80 to-transparent p-2 text-sm font-medium text-pedie-text'>
                           {cat.name}
                         </span>
@@ -189,14 +193,15 @@ export function AllItemsPanel({ isOpen, onClose }: AllItemsPanelProps) {
                 </div>
               </section>
 
-              {/* Daily Deals */}
+              {/* Hot Deals */}
               <section>
                 <Link
                   href='/deals'
                   onClick={onClose}
                   className='flex items-center gap-2 rounded-lg bg-pedie-green/10 px-3 py-2.5 text-sm font-medium text-pedie-green transition-colors hover:bg-pedie-green/20'
                 >
-                  🔥 Daily Deals
+                  <TbFlame className='h-5 w-5 text-amber-400' />
+                  Hot Deals
                 </Link>
               </section>
 
@@ -206,14 +211,39 @@ export function AllItemsPanel({ isOpen, onClose }: AllItemsPanelProps) {
                   Popular Brands
                 </h3>
                 <div className='grid grid-cols-3 gap-2'>
-                  {POPULAR_BRANDS.map(brand => (
+                  {brands.map(brand => (
                     <Link
-                      key={brand}
-                      href={`/collections/brands/${brand.toLowerCase()}`}
+                      key={brand.slug}
+                      href={`/collections/brands/${brand.slug}`}
                       onClick={onClose}
-                      className='rounded-lg border border-pedie-glass-border px-3 py-2 text-center text-xs font-medium text-pedie-text transition-colors hover:bg-pedie-card hover:text-pedie-green'
+                      className='group flex flex-col items-center gap-1.5 rounded-lg border border-pedie-glass-border p-2.5 transition-colors hover:bg-pedie-card hover:text-pedie-green'
                     >
-                      {brand}
+                      <div className='relative h-8 w-8'>
+                        <Image
+                          src={brand.logo}
+                          alt={brand.name}
+                          width={32}
+                          height={32}
+                          className='object-contain'
+                          onError={e => {
+                            const target = e.currentTarget
+                            target.style.display = 'none'
+                            if (target.nextElementSibling)
+                              (
+                                target.nextElementSibling as HTMLElement
+                              ).style.display = 'flex'
+                          }}
+                        />
+                        <span
+                          className='hidden h-full w-full items-center justify-center text-xs font-bold text-pedie-text-muted'
+                          style={{ display: 'none' }}
+                        >
+                          {brand.name.charAt(0)}
+                        </span>
+                      </div>
+                      <span className='text-xs font-medium text-pedie-text group-hover:text-pedie-green'>
+                        {brand.name}
+                      </span>
                     </Link>
                   ))}
                 </div>

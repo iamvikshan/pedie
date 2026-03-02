@@ -4,6 +4,7 @@ import { useAuth } from '@components/auth/authProvider'
 import { ThemeToggle } from '@components/ui/themeToggle'
 import { createClient } from '@lib/supabase/client'
 import { AnimatePresence, motion } from 'framer-motion'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -13,12 +14,15 @@ import {
   TbDeviceMobile,
   TbDeviceTablet,
   TbDeviceWatch,
+  TbFlame,
   TbHeadphones,
   TbHeart,
   TbLogout,
   TbMenu2,
   TbPackage,
   TbPlug,
+  TbSparkles,
+  TbTrendingUp,
   TbUser,
   TbX,
 } from 'react-icons/tb'
@@ -35,6 +39,21 @@ const MOBILE_CATEGORIES = [
   { name: 'Accessories', href: '/collections/accessories', icon: TbPlug },
   { name: 'Wearables', href: '/collections/wearables', icon: TbDeviceWatch },
   { name: 'Audio', href: '/collections/audio', icon: TbHeadphones },
+] as const
+
+const CATEGORY_IMAGES: Record<string, string> = {
+  smartphones: '/images/categories/smartphones.jpg',
+  laptops: '/images/categories/laptops.jpg',
+  tablets: '/images/categories/tablets.jpg',
+  accessories: '/images/categories/accessories.jpg',
+  wearables: '/images/categories/wearables.jpg',
+  audio: '/images/categories/audio.jpg',
+}
+
+const QUICK_LINKS = [
+  { name: 'Deals', href: '/deals' },
+  { name: 'New Arrivals', href: '/collections/new-arrivals' },
+  { name: 'Best Sellers', href: '/collections/best-sellers' },
 ] as const
 
 export function MobileNav() {
@@ -150,28 +169,90 @@ export function MobileNav() {
 
                   {/* Search */}
                   <div>
-                    <SearchBar />
+                    <SearchBar defaultExpanded />
                   </div>
 
-                  {/* Category Grid */}
-                  <nav className='grid grid-cols-2 gap-3'>
-                    {MOBILE_CATEGORIES.map(cat => {
-                      const Icon = cat.icon
-                      return (
-                        <Link
-                          key={cat.href}
-                          href={cat.href}
-                          onClick={close}
-                          className='flex flex-col items-center gap-2 rounded-lg border border-pedie-glass-border p-3 text-pedie-text transition-colors hover:bg-pedie-card hover:text-pedie-green'
-                        >
-                          <Icon className='h-6 w-6' />
-                          <span className='text-xs font-medium'>
-                            {cat.name}
-                          </span>
-                        </Link>
-                      )
-                    })}
+                  {/* Category Grid — card-style with images */}
+                  <nav>
+                    <h3 className='mb-3 text-xs font-semibold uppercase tracking-wider text-pedie-text-muted'>
+                      Categories
+                    </h3>
+                    <div className='grid grid-cols-2 gap-3'>
+                      {MOBILE_CATEGORIES.map(cat => {
+                        const slug = cat.href.split('/').pop() ?? ''
+                        return (
+                          <Link
+                            key={cat.href}
+                            href={cat.href}
+                            onClick={close}
+                            className='group relative overflow-hidden rounded-lg border border-pedie-glass-border'
+                          >
+                            <div className='relative h-20 w-full'>
+                              {CATEGORY_IMAGES[slug] ? (
+                                <Image
+                                  src={CATEGORY_IMAGES[slug]}
+                                  alt={cat.name}
+                                  width={160}
+                                  height={100}
+                                  className='h-20 w-full object-cover transition-transform duration-300 group-hover:scale-105'
+                                  onError={e => {
+                                    const target = e.currentTarget
+                                    target.style.display = 'none'
+                                    const fallback =
+                                      target.parentElement?.querySelector<HTMLElement>(
+                                        '[data-fallback]'
+                                      )
+                                    if (fallback)
+                                      fallback.style.display = 'flex'
+                                  }}
+                                />
+                              ) : null}
+                              <div
+                                data-fallback
+                                className='flex h-20 w-full items-center justify-center bg-pedie-card text-pedie-text-muted text-xs'
+                                style={{
+                                  display: CATEGORY_IMAGES[slug]
+                                    ? 'none'
+                                    : 'flex',
+                                }}
+                              >
+                                {cat.name}
+                              </div>
+                            </div>
+                            <span className='absolute inset-0 flex items-end bg-gradient-to-t from-pedie-bg/80 to-transparent p-2 text-sm font-medium text-pedie-text'>
+                              {cat.name}
+                            </span>
+                          </Link>
+                        )
+                      })}
+                    </div>
                   </nav>
+
+                  {/* Quick Links */}
+                  <div className='flex flex-col gap-2'>
+                    <h3 className='text-xs font-semibold uppercase tracking-wider text-pedie-text-muted'>
+                      Quick Links
+                    </h3>
+                    {QUICK_LINKS.map(link => (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={close}
+                        className='flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-pedie-text transition-colors hover:bg-pedie-card hover:text-pedie-green'
+                      >
+                        {link.name === 'Deals' && (
+                          <TbFlame className='h-4 w-4 text-amber-400' />
+                        )}
+                        {link.name === 'New Arrivals' && (
+                          <TbSparkles className='h-4 w-4 text-pedie-green' />
+                        )}
+                        {link.name === 'Best Sellers' && (
+                          <TbTrendingUp className='h-4 w-4 text-pedie-accent' />
+                        )}
+                        {link.name}
+                      </Link>
+                    ))}
+                  </div>
 
                   {/* Account / Auth Section */}
                   <div className='mt-auto border-t border-pedie-glass-border pt-6'>
