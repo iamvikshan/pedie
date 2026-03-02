@@ -37,7 +37,7 @@ export function NewsletterSignup() {
   }
 
   return (
-    <section className='py-16 container mx-auto px-4 md:px-6'>
+    <section className='py-16 w-full max-w-7xl mx-auto px-4 md:px-6'>
       <div className='max-w-2xl mx-auto text-center bg-pedie-dark p-8 md:p-12 rounded-2xl border border-pedie-border'>
         <h2 className='text-2xl md:text-3xl font-bold text-pedie-text mb-4'>
           Stay Updated

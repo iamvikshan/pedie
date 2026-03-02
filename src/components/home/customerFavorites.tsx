@@ -3,6 +3,7 @@
 import type { ListingWithProduct } from '@app-types/product'
 import { ProductCard } from '@components/ui/productCard'
 import { motion } from 'framer-motion'
+import Link from 'next/link'
 import { useMemo, useState } from 'react'
 
 export const TABS = [
@@ -26,16 +27,24 @@ export function CustomerFavorites({ listings }: CustomerFavoritesProps) {
 
   return (
     <motion.section
-      className='py-16 container mx-auto px-4 md:px-6'
+      className='py-16 w-full max-w-7xl mx-auto px-4 md:px-6'
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
     >
       <div className='flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4'>
-        <h2 className='text-2xl md:text-3xl font-bold text-pedie-text'>
-          Customer Favorites
-        </h2>
+        <div className='flex items-center gap-4'>
+          <h2 className='text-2xl md:text-3xl font-bold text-pedie-text'>
+            Customer Favorites
+          </h2>
+          <Link
+            href='/collections'
+            className='text-sm font-medium text-pedie-green hover:text-pedie-green-dark transition-colors'
+          >
+            View All →
+          </Link>
+        </div>
 
         <div
           className='flex overflow-x-auto pb-2 md:pb-0 gap-2 hide-scrollbar'

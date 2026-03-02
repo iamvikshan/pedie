@@ -61,7 +61,7 @@ export default function RootLayout({
             <WishlistProvider>
               <CartHydration />
               <Header />
-              <main className='flex-1'>{children}</main>
+              <main className='flex-1 overflow-x-hidden'>{children}</main>
               <Footer />
             </WishlistProvider>
           </AuthProvider>

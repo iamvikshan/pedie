@@ -1,17 +1,18 @@
 import { CategoryShowcase } from '@components/home/categoryShowcase'
 import { CustomerFavorites } from '@components/home/customerFavorites'
-import { DailyDeals } from '@components/home/dailyDeals'
+import { HotDeals } from '@components/home/hotDeals'
 import { HeroBanner } from '@components/home/heroBanner'
 import { PopularCategories } from '@components/home/popularCategories'
 import { SustainabilitySection } from '@components/home/sustainabilitySection'
 import { TrustBadges } from '@components/home/trustBadges'
 import { ErrorBoundary } from '@components/ui/errorBoundary'
-import { getDealListings, getFeaturedListings } from '@lib/data/products'
+import { getHotDealsListings } from '@lib/data/deals'
+import { getFeaturedListings } from '@lib/data/products'
 
 export default async function Home() {
-  const [featuredListings, dealListings] = await Promise.all([
+  const [featuredListings, hotDealsListings] = await Promise.all([
     getFeaturedListings(12),
-    getDealListings(8),
+    getHotDealsListings(),
   ])
 
   return (
@@ -29,7 +30,7 @@ export default async function Home() {
         <CustomerFavorites listings={featuredListings} />
       </ErrorBoundary>
       <ErrorBoundary>
-        <DailyDeals listings={dealListings} />
+        <HotDeals listings={hotDealsListings} />
       </ErrorBoundary>
       <ErrorBoundary>
         <CategoryShowcase categorySlug='smartphones' title='Smartphones' />

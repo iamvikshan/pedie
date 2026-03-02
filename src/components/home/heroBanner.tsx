@@ -4,7 +4,12 @@ import { AnimatePresence, motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useCallback, useEffect, useState } from 'react'
-import { TbPlayerPause, TbPlayerPlay } from 'react-icons/tb'
+import {
+  TbChevronLeft,
+  TbChevronRight,
+  TbPlayerPause,
+  TbPlayerPlay,
+} from 'react-icons/tb'
 import heroSlides from '@/data/hero.json'
 
 export { heroSlides as SLIDES }
@@ -14,6 +19,8 @@ export function HeroBanner() {
   const [isManuallyPaused, setIsManuallyPaused] = useState(false)
   const [isInteractionPaused, setIsInteractionPaused] = useState(false)
   const [imgError, setImgError] = useState<Record<number, boolean>>({})
+  const [lastInteraction, setLastInteraction] = useState(0)
+  const [showChevrons, setShowChevrons] = useState(false)
 
   const isPaused = isManuallyPaused || isInteractionPaused
   const hasSlides = heroSlides && heroSlides.length > 0
@@ -27,6 +34,26 @@ export function HeroBanner() {
     }, 5000)
     return () => clearInterval(timer)
   }, [isPaused, hasSlides])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setShowChevrons(Date.now() - lastInteraction < 3000)
+    }, 300)
+    return () => clearInterval(interval)
+  }, [lastInteraction])
+
+  const handleMouseMove = useCallback(() => {
+    setLastInteraction(Date.now())
+  }, [])
+
+  const handleChevronClick = useCallback((direction: 'prev' | 'next') => {
+    setLastInteraction(Date.now())
+    setCurrentSlide(prev =>
+      direction === 'prev'
+        ? (prev - 1 + heroSlides.length) % heroSlides.length
+        : (prev + 1) % heroSlides.length
+    )
+  }, [])
 
   const handleFocus = useCallback((e: React.FocusEvent<HTMLDivElement>) => {
     if (
@@ -66,6 +93,7 @@ export function HeroBanner() {
       className='relative h-[220px] md:h-[280px] w-full overflow-hidden rounded-2xl'
       onMouseEnter={() => setIsInteractionPaused(true)}
       onMouseLeave={() => setIsInteractionPaused(false)}
+      onMouseMove={handleMouseMove}
       onFocus={handleFocus}
       onBlur={handleBlur}
     >
@@ -131,6 +159,28 @@ export function HeroBanner() {
           </div>
         </motion.div>
       </AnimatePresence>
+
+      {/* Chevron navigation — desktop only, auto-hide */}
+      <button
+        type='button'
+        onClick={() => handleChevronClick('prev')}
+        className={`absolute left-3 top-1/2 -translate-y-1/2 z-20 hidden md:flex w-10 h-10 items-center justify-center rounded-full bg-pedie-bg/50 hover:bg-pedie-bg/70 backdrop-blur-sm text-pedie-text transition-all duration-300 ${showChevrons ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        aria-label='Previous slide'
+        tabIndex={showChevrons ? 0 : -1}
+        aria-hidden={!showChevrons}
+      >
+        <TbChevronLeft className='h-5 w-5' />
+      </button>
+      <button
+        type='button'
+        onClick={() => handleChevronClick('next')}
+        className={`absolute right-3 top-1/2 -translate-y-1/2 z-20 hidden md:flex w-10 h-10 items-center justify-center rounded-full bg-pedie-bg/50 hover:bg-pedie-bg/70 backdrop-blur-sm text-pedie-text transition-all duration-300 ${showChevrons ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+        aria-label='Next slide'
+        tabIndex={showChevrons ? 0 : -1}
+        aria-hidden={!showChevrons}
+      >
+        <TbChevronRight className='h-5 w-5' />
+      </button>
 
       {/* Progress dots & pause/play */}
       <div className='absolute bottom-4 left-0 right-0 z-20 flex items-center justify-center gap-2'>

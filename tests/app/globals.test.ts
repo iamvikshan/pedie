@@ -28,6 +28,10 @@ describe("globals.css", () => {
 		expect(cssSource).toContain(".dark .glass-depth");
 	});
 
+	test("html element has overflow-x hidden to prevent horizontal scroll", () => {
+		expect(cssSource).toMatch(/html\s*\{[^}]*overflow-x:\s*hidden/);
+	});
+
 	test("defines pedie-green color tokens", () => {
 		expect(cssSource).toContain("--color-pedie-green: #22c55e");
 		expect(cssSource).toContain("--color-pedie-green-light");

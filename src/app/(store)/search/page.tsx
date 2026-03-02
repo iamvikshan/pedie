@@ -26,7 +26,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
 
   if (!query) {
     return (
-      <div className='container mx-auto px-4 py-16'>
+      <div className='w-full max-w-7xl mx-auto px-4 py-16'>
         <div className='flex flex-col items-center justify-center text-center'>
           <svg
             className='w-20 h-20 text-pedie-text-muted mb-6'
@@ -57,7 +57,7 @@ export default async function SearchPage({ searchParams }: PageProps) {
   const results = await searchListings(query, {}, { page, perPage: 12 })
 
   return (
-    <div className='container mx-auto px-4 py-8'>
+    <div className='w-full max-w-7xl mx-auto px-4 py-8'>
       <div className='mb-8'>
         <h1 className='text-2xl font-bold text-pedie-text mb-1'>
           Search results for &lsquo;{query}&rsquo;

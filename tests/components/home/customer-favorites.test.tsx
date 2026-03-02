@@ -1,4 +1,11 @@
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "fs";
+import { resolve } from "path";
+
+const SOURCE = readFileSync(
+	resolve("src/components/home/customerFavorites.tsx"),
+	"utf-8",
+);
 
 describe("CustomerFavorites", () => {
 	test("module exports the component", async () => {
@@ -36,5 +43,13 @@ describe("CustomerFavorites", () => {
 		expect(ids).toContain("smartphones");
 		expect(ids).toContain("laptops");
 		expect(ids).toContain("tablets");
+	});
+
+	test("has /collections View All link", () => {
+		expect(SOURCE).toContain("/collections");
+	});
+
+	test("has View All text", () => {
+		expect(SOURCE).toContain("View All");
 	});
 });

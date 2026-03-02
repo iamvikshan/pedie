@@ -41,6 +41,7 @@ export function MobileNav() {
   const { user, loading, profile } = useAuth()
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
+  const [signOutError, setSignOutError] = useState<string | null>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
   const hamburgerRef = useRef<HTMLButtonElement>(null)
   const drawerRef = useRef<HTMLDivElement>(null)
@@ -207,8 +208,21 @@ export function MobileNav() {
                           <TbHeart className='h-5 w-5' />
                           Wishlist
                         </Link>
+                        {signOutError && (
+                          <p className='text-xs text-pedie-discount bg-pedie-discount/10 rounded-lg px-3 py-2'>
+                            {signOutError}{' '}
+                            <button
+                              type='button'
+                              onClick={() => setSignOutError(null)}
+                              className='underline font-medium'
+                            >
+                              Dismiss
+                            </button>
+                          </p>
+                        )}
                         <button
                           onClick={async () => {
+                            setSignOutError(null)
                             try {
                               const supabase = createClient()
                               await supabase.auth.signOut()
@@ -217,6 +231,9 @@ export function MobileNav() {
                               router.refresh()
                             } catch (err) {
                               console.error('Sign-out failed:', err)
+                              setSignOutError(
+                                'Sign-out failed. Please try again. (or clear your cookies manually if the issue persists)'
+                              )
                             }
                           }}
                           className='flex items-center gap-3 text-left text-base text-pedie-discount hover:opacity-80 transition-colors'

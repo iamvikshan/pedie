@@ -27,7 +27,7 @@ export function Header() {
         }`}
       >
         {/* Row 1: Logo + Search + Icons */}
-        <div className='container mx-auto flex h-16 items-center gap-4 px-4 md:px-6'>
+        <div className='w-full max-w-7xl mx-auto flex h-16 items-center gap-4 px-4 md:px-6'>
           {/* Mobile burger */}
           <MobileNav />
 
@@ -100,7 +100,7 @@ export function Header() {
 
         {/* Row 2: Category Nav + All Items (desktop only) */}
         <div className='hidden border-t border-pedie-glass-border md:block'>
-          <div className='container mx-auto flex h-10 items-center justify-between px-4 md:px-6'>
+          <div className='w-full max-w-7xl mx-auto flex h-10 items-center justify-between px-4 md:px-6'>
             <CategoryNav />
 
             <button

@@ -48,4 +48,26 @@ describe("SustainabilitySection", () => {
 			expect(stat.icon.startsWith("Tb")).toBe(true);
 		}
 	});
+
+	test("stats grid is always horizontal (grid-cols-3, not grid-cols-1)", async () => {
+		const { readFileSync } = await import("fs");
+		const { resolve } = await import("path");
+		const source = readFileSync(
+			resolve("src/components/home/sustainabilitySection.tsx"),
+			"utf-8",
+		);
+		expect(source).toContain("grid-cols-3");
+		expect(source).not.toContain("grid-cols-1");
+	});
+
+	test("stat cards have responsive padding (smaller on mobile)", async () => {
+		const { readFileSync } = await import("fs");
+		const { resolve } = await import("path");
+		const source = readFileSync(
+			resolve("src/components/home/sustainabilitySection.tsx"),
+			"utf-8",
+		);
+		expect(source).toContain("p-3");
+		expect(source).toContain("md:p-6");
+	});
 });

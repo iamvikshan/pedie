@@ -51,7 +51,10 @@ function AnimatedCounter({ target, suffix }: AnimatedCounterProps) {
   }, [isInView, target])
 
   return (
-    <motion.span ref={ref} className='text-3xl font-bold text-pedie-green'>
+    <motion.span
+      ref={ref}
+      className='text-2xl md:text-3xl font-bold text-pedie-green'
+    >
       {count}
       {suffix}
     </motion.span>
@@ -81,7 +84,7 @@ export function SustainabilitySection() {
         aria-hidden='true'
       />
 
-      <div className='container mx-auto px-4 md:px-6 relative z-10'>
+      <div className='w-full max-w-7xl mx-auto px-4 md:px-6 relative z-10'>
         <div className='max-w-3xl mx-auto text-center'>
           <h2 className='text-3xl md:text-4xl font-bold text-pedie-text mb-6'>
             Join the Circular Economy
@@ -93,17 +96,19 @@ export function SustainabilitySection() {
             difference.
           </p>
 
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-10'>
+          <div className='grid grid-cols-3 gap-3 md:gap-6 mb-10'>
             {SUSTAINABILITY_STATS.map(stat => {
               const Icon = ICON_MAP[stat.icon]
               return (
                 <div
                   key={stat.label}
-                  className='p-6 glass rounded-2xl border border-pedie-border flex flex-col items-center gap-3'
+                  className='p-3 md:p-6 glass rounded-2xl border border-pedie-border flex flex-col items-center gap-2 md:gap-3'
                 >
-                  {Icon && <Icon className='w-8 h-8 text-pedie-green' />}
+                  {Icon && (
+                    <Icon className='w-6 h-6 md:w-8 md:h-8 text-pedie-green' />
+                  )}
                   <AnimatedCounter target={stat.value} suffix={stat.suffix} />
-                  <div className='text-sm text-pedie-text-muted'>
+                  <div className='text-xs md:text-sm text-pedie-text-muted text-center'>
                     {stat.label}
                   </div>
                 </div>

@@ -1,4 +1,11 @@
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "fs";
+import { resolve } from "path";
+
+const SOURCE = readFileSync(
+	resolve("src/components/home/heroBanner.tsx"),
+	"utf-8",
+);
 
 describe("HeroBanner", () => {
 	test("module exports the component", async () => {
@@ -32,5 +39,18 @@ describe("HeroBanner", () => {
 			expect(typeof slide.image).toBe("string");
 			expect(slide.image.startsWith("/")).toBe(true);
 		}
+	});
+
+	test("imports chevron icons for nav", () => {
+		expect(SOURCE).toContain("TbChevronLeft");
+		expect(SOURCE).toContain("TbChevronRight");
+	});
+
+	test("chevrons are desktop-only (hidden md:flex)", () => {
+		expect(SOURCE).toContain("hidden md:flex");
+	});
+
+	test("has auto-hide logic with lastInteraction", () => {
+		expect(SOURCE).toContain("lastInteraction");
 	});
 });
