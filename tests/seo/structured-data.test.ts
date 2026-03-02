@@ -30,6 +30,7 @@ const mockListing: ListingWithProduct = {
 	condition: "excellent" as const,
 	battery_health: 92,
 	price_kes: 58000,
+	final_price_kes: 58000,
 	original_price_usd: 500,
 	landed_cost_kes: 52000,
 	source: "reebelo",

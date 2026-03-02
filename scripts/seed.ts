@@ -871,6 +871,7 @@ async function seed() {
       condition: l.condition,
       battery_health: l.battery_health,
       price_kes: l.price_kes,
+      final_price_kes: l.price_kes,
       original_price_usd: l.original_price_usd,
       landed_cost_kes: Math.round(l.original_price_usd * 130 * 1.15),
       source: l.source,

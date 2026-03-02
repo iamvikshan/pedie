@@ -62,6 +62,7 @@ export type Database = {
 					color: string | null;
 					condition: Database["public"]["Enums"]["condition_grade"];
 					created_at: string | null;
+					final_price_kes: number;
 					id: string;
 					images: string[] | null;
 					is_featured: boolean | null;
@@ -88,6 +89,7 @@ export type Database = {
 					color?: string | null;
 					condition?: Database["public"]["Enums"]["condition_grade"];
 					created_at?: string | null;
+					final_price_kes: number;
 					id?: string;
 					images?: string[] | null;
 					is_featured?: boolean | null;
@@ -114,6 +116,7 @@ export type Database = {
 					color?: string | null;
 					condition?: Database["public"]["Enums"]["condition_grade"];
 					created_at?: string | null;
+					final_price_kes?: number;
 					id?: string;
 					images?: string[] | null;
 					is_featured?: boolean | null;

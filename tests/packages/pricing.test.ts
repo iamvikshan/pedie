@@ -3,6 +3,7 @@ import {
 	calculateDeposit,
 	calculateDiscount,
 	formatKes,
+	getPricingTier,
 	usdToKes,
 } from "@helpers/pricing";
 import { DEPOSIT_THRESHOLD_KES, KES_USD_RATE } from "@/config";
@@ -70,5 +71,27 @@ describe("calculateDiscount", () => {
 
 	test("rounds to nearest integer", () => {
 		expect(calculateDiscount(300, 200)).toBe(33);
+	});
+});
+
+describe("getPricingTier", () => {
+	test("returns 'sale' when final < price and is_on_sale", () => {
+		expect(getPricingTier(100000, 150000, true)).toBe("sale");
+	});
+
+	test("returns 'discounted' when final < price but not on sale", () => {
+		expect(getPricingTier(100000, 150000, false)).toBe("discounted");
+	});
+
+	test("returns 'normal' when final equals price", () => {
+		expect(getPricingTier(150000, 150000, true)).toBe("normal");
+	});
+
+	test("returns 'normal' when final exceeds price", () => {
+		expect(getPricingTier(160000, 150000, false)).toBe("normal");
+	});
+
+	test("returns 'sale' for small discount with is_on_sale", () => {
+		expect(getPricingTier(149000, 150000, true)).toBe("sale");
 	});
 });

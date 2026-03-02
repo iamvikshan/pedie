@@ -444,3 +444,128 @@ describe("is_on_sale column support", () => {
 		expect(result!.is_on_sale).toBeUndefined();
 	});
 });
+
+describe("final_price_kes column support", () => {
+	const headersWithFinalPrice = [
+		"listing_id",
+		"brand",
+		"model",
+		"category",
+		"condition_grade",
+		"price_usd",
+		"price_kes",
+		"original_price_kes",
+		"warranty_months",
+		"notes",
+		"source",
+		"source_listing_id",
+		"source_url",
+		"status",
+		"images",
+		"is_on_sale",
+		"final_price_kes",
+	];
+
+	test("should parse final_price_kes as numeric string", () => {
+		const row = [
+			"PD-01001",
+			"Apple",
+			"iPhone 16 Pro Max",
+			"smartphones",
+			"excellent",
+			"1099",
+			"195000",
+			"250000",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"available",
+			"",
+			"true",
+			"120000",
+		];
+
+		const result = parseSheetRow(row, headersWithFinalPrice);
+		expect(result).not.toBeNull();
+		expect(result!.final_price_kes).toBe("120000");
+	});
+
+	test("should parse final_price_kes with formatting", () => {
+		const row = [
+			"PD-01002",
+			"Apple",
+			"iPhone 15 Pro",
+			"smartphones",
+			"good",
+			"899",
+			"135000",
+			"195000",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"available",
+			"",
+			"false",
+			"KES 135,000",
+		];
+
+		const result = parseSheetRow(row, headersWithFinalPrice);
+		expect(result).not.toBeNull();
+		expect(result!.final_price_kes).toBe("135000");
+	});
+
+	test("should handle missing final_price_kes gracefully", () => {
+		const row = [
+			"",
+			"Samsung",
+			"Galaxy S24",
+			"smartphones",
+			"excellent",
+			"800",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+		];
+
+		const result = parseSheetRow(row, headersWithFinalPrice);
+		expect(result).not.toBeNull();
+		expect(result!.final_price_kes).toBeUndefined();
+	});
+
+	test("should handle empty final_price_kes as undefined", () => {
+		const row = [
+			"",
+			"Google",
+			"Pixel 8",
+			"smartphones",
+			"good",
+			"500",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+		];
+
+		const result = parseSheetRow(row, headersWithFinalPrice);
+		expect(result).not.toBeNull();
+		expect(result!.final_price_kes).toBeUndefined();
+	});
+});

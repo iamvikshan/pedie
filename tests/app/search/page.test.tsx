@@ -20,6 +20,8 @@ mock.module("@lib/data/search", () => ({
 						is_preorder: false,
 						is_sold: false,
 						is_featured: false,
+						is_on_sale: false,
+						final_price_kes: 45000,
 						status: "available",
 						images: [],
 						original_price_usd: 400,

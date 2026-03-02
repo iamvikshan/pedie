@@ -46,6 +46,7 @@ export type Listing = {
 	condition: ConditionGrade;
 	battery_health: number | null;
 	price_kes: number;
+	final_price_kes: number;
 	original_price_usd: number;
 	landed_cost_kes: number;
 	source: string | null;

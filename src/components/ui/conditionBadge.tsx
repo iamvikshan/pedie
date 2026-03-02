@@ -1,4 +1,27 @@
 import type { ConditionGrade } from '@app-types/product'
+import { TbCircleCheck, TbCrown, TbDiamond, TbThumbUp } from 'react-icons/tb'
+
+/** Icon-only condition badge with tooltip. */
+export const CONDITION_ICONS = {
+  premium: 'TbCrown',
+  excellent: 'TbDiamond',
+  good: 'TbThumbUp',
+  acceptable: 'TbCircleCheck',
+} as const
+
+const iconMap = {
+  premium: TbCrown,
+  excellent: TbDiamond,
+  good: TbThumbUp,
+  acceptable: TbCircleCheck,
+} as const
+
+const styleMap: Record<ConditionGrade, string> = {
+  premium: 'text-pedie-badge-premium',
+  excellent: 'text-pedie-badge-excellent',
+  good: 'text-pedie-badge-good',
+  acceptable: 'text-pedie-badge-acceptable',
+}
 
 interface ConditionBadgeProps {
   condition: ConditionGrade
@@ -9,32 +32,16 @@ export function ConditionBadge({
   condition,
   className = '',
 }: ConditionBadgeProps) {
-  const getConditionStyles = (cond: ConditionGrade) => {
-    switch (cond) {
-      case 'excellent':
-        return 'bg-pedie-badge-excellent text-white'
-      case 'good':
-        return 'bg-pedie-badge-good text-white'
-      case 'acceptable':
-        return 'bg-pedie-badge-acceptable text-white'
-      case 'premium':
-        return 'bg-pedie-badge-premium text-white'
-      default:
-        return 'bg-gray-500 text-white'
-    }
-  }
-
-  const getConditionLabel = (cond: ConditionGrade) => {
-    return cond.charAt(0).toUpperCase() + cond.slice(1)
-  }
+  const Icon = iconMap[condition] ?? TbCircleCheck
+  const label = condition.charAt(0).toUpperCase() + condition.slice(1)
 
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getConditionStyles(
-        condition
-      )} ${className}`}
+      title={label}
+      className={`inline-flex items-center ${styleMap[condition] ?? 'text-gray-500'} ${className}`}
     >
-      {getConditionLabel(condition)}
+      <Icon className='w-5 h-5' aria-hidden='true' />
+      <span className='sr-only'>{label}</span>
     </span>
   )
 }

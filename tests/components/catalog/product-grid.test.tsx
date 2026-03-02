@@ -38,6 +38,7 @@ const mockListings: ListingWithProduct[] = [
 		condition: "excellent",
 		battery_health: 95,
 		price_kes: 50000,
+		final_price_kes: 50000,
 		original_price_usd: 500,
 		landed_cost_kes: 40000,
 		source: "eBay",

@@ -29,3 +29,21 @@ export function calculateDiscount(original: number, current: number): number {
   const discount = Math.round(((original - current) / original) * 100)
   return Math.max(0, Math.min(100, discount))
 }
+
+/**
+ * Pricing tier for display logic.
+ * - 'sale': final_price_kes < price_kes AND is_on_sale — full sale treatment (pill, hot deals, priority)
+ * - 'discounted': final_price_kes < price_kes but NOT on_sale — show discount inline, no pill
+ * - 'normal': final_price_kes >= price_kes — show final price only
+ */
+export type PricingTier = 'sale' | 'discounted' | 'normal'
+
+export function getPricingTier(
+  finalPriceKes: number,
+  priceKes: number,
+  isOnSale: boolean
+): PricingTier {
+  if (finalPriceKes < priceKes && isOnSale) return 'sale'
+  if (finalPriceKes < priceKes) return 'discounted'
+  return 'normal'
+}

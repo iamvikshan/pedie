@@ -30,6 +30,7 @@ const mockListing = {
 	product_id: "prod-1",
 	condition: "good" as const,
 	price_kes: 40000,
+	final_price_kes: 40000,
 	storage: "64GB",
 	color: "White",
 	battery_health: 88,
