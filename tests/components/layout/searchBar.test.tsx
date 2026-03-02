@@ -57,4 +57,33 @@ describe("SearchBar", () => {
 	test('initializes isExpanded from defaultExpanded prop', () => {
 		expect(searchBarSource).toContain('useState(defaultExpanded)')
 	})
+
+	test('uses useDebouncedCallback for autocomplete', () => {
+		expect(searchBarSource).toContain('useDebouncedCallback')
+	})
+
+	test('fetches suggestions from API', () => {
+		expect(searchBarSource).toContain('/api/search/suggestions')
+	})
+
+	test('has autocomplete dropdown with role listbox', () => {
+		expect(searchBarSource).toContain("role='listbox'")
+		expect(searchBarSource).toContain("role='option'")
+	})
+
+	test('supports keyboard navigation in dropdown', () => {
+		expect(searchBarSource).toContain('ArrowDown')
+		expect(searchBarSource).toContain('ArrowUp')
+		expect(searchBarSource).toContain('Escape')
+	})
+
+	test('has aria-autocomplete attribute', () => {
+		expect(searchBarSource).toContain('aria-autocomplete')
+		expect(searchBarSource).toContain('aria-expanded')
+	})
+
+	test('shows suggestion brand and model', () => {
+		expect(searchBarSource).toContain('s.brand')
+		expect(searchBarSource).toContain('s.model')
+	})
 });

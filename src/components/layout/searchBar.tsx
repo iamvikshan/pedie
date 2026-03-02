@@ -1,32 +1,120 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { TbSearch } from 'react-icons/tb'
+import { useDebouncedCallback } from 'use-debounce'
 
 interface SearchBarProps {
   defaultExpanded?: boolean
 }
 
+interface Suggestion {
+  brand: string
+  model: string
+  slug: string
+  category?: string
+  minPrice?: number
+}
+
 export function SearchBar({ defaultExpanded = false }: SearchBarProps) {
   const [isExpanded, setIsExpanded] = useState(defaultExpanded)
   const [query, setQuery] = useState('')
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([])
+  const [showDropdown, setShowDropdown] = useState(false)
+  const [activeIndex, setActiveIndex] = useState(-1)
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
+  const dropdownRef = useRef<HTMLUListElement>(null)
   const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const fetchSuggestions = useDebouncedCallback(async (q: string) => {
+    if (q.length < 2) {
+      setSuggestions([])
+      setShowDropdown(false)
+      return
+    }
+    try {
+      const res = await fetch(
+        `/api/search/suggestions?q=${encodeURIComponent(q)}`
+      )
+      if (res.ok) {
+        const data: Suggestion[] = await res.json()
+        setSuggestions(data)
+        setShowDropdown(data.length > 0)
+        setActiveIndex(-1)
+      } else {
+        setSuggestions([])
+        setShowDropdown(false)
+      }
+    } catch {
+      setSuggestions([])
+      setShowDropdown(false)
+    }
+  }, 300)
+
+  const navigateToSearch = useCallback(
+    (searchQuery: string) => {
+      const trimmed = searchQuery.trim()
+      if (trimmed) {
+        setShowDropdown(false)
+        setSuggestions([])
+        router.push(`/search?q=${encodeURIComponent(trimmed)}`)
+      }
+    },
+    [router]
+  )
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    const trimmed = query.trim()
-    if (trimmed) {
-      router.push(`/search?q=${encodeURIComponent(trimmed)}`)
+    navigateToSearch(query)
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    setQuery(value)
+    fetchSuggestions(value)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showDropdown || suggestions.length === 0) return
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault()
+        setActiveIndex(prev => (prev < suggestions.length - 1 ? prev + 1 : 0))
+        break
+      case 'ArrowUp':
+        e.preventDefault()
+        setActiveIndex(prev => (prev > 0 ? prev - 1 : suggestions.length - 1))
+        break
+      case 'Enter':
+        e.preventDefault()
+        if (activeIndex >= 0 && activeIndex < suggestions.length) {
+          const s = suggestions[activeIndex]
+          navigateToSearch(`${s.brand} ${s.model}`)
+        } else {
+          navigateToSearch(query)
+        }
+        break
+      case 'Escape':
+        setShowDropdown(false)
+        setActiveIndex(-1)
+        break
     }
   }
+
+  // Scroll active item into view
+  useEffect(() => {
+    if (activeIndex >= 0 && dropdownRef.current) {
+      const item = dropdownRef.current.children[activeIndex] as HTMLElement
+      item?.scrollIntoView({ block: 'nearest' })
+    }
+  }, [activeIndex])
 
   const handleFormClick = () => {
     if (!isExpanded) {
       setIsExpanded(true)
-      // Focus input after expansion
       requestAnimationFrame(() => inputRef.current?.focus())
     } else {
       inputRef.current?.focus()
@@ -34,16 +122,19 @@ export function SearchBar({ defaultExpanded = false }: SearchBarProps) {
   }
 
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    // Check if focus is moving to the submit button (within the same form)
     const relatedTarget = e.relatedTarget as HTMLElement | null
     if (relatedTarget?.closest('form') === e.currentTarget.closest('form')) {
       return
     }
-    // Use timeout so a click on submit can fire before collapse
+    // Also keep open if clicking a dropdown item
+    if (relatedTarget?.closest('[data-suggestions]')) {
+      return
+    }
     if (blurTimeoutRef.current) clearTimeout(blurTimeoutRef.current)
     blurTimeoutRef.current = setTimeout(() => {
       if (!query) setIsExpanded(false)
-    }, 150)
+      setShowDropdown(false)
+    }, 200)
   }
 
   return (
@@ -74,8 +165,13 @@ export function SearchBar({ defaultExpanded = false }: SearchBarProps) {
           type='search'
           placeholder='Search for devices...'
           aria-label='Search devices'
+          aria-autocomplete='list'
+          aria-controls='search-suggestions'
+          role='combobox'
+          aria-expanded={showDropdown}
           value={query}
-          onChange={e => setQuery(e.target.value)}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
           onBlur={handleBlur}
           className={`h-10 w-full bg-transparent px-2 text-sm text-pedie-text placeholder:text-pedie-text-muted focus:outline-none ${
             isExpanded ? 'opacity-100' : 'sr-only md:not-sr-only md:opacity-100'
@@ -83,6 +179,44 @@ export function SearchBar({ defaultExpanded = false }: SearchBarProps) {
           tabIndex={0}
         />
       </form>
+
+      {/* Autocomplete dropdown */}
+      {showDropdown && suggestions.length > 0 && (
+        <ul
+          ref={dropdownRef}
+          id='search-suggestions'
+          data-suggestions
+          role='listbox'
+          className='absolute top-full left-0 right-0 z-50 mt-1 max-h-80 overflow-y-auto rounded-xl border border-pedie-border bg-pedie-card shadow-lg'
+        >
+          {suggestions.map((s, i) => (
+            <li
+              key={`${s.slug}-${i}`}
+              role='option'
+              aria-selected={i === activeIndex}
+              className={`flex cursor-pointer items-center justify-between px-4 py-3 text-sm transition-colors ${
+                i === activeIndex
+                  ? 'bg-pedie-green/10 text-pedie-green'
+                  : 'text-pedie-text hover:bg-pedie-border/50'
+              }`}
+              onMouseDown={e => {
+                e.preventDefault()
+                navigateToSearch(`${s.brand} ${s.model}`)
+              }}
+              onMouseEnter={() => setActiveIndex(i)}
+            >
+              <span className='font-medium'>
+                {s.brand} {s.model}
+              </span>
+              {s.category && (
+                <span className='text-xs text-pedie-text-muted capitalize'>
+                  {s.category}
+                </span>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   )
 }

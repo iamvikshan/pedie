@@ -1,6 +1,13 @@
 import { describe, expect, mock, test } from "bun:test";
+import { readFileSync } from "fs";
+import { resolve } from "path";
 import React from "react";
 import { renderToString } from "react-dom/server";
+
+const searchPageSource = readFileSync(
+	resolve("src/app/(store)/search/page.tsx"),
+	"utf-8",
+);
 
 // Mock search data
 mock.module("@lib/data/search", () => ({
@@ -65,6 +72,16 @@ mock.module("@lib/data/search", () => ({
 			totalPages: 0,
 		});
 	}),
+	getAvailableFilters: mock(() =>
+		Promise.resolve({
+			conditions: ["excellent", "good"],
+			storages: ["128GB", "256GB"],
+			colors: ["Black"],
+			carriers: [],
+			brands: ["Apple"],
+			priceRange: { min: 30000, max: 90000 },
+		}),
+	),
 }));
 
 // Mock next/link and next/image
@@ -102,6 +119,22 @@ mock.module("@lib/cart/store", () => ({
 	),
 }));
 
+// Mock FilterSidebar (client component with hooks)
+mock.module("@components/search/filterSidebar", () => ({
+	FilterSidebar: mock(({ query }: { filters: unknown; query: string }) =>
+		React.createElement("div", { "data-testid": "filter-sidebar" }, `filters for ${query}`),
+	),
+}));
+
+// Mock next/navigation for useSearchParams
+mock.module("next/navigation", () => ({
+	useRouter: mock(() => ({ push: mock(), replace: mock() })),
+	useSearchParams: mock(() => ({
+		get: mock(() => null),
+		getAll: mock(() => []),
+	})),
+}));
+
 import SearchPage from "@/app/(store)/search/page";
 
 describe("SearchPage", () => {
@@ -136,5 +169,18 @@ describe("SearchPage", () => {
 		const html = renderToString(page);
 
 		expect(html).toContain("Search for refurbished devices");
+	});
+
+	test("imports FilterSidebar component", () => {
+		expect(searchPageSource).toContain("FilterSidebar");
+	});
+
+	test("calls getAvailableFilters for filter sidebar", () => {
+		expect(searchPageSource).toContain("getAvailableFilters");
+	});
+
+	test("uses buildSearchUrl to preserve filters in pagination", () => {
+		expect(searchPageSource).toContain("buildSearchUrl");
+		expect(searchPageSource).toContain("buildSearchUrl(search,");
 	});
 });

@@ -1,4 +1,8 @@
 import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { readFileSync } from "fs";
+import { resolve } from "path";
+
+const searchSource = readFileSync(resolve("src/lib/data/search.ts"), "utf-8");
 
 const mockListings = [
 	{
@@ -181,5 +185,23 @@ describe("Search Data Functions", () => {
 			expect(result.data).toEqual([]);
 			expect(result.total).toBe(0);
 		});
+	});
+
+	test("exports getSearchSuggestions function", async () => {
+		const mod = await import("@lib/data/search");
+		expect(mod.getSearchSuggestions).toBeDefined();
+		expect(typeof mod.getSearchSuggestions).toBe("function");
+	});
+
+	test("exports getAvailableFilters function", async () => {
+		const mod = await import("@lib/data/search");
+		expect(mod.getAvailableFilters).toBeDefined();
+		expect(typeof mod.getAvailableFilters).toBe("function");
+	});
+
+	test("exports SearchSuggestion type", () => {
+		expect(searchSource).toContain("SearchSuggestion");
+		expect(searchSource).toContain("getSearchSuggestions");
+		expect(searchSource).toContain("getAvailableFilters");
 	});
 });

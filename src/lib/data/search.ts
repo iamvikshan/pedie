@@ -1,9 +1,10 @@
 import type {
+  AvailableFilters,
   ListingFilters,
   PaginatedResult,
   PaginationParams,
 } from '@app-types/filters'
-import type { ListingWithProduct } from '@app-types/product'
+import type { ConditionGrade, ListingWithProduct } from '@app-types/product'
 import { createClient } from '@lib/supabase/server'
 
 const DEFAULT_PAGINATION: PaginationParams = { page: 1, perPage: 20 }
@@ -167,5 +168,120 @@ export async function searchListings(
     page: pag.page,
     perPage: safePerPage,
     totalPages: Math.ceil(total / safePerPage),
+  }
+}
+
+// Types for suggestions
+export interface SearchSuggestion {
+  brand: string
+  model: string
+  slug: string
+  category?: string
+  minPrice?: number
+}
+
+export async function getSearchSuggestions(
+  query: string,
+  limit = 8
+): Promise<SearchSuggestion[]> {
+  if (!query.trim()) return []
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('products')
+    .select(
+      'brand, model, slug, original_price_kes, categories:category_id(slug)'
+    )
+    .textSearch('fts', query, { type: 'websearch' })
+    .limit(limit)
+
+  if (error || !data) return []
+
+  return data.map(
+    (p: {
+      brand: string
+      model: string
+      slug: string
+      categories: { slug: string } | null
+      original_price_kes: number | null
+    }) => ({
+      brand: p.brand,
+      model: p.model,
+      slug: p.slug,
+      category: p.categories?.slug ?? undefined,
+      minPrice: p.original_price_kes ?? undefined,
+    })
+  )
+}
+
+export async function getAvailableFilters(
+  query: string
+): Promise<AvailableFilters> {
+  const supabase = await createClient()
+  const empty: AvailableFilters = {
+    conditions: [],
+    storages: [],
+    colors: [],
+    carriers: [],
+    brands: [],
+    priceRange: { min: 0, max: 0 },
+  }
+
+  // Get product IDs matching query
+  const { data: matched } = await supabase
+    .from('products')
+    .select('id')
+    .textSearch('fts', query, { type: 'websearch' })
+    .limit(MAX_FTS_CANDIDATES)
+
+  if (!matched || matched.length === 0) return empty
+
+  const ids = matched.map((p: { id: string }) => p.id)
+
+  // Fetch distinct values from available listings
+  const { data: listings } = await supabase
+    .from('listings')
+    .select(
+      'condition, storage, color, carrier, price_kes, product:products(brand)'
+    )
+    .eq('status', 'available')
+    .in('product_id', ids)
+
+  if (!listings || listings.length === 0) return empty
+
+  const conditions = new Set<string>()
+  const storages = new Set<string>()
+  const colors = new Set<string>()
+  const carriers = new Set<string>()
+  const brands = new Set<string>()
+  let min = Infinity,
+    max = 0
+
+  for (const l of listings as Array<{
+    condition: string | null
+    storage: string | null
+    color: string | null
+    carrier: string | null
+    price_kes: number | null
+    product: { brand: string } | null
+  }>) {
+    if (l.condition) conditions.add(l.condition)
+    if (l.storage) storages.add(l.storage)
+    if (l.color) colors.add(l.color)
+    if (l.carrier) carriers.add(l.carrier)
+    if (l.product?.brand) brands.add(l.product.brand)
+    if (typeof l.price_kes === 'number') {
+      min = Math.min(min, l.price_kes)
+      max = Math.max(max, l.price_kes)
+    }
+  }
+
+  return {
+    conditions: [...conditions] as ConditionGrade[],
+    storages: [...storages],
+    colors: [...colors],
+    carriers: [...carriers],
+    brands: [...brands],
+    priceRange: { min: min === Infinity ? 0 : min, max },
   }
 }

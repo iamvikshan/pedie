@@ -83,8 +83,9 @@ Post-redesign fixes and enhancements: responsive layout, mobile navigation UX, p
         6. Replace footer newsletter with new component
         7. Run quality gate
 
-4. **Phase 4: Search Autocomplete & Filter Sidebar**
+4. **✅ Phase 4: Search Autocomplete & Filter Sidebar**
     - **Objective:** Add real-time search suggestions as user types (debounced), and a filter sidebar/panel on the search results page for condition, price range, brand, storage.
+    - **Changes from plan:** Added `buildSearchUrl` helper in search page to preserve active filters across pagination. Price inputs use local state with onBlur (not onChange) to avoid per-keystroke navigation. Non-OK HTTP responses now properly clear suggestion state. Also seeded Supabase DB + Google Sheets and downloaded brand SVG logos as pre-phase tasks.
     - **Files/Functions to Modify/Create:**
         - Install `use-debounce` package (`bun add use-debounce`) for debounced search input
         - `src/lib/data/search.ts` — add `getSearchSuggestions(query: string, limit?: number)` function that returns product names/brands matching the query (lightweight FTS, top 8 results)
