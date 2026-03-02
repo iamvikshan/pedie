@@ -12,7 +12,7 @@ Post-redesign fixes and enhancements: responsive layout, mobile navigation UX, p
 
 **Phases (5)**
 
-1. **Phase 1: Responsive Layout Fixes & Sustainability Stats**
+1. **✅ Phase 1: Responsive Layout Fixes & Sustainability Stats**
     - **Objective:** Fix the white-border responsive overflow issue across all sections, and make sustainability stats horizontal on mobile.
     - **Files/Functions to Modify/Create:**
         - `src/app/layout.tsx` — add `overflow-x-hidden` to `<body>` or a wrapper to prevent horizontal overflow
@@ -33,8 +33,9 @@ Post-redesign fixes and enhancements: responsive layout, mobile navigation UX, p
         4. Verify all homepage sections use consistent container widths
         5. Run quality gate
 
-2. **Phase 2: Product Card Redesign & Battery Badge + Data Seeding**
+2. **✅ Phase 2: Product Card Redesign & Battery Badge + Data Seeding**
     - **Objective:** Redesign product cards to match the 3-tier specification with glassmorphed badges on the image, battery health badge with color-coded lightning, and discount pill. Seed database with sample data covering all 3 tiers. Create `src/data/brands.json` for brand logo data.
+    - **Changes from plan:** Also fixed 4 bugs alongside: mobileNav sign-out error handling, deals.ts NaN guard, sheets sync.ts NaN guard, migration DEFAULT race. Brand logo SVG assets deferred to Phase 3 (All Items panel). TbBolt import removed from productCard.tsx since battery rendering is delegated to BatteryBadge component.
     - **Files/Functions to Modify/Create:**
         - `src/components/ui/productCard.tsx` — Major rewrite for all 3 tiers:
             - **Normal card:** top-left glassmorphed condition badge, top-right battery health badge (color-coded `TbBolt` icon + percentage on glassmorphed pill), product name, single price

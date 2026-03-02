@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "fs";
+import { resolve } from "path";
 import { cleanNumericString, parseSheetRow } from "@lib/sheets/parser";
+
+const src = readFileSync(resolve("src/lib/sheets/sync.ts"), "utf-8");
 
 describe("cleanNumericString", () => {
 	test("strips currency prefix and commas", () => {
@@ -567,5 +571,12 @@ describe("final_price_kes column support", () => {
 		const result = parseSheetRow(row, headersWithFinalPrice);
 		expect(result).not.toBeNull();
 		expect(result!.final_price_kes).toBeUndefined();
+	});
+});
+
+describe("sync source: final_price_kes fallback", () => {
+	test("final_price_kes falls back to priceKes when parsed value is not a finite number", () => {
+		expect(src).toContain("Number.isFinite(parsed_final)");
+		expect(src).toContain("priceKes");
 	});
 });

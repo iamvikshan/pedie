@@ -48,4 +48,18 @@ describe('ConditionBadge Component', () => {
   test('uses aria-hidden on icon element', () => {
     expect(src).toContain("aria-hidden='true'")
   })
+
+  test('exports CONDITION_BADGE_VARIANTS', async () => {
+    const mod = await import('@components/ui/conditionBadge')
+    expect(mod.CONDITION_BADGE_VARIANTS).toBeDefined()
+    expect(mod.CONDITION_BADGE_VARIANTS).toContain('default')
+    expect(mod.CONDITION_BADGE_VARIANTS).toContain('circle')
+  })
+
+  test('circle variant uses glassmorphed background', () => {
+    expect(src).toContain('circle')
+    expect(src).toContain('backdrop-blur')
+    expect(src).toContain('rounded-full')
+    expect(src).toContain('p-1.5')
+  })
 })

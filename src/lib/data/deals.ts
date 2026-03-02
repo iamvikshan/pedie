@@ -7,10 +7,17 @@ interface ListingWithDiscount extends ListingWithProduct {
 }
 
 function computeDiscount(listing: ListingWithProduct): number {
-  if (listing.price_kes <= 0) return 0
-  return (
-    ((listing.price_kes - listing.final_price_kes) / listing.price_kes) * 100
+  if (
+    !Number.isFinite(listing.price_kes) ||
+    !Number.isFinite(listing.final_price_kes) ||
+    listing.price_kes <= 0 ||
+    listing.final_price_kes < 0 ||
+    listing.final_price_kes > listing.price_kes
   )
+    return 0
+  const pct =
+    ((listing.price_kes - listing.final_price_kes) / listing.price_kes) * 100
+  return Math.min(100, Math.max(0, pct))
 }
 
 async function fetchDiscountedListings(): Promise<{

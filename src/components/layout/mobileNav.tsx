@@ -225,7 +225,14 @@ export function MobileNav() {
                             setSignOutError(null)
                             try {
                               const supabase = createClient()
-                              await supabase.auth.signOut()
+                              const { error } = await supabase.auth.signOut()
+                              if (error) {
+                                console.error('Sign-out failed:', error)
+                                setSignOutError(
+                                  'Sign-out failed. Please try again. (or clear your cookies manually if the issue persists)'
+                                )
+                                return
+                              }
                               close()
                               router.push('/')
                               router.refresh()

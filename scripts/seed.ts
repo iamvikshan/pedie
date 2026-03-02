@@ -495,6 +495,8 @@ interface ListingSeed {
   price_kes: number
   original_price_usd: number
   source: string
+  is_on_sale?: boolean
+  final_price_kes?: number
 }
 
 const listings: ListingSeed[] = [
@@ -508,6 +510,8 @@ const listings: ListingSeed[] = [
     price_kes: 195000,
     original_price_usd: 1099,
     source: 'swappa',
+    is_on_sale: true,
+    final_price_kes: 169000,
   },
   {
     product_slug: 'apple-iphone-16-pro-max',
@@ -529,6 +533,8 @@ const listings: ListingSeed[] = [
     price_kes: 135000,
     original_price_usd: 899,
     source: 'swappa',
+    is_on_sale: true,
+    final_price_kes: 115000,
   },
   {
     product_slug: 'apple-iphone-15-pro',
@@ -550,6 +556,7 @@ const listings: ListingSeed[] = [
     price_kes: 82000,
     original_price_usd: 599,
     source: 'backmarket',
+    final_price_kes: 74000,
   },
   {
     product_slug: 'apple-iphone-14',
@@ -571,6 +578,7 @@ const listings: ListingSeed[] = [
     price_kes: 58000,
     original_price_usd: 429,
     source: 'backmarket',
+    final_price_kes: 52000,
   },
   {
     product_slug: 'apple-iphone-13',
@@ -592,6 +600,7 @@ const listings: ListingSeed[] = [
     price_kes: 168000,
     original_price_usd: 1099,
     source: 'swappa',
+    final_price_kes: 149000,
   },
   {
     product_slug: 'samsung-galaxy-s24-ultra',
@@ -871,7 +880,8 @@ async function seed() {
       condition: l.condition,
       battery_health: l.battery_health,
       price_kes: l.price_kes,
-      final_price_kes: l.price_kes,
+      final_price_kes: l.final_price_kes ?? l.price_kes,
+      is_on_sale: l.is_on_sale ?? false,
       original_price_usd: l.original_price_usd,
       landed_cost_kes: Math.round(l.original_price_usd * 130 * 1.15),
       source: l.source,

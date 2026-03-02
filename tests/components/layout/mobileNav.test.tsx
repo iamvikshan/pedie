@@ -6,6 +6,7 @@ const mobileNavSource = readFileSync(
 	resolve("src/components/layout/mobileNav.tsx"),
 	"utf-8",
 );
+const src = mobileNavSource;
 
 describe("MobileNav", () => {
 	test("module exports the component", async () => {
@@ -70,5 +71,27 @@ describe("MobileNav", () => {
 
 	test("renders SearchBar inside the drawer", () => {
 		expect(mobileNavSource).toContain("<SearchBar />");
+	});
+
+	test("sign-out handler destructures error from signOut result", () => {
+		expect(src).toContain("const { error } = await supabase.auth.signOut()");
+	});
+
+	test("sign-out handler checks error before navigating", () => {
+		// The error check must come BEFORE router.push
+		const errorCheckIdx = src.indexOf("if (error)");
+		const routerPushIdx = src.indexOf("router.push('/')");
+		expect(errorCheckIdx).toBeGreaterThan(-1);
+		expect(routerPushIdx).toBeGreaterThan(-1);
+		expect(errorCheckIdx).toBeLessThan(routerPushIdx);
+	});
+
+	test("sign-out handler returns early on error without navigating", () => {
+		// After error check, there should be a return before close/push/refresh
+		const signOutBlock = src.slice(
+			src.indexOf("const { error } = await supabase.auth.signOut()"),
+			src.indexOf("router.push('/')"),
+		);
+		expect(signOutBlock).toContain("return");
 	});
 });

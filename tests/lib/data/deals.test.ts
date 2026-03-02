@@ -25,4 +25,16 @@ describe("deals data helpers", () => {
 	test("source contains limit logic for hot deals (slice to 20)", () => {
 		expect(SOURCE).toMatch(/\.slice\(0,\s*20\)|\.slice\(0, limit\)/);
 	});
+
+	// Behavior tests for computeDiscount guard logic
+	test("computeDiscount guards against NaN price_kes", () => {
+		// The source should check Number.isFinite for both prices
+		expect(SOURCE).toContain("Number.isFinite(listing.price_kes)");
+		expect(SOURCE).toContain("Number.isFinite(listing.final_price_kes)");
+	});
+
+	test("computeDiscount clamps output to [0, 100]", () => {
+		expect(SOURCE).toContain("Math.min");
+		expect(SOURCE).toContain("Math.max");
+	});
 });

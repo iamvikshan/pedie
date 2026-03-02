@@ -2,10 +2,11 @@ import type { ListingWithProduct } from '@app-types/product'
 import { calculateDiscount, formatKes, getPricingTier } from '@helpers'
 import Image from 'next/image'
 import Link from 'next/link'
-import { TbBolt, TbPhoto } from 'react-icons/tb'
+import { TbFlame, TbPhoto } from 'react-icons/tb'
+import { BatteryBadge } from './batteryBadge'
 import { ConditionBadge } from './conditionBadge'
 
-export const PRODUCT_CARD_ICONS = ['TbBolt', 'TbPhoto'] as const
+export const PRODUCT_CARD_ICONS = ['TbBolt', 'TbPhoto', 'TbFlame'] as const
 
 interface ProductCardProps {
   listing: ListingWithProduct
@@ -49,31 +50,33 @@ export function ProductCard({ listing }: ProductCardProps) {
           </div>
         )}
 
-        {/* Badges */}
+        {/* Top-left badges */}
         <div className='absolute top-2 left-2 flex flex-col gap-2'>
-          <ConditionBadge condition={listing.condition} />
+          {tier === 'sale' ? (
+            <span className='glass bg-pedie-discount/20 backdrop-blur-sm text-pedie-discount text-xs font-bold px-2.5 py-1 rounded-full inline-flex items-center gap-1'>
+              <TbFlame className='w-3.5 h-3.5' aria-hidden='true' />
+              Flash Sale
+            </span>
+          ) : (
+            <span className='glass backdrop-blur-sm rounded-full px-2 py-1'>
+              <ConditionBadge condition={listing.condition} />
+            </span>
+          )}
         </div>
 
-        {/* Sale discount pill — only for Tier 1 (on-sale) */}
-        {tier === 'sale' && discount > 0 && (
-          <div className='absolute top-2 right-2'>
-            <span className='glass bg-pedie-discount/80 text-white text-xs font-bold px-2.5 py-1 rounded-full backdrop-blur-sm'>
-              -{discount}%
-            </span>
-          </div>
-        )}
+        {/* Top-right badges */}
+        <div className='absolute top-2 right-2 flex flex-col gap-1.5 items-end'>
+          {tier === 'sale' && (
+            <ConditionBadge condition={listing.condition} variant='circle' />
+          )}
+          {listing.battery_health != null && (
+            <BatteryBadge batteryHealth={listing.battery_health} />
+          )}
+        </div>
       </div>
 
       {/* Content Section */}
       <div className='p-4 flex flex-col flex-grow'>
-        {/* Battery health */}
-        {listing.battery_health != null && (
-          <div className='text-xs text-pedie-text-muted mb-1 flex items-center gap-1'>
-            <TbBolt className='w-3 h-3' aria-hidden='true' />
-            {listing.battery_health}%
-          </div>
-        )}
-
         <h3 className='text-lg font-semibold text-pedie-text mb-1 line-clamp-2'>
           {productName}
         </h3>
@@ -87,23 +90,26 @@ export function ProductCard({ listing }: ProductCardProps) {
         {/* Pricing — 3-tier logic */}
         <div className='mt-auto pt-3 border-t border-pedie-border'>
           {tier === 'sale' ? (
-            <div className='flex flex-col'>
+            <div className='flex items-baseline gap-2 flex-wrap'>
               <span className='text-sm text-pedie-text-muted line-through'>
                 {formatKes(listing.price_kes)}
               </span>
               <span className='text-xl font-bold text-pedie-discount'>
                 {formatKes(listing.final_price_kes)}
               </span>
+              <span className='glass text-pedie-discount text-xs font-bold px-2 py-0.5 rounded-full backdrop-blur-sm'>
+                -{discount}%
+              </span>
             </div>
           ) : tier === 'discounted' ? (
-            <div className='flex items-baseline gap-2'>
+            <div className='flex items-baseline gap-2 flex-wrap'>
               <span className='text-xl font-bold text-pedie-accent'>
                 {formatKes(listing.final_price_kes)}
               </span>
               <span className='text-sm text-pedie-text-muted line-through'>
                 {formatKes(listing.price_kes)}
               </span>
-              <span className='text-xs text-pedie-discount font-medium'>
+              <span className='glass text-pedie-discount text-xs font-bold px-2 py-0.5 rounded-full backdrop-blur-sm'>
                 -{discount}%
               </span>
             </div>

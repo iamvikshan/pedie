@@ -156,12 +156,31 @@ describe('ProductCard Component', () => {
     const mod = await import('@components/ui/productCard')
     expect(mod.PRODUCT_CARD_ICONS).toBeDefined()
     expect(Array.isArray(mod.PRODUCT_CARD_ICONS)).toBe(true)
-    expect(mod.PRODUCT_CARD_ICONS.length).toBe(2)
+    expect(mod.PRODUCT_CARD_ICONS.length).toBe(3)
   })
 
   test('PRODUCT_CARD_ICONS contains expected icon names', async () => {
     const { PRODUCT_CARD_ICONS } = await import('@components/ui/productCard')
     expect(PRODUCT_CARD_ICONS).toContain('TbBolt')
     expect(PRODUCT_CARD_ICONS).toContain('TbPhoto')
+    expect(PRODUCT_CARD_ICONS).toContain('TbFlame')
+  })
+
+  test('uses BatteryBadge component', () => {
+    expect(src).toContain('BatteryBadge')
+    expect(src).toContain('batteryBadge')
+  })
+
+  test('sale tier shows Flash Sale pill with TbFlame', () => {
+    expect(src).toContain('TbFlame')
+    expect(src).toContain('Flash Sale')
+  })
+
+  test('sale tier uses circle variant for condition badge', () => {
+    expect(src).toContain("variant='circle'")
+  })
+
+  test('glassmorphed badges use backdrop-blur', () => {
+    expect(src).toContain('backdrop-blur')
   })
 })
