@@ -63,7 +63,7 @@ export function FooterNewsletterForm() {
           value={email}
           onChange={e => setEmail(e.target.value)}
           placeholder='Enter your email'
-          className='flex-1 rounded-md border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text placeholder:text-pedie-text-muted focus:border-pedie-green focus:outline-none'
+          className='flex-1 rounded-md border border-pedie-glass-border bg-pedie-glass px-3 py-2 text-sm text-pedie-text placeholder:text-pedie-text-muted backdrop-blur-sm focus:border-pedie-green focus:outline-none focus:ring-1 focus:ring-pedie-green'
           required
           disabled={status === 'loading' || status === 'success'}
         />

@@ -11,7 +11,7 @@ import {
 
 export function Footer() {
   return (
-    <footer className='border-t border-pedie-border bg-pedie-dark pt-16 pb-8'>
+    <footer className='border-t border-pedie-border bg-pedie-surface pt-16 pb-8'>
       <div className='container mx-auto px-4 md:px-6'>
         <div className='grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-6'>
           <div className='lg:col-span-2'>
@@ -201,10 +201,10 @@ export function Footer() {
           </p>
 
           <div className='flex items-center gap-4'>
-            <span className='rounded bg-pedie-card px-2 py-1 text-xs font-bold text-pedie-text border border-pedie-border'>
+            <span className='rounded bg-pedie-glass px-2 py-1 text-xs font-bold text-pedie-text border border-pedie-glass-border backdrop-blur-sm'>
               M-PESA
             </span>
-            <span className='rounded bg-pedie-card px-2 py-1 text-xs font-bold text-pedie-text border border-pedie-border'>
+            <span className='rounded bg-pedie-glass px-2 py-1 text-xs font-bold text-pedie-text border border-pedie-glass-border backdrop-blur-sm'>
               PayPal
             </span>
           </div>

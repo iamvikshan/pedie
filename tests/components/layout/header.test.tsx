@@ -12,4 +12,10 @@ describe('Header', () => {
     expect(SITE_NAME).toBe('Pedie')
     expect(SITE_NAME).not.toContain('Tech')
   })
+
+  test('categoryNav is imported by header', async () => {
+    const catMod = await import('@components/layout/categoryNav')
+    expect(catMod.CategoryNav).toBeDefined()
+    expect(typeof catMod.CategoryNav).toBe('function')
+  })
 })

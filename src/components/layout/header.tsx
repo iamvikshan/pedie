@@ -1,8 +1,12 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
+import { TbShoppingCart, TbUser, TbMenu2 } from 'react-icons/tb'
 import { SearchBar } from './searchBar'
 import { MobileNav } from './mobileNav'
+import { CategoryNav } from './categoryNav'
+import { AllItemsPanel } from './allItemsPanel'
 import { useCartStore } from '@lib/cart/store'
 import { useAuth } from '@components/auth/authProvider'
 import { UserMenu } from '@components/auth/userMenu'
@@ -11,131 +15,97 @@ import { ThemeToggle } from '@components/ui/themeToggle'
 export function Header() {
   const itemCount = useCartStore(s => s.getItemCount())
   const { user, loading, profile } = useAuth()
+  const [isAllItemsOpen, setIsAllItemsOpen] = useState(false)
+
   return (
-    <header className='sticky top-0 z-50 w-full border-b border-pedie-border bg-pedie-dark'>
-      <div className='container mx-auto flex h-16 items-center justify-between px-4 md:px-6'>
-        <div className='flex items-center gap-4'>
+    <>
+      <header className='sticky top-0 z-50 w-full glass'>
+        {/* Row 1: Logo + Search + Icons */}
+        <div className='container mx-auto flex h-16 items-center gap-4 px-4 md:px-6'>
+          {/* Mobile burger */}
           <MobileNav />
+
+          {/* Logo */}
           <Link
             href='/'
-            className='flex items-center gap-1 text-xl font-bold tracking-tight'
+            className='shrink-0 text-2xl font-bold tracking-tight text-pedie-green'
           >
-            <span className='text-2xl font-bold tracking-tight text-pedie-green'>
-              pedie
-            </span>
+            pedie
           </Link>
-        </div>
 
-        <nav className='hidden md:flex items-center gap-6 text-sm font-medium text-pedie-text'>
-          <Link
-            href='/collections/smartphones'
-            className='hover:text-pedie-green transition-colors'
-          >
-            Smartphones
-          </Link>
-          <Link
-            href='/collections/laptops'
-            className='hover:text-pedie-green transition-colors'
-          >
-            Laptops
-          </Link>
-          <Link
-            href='/collections/tablets'
-            className='hover:text-pedie-green transition-colors'
-          >
-            Tablets
-          </Link>
-          <Link
-            href='/collections/accessories'
-            className='hover:text-pedie-green transition-colors'
-          >
-            Accessories
-          </Link>
-          <Link
-            href='/collections/wearables'
-            className='hover:text-pedie-green transition-colors'
-          >
-            Wearables
-          </Link>
-          <Link
-            href='/collections/audio'
-            className='hover:text-pedie-green transition-colors'
-          >
-            Audio
-          </Link>
-        </nav>
-
-        <div className='flex items-center gap-4'>
-          <div className='hidden md:block'>
-            <SearchBar />
+          {/* Search — desktop expanded, hidden on mobile */}
+          <div className='hidden flex-1 justify-center md:flex'>
+            <div className='w-full max-w-lg'>
+              <SearchBar />
+            </div>
           </div>
 
-          <Link
-            href='/cart'
-            className='relative p-2 text-pedie-text hover:text-pedie-green transition-colors'
-            aria-label='Cart'
-          >
-            <svg
-              xmlns='http://www.w3.org/2000/svg'
-              width='24'
-              height='24'
-              viewBox='0 0 24 24'
-              fill='none'
-              stroke='currentColor'
-              strokeWidth='2'
-              strokeLinecap='round'
-              strokeLinejoin='round'
-            >
-              <circle cx='8' cy='21' r='1' />
-              <circle cx='19' cy='21' r='1' />
-              <path d='M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12' />
-            </svg>
-            {itemCount > 0 && (
-              <span className='absolute -top-1 -right-1 flex min-w-[20px] h-5 px-1 items-center justify-center rounded-full bg-pedie-green text-xs font-bold text-white'>
-                {itemCount > 99 ? '99+' : itemCount}
-              </span>
-            )}
-            <span className='sr-only'>Cart: {itemCount} items</span>
-          </Link>
-
-          <ThemeToggle />
-
-          {loading ? (
-            <div className='hidden md:block h-8 w-8 rounded-full bg-pedie-card animate-pulse' />
-          ) : user ? (
-            <UserMenu
-              userName={
-                profile?.full_name || user.user_metadata?.full_name || null
-              }
-              avatarUrl={
-                profile?.avatar_url || user.user_metadata?.avatar_url || null
-              }
-              isAdmin={profile?.role === 'admin'}
-            />
-          ) : (
+          {/* Right icons */}
+          <div className='ml-auto flex items-center gap-2'>
+            {/* Cart */}
             <Link
-              href='/auth/signin'
-              className='hidden md:flex items-center gap-2 p-2 text-sm font-medium text-pedie-text hover:text-pedie-green transition-colors'
+              href='/cart'
+              className='relative rounded-lg p-2 text-pedie-text hover:text-pedie-green transition-colors'
+              aria-label='Cart'
             >
-              <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='24'
-                height='24'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                strokeWidth='2'
-                strokeLinecap='round'
-                strokeLinejoin='round'
-              >
-                <path d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2' />
-                <circle cx='12' cy='7' r='4' />
-              </svg>
-              <span className='sr-only lg:not-sr-only'>Sign In</span>
+              <TbShoppingCart className='h-6 w-6' />
+              {itemCount > 0 && (
+                <span className='absolute -top-1 -right-1 flex min-w-[20px] h-5 px-1 items-center justify-center rounded-full bg-pedie-green text-xs font-bold text-white'>
+                  {itemCount > 99 ? '99+' : itemCount}
+                </span>
+              )}
+              <span className='sr-only'>Cart: {itemCount} items</span>
             </Link>
-          )}
+
+            {/* User section */}
+            {loading ? (
+              <div className='hidden md:block h-8 w-8 rounded-full bg-pedie-card animate-pulse' />
+            ) : user ? (
+              <UserMenu
+                userName={
+                  profile?.full_name || user.user_metadata?.full_name || null
+                }
+                avatarUrl={
+                  profile?.avatar_url || user.user_metadata?.avatar_url || null
+                }
+                isAdmin={profile?.role === 'admin'}
+              />
+            ) : (
+              <Link
+                href='/auth/signin'
+                className='hidden md:flex items-center gap-2 rounded-lg p-2 text-sm font-medium text-pedie-text hover:text-pedie-green transition-colors'
+              >
+                <TbUser className='h-6 w-6' />
+                <span className='sr-only lg:not-sr-only'>Sign In</span>
+              </Link>
+            )}
+
+            {/* Theme toggle */}
+            <ThemeToggle />
+          </div>
         </div>
-      </div>
-    </header>
+
+        {/* Row 2: Category Nav + All Items (desktop only) */}
+        <div className='hidden border-t border-pedie-glass-border md:block'>
+          <div className='container mx-auto flex h-10 items-center justify-between px-4 md:px-6'>
+            <CategoryNav />
+
+            <button
+              onClick={() => setIsAllItemsOpen(true)}
+              className='flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-pedie-text hover:text-pedie-green hover:bg-pedie-card transition-colors'
+              aria-label='All Items'
+            >
+              <TbMenu2 className='h-5 w-5' />
+              <span>All Items</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <AllItemsPanel
+        isOpen={isAllItemsOpen}
+        onClose={() => setIsAllItemsOpen(false)}
+      />
+    </>
   )
 }

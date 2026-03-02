@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { TbSearch } from 'react-icons/tb'
 
 export function SearchBar() {
   const [isExpanded, setIsExpanded] = useState(false)
@@ -20,7 +21,9 @@ export function SearchBar() {
     <div className='relative flex items-center'>
       <form
         onSubmit={handleSubmit}
-        className={`flex items-center overflow-hidden rounded-full border border-pedie-border bg-pedie-card transition-all duration-300 ${isExpanded ? 'w-full md:w-64' : 'w-10 md:w-64'}`}
+        className={`flex items-center overflow-hidden rounded-full border border-pedie-glass-border bg-pedie-glass backdrop-blur-sm transition-all duration-300 ${
+          isExpanded ? 'w-full' : 'w-10 md:w-full md:max-w-lg'
+        }`}
       >
         <button
           type='submit'
@@ -33,20 +36,7 @@ export function SearchBar() {
           }}
           aria-label='Search'
         >
-          <svg
-            xmlns='http://www.w3.org/2000/svg'
-            width='18'
-            height='18'
-            viewBox='0 0 24 24'
-            fill='none'
-            stroke='currentColor'
-            strokeWidth='2'
-            strokeLinecap='round'
-            strokeLinejoin='round'
-          >
-            <circle cx='11' cy='11' r='8' />
-            <path d='m21 21-4.3-4.3' />
-          </svg>
+          <TbSearch className='h-[18px] w-[18px]' />
         </button>
         <input
           type='search'
@@ -54,7 +44,12 @@ export function SearchBar() {
           aria-label='Search devices'
           value={query}
           onChange={e => setQuery(e.target.value)}
-          className={`h-10 w-full bg-transparent px-2 text-sm text-pedie-text placeholder:text-pedie-text-muted focus:outline-none ${isExpanded ? 'opacity-100' : 'opacity-0 md:opacity-100'}`}
+          onBlur={() => {
+            if (!query) setIsExpanded(false)
+          }}
+          className={`h-10 w-full bg-transparent px-2 text-sm text-pedie-text placeholder:text-pedie-text-muted focus:outline-none ${
+            isExpanded ? 'opacity-100' : 'sr-only md:not-sr-only md:opacity-100'
+          }`}
           tabIndex={0}
         />
       </form>

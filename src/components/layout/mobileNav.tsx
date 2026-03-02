@@ -2,10 +2,39 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
+import { AnimatePresence, motion } from 'framer-motion'
+import {
+  TbMenu2,
+  TbX,
+  TbDeviceMobile,
+  TbDeviceLaptop,
+  TbDeviceTablet,
+  TbHeadphones,
+  TbDeviceWatch,
+  TbPlug,
+  TbUser,
+  TbPackage,
+  TbHeart,
+  TbLogout,
+} from 'react-icons/tb'
 import { SearchBar } from './searchBar'
 import { useAuth } from '@components/auth/authProvider'
 import { createClient } from '@lib/supabase/client'
 import { useRouter } from 'next/navigation'
+import { ThemeToggle } from '@components/ui/themeToggle'
+
+const MOBILE_CATEGORIES = [
+  {
+    name: 'Smartphones',
+    href: '/collections/smartphones',
+    icon: TbDeviceMobile,
+  },
+  { name: 'Laptops', href: '/collections/laptops', icon: TbDeviceLaptop },
+  { name: 'Tablets', href: '/collections/tablets', icon: TbDeviceTablet },
+  { name: 'Accessories', href: '/collections/accessories', icon: TbPlug },
+  { name: 'Wearables', href: '/collections/wearables', icon: TbDeviceWatch },
+  { name: 'Audio', href: '/collections/audio', icon: TbHeadphones },
+] as const
 
 export function MobileNav() {
   const { user, loading, profile } = useAuth()
@@ -23,11 +52,8 @@ export function MobileNav() {
   useEffect(() => {
     if (!isOpen) return
 
-    // Lock body scroll
     const prevOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
-
-    // Focus the close button when drawer opens
     closeButtonRef.current?.focus()
 
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -36,7 +62,6 @@ export function MobileNav() {
         return
       }
 
-      // Focus trap
       if (e.key === 'Tab' && drawerRef.current) {
         const focusable = drawerRef.current.querySelectorAll<HTMLElement>(
           'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
@@ -75,198 +100,156 @@ export function MobileNav() {
         className='p-2 text-pedie-text hover:text-pedie-green transition-colors'
         aria-label='Open menu'
       >
-        <svg
-          xmlns='http://www.w3.org/2000/svg'
-          width='24'
-          height='24'
-          viewBox='0 0 24 24'
-          fill='none'
-          stroke='currentColor'
-          strokeWidth='2'
-          strokeLinecap='round'
-          strokeLinejoin='round'
-        >
-          <line x1='4' x2='20' y1='12' y2='12' />
-          <line x1='4' x2='20' y1='6' y2='6' />
-          <line x1='4' x2='20' y1='18' y2='18' />
-        </svg>
+        <TbMenu2 className='h-6 w-6' />
       </button>
 
-      {isOpen && (
-        <>
-          <div
-            className='fixed inset-0 z-50 bg-black/80 backdrop-blur-sm'
-            onClick={close}
-          />
-          <div
-            ref={drawerRef}
-            role='dialog'
-            aria-modal='true'
-            aria-label='Navigation menu'
-            className='fixed inset-y-0 left-0 z-50 w-3/4 max-w-sm bg-pedie-dark p-6 shadow-xl border-r border-pedie-border flex flex-col gap-6'
-          >
-            <div className='flex items-center justify-between'>
-              <Link
-                href='/'
-                className='flex items-center gap-1 text-xl font-bold tracking-tight'
-                onClick={close}
-              >
-                <span className='text-2xl font-bold tracking-tight text-pedie-green'>
-                  pedie
-                </span>
-              </Link>
-              <button
-                ref={closeButtonRef}
-                onClick={close}
-                className='p-2 text-pedie-text hover:text-pedie-green transition-colors'
-                aria-label='Close menu'
-              >
-                <svg
-                  xmlns='http://www.w3.org/2000/svg'
-                  width='24'
-                  height='24'
-                  viewBox='0 0 24 24'
-                  fill='none'
-                  stroke='currentColor'
-                  strokeWidth='2'
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className='fixed inset-0 z-50 bg-pedie-bg/60 backdrop-blur-sm'
+              onClick={close}
+            />
+
+            <motion.div
+              ref={drawerRef}
+              role='dialog'
+              aria-modal='true'
+              aria-label='Navigation menu'
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className='fixed inset-y-0 left-0 z-50 flex w-3/4 max-w-sm flex-col gap-6 overflow-y-auto border-r border-pedie-glass-border bg-pedie-glass p-6 shadow-xl backdrop-blur-xl'
+            >
+              {/* Header */}
+              <div className='flex items-center justify-between'>
+                <Link
+                  href='/'
+                  className='text-2xl font-bold tracking-tight text-pedie-green'
+                  onClick={close}
                 >
-                  <path d='M18 6 6 18' />
-                  <path d='m6 6 12 12' />
-                </svg>
-              </button>
-            </div>
+                  pedie
+                </Link>
+                <button
+                  ref={closeButtonRef}
+                  onClick={close}
+                  className='rounded-lg p-2 text-pedie-text-muted hover:text-pedie-text hover:bg-pedie-card transition-colors'
+                  aria-label='Close menu'
+                >
+                  <TbX className='h-5 w-5' />
+                </button>
+              </div>
 
-            <div className='mt-4'>
-              <SearchBar />
-            </div>
+              {/* Search */}
+              <div>
+                <SearchBar />
+              </div>
 
-            <nav className='flex flex-col gap-4 mt-4 text-lg font-medium text-pedie-text'>
-              <Link
-                href='/collections/smartphones'
-                onClick={close}
-                className='hover:text-pedie-green transition-colors'
-              >
-                Smartphones
-              </Link>
-              <Link
-                href='/collections/laptops'
-                onClick={close}
-                className='hover:text-pedie-green transition-colors'
-              >
-                Laptops
-              </Link>
-              <Link
-                href='/collections/tablets'
-                onClick={close}
-                className='hover:text-pedie-green transition-colors'
-              >
-                Tablets
-              </Link>
-              <Link
-                href='/collections/accessories'
-                onClick={close}
-                className='hover:text-pedie-green transition-colors'
-              >
-                Accessories
-              </Link>
-              <Link
-                href='/collections/wearables'
-                onClick={close}
-                className='hover:text-pedie-green transition-colors'
-              >
-                Wearables
-              </Link>
-              <Link
-                href='/collections/audio'
-                onClick={close}
-                className='hover:text-pedie-green transition-colors'
-              >
-                Audio
-              </Link>
-            </nav>
-
-            <div className='mt-auto pt-6 border-t border-pedie-border'>
-              {loading ? (
-                <div className='h-10 rounded-lg bg-pedie-card animate-pulse' />
-              ) : user ? (
-                <div className='flex flex-col gap-3'>
-                  <p className='text-sm font-medium text-pedie-text truncate'>
-                    {profile?.full_name ||
-                      user.user_metadata?.full_name ||
-                      'User'}
-                  </p>
-                  <Link
-                    href='/account'
-                    onClick={close}
-                    className='text-base text-pedie-text hover:text-pedie-green transition-colors'
-                  >
-                    My Account
-                  </Link>
-                  <Link
-                    href='/account/orders'
-                    onClick={close}
-                    className='text-base text-pedie-text hover:text-pedie-green transition-colors'
-                  >
-                    My Orders
-                  </Link>
-                  <Link
-                    href='/account/wishlist'
-                    onClick={close}
-                    className='text-base text-pedie-text hover:text-pedie-green transition-colors'
-                  >
-                    Wishlist
-                  </Link>
-                  <button
-                    onClick={async () => {
-                      const supabase = createClient()
-                      await supabase.auth.signOut()
-                      close()
-                      router.push('/')
-                      router.refresh()
-                    }}
-                    className='text-left text-base text-red-400 hover:text-red-300 transition-colors'
-                  >
-                    Sign Out
-                  </button>
-                </div>
-              ) : (
-                <div className='flex flex-col gap-3'>
-                  <Link
-                    href='/auth/signin'
-                    onClick={close}
-                    className='flex items-center gap-3 text-lg font-medium text-pedie-text hover:text-pedie-green transition-colors'
-                  >
-                    <svg
-                      xmlns='http://www.w3.org/2000/svg'
-                      width='24'
-                      height='24'
-                      viewBox='0 0 24 24'
-                      fill='none'
-                      stroke='currentColor'
-                      strokeWidth='2'
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
+              {/* Category Grid */}
+              <nav className='grid grid-cols-2 gap-3'>
+                {MOBILE_CATEGORIES.map(cat => {
+                  const Icon = cat.icon
+                  return (
+                    <Link
+                      key={cat.href}
+                      href={cat.href}
+                      onClick={close}
+                      className='flex flex-col items-center gap-2 rounded-lg border border-pedie-glass-border p-3 text-pedie-text transition-colors hover:bg-pedie-card hover:text-pedie-green'
                     >
-                      <path d='M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2' />
-                      <circle cx='12' cy='7' r='4' />
-                    </svg>
-                    Sign In
-                  </Link>
-                  <Link
-                    href='/auth/signup'
-                    onClick={close}
-                    className='text-base text-pedie-green hover:underline'
-                  >
-                    Create Account
-                  </Link>
-                </div>
-              )}
-            </div>
-          </div>
-        </>
-      )}
+                      <Icon className='h-6 w-6' />
+                      <span className='text-xs font-medium'>{cat.name}</span>
+                    </Link>
+                  )
+                })}
+              </nav>
+
+              {/* Account / Auth Section */}
+              <div className='mt-auto border-t border-pedie-glass-border pt-6'>
+                {loading ? (
+                  <div className='h-10 rounded-lg bg-pedie-card animate-pulse' />
+                ) : user ? (
+                  <div className='flex flex-col gap-3'>
+                    <p className='text-sm font-medium text-pedie-text truncate'>
+                      {profile?.full_name ||
+                        user.user_metadata?.full_name ||
+                        'User'}
+                    </p>
+                    <Link
+                      href='/account'
+                      onClick={close}
+                      className='flex items-center gap-3 text-base text-pedie-text hover:text-pedie-green transition-colors'
+                    >
+                      <TbUser className='h-5 w-5' />
+                      My Account
+                    </Link>
+                    <Link
+                      href='/account/orders'
+                      onClick={close}
+                      className='flex items-center gap-3 text-base text-pedie-text hover:text-pedie-green transition-colors'
+                    >
+                      <TbPackage className='h-5 w-5' />
+                      My Orders
+                    </Link>
+                    <Link
+                      href='/account/wishlist'
+                      onClick={close}
+                      className='flex items-center gap-3 text-base text-pedie-text hover:text-pedie-green transition-colors'
+                    >
+                      <TbHeart className='h-5 w-5' />
+                      Wishlist
+                    </Link>
+                    <button
+                      onClick={async () => {
+                        try {
+                          const supabase = createClient()
+                          await supabase.auth.signOut()
+                          close()
+                          router.push('/')
+                          router.refresh()
+                        } catch {
+                          // Silently handle sign-out failure — user stays on current page
+                        }
+                      }}
+                      className='flex items-center gap-3 text-left text-base text-pedie-discount hover:opacity-80 transition-colors'
+                    >
+                      <TbLogout className='h-5 w-5' />
+                      Sign Out
+                    </button>
+                  </div>
+                ) : (
+                  <div className='flex flex-col gap-3'>
+                    <Link
+                      href='/auth/signin'
+                      onClick={close}
+                      className='flex items-center gap-3 text-lg font-medium text-pedie-text hover:text-pedie-green transition-colors'
+                    >
+                      <TbUser className='h-6 w-6' />
+                      Sign In
+                    </Link>
+                    <Link
+                      href='/auth/signup'
+                      onClick={close}
+                      className='text-base text-pedie-green hover:underline'
+                    >
+                      Create Account
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              {/* Theme Toggle */}
+              <div className='flex items-center justify-between border-t border-pedie-glass-border pt-4'>
+                <span className='text-sm text-pedie-text-muted'>Theme</span>
+                <ThemeToggle />
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

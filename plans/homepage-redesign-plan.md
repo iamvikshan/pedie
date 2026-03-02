@@ -200,6 +200,18 @@ Modernize the Pedie homepage and global UI primitives — transitioning from a f
 
 ---
 
+### Cross-Cutting: Error Handling & Resilience (woven into Phases 2–4)
+
+Each phase should incorporate these resilience patterns as new components are built:
+
+- **New:** `src/components/ui/errorBoundary.tsx` — reusable React error boundary wrapping major homepage sections (HeroBanner, CustomerFavorites, DailyDeals, CategoryShowcase, SustainabilitySection, ProductCard). Falls back to a graceful blank/retry card instead of crashing the page. Created in Phase 2, used in Phases 3–4.
+- **Image `onError` fallbacks** — any `<Image>` or `<img>` gets an `onError` handler showing a placeholder (gradient, icon, or text). Applied in every phase where images are added.
+- **`hero.json` parse error handling** — wrap JSON import/read in try/catch with fallback content (a single static slide). Applied in Phase 3.
+- **Loading skeletons** — pulse placeholders for hero, categories, product cards. Applied per section as built.
+- **Tests:** `errorBoundary exports and renders fallback on error`, `image fallback handler test`, `hero.json fallback on invalid data`.
+
+---
+
 ### AI Logo Prompt
 
 > **Prompt:** "A modern, minimal logo for 'pedie' — a premium refurbished electronics marketplace in Kenya. Design a clean geometric wordmark in all-lowercase with a distinctive stylized 'p' that can double as an app icon. Primary color: vibrant green (#22c55e) on a dark charcoal (#0f1117) background, and an inverted version on white (#fafafa). The aesthetic should feel premium and tech-forward — think Apple Store meets sustainable commerce. Flat/minimal design with subtle depth, no harsh gradients or 3D effects. The logomark 'p' should work at 16px favicon size and 200px header size equally well. Style: geometric, bold, sans-serif, modern SaaS aesthetic. Optional: incorporate a subtle leaf or circular-arrow motif into the 'p' letterform to hint at sustainability/refurbishment. Provide both dark-mode and light-mode variants."
