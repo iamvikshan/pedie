@@ -3,6 +3,7 @@
 import { useAuth } from '@components/auth/authProvider'
 import { UserMenu } from '@components/auth/userMenu'
 import { ThemeToggle } from '@components/ui/themeToggle'
+import { useScrollDirection } from '@/hooks/useScrollDirection'
 import { useCartStore } from '@lib/cart/store'
 import Link from 'next/link'
 import { useState } from 'react'
@@ -16,10 +17,15 @@ export function Header() {
   const itemCount = useCartStore(s => s.getItemCount())
   const { user, loading, profile } = useAuth()
   const [isAllItemsOpen, setIsAllItemsOpen] = useState(false)
+  const scrollDirection = useScrollDirection()
 
   return (
     <>
-      <header className='sticky top-0 z-50 w-full glass'>
+      <header
+        className={`sticky top-0 z-50 w-full glass-depth transition-transform duration-300 ${
+          scrollDirection === 'down' ? '-translate-y-full' : 'translate-y-0'
+        }`}
+      >
         {/* Row 1: Logo + Search + Icons */}
         <div className='container mx-auto flex h-16 items-center gap-4 px-4 md:px-6'>
           {/* Mobile burger */}
@@ -42,6 +48,11 @@ export function Header() {
 
           {/* Right icons */}
           <div className='ml-auto flex items-center gap-2'>
+            {/* Search — mobile collapsed icon */}
+            <div className='md:hidden'>
+              <SearchBar />
+            </div>
+
             {/* Cart */}
             <Link
               href='/cart'
@@ -73,15 +84,17 @@ export function Header() {
             ) : (
               <Link
                 href='/auth/signin'
-                className='hidden md:flex items-center gap-2 rounded-lg p-2 text-sm font-medium text-pedie-text hover:text-pedie-green transition-colors'
+                className='flex items-center gap-2 rounded-lg p-2 text-sm font-medium text-pedie-text hover:text-pedie-green transition-colors'
               >
                 <TbUser className='h-6 w-6' />
                 <span className='sr-only lg:not-sr-only'>Sign In</span>
               </Link>
             )}
 
-            {/* Theme toggle */}
-            <ThemeToggle />
+            {/* Theme toggle — desktop only */}
+            <div className='hidden md:block'>
+              <ThemeToggle />
+            </div>
           </div>
         </div>
 

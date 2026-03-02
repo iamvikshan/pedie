@@ -230,13 +230,6 @@ export function MobileNav() {
                       <TbUser className='h-6 w-6' />
                       Sign In
                     </Link>
-                    <Link
-                      href='/auth/signup'
-                      onClick={close}
-                      className='text-base text-pedie-green hover:underline'
-                    >
-                      Create Account
-                    </Link>
                   </div>
                 )}
               </div>

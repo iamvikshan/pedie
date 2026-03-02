@@ -47,7 +47,7 @@ export function SearchBar() {
       <form
         onSubmit={handleSubmit}
         onClick={handleFormClick}
-        className={`flex cursor-text items-center overflow-hidden rounded-full border border-pedie-glass-border bg-pedie-glass backdrop-blur-sm transition-all duration-300 ${
+        className={`flex cursor-text items-center overflow-hidden rounded-full glass-search transition-all duration-300 ${
           isExpanded ? 'w-full' : 'w-10 md:w-full md:max-w-lg'
         }`}
       >

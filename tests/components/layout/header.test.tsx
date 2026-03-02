@@ -1,4 +1,11 @@
 import { describe, expect, test } from "bun:test";
+import { readFileSync } from "fs";
+import { resolve } from "path";
+
+const headerSource = readFileSync(
+	resolve("src/components/layout/header.tsx"),
+	"utf-8",
+);
 
 describe("Header", () => {
 	test("module exports the component", async () => {
@@ -17,5 +24,62 @@ describe("Header", () => {
 		const catMod = await import("@components/layout/categoryNav");
 		expect(catMod.CategoryNav).toBeDefined();
 		expect(typeof catMod.CategoryNav).toBe("function");
+	});
+
+	test("imports and uses useScrollDirection hook", () => {
+		expect(headerSource).toContain(
+			"import { useScrollDirection } from '@/hooks/useScrollDirection'",
+		);
+		expect(headerSource).toContain("useScrollDirection()");
+	});
+
+	test("applies glass-depth class for depth glassmorphism", () => {
+		expect(headerSource).toContain("glass-depth");
+	});
+
+	test("applies translate-y transition for scroll behavior", () => {
+		expect(headerSource).toContain("-translate-y-full");
+		expect(headerSource).toContain("translate-y-0");
+		expect(headerSource).toContain("transition-transform");
+	});
+
+	test("hides header when scrolling down", () => {
+		expect(headerSource).toContain(
+			"scrollDirection === 'down' ? '-translate-y-full' : 'translate-y-0'",
+		);
+	});
+
+	test("ThemeToggle is desktop-only (hidden on mobile)", () => {
+		// ThemeToggle should be wrapped in a div with hidden md:block
+		expect(headerSource).toContain("hidden md:block");
+		expect(headerSource).toContain("<ThemeToggle />");
+	});
+
+	test("has sticky positioning with z-50", () => {
+		expect(headerSource).toContain("sticky top-0 z-50");
+	});
+
+	test("includes mobile SearchBar in right icons area", () => {
+		// Should have md:hidden wrapper for mobile search
+		expect(headerSource).toContain("className='md:hidden'");
+		expect(headerSource).toContain("<SearchBar />");
+	});
+
+	test("renders cart link with accessible label", () => {
+		expect(headerSource).toContain("aria-label='Cart'");
+		expect(headerSource).toContain("TbShoppingCart");
+	});
+
+	test("renders MobileNav for hamburger menu", () => {
+		expect(headerSource).toContain("<MobileNav />");
+	});
+
+	test("sign-in link is visible on all breakpoints (not hidden on mobile)", () => {
+		// The TbUser sign-in link should use 'flex' (not 'hidden md:flex')
+		// so it shows on mobile when user is not authenticated
+		expect(headerSource).not.toContain("hidden md:flex items-center gap-2");
+		expect(headerSource).toContain(
+			"flex items-center gap-2 rounded-lg p-2 text-sm",
+		);
 	});
 });
