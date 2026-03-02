@@ -1,5 +1,5 @@
-import type { MetadataRoute } from 'next'
 import { createAdminClient } from '@lib/supabase/admin'
+import type { MetadataRoute } from 'next'
 import { SITE_URL } from '@/config'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

@@ -1,8 +1,8 @@
-import { getNewsletterSubscribers } from '@lib/data/admin'
 import { DataTableShell } from '@components/admin/dataTableShell'
-import { newsletterColumns } from './columns'
 import { NewsletterExportButton } from '@components/admin/newsletterExportButton'
+import { getNewsletterSubscribers } from '@lib/data/admin'
 import type { ColumnDef } from '@tanstack/react-table'
+import { newsletterColumns } from './columns'
 
 export default async function AdminNewsletterPage({
   searchParams,

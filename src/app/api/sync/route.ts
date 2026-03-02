@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server'
 import { syncFromSheets } from '@lib/sheets/sync'
+import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
   try {

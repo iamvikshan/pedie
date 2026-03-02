@@ -1,7 +1,7 @@
+import { ProductGrid } from '@components/catalog/productGrid'
+import { searchListings } from '@lib/data/search'
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { searchListings } from '@lib/data/search'
-import { ProductGrid } from '@components/catalog/productGrid'
 
 type PageProps = {
   searchParams: Promise<{ [key: string]: string | undefined }>

@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
 import { Button } from '@components/ui/button'
+import { useEffect, useRef, useState } from 'react'
 
 export function FooterNewsletterForm() {
   const [email, setEmail] = useState('')

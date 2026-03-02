@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server'
 import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
-import { createAdminClient } from '@lib/supabase/admin'
 import { validateMagicBytes } from '@lib/security/magicBytes'
+import { createAdminClient } from '@lib/supabase/admin'
+import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
   try {
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
       'image/webp': 'webp',
       'image/gif': 'gif',
     }
-    const rawName = file.name.replace(/[^a-zA-Z0-9.\-]/g, '')
+    const rawName = file.name.replace(/[^a-zA-Z0-9.-]/g, '')
     const dotIndex = rawName.lastIndexOf('.')
     const ext =
       dotIndex > 0

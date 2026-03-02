@@ -1,18 +1,18 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { useCartStore } from '@lib/cart/store'
 import { useAuth } from '@components/auth/authProvider'
-import { formatKes, calculateDeposit } from '@helpers'
 import { CheckoutSteps } from '@components/checkout/checkoutSteps'
-import { ShippingForm } from '@components/checkout/shippingForm'
-import type { ShippingData } from '@components/checkout/shippingForm'
-import { PaymentSelector } from '@components/checkout/paymentSelector'
-import type { PaymentMethod } from '@components/checkout/paymentSelector'
 import { MpesaPayment } from '@components/checkout/mpesaPayment'
+import type { PaymentMethod } from '@components/checkout/paymentSelector'
+import { PaymentSelector } from '@components/checkout/paymentSelector'
 import { PaypalPayment } from '@components/checkout/paypalPayment'
+import type { ShippingData } from '@components/checkout/shippingForm'
+import { ShippingForm } from '@components/checkout/shippingForm'
 import { Button } from '@components/ui/button'
+import { calculateDeposit, formatKes } from '@helpers'
+import { useCartStore } from '@lib/cart/store'
+import { useRouter } from 'next/navigation'
+import { useCallback, useEffect, useState } from 'react'
 
 const SHIPPING_FEE = 0 // Free shipping for now
 

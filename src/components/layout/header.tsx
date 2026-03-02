@@ -1,16 +1,16 @@
 'use client'
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { TbShoppingCart, TbUser, TbMenu2 } from 'react-icons/tb'
-import { SearchBar } from './searchBar'
-import { MobileNav } from './mobileNav'
-import { CategoryNav } from './categoryNav'
-import { AllItemsPanel } from './allItemsPanel'
-import { useCartStore } from '@lib/cart/store'
 import { useAuth } from '@components/auth/authProvider'
 import { UserMenu } from '@components/auth/userMenu'
 import { ThemeToggle } from '@components/ui/themeToggle'
+import { useCartStore } from '@lib/cart/store'
+import Link from 'next/link'
+import { useState } from 'react'
+import { TbMenu2, TbShoppingCart, TbUser } from 'react-icons/tb'
+import { AllItemsPanel } from './allItemsPanel'
+import { CategoryNav } from './categoryNav'
+import { MobileNav } from './mobileNav'
+import { SearchBar } from './searchBar'
 
 export function Header() {
   const itemCount = useCartStore(s => s.getItemCount())

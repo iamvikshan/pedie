@@ -1,6 +1,6 @@
-import Link from 'next/link'
 import { formatKes } from '@helpers'
 import { formatAdminDate } from '@utils/format'
+import Link from 'next/link'
 
 interface RecentOrdersProps {
   orders: Record<string, unknown>[]

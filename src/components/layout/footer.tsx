@@ -1,13 +1,13 @@
 import Link from 'next/link'
-import { FooterNewsletterForm } from './footerNewsletterForm'
-import { URLS } from '@/config'
 import {
-  TbBrandTiktok,
+  TbBrandGithub,
   TbBrandInstagram,
+  TbBrandTiktok,
   TbBrandX,
   TbBrandYoutube,
-  TbBrandGithub,
 } from 'react-icons/tb'
+import { URLS } from '@/config'
+import { FooterNewsletterForm } from './footerNewsletterForm'
 
 export function Footer() {
   return (

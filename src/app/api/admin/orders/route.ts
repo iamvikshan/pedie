@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server'
 import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
 import { getAdminOrders } from '@lib/data/admin'
+import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
   try {

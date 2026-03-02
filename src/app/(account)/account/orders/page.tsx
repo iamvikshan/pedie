@@ -1,7 +1,7 @@
-import Link from 'next/link'
+import { formatKes } from '@helpers'
 import { requireAuth } from '@helpers/auth'
 import { getOrdersByUser } from '@lib/data/orders'
-import { formatKes } from '@helpers'
+import Link from 'next/link'
 
 const STATUS_COLORS: Record<string, string> = {
   pending: 'bg-yellow-500/20 text-yellow-400',

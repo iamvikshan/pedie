@@ -1,5 +1,5 @@
-import Image from 'next/image'
 import type { Category } from '@app-types/product'
+import Image from 'next/image'
 
 interface CollectionBannerProps {
   category: Category

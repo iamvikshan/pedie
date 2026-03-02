@@ -1,10 +1,10 @@
 'use client'
 
-import Image from 'next/image'
 import type { ListingWithProduct } from '@app-types/product'
+import { ConditionBadge } from '@components/ui/conditionBadge'
 import { formatKes } from '@helpers'
 import { useCartStore } from '@lib/cart/store'
-import { ConditionBadge } from '@components/ui/conditionBadge'
+import Image from 'next/image'
 
 interface CartItemProps {
   listing: ListingWithProduct

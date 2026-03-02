@@ -1,7 +1,7 @@
-import { getAdminOrders } from '@lib/data/admin'
 import { DataTableShell } from '@components/admin/dataTableShell'
-import { orderColumns } from './columns'
+import { getAdminOrders } from '@lib/data/admin'
 import type { ColumnDef } from '@tanstack/react-table'
+import { orderColumns } from './columns'
 
 export default async function AdminOrdersPage({
   searchParams,

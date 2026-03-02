@@ -1,10 +1,10 @@
-import { createClient } from '@lib/supabase/server'
-import type { ListingWithProduct } from '@app-types/product'
 import type {
   ListingFilters,
-  PaginationParams,
   PaginatedResult,
+  PaginationParams,
 } from '@app-types/filters'
+import type { ListingWithProduct } from '@app-types/product'
+import { createClient } from '@lib/supabase/server'
 
 const DEFAULT_PAGINATION: PaginationParams = { page: 1, perPage: 20 }
 

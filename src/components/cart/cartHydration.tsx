@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect } from 'react'
 import { useCartStore } from '@lib/cart/store'
+import { useEffect } from 'react'
 
 export function CartHydration() {
   useEffect(() => {

@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useCallback, useRef, useEffect } from 'react'
 import { Button } from '@components/ui/button'
 import { formatPhoneForDaraja } from '@lib/payments/mpesa'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 interface MpesaPaymentProps {
   amount: number

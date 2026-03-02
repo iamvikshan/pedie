@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio'
-import { fetchWithRetry, parseKesPrice, rateLimiter } from './utils'
 import type { CrawlerProduct, PriceResult } from './types'
+import { fetchWithRetry, parseKesPrice, rateLimiter } from './utils'
 
 const JUMIA_BASE_URL = 'https://www.jumia.co.ke'
 

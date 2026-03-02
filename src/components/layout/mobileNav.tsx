@@ -1,27 +1,27 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
-import Link from 'next/link'
+import { useAuth } from '@components/auth/authProvider'
+import { ThemeToggle } from '@components/ui/themeToggle'
+import { createClient } from '@lib/supabase/client'
 import { AnimatePresence, motion } from 'framer-motion'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
-  TbMenu2,
-  TbX,
-  TbDeviceMobile,
   TbDeviceLaptop,
+  TbDeviceMobile,
   TbDeviceTablet,
-  TbHeadphones,
   TbDeviceWatch,
-  TbPlug,
-  TbUser,
-  TbPackage,
+  TbHeadphones,
   TbHeart,
   TbLogout,
+  TbMenu2,
+  TbPackage,
+  TbPlug,
+  TbUser,
+  TbX,
 } from 'react-icons/tb'
 import { SearchBar } from './searchBar'
-import { useAuth } from '@components/auth/authProvider'
-import { createClient } from '@lib/supabase/client'
-import { useRouter } from 'next/navigation'
-import { ThemeToggle } from '@components/ui/themeToggle'
 
 const MOBILE_CATEGORIES = [
   {
@@ -210,8 +210,8 @@ export function MobileNav() {
                           close()
                           router.push('/')
                           router.refresh()
-                        } catch {
-                          // Silently handle sign-out failure — user stays on current page
+                        } catch (err) {
+                          console.error('Sign-out failed:', err)
                         }
                       }}
                       className='flex items-center gap-3 text-left text-base text-pedie-discount hover:opacity-80 transition-colors'

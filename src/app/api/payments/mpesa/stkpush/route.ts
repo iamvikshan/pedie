@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server'
-import { initiateSTKPush } from '@lib/payments/mpesa'
 import { updateOrderStatus } from '@lib/data/orders'
+import { initiateSTKPush } from '@lib/payments/mpesa'
+import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
   try {

@@ -1,8 +1,8 @@
+import { CustomerRoleSwitcher } from '@components/admin/customerRoleSwitcher'
+import { formatKes } from '@helpers'
+import { getAdminCustomerDetail } from '@lib/data/admin'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { getAdminCustomerDetail } from '@lib/data/admin'
-import { formatKes } from '@helpers'
-import { CustomerRoleSwitcher } from '@components/admin/customerRoleSwitcher'
 
 export default async function AdminCustomerDetailPage({
   params,

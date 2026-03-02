@@ -28,6 +28,7 @@ export const SITE_DESCRIPTION =
   'Quality refurbished electronics in Kenya — phones, laptops & tablets with warranty.'
 export const SITE_URL = 'https://pedie.tech'
 export const SUPPORT_EMAIL = 'pedietech@gmail.com'
+export const URGENCY_TEXT = 'Selling fast — limited stock!'
 
 export const URLS = {
   social: {

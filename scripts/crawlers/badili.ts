@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio'
-import { fetchWithRetry, parseKesPrice, rateLimiter } from './utils'
 import type { CrawlerProduct, PriceResult } from './types'
+import { fetchWithRetry, parseKesPrice, rateLimiter } from './utils'
 
 const BADILI_BASE_URL = 'https://badili.ke'
 

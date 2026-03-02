@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server'
-import { capturePayPalPayment } from '@lib/payments/paypal'
-import { updateOrderStatus, getOrderById } from '@lib/data/orders'
+import { getOrderById, updateOrderStatus } from '@lib/data/orders'
 import { sendPaymentConfirmation } from '@lib/email/send'
+import { capturePayPalPayment } from '@lib/payments/paypal'
 import { createAdminClient } from '@lib/supabase/admin'
+import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
   try {

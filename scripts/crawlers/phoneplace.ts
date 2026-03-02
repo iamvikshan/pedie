@@ -1,6 +1,6 @@
 import * as cheerio from 'cheerio'
-import { fetchWithRetry, parseKesPrice, rateLimiter } from './utils'
 import type { CrawlerProduct, PriceResult } from './types'
+import { fetchWithRetry, parseKesPrice, rateLimiter } from './utils'
 
 const PHONEPLACE_BASE_URL = 'https://phoneplacekenya.com'
 
@@ -23,7 +23,7 @@ export function parsePhonePlacePage(html: string): PhonePlaceParseResult[] {
     const priceEl = $(el).find('.price').clone()
     priceEl.find('del').remove()
     const priceText = insPrice || priceEl.text().trim()
-    const linkEl = $(el).find('a[href*=\"/shop/\"]')
+    const linkEl = $(el).find('a[href*="/shop/"]')
     const href = linkEl.attr('href') ?? ''
 
     if (!href) return

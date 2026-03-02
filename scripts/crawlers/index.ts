@@ -1,18 +1,18 @@
 #!/usr/bin/env bun
 
+import { crawlBackMarket } from './backmarket'
+import { crawlBadili } from './badili'
+import { crawlJiji } from './jiji'
+import { crawlJumia } from './jumia'
+import { crawlPhonePlace } from './phoneplace'
+import { crawlReebelo } from './reebelo'
+import { crawlSwappa } from './swappa'
+import type { CrawlerProduct, PriceResult } from './types'
 import {
   createCrawlerClient,
   getProductCatalog,
   upsertPriceComparisons,
 } from './utils'
-import { crawlBadili } from './badili'
-import { crawlPhonePlace } from './phoneplace'
-import { crawlSwappa } from './swappa'
-import { crawlBackMarket } from './backmarket'
-import { crawlReebelo } from './reebelo'
-import { crawlJiji } from './jiji'
-import { crawlJumia } from './jumia'
-import type { CrawlerProduct, PriceResult } from './types'
 
 interface CrawlerEntry {
   name: string

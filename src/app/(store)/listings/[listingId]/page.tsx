@@ -1,24 +1,23 @@
-import { notFound } from 'next/navigation'
-import type { Metadata } from 'next'
-import { getListingById, getSimilarListings } from '@lib/data/listings'
-import { getProductReviews, getReviewStats } from '@lib/data/reviews'
-import { formatKes, calculateDeposit } from '@helpers'
-import {
-  productJsonLd,
-  breadcrumbJsonLd,
-  safeJsonLd,
-} from '@lib/seo/structuredData'
-
+import { AddToCart } from '@components/listing/addToCart'
+import { CustomerReviews } from '@components/listing/customerReviews'
 import { ImageGallery } from '@components/listing/imageGallery'
 import { ListingInfo } from '@components/listing/listingInfo'
-import { PriceDisplay } from '@components/listing/priceDisplay'
-import { AddToCart } from '@components/listing/addToCart'
-import { ProductSpecs } from '@components/listing/productSpecs'
-import { ProductDescription } from '@components/listing/productDescription'
 import { PreorderBadge } from '@components/listing/preorderBadge'
+import { PriceDisplay } from '@components/listing/priceDisplay'
+import { ProductDescription } from '@components/listing/productDescription'
+import { ProductSpecs } from '@components/listing/productSpecs'
 import { ShippingInfo } from '@components/listing/shippingInfo'
 import { SimilarListings } from '@components/listing/similarListings'
-import { CustomerReviews } from '@components/listing/customerReviews'
+import { calculateDeposit, formatKes } from '@helpers'
+import { getListingById, getSimilarListings } from '@lib/data/listings'
+import { getProductReviews, getReviewStats } from '@lib/data/reviews'
+import {
+  breadcrumbJsonLd,
+  productJsonLd,
+  safeJsonLd,
+} from '@lib/seo/structuredData'
+import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import { SITE_URL } from '@/config'
 
 type PageProps = {

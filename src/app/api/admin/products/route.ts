@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server'
 import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
-import { getAdminProducts, createProduct } from '@lib/data/admin'
+import { createProduct, getAdminProducts } from '@lib/data/admin'
 import { productSlug } from '@utils/slug'
+import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
   try {

@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server'
 import { getPayPalOrderStatus } from '@lib/payments/paypal'
+import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)

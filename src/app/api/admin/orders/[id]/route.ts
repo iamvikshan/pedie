@@ -1,13 +1,13 @@
-import { NextResponse } from 'next/server'
 import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
 import { getAdminOrderDetail, updateOrder } from '@lib/data/admin'
-import { createAdminClient } from '@lib/supabase/admin'
 import {
-  sendShippingUpdate,
   sendDeliveryConfirmation,
   sendOrderCancelled,
+  sendShippingUpdate,
 } from '@lib/email/send'
+import { createAdminClient } from '@lib/supabase/admin'
+import { NextResponse } from 'next/server'
 
 export async function GET(
   _request: Request,

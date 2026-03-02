@@ -1,15 +1,15 @@
 'use client'
 
+import { useAuth } from '@components/auth/authProvider'
 import {
   createContext,
-  useContext,
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useState,
   useTransition,
 } from 'react'
-import { useAuth } from '@components/auth/authProvider'
 
 interface WishlistContextValue {
   productIds: Set<string>

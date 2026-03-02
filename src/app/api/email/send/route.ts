@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server'
 import { getUser, isAdmin } from '@helpers/auth'
-import { sendEmail, isEmailConfigured } from '@lib/email/gmail'
+import { isEmailConfigured, sendEmail } from '@lib/email/gmail'
+import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
   try {

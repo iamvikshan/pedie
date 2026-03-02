@@ -1,7 +1,7 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { ProductForm } from '@components/admin/productForm'
+import { useRouter } from 'next/navigation'
 
 interface EditProductClientProps {
   product: Record<string, unknown>

@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
 import { generateListingId } from '@helpers'
+import { useState } from 'react'
 
 interface Product {
   id: string

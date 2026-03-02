@@ -1,8 +1,8 @@
-import Link from 'next/link'
-import { getAdminListings } from '@lib/data/admin'
 import { DataTableShell } from '@components/admin/dataTableShell'
-import { listingColumns } from './columns'
+import { getAdminListings } from '@lib/data/admin'
 import type { ColumnDef } from '@tanstack/react-table'
+import Link from 'next/link'
+import { listingColumns } from './columns'
 
 export default async function AdminListingsPage({
   searchParams,

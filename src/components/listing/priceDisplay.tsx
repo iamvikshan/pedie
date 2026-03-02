@@ -1,4 +1,4 @@
-import { formatKes, calculateDiscount, calculateDeposit } from '@helpers'
+import { calculateDeposit, calculateDiscount, formatKes } from '@helpers'
 
 interface PriceDisplayProps {
   priceKes: number

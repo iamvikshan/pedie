@@ -1,8 +1,8 @@
 'use client'
 
+import { MarginIndicator } from '@components/admin/marginIndicator'
 import { formatKes } from '@helpers'
 import { isSafeUrl } from '@utils/format'
-import { MarginIndicator } from '@components/admin/marginIndicator'
 
 interface CompetitorEntry {
   competitor: string

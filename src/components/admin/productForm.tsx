@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
 import { productSlug } from '@utils/slug'
+import { useState } from 'react'
 
 interface Category {
   id: string

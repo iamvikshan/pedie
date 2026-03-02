@@ -1,11 +1,11 @@
+import { KpiCards } from '@components/admin/kpiCards'
+import { RecentOrders } from '@components/admin/recentOrders'
+import { RevenueChart } from '@components/admin/revenueChart'
 import {
   getAdminDashboardStats,
-  getRevenueData,
   getAdminOrders,
+  getRevenueData,
 } from '@lib/data/admin'
-import { KpiCards } from '@components/admin/kpiCards'
-import { RevenueChart } from '@components/admin/revenueChart'
-import { RecentOrders } from '@components/admin/recentOrders'
 
 export default async function AdminDashboardPage() {
   const [statsResult, revenueResult, ordersResult] = await Promise.allSettled([

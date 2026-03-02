@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useCallback, useRef, useEffect } from 'react'
 import { Button } from '@components/ui/button'
 import { kesToUsd } from '@utils/currency'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 interface PaypalPaymentProps {
   amountKes: number

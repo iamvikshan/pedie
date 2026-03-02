@@ -1,4 +1,4 @@
-import { SHIPPING_DAYS_MIN, SHIPPING_DAYS_MAX } from '@/config'
+import { SHIPPING_DAYS_MAX, SHIPPING_DAYS_MIN } from '@/config'
 
 export function ShippingInfo() {
   return (

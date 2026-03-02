@@ -1,8 +1,8 @@
 'use client'
 
+import type { ListingWithProduct } from '@app-types/product'
 import { Button } from '@components/ui/button'
 import { useCartStore } from '@lib/cart/store'
-import type { ListingWithProduct } from '@app-types/product'
 
 interface AddToCartProps {
   listing: ListingWithProduct

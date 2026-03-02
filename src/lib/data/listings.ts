@@ -1,13 +1,12 @@
-import { createClient } from '@lib/supabase/server'
-import type { ListingWithProduct } from '@app-types/product'
 import type {
-  ListingFilters,
-  SortOption,
-  PaginationParams,
-  PaginatedResult,
   AvailableFilters,
+  ListingFilters,
+  PaginatedResult,
+  PaginationParams,
+  SortOption,
 } from '@app-types/filters'
-import type { ConditionGrade } from '@app-types/product'
+import type { ConditionGrade, ListingWithProduct } from '@app-types/product'
+import { createClient } from '@lib/supabase/server'
 
 const LISTING_SELECT = '*, product:products!inner(*, category:categories(*))'
 

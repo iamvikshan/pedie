@@ -1,11 +1,11 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { DataTable } from '@components/admin/dataTable'
 import { CategoryForm } from '@components/admin/categoryForm'
-import { categoryColumns } from './columns'
+import { DataTable } from '@components/admin/dataTable'
 import type { ColumnDef } from '@tanstack/react-table'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { categoryColumns } from './columns'
 
 interface Category {
   id: string

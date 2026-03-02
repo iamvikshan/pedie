@@ -1,8 +1,8 @@
 'use client'
 
-import Link from 'next/link'
-import { useCartStore } from '@lib/cart/store'
 import { formatKes } from '@helpers'
+import { useCartStore } from '@lib/cart/store'
+import Link from 'next/link'
 
 export function CartSummary() {
   const items = useCartStore(s => s.items)

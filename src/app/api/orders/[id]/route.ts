@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server'
 import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
 import { getOrderById } from '@lib/data/orders'
+import { NextResponse } from 'next/server'
 
 export async function GET(
   _request: Request,

@@ -1,43 +1,32 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import Image from 'next/image'
 import Link from 'next/link'
+import { useCallback, useEffect, useState } from 'react'
+import { TbPlayerPause, TbPlayerPlay } from 'react-icons/tb'
+import heroSlides from '@/data/hero.json'
 
-export const SLIDES = [
-  {
-    title: 'Quality Refurbished Electronics for Kenya',
-    subtitle: 'Save up to 40% on premium smartphones, laptops, and more',
-    cta: 'Shop Now',
-    link: '/collections/smartphones',
-  },
-  {
-    title: 'Save Up to 40% on Premium Devices',
-    subtitle: 'Every device tested, graded & certified',
-    cta: 'View Deals',
-    link: '/deals',
-  },
-  {
-    title: '3-Month Warranty on Every Device',
-    subtitle: 'Quality tested, satisfaction guaranteed',
-    cta: 'Learn More',
-    link: '/about',
-  },
-]
+export { heroSlides as SLIDES }
 
 export function HeroBanner() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isManuallyPaused, setIsManuallyPaused] = useState(false)
   const [isInteractionPaused, setIsInteractionPaused] = useState(false)
+  const [imgError, setImgError] = useState<Record<number, boolean>>({})
 
   const isPaused = isManuallyPaused || isInteractionPaused
+  const hasSlides = heroSlides && heroSlides.length > 0
+  const safeIndex = hasSlides ? currentSlide % heroSlides.length : 0
+  const slide = hasSlides ? heroSlides[safeIndex] : null
 
   useEffect(() => {
-    if (isPaused) return
+    if (isPaused || !hasSlides) return
     const timer = setInterval(() => {
-      setCurrentSlide(prev => (prev + 1) % SLIDES.length)
+      setCurrentSlide(prev => (prev + 1) % heroSlides.length)
     }, 5000)
     return () => clearInterval(timer)
-  }, [isPaused])
+  }, [isPaused, hasSlides])
 
   const handleFocus = useCallback((e: React.FocusEvent<HTMLDivElement>) => {
     if (
@@ -57,62 +46,117 @@ export function HeroBanner() {
     }
   }, [])
 
+  const slideVariants = {
+    enter: { x: 300, opacity: 0 },
+    center: { x: 0, opacity: 1 },
+    exit: { x: -300, opacity: 0 },
+  }
+
+  // Defensive guard for empty or malformed slide data
+  if (!slide) {
+    return (
+      <div className='relative flex h-[220px] md:h-[280px] w-full items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-pedie-green/20 to-pedie-bg'>
+        <p className='text-pedie-text-muted'>No slides available</p>
+      </div>
+    )
+  }
+
   return (
     <div
-      className='relative h-[400px] md:h-[500px] w-full overflow-hidden bg-pedie-dark'
+      className='relative h-[220px] md:h-[280px] w-full overflow-hidden rounded-2xl'
       onMouseEnter={() => setIsInteractionPaused(true)}
       onMouseLeave={() => setIsInteractionPaused(false)}
       onFocus={handleFocus}
       onBlur={handleBlur}
     >
-      {SLIDES.map((slide, index) => (
-        <div
-          key={index}
-          className={`absolute inset-0 flex flex-col items-center justify-center text-center p-6 transition-opacity duration-1000 ${index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'}`}
-          aria-hidden={index !== currentSlide}
+      <AnimatePresence mode='wait'>
+        <motion.div
+          key={safeIndex}
+          variants={slideVariants}
+          initial='enter'
+          animate='center'
+          exit='exit'
+          transition={{ duration: 0.4, ease: 'easeInOut' }}
+          className='absolute inset-0'
         >
-          <div className='absolute inset-0 bg-gradient-to-b from-pedie-dark/80 to-pedie-dark/40 z-0' />
-          <div className='relative z-10 max-w-3xl'>
-            <h2 className='text-3xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight'>
-              {slide.title}
-            </h2>
-            <p className='text-lg md:text-xl text-pedie-text-muted mb-8'>
-              {slide.subtitle}
-            </p>
-            <Link
-              href={slide.link}
-              className='inline-flex items-center justify-center rounded-md bg-pedie-green px-8 py-4 text-lg font-medium text-white transition-colors hover:bg-pedie-green/90'
-            >
-              {slide.cta}
-            </Link>
-          </div>
-        </div>
-      ))}
+          {/* Background image or gradient fallback */}
+          {!imgError[safeIndex] ? (
+            <Image
+              src={slide.image}
+              alt={slide.title}
+              fill
+              className='object-cover'
+              priority={safeIndex === 0}
+              onError={() =>
+                setImgError(prev => ({ ...prev, [safeIndex]: true }))
+              }
+            />
+          ) : (
+            <div className='absolute inset-0 bg-gradient-to-br from-pedie-green/30 to-pedie-bg' />
+          )}
 
-      <div className='absolute bottom-6 left-0 right-0 z-20 flex items-center justify-center gap-3'>
-        {SLIDES.map((_, index) => (
+          {/* Gradient overlay for text readability */}
+          <div className='absolute inset-0 bg-gradient-to-r from-pedie-bg/80 to-transparent z-[1]' />
+
+          {/* Content */}
+          <div className='relative z-10 flex h-full flex-col justify-center px-6 md:px-12 max-w-2xl'>
+            <motion.h2
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1, duration: 0.4 }}
+              className='text-xl md:text-3xl lg:text-4xl font-bold text-pedie-text leading-tight mb-2 md:mb-3'
+            >
+              {slide.title}
+            </motion.h2>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2, duration: 0.4 }}
+              className='text-sm md:text-base text-pedie-text-muted mb-3 md:mb-4'
+            >
+              {slide.subtitle}
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.4 }}
+            >
+              <Link
+                href={slide.link}
+                className='inline-flex items-center justify-center rounded-xl bg-pedie-green px-6 py-2.5 text-sm md:text-base font-medium text-white transition-colors hover:bg-pedie-green-dark'
+              >
+                {slide.cta}
+              </Link>
+            </motion.div>
+          </div>
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Progress dots & pause/play */}
+      <div className='absolute bottom-4 left-0 right-0 z-20 flex items-center justify-center gap-2'>
+        {heroSlides.map((_, index) => (
           <button
             key={index}
             type='button'
             onClick={() => setCurrentSlide(index)}
-            className={`h-3 w-3 rounded-full transition-colors ${index === currentSlide ? 'bg-pedie-green' : 'bg-white/30 hover:bg-white/50'}`}
+            className={`h-2 w-2 rounded-full transition-colors ${
+              index === safeIndex
+                ? 'bg-pedie-green'
+                : 'bg-pedie-text-muted/30 hover:bg-pedie-text-muted/50'
+            }`}
             aria-label={`Go to slide ${index + 1}`}
           />
         ))}
         <button
           type='button'
           onClick={() => setIsManuallyPaused(p => !p)}
-          className='ml-2 flex h-6 w-6 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/40 transition-colors'
+          className='ml-2 flex h-6 w-6 items-center justify-center rounded-full bg-pedie-bg/30 text-pedie-text hover:bg-pedie-bg/50 transition-colors backdrop-blur-sm'
           aria-label={isManuallyPaused ? 'Resume slideshow' : 'Pause slideshow'}
         >
           {isManuallyPaused ? (
-            <svg className='h-3 w-3' viewBox='0 0 24 24' fill='currentColor'>
-              <path d='M8 5v14l11-7z' />
-            </svg>
+            <TbPlayerPlay className='h-3 w-3' />
           ) : (
-            <svg className='h-3 w-3' viewBox='0 0 24 24' fill='currentColor'>
-              <path d='M6 4h4v16H6V4zm8 0h4v16h-4V4z' />
-            </svg>
+            <TbPlayerPause className='h-3 w-3' />
           )}
         </button>
       </div>

@@ -1,25 +1,24 @@
-import { notFound } from 'next/navigation'
-import type { Metadata } from 'next'
-import { getCategoryBySlug } from '@lib/data/categories'
-import { getFilteredListings, getAvailableFilters } from '@lib/data/listings'
 import type {
   ListingFilters,
-  SortOption,
   PaginationParams,
+  SortOption,
 } from '@app-types/filters'
 import type { ConditionGrade } from '@app-types/product'
-import {
-  collectionJsonLd,
-  breadcrumbJsonLd,
-  safeJsonLd,
-} from '@lib/seo/structuredData'
-
+import { ActiveFilters } from '@components/catalog/activeFilters'
 import { CollectionBanner } from '@components/catalog/collectionBanner'
 import { FilterSidebar } from '@components/catalog/filterSidebar'
-import { SortDropdown } from '@components/catalog/sortDropdown'
-import { ActiveFilters } from '@components/catalog/activeFilters'
-import { ProductGrid } from '@components/catalog/productGrid'
 import { Pagination } from '@components/catalog/pagination'
+import { ProductGrid } from '@components/catalog/productGrid'
+import { SortDropdown } from '@components/catalog/sortDropdown'
+import { getCategoryBySlug } from '@lib/data/categories'
+import { getAvailableFilters, getFilteredListings } from '@lib/data/listings'
+import {
+  breadcrumbJsonLd,
+  collectionJsonLd,
+  safeJsonLd,
+} from '@lib/seo/structuredData'
+import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
 import { SITE_URL } from '@/config'
 
 interface CollectionPageProps {

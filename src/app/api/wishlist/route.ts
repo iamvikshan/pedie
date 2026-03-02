@@ -1,10 +1,10 @@
-import { NextResponse } from 'next/server'
 import { getUser } from '@helpers/auth'
 import {
-  getWishlistByUser,
   addToWishlist,
+  getWishlistByUser,
   removeFromWishlist,
 } from '@lib/data/wishlist'
+import { NextResponse } from 'next/server'
 
 export async function GET() {
   try {

@@ -1,6 +1,6 @@
-import { NextResponse } from 'next/server'
-import { syncToSheets } from '@lib/sheets/sync'
 import type { ExportOptions } from '@lib/sheets/sync'
+import { syncToSheets } from '@lib/sheets/sync'
+import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
   try {

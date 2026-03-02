@@ -1,6 +1,6 @@
-import { notFound } from 'next/navigation'
-import { createAdminClient } from '@lib/supabase/admin'
 import { getAdminProducts } from '@lib/data/admin'
+import { createAdminClient } from '@lib/supabase/admin'
+import { notFound } from 'next/navigation'
 import { EditListingClient } from './client'
 
 export default async function EditListingPage({

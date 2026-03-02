@@ -1,10 +1,10 @@
 'use client'
 
-import { useCallback } from 'react'
-import { useRouter, usePathname, useSearchParams } from 'next/navigation'
 import { DataTable } from '@components/admin/dataTable'
 import { DataTableToolbar } from '@components/admin/dataTableToolbar'
 import type { ColumnDef } from '@tanstack/react-table'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useCallback } from 'react'
 
 interface DataTableShellProps<TData> {
   columns: ColumnDef<TData, unknown>[]

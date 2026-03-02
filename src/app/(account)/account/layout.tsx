@@ -1,5 +1,5 @@
-import Link from 'next/link'
 import { requireAuth } from '@helpers/auth'
+import Link from 'next/link'
 
 export default async function AccountLayout({
   children,

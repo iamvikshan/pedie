@@ -1,7 +1,7 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { ProductForm } from '@components/admin/productForm'
+import { useRouter } from 'next/navigation'
 
 interface NewProductClientProps {
   categories: Array<{ id: string; name: string; slug: string }>

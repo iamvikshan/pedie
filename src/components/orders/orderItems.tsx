@@ -1,5 +1,5 @@
-import { formatKes } from '@helpers'
 import type { OrderItem } from '@app-types/order'
+import { formatKes } from '@helpers'
 
 interface OrderItemsListProps {
   items: OrderItem[]

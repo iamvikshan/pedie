@@ -1,9 +1,9 @@
 'use client'
 
-import { useEffect, useRef, useCallback } from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
 import { AnimatePresence, motion } from 'framer-motion'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useCallback, useEffect, useRef } from 'react'
 import { TbX } from 'react-icons/tb'
 import { CATEGORIES } from './categoryNav'
 

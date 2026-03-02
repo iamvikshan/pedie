@@ -2,7 +2,7 @@
 
 import { useTheme } from 'next-themes'
 import { useSyncExternalStore } from 'react'
-import { TbSun, TbMoonFilled } from 'react-icons/tb'
+import { TbMoonFilled, TbSun } from 'react-icons/tb'
 
 const emptySubscribe = () => () => {}
 

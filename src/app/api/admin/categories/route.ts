@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server'
 import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
-import { getAdminCategories, createCategory } from '@lib/data/admin'
+import { createCategory, getAdminCategories } from '@lib/data/admin'
 import { slugify } from '@utils/slug'
+import { NextResponse } from 'next/server'
 
 export async function GET() {
   try {

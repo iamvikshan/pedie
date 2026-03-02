@@ -1,5 +1,5 @@
+import type { PaginatedResult, PaginationParams } from '@app-types/filters'
 import { createClient } from '@lib/supabase/server'
-import type { PaginationParams, PaginatedResult } from '@app-types/filters'
 
 export type Review = {
   id: string

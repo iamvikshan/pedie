@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
-import type { CrawlerProduct, PriceResult } from './types'
 import { SITE_URL } from '@/config'
+import type { CrawlerProduct, PriceResult } from './types'
 /**
  * Fetch with exponential backoff retry.
  */
@@ -40,9 +40,7 @@ export async function fetchWithRetry(
         `Attempt ${attempt + 1}/${maxRetries} failed with status ${response.status} for ${url}`
       )
       if (attempt < maxRetries - 1) {
-        await new Promise(resolve =>
-          setTimeout(resolve, delay * Math.pow(2, attempt))
-        )
+        await new Promise(resolve => setTimeout(resolve, delay * 2 ** attempt))
       }
     } catch (error) {
       lastError = error as Error
@@ -57,9 +55,7 @@ export async function fetchWithRetry(
           `Attempt ${attempt + 1}/${maxRetries} failed for ${url}:`,
           lastError.message
         )
-        await new Promise(resolve =>
-          setTimeout(resolve, delay * Math.pow(2, attempt))
-        )
+        await new Promise(resolve => setTimeout(resolve, delay * 2 ** attempt))
       } else if (
         lastError.message.startsWith('HTTP 4') &&
         !lastError.message.startsWith('HTTP 429')

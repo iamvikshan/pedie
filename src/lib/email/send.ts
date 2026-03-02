@@ -1,11 +1,11 @@
-import { sendEmail, isEmailConfigured } from '@lib/email/gmail'
+import { isEmailConfigured, sendEmail } from '@lib/email/gmail'
 import {
-  welcomeEmail,
+  deliveryConfirmationEmail,
+  orderCancelledEmail,
   orderConfirmationEmail,
   paymentConfirmationEmail,
   shippingUpdateEmail,
-  deliveryConfirmationEmail,
-  orderCancelledEmail,
+  welcomeEmail,
 } from '@lib/email/templates'
 
 export interface OrderConfirmationData {

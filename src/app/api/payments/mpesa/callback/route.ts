@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server'
-import { parseCallback } from '@lib/payments/mpesa'
-import type { STKCallback } from '@lib/payments/mpesa'
 import { getOrderByPaymentRef, updateOrderStatus } from '@lib/data/orders'
 import { sendPaymentConfirmation } from '@lib/email/send'
+import type { STKCallback } from '@lib/payments/mpesa'
+import { parseCallback } from '@lib/payments/mpesa'
 import { createAdminClient } from '@lib/supabase/admin'
+import { NextResponse } from 'next/server'
 
 /** Terminal states that should not be overwritten */
 const TERMINAL_STATES = new Set(['confirmed', 'delivered', 'cancelled'])

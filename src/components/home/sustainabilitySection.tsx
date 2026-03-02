@@ -1,42 +1,85 @@
-import { useId } from 'react'
-import Link from 'next/link'
+'use client'
 
-export function SustainabilitySection() {
-  const id = useId()
-  const patternId = `leaf-pattern-${id}`
+import { motion, useInView } from 'framer-motion'
+import Link from 'next/link'
+import type { ComponentType } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { TbLeaf, TbRecycle, TbShieldCheck } from 'react-icons/tb'
+
+export const SUSTAINABILITY_STATS = [
+  { label: 'Devices Saved', value: 1000, suffix: '+', icon: 'TbRecycle' },
+  { label: 'Average Savings', value: 40, suffix: '%', icon: 'TbLeaf' },
+  { label: 'Warranty', value: 3, suffix: '-Month', icon: 'TbShieldCheck' },
+] as const
+
+const ICON_MAP: Record<string, ComponentType<{ className?: string }>> = {
+  TbRecycle,
+  TbLeaf,
+  TbShieldCheck,
+}
+
+interface AnimatedCounterProps {
+  target: number
+  suffix: string
+}
+
+function AnimatedCounter({ target, suffix }: AnimatedCounterProps) {
+  const ref = useRef<HTMLSpanElement>(null)
+  const isInView = useInView(ref, { once: true })
+  const [count, setCount] = useState(0)
+
+  useEffect(() => {
+    if (!isInView) return
+
+    const duration = 2000
+    const steps = 60
+    const increment = target / steps
+    const stepDuration = duration / steps
+    let current = 0
+
+    const timer = setInterval(() => {
+      current += increment
+      if (current >= target) {
+        setCount(target)
+        clearInterval(timer)
+      } else {
+        setCount(Math.floor(current))
+      }
+    }, stepDuration)
+
+    return () => clearInterval(timer)
+  }, [isInView, target])
 
   return (
-    <section className='py-20 bg-pedie-card border-y border-pedie-border relative overflow-hidden'>
+    <motion.span ref={ref} className='text-3xl font-bold text-pedie-green'>
+      {count}
+      {suffix}
+    </motion.span>
+  )
+}
+
+export function SustainabilitySection() {
+  return (
+    <motion.section
+      className='py-20 bg-pedie-card border-y border-pedie-border relative overflow-hidden'
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5 }}
+    >
+      {/* Gradient orbs */}
       <div
-        className='absolute inset-0 opacity-10 pointer-events-none'
+        className='absolute top-0 left-1/4 w-96 h-96 rounded-full bg-pedie-green/10 blur-3xl'
         aria-hidden='true'
-      >
-        <svg width='100%' height='100%' xmlns='http://www.w3.org/2000/svg'>
-          <defs>
-            <pattern
-              id={patternId}
-              x='0'
-              y='0'
-              width='100'
-              height='100'
-              patternUnits='userSpaceOnUse'
-            >
-              <path
-                d='M50 20 C 70 20, 80 40, 80 60 C 80 80, 60 90, 50 90 C 40 90, 20 80, 20 60 C 20 40, 30 20, 50 20 Z'
-                fill='currentColor'
-                className='text-pedie-green'
-              />
-            </pattern>
-          </defs>
-          <rect
-            x='0'
-            y='0'
-            width='100%'
-            height='100%'
-            fill={`url(#${patternId})`}
-          />
-        </svg>
-      </div>
+      />
+      <div
+        className='absolute bottom-0 right-1/4 w-80 h-80 rounded-full bg-pedie-green/10 blur-3xl'
+        aria-hidden='true'
+      />
+      <div
+        className='absolute top-1/2 left-3/4 w-64 h-64 rounded-full bg-pedie-green/10 blur-3xl'
+        aria-hidden='true'
+      />
 
       <div className='container mx-auto px-4 md:px-6 relative z-10'>
         <div className='max-w-3xl mx-auto text-center'>
@@ -51,26 +94,21 @@ export function SustainabilitySection() {
           </p>
 
           <div className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-10'>
-            <div className='p-6 rounded-xl bg-pedie-dark border border-pedie-border'>
-              <div className='text-3xl font-bold text-pedie-green mb-2'>
-                1000+
-              </div>
-              <div className='text-sm text-pedie-text-muted'>Devices Saved</div>
-            </div>
-            <div className='p-6 rounded-xl bg-pedie-dark border border-pedie-border'>
-              <div className='text-3xl font-bold text-pedie-green mb-2'>
-                40%
-              </div>
-              <div className='text-sm text-pedie-text-muted'>
-                Average Savings
-              </div>
-            </div>
-            <div className='p-6 rounded-xl bg-pedie-dark border border-pedie-border'>
-              <div className='text-3xl font-bold text-pedie-green mb-2'>
-                3-Month
-              </div>
-              <div className='text-sm text-pedie-text-muted'>Warranty</div>
-            </div>
+            {SUSTAINABILITY_STATS.map(stat => {
+              const Icon = ICON_MAP[stat.icon]
+              return (
+                <div
+                  key={stat.label}
+                  className='p-6 glass rounded-2xl border border-pedie-border flex flex-col items-center gap-3'
+                >
+                  {Icon && <Icon className='w-8 h-8 text-pedie-green' />}
+                  <AnimatedCounter target={stat.value} suffix={stat.suffix} />
+                  <div className='text-sm text-pedie-text-muted'>
+                    {stat.label}
+                  </div>
+                </div>
+              )
+            })}
           </div>
 
           <Link
@@ -81,6 +119,6 @@ export function SustainabilitySection() {
           </Link>
         </div>
       </div>
-    </section>
+    </motion.section>
   )
 }

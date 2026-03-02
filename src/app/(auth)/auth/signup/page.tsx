@@ -1,7 +1,7 @@
+import { SignUpForm } from '@components/auth/signupForm'
+import { getUser } from '@helpers/auth'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import { getUser } from '@helpers/auth'
-import { SignUpForm } from '@components/auth/signupForm'
 
 export const metadata: Metadata = {
   title: 'Create Account | Pedie Tech',

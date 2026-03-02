@@ -4,10 +4,10 @@
  */
 
 import {
-  KES_USD_RATE,
-  DEPOSIT_THRESHOLD_KES,
-  DEPOSIT_RATE_LOW,
   DEPOSIT_RATE_HIGH,
+  DEPOSIT_RATE_LOW,
+  DEPOSIT_THRESHOLD_KES,
+  KES_USD_RATE,
 } from '@/config'
 
 export function usdToKes(usd: number): number {

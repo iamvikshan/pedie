@@ -1,9 +1,9 @@
 'use client'
 
-import { Suspense, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
 import type { AvailableFilters, ListingFilters } from '@app-types/filters'
 import { Button } from '@components/ui/button'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { Suspense, useState } from 'react'
 
 interface FilterSidebarProps {
   availableFilters: AvailableFilters

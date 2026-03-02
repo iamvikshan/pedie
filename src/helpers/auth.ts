@@ -1,5 +1,5 @@
-import { createClient } from '@lib/supabase/server'
 import type { Profile } from '@app-types/user'
+import { createClient } from '@lib/supabase/server'
 import type { User } from '@supabase/supabase-js'
 
 /** Get the current authenticated user, or null */

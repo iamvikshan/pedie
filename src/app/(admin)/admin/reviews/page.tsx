@@ -1,7 +1,7 @@
-import { getAdminReviews } from '@lib/data/admin'
 import { DataTableShell } from '@components/admin/dataTableShell'
-import { reviewColumns } from './columns'
+import { getAdminReviews } from '@lib/data/admin'
 import type { ColumnDef } from '@tanstack/react-table'
+import { reviewColumns } from './columns'
 
 export default async function AdminReviewsPage({
   searchParams,

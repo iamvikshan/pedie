@@ -1,5 +1,3 @@
-# 📱 Pedie Business Plan*Note: The 2.5% reserve figure is adequate assuming a ~5% claim rate with ~20% requiring independent inspection (≈KES 7.5/unit average inspection cost at Pedie's 50% share of KES 1,500) plus replacement/repair subsidies. Unit economics (Section 6.2) now reflects this reserve consistently.*
-
 ## Premium Refurbished Electronics — Import & Resale
 
 <div align="center">

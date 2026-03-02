@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server'
 import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
-import { updateCategory, deleteCategory } from '@lib/data/admin'
+import { deleteCategory, updateCategory } from '@lib/data/admin'
+import { NextResponse } from 'next/server'
 
 export async function PUT(
   request: Request,

@@ -1,8 +1,8 @@
-import Link from 'next/link'
-import { getAdminProducts } from '@lib/data/admin'
 import { DataTableShell } from '@components/admin/dataTableShell'
-import { productColumns } from './columns'
+import { getAdminProducts } from '@lib/data/admin'
 import type { ColumnDef } from '@tanstack/react-table'
+import Link from 'next/link'
+import { productColumns } from './columns'
 
 export default async function AdminProductsPage({
   searchParams,

@@ -1,5 +1,5 @@
+import type { Database, Json } from '@app-types/database'
 import { createAdminClient } from '@lib/supabase/admin'
-import type { Json, Database } from '@app-types/database'
 
 type OrderStatus = Database['public']['Enums']['order_status']
 type ListingStatus = Database['public']['Enums']['listing_status']

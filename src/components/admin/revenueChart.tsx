@@ -1,15 +1,15 @@
 'use client'
 
+import type { RevenueDataPoint } from '@lib/data/admin'
 import {
-  AreaChart,
   Area,
+  AreaChart,
+  CartesianGrid,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
 } from 'recharts'
-import type { RevenueDataPoint } from '@lib/data/admin'
 
 interface RevenueChartProps {
   data: RevenueDataPoint[]

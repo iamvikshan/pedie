@@ -1,9 +1,9 @@
+import { PriceComparisonTable } from '@components/admin/priceComparisonTable'
 import {
-  getPriceComparisons,
   getLatestCrawlDate,
+  getPriceComparisons,
   getProductMinPrices,
 } from '@lib/data/admin'
-import { PriceComparisonTable } from '@components/admin/priceComparisonTable'
 
 interface ComparisonRow {
   id: string

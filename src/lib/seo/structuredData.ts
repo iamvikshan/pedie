@@ -1,5 +1,5 @@
-import type { ListingWithProduct, Category } from '@app-types/product'
-import { SITE_URL, SITE_NAME, URLS } from '@/config'
+import type { Category, ListingWithProduct } from '@app-types/product'
+import { SITE_NAME, SITE_URL, URLS } from '@/config'
 
 /**
  * Safely serialize a JSON-LD object for embedding in a <script> tag.

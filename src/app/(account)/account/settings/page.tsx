@@ -1,5 +1,5 @@
-import { requireAuth, getProfile } from '@helpers/auth'
 import { ProfileForm } from '@components/account/profileForm'
+import { getProfile, requireAuth } from '@helpers/auth'
 
 export default async function SettingsPage() {
   await requireAuth()

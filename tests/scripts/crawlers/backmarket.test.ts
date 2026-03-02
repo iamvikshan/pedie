@@ -1,9 +1,9 @@
-import { describe, test, expect } from 'bun:test'
-import { KES_USD_RATE } from '../../../src/config'
+import { describe, expect, test } from "bun:test";
+import { KES_USD_RATE } from "../../../src/config";
 
 const { parseBackMarketPage } = await import(
-  '../../../scripts/crawlers/backmarket'
-)
+	"../../../scripts/crawlers/backmarket"
+);
 
 // ── HTML Fixtures ──────────────────────────────────────────────────────────
 
@@ -24,34 +24,34 @@ const BACKMARKET_HTML = `
   </div>
 </body>
 </html>
-`
+`;
 
 const BACKMARKET_EMPTY_HTML = `
 <html><body><div class="no-results">Nothing found</div></body></html>
-`
+`;
 
 // ── Tests ──────────────────────────────────────────────────────────────────
 
-describe('BackMarket Crawler', () => {
-  describe('parseBackMarketPage', () => {
-    test('parses USD prices and converts to KES', () => {
-      const results = parseBackMarketPage(BACKMARKET_HTML)
-      expect(results.length).toBeGreaterThan(0)
+describe("BackMarket Crawler", () => {
+	describe("parseBackMarketPage", () => {
+		test("parses USD prices and converts to KES", () => {
+			const results = parseBackMarketPage(BACKMARKET_HTML);
+			expect(results.length).toBeGreaterThan(0);
 
-      const first = results[0]
-      expect(first.price_kes).toBe(Math.round(459 * KES_USD_RATE))
-      expect(first.url).toContain('/p/')
-    })
+			const first = results[0];
+			expect(first.price_kes).toBe(Math.round(459 * KES_USD_RATE));
+			expect(first.url).toContain("/p/");
+		});
 
-    test('returns empty array for no results page', () => {
-      const results = parseBackMarketPage(BACKMARKET_EMPTY_HTML)
-      expect(results).toHaveLength(0)
-    })
+		test("returns empty array for no results page", () => {
+			const results = parseBackMarketPage(BACKMARKET_EMPTY_HTML);
+			expect(results).toHaveLength(0);
+		});
 
-    test('extracts product URLs', () => {
-      const results = parseBackMarketPage(BACKMARKET_HTML)
-      expect(results.length).toBeGreaterThan(0)
-      expect(results[0].url).toBeTruthy()
-    })
-  })
-})
+		test("extracts product URLs", () => {
+			const results = parseBackMarketPage(BACKMARKET_HTML);
+			expect(results.length).toBeGreaterThan(0);
+			expect(results[0].url).toBeTruthy();
+		});
+	});
+});

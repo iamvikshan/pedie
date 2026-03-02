@@ -1,16 +1,16 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
-import { useRouter } from 'next/navigation'
 import { createClient } from '@lib/supabase/client'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useEffect, useRef, useState } from 'react'
 import {
-  TbUser,
-  TbPackage,
-  TbHeart,
   TbDashboard,
+  TbHeart,
   TbLogout,
+  TbPackage,
+  TbUser,
 } from 'react-icons/tb'
 
 interface UserMenuProps {
@@ -43,15 +43,19 @@ export function UserMenu({ userName, avatarUrl, isAdmin }: UserMenuProps) {
     }
   }, [])
 
+  const [signOutError, setSignOutError] = useState(false)
+
   const handleSignOut = async () => {
     try {
+      setSignOutError(false)
       const supabase = createClient()
       await supabase.auth.signOut()
       setIsOpen(false)
       router.push('/')
       router.refresh()
-    } catch {
-      // Silently handle sign-out failure — user stays on current page
+    } catch (err) {
+      console.error('Sign-out failed:', err)
+      setSignOutError(true)
     }
   }
 
@@ -140,6 +144,11 @@ export function UserMenu({ userName, avatarUrl, isAdmin }: UserMenuProps) {
           )}
 
           <div className='border-t border-pedie-border my-1' />
+          {signOutError && (
+            <p className='px-4 py-1 text-xs text-pedie-discount'>
+              Unable to sign out. Please try again.
+            </p>
+          )}
           <button
             onClick={handleSignOut}
             className='flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-pedie-discount hover:bg-pedie-card transition-colors'

@@ -1,15 +1,32 @@
 'use client'
 
-import Link from 'next/link'
-import Image from 'next/image'
-import { useRouter } from 'next/navigation'
 import type { ListingWithProduct } from '@app-types/product'
-import { formatKes, calculateDiscount } from '@helpers'
+import { useAuth } from '@components/auth/authProvider'
+import { calculateDiscount, formatKes } from '@helpers'
 import { useCartStore } from '@lib/cart/store'
 import { useWishlist } from '@lib/wishlist/useWishlist'
-import { useAuth } from '@components/auth/authProvider'
-import { ConditionBadge } from './conditionBadge'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import {
+  TbBolt,
+  TbCheck,
+  TbHeart,
+  TbHeartFilled,
+  TbPhoto,
+  TbShoppingCartPlus,
+} from 'react-icons/tb'
 import { Button } from './button'
+import { ConditionBadge } from './conditionBadge'
+
+export const PRODUCT_CARD_ICONS = [
+  'TbHeart',
+  'TbHeartFilled',
+  'TbBolt',
+  'TbCheck',
+  'TbShoppingCartPlus',
+  'TbPhoto',
+] as const
 
 interface ProductCardProps {
   listing: ListingWithProduct
@@ -31,38 +48,24 @@ export function ProductCard({ listing }: ProductCardProps) {
     listing.price_kes
   )
 
-  // Use listing image if available, otherwise product image, otherwise null
   const imageUrl = listing.images?.[0] || product.images?.[0]
+  const wishlisted = isWishlisted(listing.product.id)
 
   return (
-    <div className='group relative flex flex-col bg-pedie-card rounded-xl shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105 border border-pedie-border hover:border-pedie-accent'>
+    <div className='group relative flex flex-col glass rounded-2xl shadow-lg overflow-hidden transition-colors duration-300 border border-pedie-border hover:border-pedie-green/30'>
       {/* Image Section */}
-      <div className='relative aspect-square bg-pedie-dark w-full overflow-hidden'>
+      <div className='relative aspect-square bg-pedie-surface w-full overflow-hidden'>
         {imageUrl ? (
           <Image
             src={imageUrl}
             alt={productName}
             fill
-            className='object-cover'
+            className='object-cover transition-transform duration-300 group-hover:scale-105'
             sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
           />
         ) : (
           <div className='w-full h-full flex items-center justify-center text-pedie-text-muted'>
-            <svg
-              className='w-12 h-12'
-              fill='none'
-              stroke='currentColor'
-              viewBox='0 0 24 24'
-              xmlns='http://www.w3.org/2000/svg'
-              aria-hidden='true'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
-              />
-            </svg>
+            <TbPhoto className='w-12 h-12' aria-hidden='true' />
           </div>
         )}
 
@@ -79,7 +82,7 @@ export function ProductCard({ listing }: ProductCardProps) {
         {/* Wishlist Heart */}
         <button
           type='button'
-          className='absolute top-2 right-2 z-10 p-1.5 rounded-full bg-black/40 hover:bg-black/60 transition-colors'
+          className='absolute top-2 right-2 z-10 p-1.5 rounded-full bg-pedie-dark/40 hover:bg-pedie-dark/60 transition-colors'
           onClick={e => {
             e.preventDefault()
             e.stopPropagation()
@@ -90,29 +93,22 @@ export function ProductCard({ listing }: ProductCardProps) {
             toggleWishlist(listing.product.id)
           }}
           aria-label={
-            isWishlisted(listing.product.id)
+            wishlisted
               ? `Remove ${productName} from wishlist`
               : `Add ${productName} to wishlist`
           }
         >
-          <svg
-            className={`w-5 h-5 transition-colors ${
-              isWishlisted(listing.product.id)
-                ? 'fill-red-500 text-red-500'
-                : 'fill-none text-white'
-            }`}
-            stroke='currentColor'
-            viewBox='0 0 24 24'
-            xmlns='http://www.w3.org/2000/svg'
-            aria-hidden='true'
-          >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth={2}
-              d='M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z'
+          {wishlisted ? (
+            <TbHeartFilled
+              className='w-5 h-5 text-pedie-discount'
+              aria-hidden='true'
             />
-          </svg>
+          ) : (
+            <TbHeart
+              className='w-5 h-5 text-white transition-colors'
+              aria-hidden='true'
+            />
+          )}
         </button>
       </div>
 
@@ -122,21 +118,7 @@ export function ProductCard({ listing }: ProductCardProps) {
           <span>{listing.listing_id}</span>
           {listing.battery_health != null && (
             <span className='flex items-center gap-1'>
-              <svg
-                className='w-3 h-3'
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'
-                xmlns='http://www.w3.org/2000/svg'
-                aria-hidden='true'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M13 10V3L4 14h7v7l9-11h-7z'
-                />
-              </svg>
+              <TbBolt className='w-3 h-3' aria-hidden='true' />
               {listing.battery_health}%
             </span>
           )}
@@ -175,24 +157,17 @@ export function ProductCard({ listing }: ProductCardProps) {
           >
             {inCart ? (
               <>
-                <svg
-                  className='mr-2 h-4 w-4'
-                  fill='none'
-                  stroke='currentColor'
-                  viewBox='0 0 24 24'
-                  aria-hidden='true'
-                >
-                  <path
-                    strokeLinecap='round'
-                    strokeLinejoin='round'
-                    strokeWidth={2}
-                    d='M5 13l4 4L19 7'
-                  />
-                </svg>
+                <TbCheck className='mr-2 h-4 w-4' aria-hidden='true' />
                 In Cart
               </>
             ) : (
-              'Add to Cart'
+              <>
+                <TbShoppingCartPlus
+                  className='mr-2 h-4 w-4'
+                  aria-hidden='true'
+                />
+                Add to Cart
+              </>
             )}
           </Button>
         </div>

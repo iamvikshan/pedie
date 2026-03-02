@@ -1,7 +1,7 @@
-import { redirect } from 'next/navigation'
+import { AdminSidebar } from '@components/admin/sidebar'
 import { requireAuth } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
-import { AdminSidebar } from '@components/admin/sidebar'
+import { redirect } from 'next/navigation'
 
 export default async function AdminLayout({
   children,

@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server'
 import { querySTKStatus } from '@lib/payments/mpesa'
+import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)

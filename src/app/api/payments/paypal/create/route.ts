@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server'
 import { createPayPalOrder, getApprovalUrl } from '@lib/payments/paypal'
+import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
   try {

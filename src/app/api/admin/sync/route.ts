@@ -1,7 +1,7 @@
-import { NextResponse } from 'next/server'
 import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
 import { getSyncHistory, logSyncResult } from '@lib/data/admin'
+import { NextResponse } from 'next/server'
 
 export async function GET() {
   try {

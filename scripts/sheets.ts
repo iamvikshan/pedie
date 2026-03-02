@@ -5,8 +5,9 @@
  * Used by the GitHub Actions cron workflow (.github/workflows/sheets.yml)
  * to bypass Cloudflare and invoke syncToSheets() in-process.
  */
-import { syncToSheets } from '@lib/sheets/sync'
+
 import type { ExportOptions } from '@lib/sheets/sync'
+import { syncToSheets } from '@lib/sheets/sync'
 
 const mode =
   process.argv.includes('--mode') &&

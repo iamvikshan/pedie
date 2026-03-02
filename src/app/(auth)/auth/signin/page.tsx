@@ -1,7 +1,7 @@
+import { SignInForm } from '@components/auth/signinForm'
+import { getUser } from '@helpers/auth'
 import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
-import { getUser } from '@helpers/auth'
-import { SignInForm } from '@components/auth/signinForm'
 
 export const metadata: Metadata = {
   title: 'Sign In | Pedie Tech',

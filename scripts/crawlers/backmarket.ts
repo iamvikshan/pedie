@@ -1,7 +1,7 @@
 import * as cheerio from 'cheerio'
-import { fetchWithRetry, parseUsdPrice, rateLimiter } from './utils'
 import { KES_USD_RATE } from '../../src/config'
 import type { CrawlerProduct, PriceResult } from './types'
+import { fetchWithRetry, parseUsdPrice, rateLimiter } from './utils'
 
 const BACKMARKET_BASE_URL = 'https://www.backmarket.com'
 

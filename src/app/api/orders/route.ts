@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server'
 import { getUser } from '@helpers/auth'
-import { createOrder } from '@lib/data/orders'
 import type { CreateOrderInput } from '@lib/data/orders'
+import { createOrder } from '@lib/data/orders'
 import { sendOrderConfirmation } from '@lib/email/send'
+import { NextResponse } from 'next/server'
 
 // TODO (Phase 6): Validate listing prices server-side to prevent client-side tampering.
 // Currently trusts client-supplied subtotal/depositTotal/shippingFee.

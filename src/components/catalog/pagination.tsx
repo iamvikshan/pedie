@@ -1,7 +1,7 @@
 'use client'
 
-import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@components/ui/button'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 interface PaginationProps {
   currentPage: number

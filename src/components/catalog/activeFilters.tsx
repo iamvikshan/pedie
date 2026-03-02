@@ -1,7 +1,7 @@
 'use client'
 
-import { useRouter, useSearchParams } from 'next/navigation'
 import type { ListingFilters } from '@app-types/filters'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 interface ActiveFiltersProps {
   currentFilters: ListingFilters

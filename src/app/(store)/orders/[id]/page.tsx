@@ -1,10 +1,10 @@
-import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { OrderItemsList } from '@components/orders/orderItems'
+import { OrderStatusTimeline } from '@components/orders/statusTimeline'
+import { formatKes } from '@helpers'
 import { requireAuth } from '@helpers/auth'
 import { getOrderById } from '@lib/data/orders'
-import { formatKes } from '@helpers'
-import { OrderStatusTimeline } from '@components/orders/statusTimeline'
-import { OrderItemsList } from '@components/orders/orderItems'
+import Link from 'next/link'
+import { notFound } from 'next/navigation'
 
 export default async function OrderPage({
   params,
