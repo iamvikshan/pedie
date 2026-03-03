@@ -40,4 +40,13 @@ describe("HotDeals", () => {
 	test("uses amber/gold accent", () => {
 		expect(SOURCE).toContain("amber");
 	});
+
+	test("timer card has gradient glow border", () => {
+		expect(SOURCE).toContain("bg-gradient-to-br");
+		expect(SOURCE).toContain("from-amber-400");
+	});
+
+	test("section has warm gradient background", () => {
+		expect(SOURCE).toContain("bg-gradient-to-r");
+	});
 });

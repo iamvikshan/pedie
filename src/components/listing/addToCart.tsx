@@ -29,6 +29,14 @@ export function AddToCart({ listing }: AddToCartProps) {
     )
   }
 
+  if (listing.listing_type === 'affiliate') {
+    return (
+      <Button variant='secondary' size='lg' className='w-full' disabled>
+        Unavailable
+      </Button>
+    )
+  }
+
   if (listing.is_sold) {
     return (
       <Button variant='primary' size='lg' className='w-full' disabled>

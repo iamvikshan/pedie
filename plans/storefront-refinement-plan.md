@@ -65,32 +65,40 @@ Replace `is_on_sale` boolean with a `listing_type` enum (`standard`, `sale`, `af
       9. Run full test suite — all green
       10. Run quality gates: format → lint → typecheck → build
 
-3. **⬜ Phase 3: Hot Deals Redesign, Popular Brands Dark Mode & Skeleton Loading**
-    - **Objective:** Redesign Hot Deals section with gradient/glow treatment using `listing_type = 'sale'`, fix Popular Brands logos (circular + dark mode), create reusable Skeleton component and homepage loading state with Suspense boundaries
+3. **✅ Phase 3: Affiliate Refinements, Hot Deals Redesign, Brands Dark Mode & Skeleton Loading**
+    - **Objective:** Refine affiliate card treatment (show pricing like normal/discounted, replace ConditionBadge with Partner badge + tooltip), add defensive AddToCart handling for affiliates without source_url, fix upload-images.ts header comment, redesign Hot Deals with gradient/glow, fix Popular Brands dark mode, create Skeleton component and homepage loading state
     - **Files/Functions to Modify/Create:**
-      - `src/components/home/hotDeals.tsx` — animated gradient border/glow backdrop, query filter `listing_type = 'sale'`
-      - `src/components/layout/allItemsPanel.tsx` — `rounded-full` for circular logos, `dark:invert` for dark mode
+      - `src/components/ui/productCard.tsx` — remove "View on Partner Site →" from pricing (affiliate shows prices like normal/discounted), replace ConditionBadge with Partner badge for affiliate (using TbExternalLink icon + tooltip, following conditionBadge.tsx pattern), keep card click → source_url behavior
+      - `src/components/listing/addToCart.tsx` — add defensive handling for `listing_type === 'affiliate'` when `source_url` is falsy (disabled "Unavailable" button)
+      - `scripts/upload-images.ts` — fix header comment to describe SVG placeholder generation via `buildSvg()`
+      - `src/components/home/hotDeals.tsx` — animated gradient border/glow backdrop
+      - `src/components/layout/allItemsPanel.tsx` — `rounded-full` + `overflow-hidden` for circular logos, `dark:invert` for dark mode
       - `src/components/ui/skeleton.tsx` — new reusable Skeleton component (`animate-pulse` + configurable shape/size)
       - `src/app/loading.tsx` — new homepage loading skeleton using Skeleton component
       - `src/app/page.tsx` — wrap data-dependent sections in `<Suspense>` boundaries with skeleton fallbacks
-      - Test files for Hot Deals, AllItemsPanel, Skeleton, homepage loading
+      - Test files for ProductCard, AddToCart, Hot Deals, AllItemsPanel, Skeleton, homepage loading
     - **Tests to Write:**
-      - Hot Deals: source contains `listing_type` check, gradient classes present
+      - ProductCard: affiliate shows pricing (not "View on Partner Site"), affiliate shows Partner badge (not ConditionBadge), affiliate does not show condition badge
+      - AddToCart: affiliate without source_url renders disabled/unavailable state
+      - Hot Deals: gradient classes present
       - AllItemsPanel: `rounded-full` class, `dark:invert` class
       - Skeleton component: renders with correct classes, supports className prop
       - Homepage loading: renders skeleton placeholders
     - **Steps:**
-      1. Write tests for Hot Deals `listing_type` usage and gradient classes
-      2. Write tests for brand logos (circular + dark mode)
-      3. Write tests for Skeleton component and homepage loading
-      4. Run tests — expect failures
-      5. Create `src/components/ui/skeleton.tsx` reusable component
-      6. Create `src/app/loading.tsx` with homepage skeleton layout
-      7. Update `src/app/page.tsx` with Suspense boundaries
-      8. Redesign Hot Deals: gradient/glow treatment, update query
-      9. Fix Popular Brands: `rounded-full` + `dark:invert`
-      10. Run full test suite — all green
-      11. Run quality gates: format → lint → typecheck → build
+      1. Fix `scripts/upload-images.ts` header comment (CodeRabbit fix)
+      2. Update ProductCard tests: affiliate shows pricing, Partner badge replaces ConditionBadge
+      3. Update AddToCart tests: affiliate without source_url handling
+      4. Write tests for Hot Deals gradient, AllItemsPanel dark mode, Skeleton, homepage loading
+      5. Run tests — expect failures
+      6. Update `productCard.tsx`: remove affiliate pricing branch (let tier logic handle it), show Partner badge instead of ConditionBadge for affiliates
+      7. Update `addToCart.tsx`: add defensive check for affiliate without source_url
+      8. Create `src/components/ui/skeleton.tsx` reusable component
+      9. Create `src/app/loading.tsx` with homepage skeleton layout
+      10. Update `src/app/page.tsx` with Suspense boundaries
+      11. Redesign Hot Deals: gradient/glow treatment
+      12. Fix Popular Brands: `rounded-full` + `overflow-hidden` + `dark:invert`
+      13. Run full test suite — all green
+      14. Run quality gates: format → lint → typecheck → build
 
 **Open Questions (all resolved)**
 1. Product images — free stock / press images + placeholders ✅

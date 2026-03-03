@@ -69,7 +69,10 @@ export function ProductCard({ listing }: ProductCardProps) {
         {/* Top-left badges */}
         <div className='absolute top-2 left-2 flex flex-col gap-2'>
           {isAffiliate && (
-            <span className='glass bg-pedie-surface/80 backdrop-blur-sm text-pedie-text text-xs font-bold px-2.5 py-1 rounded-full inline-flex items-center gap-1'>
+            <span
+              title='Sold by an external partner'
+              className='glass bg-pedie-surface/80 backdrop-blur-sm text-pedie-text text-xs font-bold px-2.5 py-1 rounded-full inline-flex items-center gap-1'
+            >
               <TbExternalLink className='w-3.5 h-3.5' aria-hidden='true' />
               Partner
             </span>
@@ -80,9 +83,11 @@ export function ProductCard({ listing }: ProductCardProps) {
               Flash Sale
             </span>
           ) : (
-            <span className='glass backdrop-blur-sm rounded-full px-2 py-1'>
-              <ConditionBadge condition={listing.condition} />
-            </span>
+            !isAffiliate && (
+              <span className='glass backdrop-blur-sm rounded-full px-2 py-1'>
+                <ConditionBadge condition={listing.condition} />
+              </span>
+            )
           )}
         </div>
 
@@ -108,11 +113,7 @@ export function ProductCard({ listing }: ProductCardProps) {
 
         {/* Pricing */}
         <div className='mt-auto pt-3 border-t border-pedie-border'>
-          {isAffiliate ? (
-            <div className='flex items-center text-sm font-semibold text-pedie-accent'>
-              View on Partner Site &rarr;
-            </div>
-          ) : isSale ? (
+          {isSale ? (
             <div className='flex flex-col'>
               <div className='flex items-baseline gap-2 flex-wrap'>
                 <span className='text-xl font-bold text-pedie-discount'>

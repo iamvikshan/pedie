@@ -61,48 +61,50 @@ export function HotDeals({ listings }: HotDealsProps) {
   if (listings.length === 0) return null
 
   return (
-    <section className='py-16 bg-pedie-card/50 border-y border-pedie-border'>
+    <section className='py-16 bg-gradient-to-r from-pedie-card/50 via-amber-950/10 to-pedie-card/50 border-y border-pedie-border'>
       <div className='w-full max-w-7xl mx-auto px-4 md:px-6'>
         <div className='grid grid-cols-1 md:grid-cols-12 gap-6'>
           {/* Timer Card — left column */}
           <div className='md:col-span-3'>
-            <div className='bg-pedie-dark rounded-2xl p-6 flex flex-col items-center justify-center h-full gap-4'>
-              <TbFlame
-                className='w-10 h-10 text-amber-400'
-                aria-hidden='true'
-              />
-              <h2 className='text-2xl font-bold text-white'>Hot Deals</h2>
+            <div className='relative rounded-2xl bg-gradient-to-br from-amber-400/30 via-red-500/20 to-amber-400/30 p-[2px] shadow-[0_0_30px_rgba(251,191,36,0.15)] h-full'>
+              <div className='bg-pedie-dark rounded-2xl p-6 flex flex-col items-center justify-center h-full gap-4'>
+                <TbFlame
+                  className='w-10 h-10 text-amber-400'
+                  aria-hidden='true'
+                />
+                <h2 className='text-2xl font-bold text-white'>Hot Deals</h2>
 
-              <div className='flex items-center gap-2'>
-                <div className='bg-pedie-dark/80 border border-amber-400/30 rounded-lg px-3 py-2 text-center'>
-                  <span className='text-2xl font-mono font-bold text-amber-400'>
-                    {timeLeft.hours.toString().padStart(2, '0')}
-                  </span>
+                <div className='flex items-center gap-2'>
+                  <div className='bg-pedie-dark/80 border border-amber-400/30 rounded-lg px-3 py-2 text-center'>
+                    <span className='text-2xl font-mono font-bold text-amber-400'>
+                      {timeLeft.hours.toString().padStart(2, '0')}
+                    </span>
+                  </div>
+                  <span className='text-amber-400 font-bold text-xl'>:</span>
+                  <div className='bg-pedie-dark/80 border border-amber-400/30 rounded-lg px-3 py-2 text-center'>
+                    <span className='text-2xl font-mono font-bold text-amber-400'>
+                      {timeLeft.minutes.toString().padStart(2, '0')}
+                    </span>
+                  </div>
+                  <span className='text-amber-400 font-bold text-xl'>:</span>
+                  <div className='bg-pedie-dark/80 border border-amber-400/30 rounded-lg px-3 py-2 text-center'>
+                    <span className='text-2xl font-mono font-bold text-amber-400'>
+                      {timeLeft.seconds.toString().padStart(2, '0')}
+                    </span>
+                  </div>
                 </div>
-                <span className='text-amber-400 font-bold text-xl'>:</span>
-                <div className='bg-pedie-dark/80 border border-amber-400/30 rounded-lg px-3 py-2 text-center'>
-                  <span className='text-2xl font-mono font-bold text-amber-400'>
-                    {timeLeft.minutes.toString().padStart(2, '0')}
-                  </span>
-                </div>
-                <span className='text-amber-400 font-bold text-xl'>:</span>
-                <div className='bg-pedie-dark/80 border border-amber-400/30 rounded-lg px-3 py-2 text-center'>
-                  <span className='text-2xl font-mono font-bold text-amber-400'>
-                    {timeLeft.seconds.toString().padStart(2, '0')}
-                  </span>
-                </div>
+
+                <p className='text-xs text-red-400 font-medium text-center'>
+                  {URGENCY_TEXT}
+                </p>
+
+                <Link
+                  href='/deals'
+                  className='bg-amber-400 text-pedie-dark font-bold rounded-xl px-6 py-2.5 transition-colors hover:bg-amber-300 text-sm'
+                >
+                  View All
+                </Link>
               </div>
-
-              <p className='text-xs text-red-400 font-medium text-center'>
-                {URGENCY_TEXT}
-              </p>
-
-              <Link
-                href='/deals'
-                className='bg-amber-400 text-pedie-dark font-bold rounded-xl px-6 py-2.5 transition-colors hover:bg-amber-300 text-sm'
-              >
-                View All
-              </Link>
             </div>
           </div>
 

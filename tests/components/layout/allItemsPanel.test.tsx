@@ -49,4 +49,13 @@ describe('AllItemsPanel', () => {
     expect(src).toContain('Escape')
     expect(src).toContain('focusable')
   })
+
+  test('brand logos are circular', () => {
+    expect(src).toContain('rounded-full')
+    expect(src).toContain('overflow-hidden')
+  })
+
+  test('brand logos invert in dark mode', () => {
+    expect(src).toContain('dark:invert')
+  })
 })

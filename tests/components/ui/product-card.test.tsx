@@ -140,4 +140,16 @@ describe('ProductCard Component', () => {
     expect(src).toContain('Partner')
     expect(src).toContain('TbExternalLink')
   })
+
+  test('affiliate Partner badge has tooltip', () => {
+    expect(src).toContain("title='Sold by an external partner'")
+  })
+
+  test('affiliate shows pricing like any other tier (no special text)', () => {
+    expect(src).not.toContain('View on Partner Site')
+  })
+
+  test('affiliate does not show condition badge', () => {
+    expect(src).toContain('!isAffiliate')
+  })
 })

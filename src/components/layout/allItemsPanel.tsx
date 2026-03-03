@@ -218,13 +218,13 @@ export function AllItemsPanel({ isOpen, onClose }: AllItemsPanelProps) {
                       onClick={onClose}
                       className='group flex flex-col items-center gap-1.5 rounded-lg border border-pedie-glass-border p-2.5 transition-colors hover:bg-pedie-card hover:text-pedie-green'
                     >
-                      <div className='relative h-8 w-8'>
+                      <div className='relative h-8 w-8 rounded-full overflow-hidden'>
                         <Image
                           src={brand.logo}
                           alt={brand.name}
                           width={32}
                           height={32}
-                          className='object-contain'
+                          className='object-contain dark:invert'
                           onError={e => {
                             const target = e.currentTarget
                             target.style.display = 'none'

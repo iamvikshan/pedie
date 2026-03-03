@@ -3,7 +3,7 @@
 node_modules/
 .next/
 out/
-bun.lock
+*.lock
 tests/
 types/
 plans/
@@ -11,3 +11,12 @@ docs/
 CHANGELOG.md
 .husky/
 *ignore
+.prettierrc.json
+eslint.config.mjs 
+next.config.ts 
+postcss.config.mjs
+release.config.js
+renovate.json
+scripts/
+tsconfig.json
+vercel.json

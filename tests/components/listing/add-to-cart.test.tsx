@@ -26,4 +26,9 @@ describe('AddToCart Component', () => {
   test('preorder listing renders Preorder Now text', () => {
     expect(src).toContain("'Preorder Now'")
   })
+
+  test('affiliate without source_url renders Unavailable button', () => {
+    expect(src).toContain("listing.listing_type === 'affiliate'")
+    expect(src).toContain('Unavailable')
+  })
 })

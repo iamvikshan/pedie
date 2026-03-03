@@ -7,10 +7,49 @@ import {
   TbBrandYoutube,
   TbChevronDown,
 } from 'react-icons/tb'
-import { URLS, FOOTER_LINKS } from '@/config'
+import { URLS } from '@/config'
 import { NewsletterSignup } from './newsletterSignup'
 
-export { FOOTER_LINKS }
+export const FOOTER_LINKS = [
+  {
+    title: 'About Pedie',
+    links: [
+      { label: 'About Us', href: '/about' },
+      { label: 'Our Story', href: '/story' },
+      { label: 'Blog', href: '/blog' },
+      { label: 'Sustainability', href: '/sustainability' },
+      { label: 'Careers', href: '/careers' },
+    ],
+  },
+  {
+    title: 'Shop',
+    links: [
+      { label: 'Smartphones', href: '/collections/smartphones' },
+      { label: 'Laptops', href: '/collections/laptops' },
+      { label: 'Tablets', href: '/collections/tablets' },
+      { label: 'Accessories', href: '/collections/accessories' },
+      { label: 'Deals', href: '/deals' },
+    ],
+  },
+  {
+    title: 'Help',
+    links: [
+      { label: 'Contact Us', href: '/contact' },
+      { label: 'FAQ', href: '/faq' },
+      { label: 'Shipping Info', href: '/shipping' },
+      { label: 'Returns & Warranty', href: '/returns' },
+      { label: 'Track Order', href: '/track' },
+    ],
+  },
+  {
+    title: 'Policies',
+    links: [
+      { label: 'Privacy Policy', href: '/privacy' },
+      { label: 'Terms of Service', href: '/terms' },
+      { label: 'Cookie Policy', href: '/cookies' },
+    ],
+  },
+] as const
 
 const SOCIAL_LINKS = [
   { icon: TbBrandTiktok, href: URLS.social.tiktok, label: 'TikTok' },

@@ -1,5 +1,5 @@
 /**
- * Downloads product images from the web and uploads them to Supabase storage.
+ * Generates SVG placeholder images via buildSvg() and uploads them to Supabase storage.
  * Usage: bun scripts/upload-images.ts
  */
 
