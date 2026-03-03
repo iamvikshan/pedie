@@ -119,6 +119,16 @@ body {
   box-shadow: 0 -4px 20px rgba(34, 197, 94, 0.15);
 }
 
+/* Footer accordion: always expanded on desktop */
+@media (min-width: 768px) {
+  details.footer-accordion > *:not(summary) {
+    display: block !important;
+  }
+  details.footer-accordion > summary {
+    pointer-events: none;
+  }
+}
+
 /* Hot Deals gold accent */
 .hot-deals-timer {
   color: #fbbf24;

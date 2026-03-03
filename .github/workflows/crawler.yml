@@ -1,11 +1,11 @@
 name: Price Crawler
 
 on:
-  schedule:
-    - cron: "0 3 * * *" # Daily at 3 AM UTC (6 AM EAT)
+  # schedule:
+  # - cron: "0 3 * * *" # Daily at 3 AM UTC (6 AM EAT)
   workflow_dispatch: # Allow manual trigger
-  push:
-    branches: [main]
+  # push:
+  # branches: [main]
 
 jobs:
   crawl:

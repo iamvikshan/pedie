@@ -61,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .getUser()
       .then(async ({ data: { user }, error }) => {
         if (error) {
-          console.error('Failed to get user:', error.message)
+          // console.error('Failed to get user:', error.message)
           setUser(null)
           setProfile(null)
           return

@@ -75,23 +75,31 @@ describe("calculateDiscount", () => {
 });
 
 describe("getPricingTier", () => {
-	test("returns 'sale' when final < price and is_on_sale", () => {
-		expect(getPricingTier(100000, 150000, true)).toBe("sale");
+	test("returns 'sale' when final < price and listing_type = sale", () => {
+		expect(getPricingTier(100000, 150000, 'sale')).toBe("sale");
 	});
 
-	test("returns 'discounted' when final < price but not on sale", () => {
-		expect(getPricingTier(100000, 150000, false)).toBe("discounted");
+	test("returns 'discounted' when final < price but listing_type = standard", () => {
+		expect(getPricingTier(100000, 150000, 'standard')).toBe("discounted");
 	});
 
 	test("returns 'normal' when final equals price", () => {
-		expect(getPricingTier(150000, 150000, true)).toBe("normal");
+		expect(getPricingTier(150000, 150000, 'sale')).toBe("normal");
 	});
 
 	test("returns 'normal' when final exceeds price", () => {
-		expect(getPricingTier(160000, 150000, false)).toBe("normal");
+		expect(getPricingTier(160000, 150000, 'standard')).toBe("normal");
 	});
 
-	test("returns 'sale' for small discount with is_on_sale", () => {
-		expect(getPricingTier(149000, 150000, true)).toBe("sale");
+	test("returns 'sale' for small discount with listing_type = sale", () => {
+		expect(getPricingTier(149000, 150000, 'sale')).toBe("sale");
+	});
+
+	test("returns 'discounted' when final < price and listing_type = affiliate", () => {
+		expect(getPricingTier(100000, 150000, 'affiliate')).toBe("discounted");
+	});
+
+	test("returns 'normal' when final equals price and listing_type = affiliate", () => {
+		expect(getPricingTier(150000, 150000, 'affiliate')).toBe("normal");
 	});
 });

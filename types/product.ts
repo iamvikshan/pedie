@@ -8,6 +8,7 @@ export type Json =
 
 export type ConditionGrade = "acceptable" | "good" | "excellent" | "premium";
 export type ListingStatus = "available" | "reserved" | "sold" | "unlisted";
+export type ListingType = 'standard' | 'sale' | 'affiliate';
 
 export type Category = {
 	id: string;
@@ -56,7 +57,8 @@ export type Listing = {
 	is_preorder: boolean;
 	is_sold: boolean;
 	is_featured: boolean;
-	is_on_sale: boolean;
+	listing_type: ListingType;
+	ram: string | null;
 	status: ListingStatus;
 	sheets_row_id: string | null;
 	notes: string | null;

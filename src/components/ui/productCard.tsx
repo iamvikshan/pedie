@@ -2,11 +2,14 @@ import type { ListingWithProduct } from '@app-types/product'
 import { calculateDiscount, formatKes, getPricingTier } from '@helpers'
 import Image from 'next/image'
 import Link from 'next/link'
-import { TbFlame, TbPhoto } from 'react-icons/tb'
-import { BatteryBadge } from './batteryBadge'
+import { TbFlame, TbPhoto, TbExternalLink } from 'react-icons/tb'
 import { ConditionBadge } from './conditionBadge'
 
-export const PRODUCT_CARD_ICONS = ['TbBolt', 'TbPhoto', 'TbFlame'] as const
+export const PRODUCT_CARD_ICONS = [
+  'TbPhoto',
+  'TbFlame',
+  'TbExternalLink',
+] as const
 
 interface ProductCardProps {
   listing: ListingWithProduct
@@ -16,21 +19,34 @@ export function ProductCard({ listing }: ProductCardProps) {
   if (!listing.product) return null
 
   const { product } = listing
-  const productName = `${product.brand} ${product.model}`
+  const productName = product.model // ONLY model
   const tier = getPricingTier(
     listing.final_price_kes,
     listing.price_kes,
-    listing.is_on_sale
+    listing.listing_type
   )
   const discount =
     tier !== 'normal'
       ? calculateDiscount(listing.price_kes, listing.final_price_kes)
       : 0
   const imageUrl = listing.images?.[0] || product.images?.[0]
+  const isAffiliate = listing.listing_type === 'affiliate' && listing.source_url
+  const isSale = tier === 'sale'
+
+  const CardWrapper = isAffiliate ? 'a' : Link
+  const wrapperProps = isAffiliate
+    ? {
+        href: listing.source_url!,
+        target: '_blank',
+        rel: 'noopener noreferrer',
+      }
+    : {
+        href: `/listings/${listing.listing_id}`,
+      }
 
   return (
-    <Link
-      href={`/listings/${listing.listing_id}`}
+    <CardWrapper
+      {...wrapperProps}
       className='group flex flex-col glass rounded-2xl shadow-lg overflow-hidden transition-colors duration-300 border border-pedie-border hover:border-pedie-green/30'
       aria-label={`View ${productName}`}
     >
@@ -52,7 +68,13 @@ export function ProductCard({ listing }: ProductCardProps) {
 
         {/* Top-left badges */}
         <div className='absolute top-2 left-2 flex flex-col gap-2'>
-          {tier === 'sale' ? (
+          {isAffiliate && (
+            <span className='glass bg-pedie-surface/80 backdrop-blur-sm text-pedie-text text-xs font-bold px-2.5 py-1 rounded-full inline-flex items-center gap-1'>
+              <TbExternalLink className='w-3.5 h-3.5' aria-hidden='true' />
+              Partner
+            </span>
+          )}
+          {isSale ? (
             <span className='glass bg-pedie-discount/20 backdrop-blur-sm text-pedie-discount text-xs font-bold px-2.5 py-1 rounded-full inline-flex items-center gap-1'>
               <TbFlame className='w-3.5 h-3.5' aria-hidden='true' />
               Flash Sale
@@ -66,51 +88,56 @@ export function ProductCard({ listing }: ProductCardProps) {
 
         {/* Top-right badges */}
         <div className='absolute top-2 right-2 flex flex-col gap-1.5 items-end'>
-          {tier === 'sale' && (
+          {isSale && (
             <ConditionBadge condition={listing.condition} variant='circle' />
-          )}
-          {listing.battery_health != null && (
-            <BatteryBadge batteryHealth={listing.battery_health} />
           )}
         </div>
       </div>
 
       {/* Content Section */}
       <div className='p-4 flex flex-col flex-grow'>
-        <h3 className='text-lg font-semibold text-pedie-text mb-1 line-clamp-2'>
+        <h3 className='text-lg font-semibold text-pedie-text mb-1 truncate'>
           {productName}
         </h3>
 
         <div className='text-sm text-pedie-text-muted mb-3 flex flex-wrap gap-x-2'>
           {listing.storage && <span>{listing.storage}</span>}
-          {listing.storage && listing.color && <span>•</span>}
-          {listing.color && <span>{listing.color}</span>}
+          {listing.storage && listing.ram && <span>•</span>}
+          {listing.ram && <span>{listing.ram}</span>}
         </div>
 
-        {/* Pricing — 3-tier logic */}
+        {/* Pricing */}
         <div className='mt-auto pt-3 border-t border-pedie-border'>
-          {tier === 'sale' ? (
-            <div className='flex items-baseline gap-2 flex-wrap'>
+          {isAffiliate ? (
+            <div className='flex items-center text-sm font-semibold text-pedie-accent'>
+              View on Partner Site &rarr;
+            </div>
+          ) : isSale ? (
+            <div className='flex flex-col'>
+              <div className='flex items-baseline gap-2 flex-wrap'>
+                <span className='text-xl font-bold text-pedie-discount'>
+                  {formatKes(listing.final_price_kes)}
+                </span>
+                <span className='glass text-pedie-discount text-xs font-bold px-2 py-0.5 rounded-full backdrop-blur-sm'>
+                  -{discount}%
+                </span>
+              </div>
               <span className='text-sm text-pedie-text-muted line-through'>
                 {formatKes(listing.price_kes)}
-              </span>
-              <span className='text-xl font-bold text-pedie-discount'>
-                {formatKes(listing.final_price_kes)}
-              </span>
-              <span className='glass text-pedie-discount text-xs font-bold px-2 py-0.5 rounded-full backdrop-blur-sm'>
-                -{discount}%
               </span>
             </div>
           ) : tier === 'discounted' ? (
-            <div className='flex items-baseline gap-2 flex-wrap'>
-              <span className='text-xl font-bold text-pedie-accent'>
-                {formatKes(listing.final_price_kes)}
-              </span>
+            <div className='flex flex-col'>
+              <div className='flex items-baseline gap-2 flex-wrap'>
+                <span className='text-xl font-bold text-pedie-accent'>
+                  {formatKes(listing.final_price_kes)}
+                </span>
+                <span className='glass text-pedie-discount text-xs font-bold px-2 py-0.5 rounded-full backdrop-blur-sm'>
+                  -{discount}%
+                </span>
+              </div>
               <span className='text-sm text-pedie-text-muted line-through'>
                 {formatKes(listing.price_kes)}
-              </span>
-              <span className='glass text-pedie-discount text-xs font-bold px-2 py-0.5 rounded-full backdrop-blur-sm'>
-                -{discount}%
               </span>
             </div>
           ) : (
@@ -122,6 +149,6 @@ export function ProductCard({ listing }: ProductCardProps) {
           )}
         </div>
       </div>
-    </Link>
+    </CardWrapper>
   )
 }

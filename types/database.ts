@@ -66,8 +66,9 @@ export type Database = {
 					id: string;
 					images: string[] | null;
 					is_featured: boolean | null;
-					is_on_sale: boolean;
+					listing_type: Database["public"]["Enums"]["listing_type"];
 					is_preorder: boolean | null;
+					ram: string | null;
 					is_sold: boolean | null;
 					landed_cost_kes: number | null;
 					listing_id: string;
@@ -93,7 +94,7 @@ export type Database = {
 					id?: string;
 					images?: string[] | null;
 					is_featured?: boolean | null;
-					is_on_sale?: boolean;
+					listing_type?: Database["public"]["Enums"]["listing_type"];
 					is_preorder?: boolean | null;
 					is_sold?: boolean | null;
 					landed_cost_kes?: number | null;
@@ -102,6 +103,7 @@ export type Database = {
 					original_price_usd?: number | null;
 					price_kes: number;
 					product_id: string;
+					ram?: string | null;
 					sheets_row_id?: string | null;
 					source?: string | null;
 					source_listing_id?: string | null;
@@ -120,7 +122,7 @@ export type Database = {
 					id?: string;
 					images?: string[] | null;
 					is_featured?: boolean | null;
-					is_on_sale?: boolean;
+					listing_type?: Database["public"]["Enums"]["listing_type"];
 					is_preorder?: boolean | null;
 					is_sold?: boolean | null;
 					landed_cost_kes?: number | null;
@@ -129,6 +131,7 @@ export type Database = {
 					original_price_usd?: number | null;
 					price_kes?: number;
 					product_id?: string;
+					ram?: string | null;
 					sheets_row_id?: string | null;
 					source?: string | null;
 					source_listing_id?: string | null;
@@ -517,6 +520,7 @@ export type Database = {
 		Enums: {
 			condition_grade: "acceptable" | "good" | "excellent" | "premium";
 			listing_status: "available" | "sold" | "preorder" | "reserved";
+			listing_type: "standard" | "sale" | "affiliate";
 			order_status:
 				| "pending"
 				| "confirmed"
@@ -658,6 +662,7 @@ export const Constants = {
 		Enums: {
 			condition_grade: ["acceptable", "good", "excellent", "premium"],
 			listing_status: ["available", "sold", "preorder", "reserved"],
+			listing_type: ["standard", "sale", "affiliate"],
 			order_status: [
 				"pending",
 				"confirmed",

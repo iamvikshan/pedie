@@ -31,31 +31,31 @@ const categories = [
     name: 'Smartphones',
     slug: 'smartphones',
     sort_order: 1,
-    image_url: '/images/categories/smartphones.webp',
+    image_url: '/images/categories/smartphones.svg',
   },
   {
     name: 'Laptops',
     slug: 'laptops',
     sort_order: 2,
-    image_url: '/images/categories/laptops.webp',
+    image_url: '/images/categories/laptops.svg',
   },
   {
     name: 'Tablets',
     slug: 'tablets',
     sort_order: 3,
-    image_url: '/images/categories/tablets.webp',
+    image_url: '/images/categories/tablets.svg',
   },
   {
     name: 'Wearables',
     slug: 'wearables',
     sort_order: 4,
-    image_url: '/images/categories/wearables.webp',
+    image_url: '/images/categories/wearables.svg',
   },
   {
     name: 'Accessories',
     slug: 'accessories',
     sort_order: 5,
-    image_url: '/images/categories/accessories.webp',
+    image_url: '/images/categories/accessories.svg',
   },
 ]
 
@@ -71,6 +71,7 @@ interface ProductSeed {
   original_price_kes: number
   key_features: string[]
   specs: Record<string, string>
+  images?: string[]
 }
 
 const products: ProductSeed[] = [
@@ -83,6 +84,9 @@ const products: ProductSeed[] = [
     description:
       'Latest flagship with A18 Pro chip, 48MP camera system, and titanium design.',
     original_price_kes: 250000,
+    images: [
+      'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/apple-iphone-16-pro-max.svg',
+    ],
     key_features: [
       'A18 Pro chip',
       '48MP main camera',
@@ -105,6 +109,9 @@ const products: ProductSeed[] = [
     description:
       'Pro-level performance with A17 Pro chip and advanced camera system.',
     original_price_kes: 195000,
+    images: [
+      'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/apple-iphone-15-pro.svg',
+    ],
     key_features: [
       'A17 Pro chip',
       '48MP main camera',
@@ -127,6 +134,9 @@ const products: ProductSeed[] = [
     description:
       'Reliable everyday iPhone with A15 Bionic and excellent camera.',
     original_price_kes: 130000,
+    images: [
+      'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/apple-iphone-14.svg',
+    ],
     key_features: [
       'A15 Bionic',
       'Dual camera',
@@ -148,6 +158,9 @@ const products: ProductSeed[] = [
     description:
       'Great value with A15 Bionic chip, dual cameras, and all-day battery.',
     original_price_kes: 95000,
+    images: [
+      'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/apple-iphone-13.svg',
+    ],
     key_features: [
       'A15 Bionic',
       'Dual 12MP cameras',
@@ -169,6 +182,9 @@ const products: ProductSeed[] = [
     description:
       'Samsung flagship with Galaxy AI, S Pen, and 200MP camera system.',
     original_price_kes: 220000,
+    images: [
+      'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/samsung-galaxy-s24-ultra.svg',
+    ],
     key_features: [
       'Snapdragon 8 Gen 3',
       '200MP camera',
@@ -191,6 +207,9 @@ const products: ProductSeed[] = [
     description:
       'Compact flagship with Snapdragon 8 Gen 2, 50MP camera, and all-day battery.',
     original_price_kes: 130000,
+    images: [
+      'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/samsung-galaxy-s23.svg',
+    ],
     key_features: [
       'Snapdragon 8 Gen 2',
       '50MP camera',
@@ -211,6 +230,9 @@ const products: ProductSeed[] = [
     category_slug: 'smartphones',
     description: 'Previous gen flagship at excellent value.',
     original_price_kes: 95000,
+    images: [
+      'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/samsung-galaxy-s22.svg',
+    ],
     key_features: [
       'Snapdragon 8 Gen 1',
       '50MP camera',
@@ -231,6 +253,9 @@ const products: ProductSeed[] = [
     category_slug: 'smartphones',
     description: 'Google AI-powered phone with best-in-class camera.',
     original_price_kes: 155000,
+    images: [
+      'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/google-pixel-8-pro.svg',
+    ],
     key_features: [
       'Tensor G3',
       '50MP camera',
@@ -252,6 +277,9 @@ const products: ProductSeed[] = [
     category_slug: 'smartphones',
     description: 'Affordable Pixel experience with flagship camera features.',
     original_price_kes: 65000,
+    images: [
+      'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/google-pixel-7a.svg',
+    ],
     key_features: ['Tensor G2', '64MP camera', 'Magic Eraser', '90Hz display'],
     specs: {
       display: '6.1" OLED 90Hz',
@@ -269,6 +297,9 @@ const products: ProductSeed[] = [
     description:
       'Ultra-thin and light laptop with M2 chip for all-day productivity.',
     original_price_kes: 180000,
+    images: [
+      'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/apple-macbook-air-m2.svg',
+    ],
     key_features: [
       'M2 chip',
       '13.6" Liquid Retina',
@@ -291,6 +322,9 @@ const products: ProductSeed[] = [
     description:
       'Professional-grade laptop with M3 Pro chip for demanding workflows.',
     original_price_kes: 320000,
+    images: [
+      'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/apple-macbook-pro-14-m3-pro.svg',
+    ],
     key_features: [
       'M3 Pro chip',
       '14.2" Liquid Retina XDR',
@@ -313,6 +347,9 @@ const products: ProductSeed[] = [
     description:
       'Business ultrabook with Intel 13th Gen and legendary ThinkPad keyboard.',
     original_price_kes: 250000,
+    images: [
+      'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/lenovo-thinkpad-x1-carbon-gen-11.svg',
+    ],
     key_features: [
       'Intel Core i7-1365U',
       '14" 2.8K OLED',
@@ -335,6 +372,9 @@ const products: ProductSeed[] = [
     description:
       'Versatile tablet with M2 chip, Apple Pencil Pro support, and stunning display.',
     original_price_kes: 110000,
+    images: [
+      'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/apple-ipad-air-m2.svg',
+    ],
     key_features: [
       'M2 chip',
       '11" Liquid Retina',
@@ -357,6 +397,9 @@ const products: ProductSeed[] = [
     description:
       'Affordable iPad with A14 Bionic and modern all-screen design.',
     original_price_kes: 60000,
+    images: [
+      'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/apple-ipad-10th-gen.svg',
+    ],
     key_features: [
       'A14 Bionic',
       '10.9" Liquid Retina',
@@ -379,6 +422,9 @@ const products: ProductSeed[] = [
     description:
       'Premium Android tablet with S Pen and stunning AMOLED display.',
     original_price_kes: 115000,
+    images: [
+      'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/samsung-galaxy-tab-s9.svg',
+    ],
     key_features: [
       'Snapdragon 8 Gen 2',
       '11" Dynamic AMOLED 2X',
@@ -401,6 +447,9 @@ const products: ProductSeed[] = [
     description:
       'Smartwatch with S9 SiP, Double Tap gesture, and health monitoring.',
     original_price_kes: 65000,
+    images: [
+      'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/apple-watch-series-9.svg',
+    ],
     key_features: [
       'S9 SiP',
       'Double Tap',
@@ -423,6 +472,9 @@ const products: ProductSeed[] = [
     description:
       'Wear OS smartwatch with BIA sensor and comprehensive health tracking.',
     original_price_kes: 45000,
+    images: [
+      'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/samsung-galaxy-watch-6.svg',
+    ],
     key_features: [
       'Exynos W930',
       'BIA sensor',
@@ -446,6 +498,9 @@ const products: ProductSeed[] = [
     description:
       'Premium earbuds with adaptive noise cancellation and USB-C case.',
     original_price_kes: 40000,
+    images: [
+      'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/apple-airpods-pro-2.svg',
+    ],
     key_features: [
       'H2 chip',
       'Adaptive ANC',
@@ -467,6 +522,9 @@ const products: ProductSeed[] = [
     description:
       'Premium earbuds with Galaxy AI-enhanced audio and blade design.',
     original_price_kes: 32000,
+    images: [
+      'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/samsung-galaxy-buds3-pro.svg',
+    ],
     key_features: [
       'Galaxy AI',
       'Adaptive ANC',
@@ -495,8 +553,10 @@ interface ListingSeed {
   price_kes: number
   original_price_usd: number
   source: string
-  is_on_sale?: boolean
+  listing_type?: 'standard' | 'sale' | 'affiliate'
   final_price_kes?: number
+  ram?: string
+  source_url?: string
 }
 
 const listings: ListingSeed[] = [
@@ -510,7 +570,7 @@ const listings: ListingSeed[] = [
     price_kes: 195000,
     original_price_usd: 1099,
     source: 'swappa',
-    is_on_sale: true,
+    listing_type: 'sale',
     final_price_kes: 169000,
   },
   {
@@ -533,7 +593,7 @@ const listings: ListingSeed[] = [
     price_kes: 135000,
     original_price_usd: 899,
     source: 'swappa',
-    is_on_sale: true,
+    listing_type: 'sale',
     final_price_kes: 115000,
   },
   {
@@ -676,6 +736,7 @@ const listings: ListingSeed[] = [
     price_kes: 125000,
     original_price_usd: 899,
     source: 'backmarket',
+    ram: '8GB',
   },
   {
     product_slug: 'apple-macbook-air-m2',
@@ -686,6 +747,7 @@ const listings: ListingSeed[] = [
     price_kes: 138000,
     original_price_usd: 1099,
     source: 'swappa',
+    ram: '8GB',
   },
   // MacBook Pro 14" M3 Pro
   {
@@ -697,6 +759,7 @@ const listings: ListingSeed[] = [
     price_kes: 275000,
     original_price_usd: 1799,
     source: 'backmarket',
+    ram: '18GB',
   },
   // ThinkPad X1 Carbon
   {
@@ -708,6 +771,7 @@ const listings: ListingSeed[] = [
     price_kes: 165000,
     original_price_usd: 1399,
     source: 'backmarket',
+    ram: '16GB',
   },
   // iPad Air M2
   {
@@ -806,6 +870,20 @@ const listings: ListingSeed[] = [
     original_price_usd: 179,
     source: 'backmarket',
   },
+  // Samsung Galaxy S24 Ultra - Affiliate listing
+  {
+    product_slug: 'samsung-galaxy-s24-ultra',
+    storage: '256GB',
+    color: 'Titanium Gray',
+    condition: 'premium',
+    battery_health: 100,
+    price_kes: 185000,
+    original_price_usd: 1199,
+    source: 'samsung.com',
+    source_url: 'https://samsung.com/galaxy-s24-ultra',
+    listing_type: 'affiliate',
+    final_price_kes: 185000,
+  },
 ]
 
 // ---------------------------------------------------------------------------
@@ -850,6 +928,7 @@ async function seed() {
     original_price_kes: p.original_price_kes,
     key_features: p.key_features,
     specs: p.specs,
+    images: p.images ?? null,
   }))
 
   const { data: prodData, error: prodError } = await supabase
@@ -881,10 +960,12 @@ async function seed() {
       battery_health: l.battery_health,
       price_kes: l.price_kes,
       final_price_kes: l.final_price_kes ?? l.price_kes,
-      is_on_sale: l.is_on_sale ?? false,
+      listing_type: l.listing_type ?? 'standard',
       original_price_usd: l.original_price_usd,
       landed_cost_kes: Math.round(l.original_price_usd * 130 * 1.15),
       source: l.source,
+      source_url: l.source_url ?? null,
+      ram: l.ram ?? null,
       status: 'available' as const,
       is_featured: l.condition === 'premium' || l.condition === 'excellent',
     }

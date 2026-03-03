@@ -329,7 +329,7 @@ describe("images column support", () => {
 	});
 });
 
-describe("is_on_sale column support", () => {
+describe("listing_type column support", () => {
 	const headersWithSale = [
 		"listing_id",
 		"brand",
@@ -346,10 +346,10 @@ describe("is_on_sale column support", () => {
 		"source_url",
 		"status",
 		"images",
-		"is_on_sale",
+		"listing_type",
 	];
 
-	test("should parse is_on_sale as 'true'", () => {
+	test("should parse listing_type as 'sale'", () => {
 		const row = [
 			"PD-01003",
 			"Apple",
@@ -366,15 +366,15 @@ describe("is_on_sale column support", () => {
 			"",
 			"available",
 			"",
-			"true",
+			"sale",
 		];
 
 		const result = parseSheetRow(row, headersWithSale);
 		expect(result).not.toBeNull();
-		expect(result!.is_on_sale).toBe("true");
+		expect(result!.listing_type).toBe("sale");
 	});
 
-	test("should parse is_on_sale as 'false'", () => {
+	test("should parse listing_type as 'standard'", () => {
 		const row = [
 			"PD-01001",
 			"Apple",
@@ -391,15 +391,15 @@ describe("is_on_sale column support", () => {
 			"",
 			"available",
 			"",
-			"false",
+			"standard",
 		];
 
 		const result = parseSheetRow(row, headersWithSale);
 		expect(result).not.toBeNull();
-		expect(result!.is_on_sale).toBe("false");
+		expect(result!.listing_type).toBe("standard");
 	});
 
-	test("should handle missing is_on_sale gracefully", () => {
+	test("should handle missing listing_type gracefully", () => {
 		const row = [
 			"",
 			"Samsung",
@@ -420,10 +420,10 @@ describe("is_on_sale column support", () => {
 
 		const result = parseSheetRow(row, headersWithSale);
 		expect(result).not.toBeNull();
-		expect(result!.is_on_sale).toBeUndefined();
+		expect(result!.listing_type).toBeUndefined();
 	});
 
-	test("should handle empty is_on_sale as undefined", () => {
+	test("should handle empty listing_type as undefined", () => {
 		const row = [
 			"",
 			"Google",
@@ -445,7 +445,32 @@ describe("is_on_sale column support", () => {
 
 		const result = parseSheetRow(row, headersWithSale);
 		expect(result).not.toBeNull();
-		expect(result!.is_on_sale).toBeUndefined();
+		expect(result!.listing_type).toBeUndefined();
+	});
+
+	test("should parse listing_type as 'affiliate'", () => {
+		const row = [
+			"PD-01010",
+			"Samsung",
+			"Galaxy S24 Ultra",
+			"smartphones",
+			"premium",
+			"1199",
+			"185000",
+			"220000",
+			"",
+			"",
+			"samsung.com",
+			"",
+			"https://samsung.com/galaxy-s24-ultra",
+			"available",
+			"",
+			"affiliate",
+		];
+
+		const result = parseSheetRow(row, headersWithSale);
+		expect(result).not.toBeNull();
+		expect(result!.listing_type).toBe("affiliate");
 	});
 });
 
@@ -466,7 +491,7 @@ describe("final_price_kes column support", () => {
 		"source_url",
 		"status",
 		"images",
-		"is_on_sale",
+		"listing_type",
 		"final_price_kes",
 	];
 
@@ -487,7 +512,7 @@ describe("final_price_kes column support", () => {
 			"",
 			"available",
 			"",
-			"true",
+			"sale",
 			"120000",
 		];
 
@@ -513,7 +538,7 @@ describe("final_price_kes column support", () => {
 			"",
 			"available",
 			"",
-			"false",
+			"standard",
 			"KES 135,000",
 		];
 

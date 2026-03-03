@@ -48,7 +48,8 @@ const mockListings: ListingWithProduct[] = [
 		is_preorder: false,
 		is_sold: false,
 		is_featured: false,
-		is_on_sale: false,
+		listing_type: 'standard' as const,
+		ram: null,
 		status: "available",
 		sheets_row_id: null,
 		notes: null,
@@ -76,7 +77,7 @@ describe("ProductGrid", () => {
 	test("renders ProductCard for each listing", () => {
 		const html = renderToString(<ProductGrid listings={mockListings} />);
 
-		expect(html).toContain("Apple iPhone 12");
+		expect(html).toContain("iPhone 12");
 		expect(html).toContain("LST-001");
 		expect(html).toContain("50,000");
 	});

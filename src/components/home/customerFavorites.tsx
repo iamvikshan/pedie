@@ -4,7 +4,7 @@ import type { ListingWithProduct } from '@app-types/product'
 import { ProductCard } from '@components/ui/productCard'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { useMemo, useState } from 'react'
+import { useState, useRef } from 'react'
 
 export const TABS = [
   { id: 'all', label: 'All' },
@@ -19,11 +19,19 @@ interface CustomerFavoritesProps {
 
 export function CustomerFavorites({ listings }: CustomerFavoritesProps) {
   const [activeTab, setActiveTab] = useState('all')
+  const scrollRef = useRef<HTMLDivElement>(null)
 
-  const filtered = useMemo(() => {
-    if (activeTab === 'all') return listings
-    return listings.filter(l => l.product?.category?.slug === activeTab)
-  }, [activeTab, listings])
+  const handleTabChange = (id: string) => {
+    setActiveTab(id)
+    if (scrollRef.current) {
+      scrollRef.current.scrollLeft = 0
+    }
+  }
+
+  const filtered =
+    activeTab === 'all'
+      ? listings
+      : listings.filter(l => l.product?.category?.slug === activeTab)
 
   return (
     <motion.section
@@ -56,7 +64,7 @@ export function CustomerFavorites({ listings }: CustomerFavoritesProps) {
               key={tab.id}
               role='tab'
               aria-selected={activeTab === tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => handleTabChange(tab.id)}
               className={`relative whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                 activeTab === tab.id
                   ? 'text-white'
@@ -78,10 +86,11 @@ export function CustomerFavorites({ listings }: CustomerFavoritesProps) {
 
       {filtered.length > 0 ? (
         <motion.div
+          key={activeTab}
+          ref={scrollRef}
           className='flex overflow-x-auto gap-6 pb-8 hide-scrollbar snap-x'
           initial='hidden'
-          whileInView='visible'
-          viewport={{ once: true }}
+          animate='visible'
           variants={{
             hidden: {},
             visible: { transition: { staggerChildren: 0.1 } },
@@ -90,7 +99,7 @@ export function CustomerFavorites({ listings }: CustomerFavoritesProps) {
           {filtered.map(listing => (
             <motion.div
               key={listing.id}
-              className='min-w-[280px] max-w-[300px] snap-start'
+              className='min-w-[280px] max-w-[300px] snap-start flex-shrink-0'
               variants={{
                 hidden: { opacity: 0, y: 20 },
                 visible: { opacity: 1, y: 0 },

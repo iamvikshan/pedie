@@ -56,4 +56,30 @@ describe("Footer", () => {
 		expect(SOURCE).toContain('NewsletterSignup')
 		expect(SOURCE).not.toContain('FooterNewsletterForm')
 	})
+
+	test('uses details/summary for mobile accordion', () => {
+		expect(SOURCE).toContain('<details')
+		expect(SOURCE).toContain('<summary')
+	})
+
+	test('has footer-accordion class for responsive behavior', () => {
+		expect(SOURCE).toContain('footer-accordion')
+	})
+
+	test('uses TbChevronDown for toggle indicator', () => {
+		expect(SOURCE).toContain('TbChevronDown')
+	})
+
+	test('hides chevron on desktop with md:hidden', () => {
+		expect(SOURCE).toContain('md:hidden')
+	})
+
+	test('rotates chevron when open with group-open:rotate-180', () => {
+		expect(SOURCE).toContain('group-open:rotate-180')
+	})
+
+	test('hides default marker with list-none and webkit marker hidden', () => {
+		expect(SOURCE).toContain('list-none')
+		expect(SOURCE).toContain('[&::-webkit-details-marker]:hidden')
+	})
 });

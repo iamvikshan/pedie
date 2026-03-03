@@ -16,6 +16,19 @@ export function AddToCart({ listing }: AddToCartProps) {
     addListing(listing)
   }
 
+  if (listing.listing_type === 'affiliate' && listing.source_url) {
+    return (
+      <a
+        href={listing.source_url}
+        target='_blank'
+        rel='noopener noreferrer'
+        className='inline-flex items-center justify-center rounded-xl font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pedie-accent bg-pedie-green text-white hover:bg-pedie-green-dark h-11 px-8 text-lg w-full'
+      >
+        View on Partner Site &rarr;
+      </a>
+    )
+  }
+
   if (listing.is_sold) {
     return (
       <Button variant='primary' size='lg' className='w-full' disabled>

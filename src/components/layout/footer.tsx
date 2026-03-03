@@ -5,6 +5,7 @@ import {
   TbBrandTiktok,
   TbBrandX,
   TbBrandYoutube,
+  TbChevronDown,
 } from 'react-icons/tb'
 import { URLS, FOOTER_LINKS } from '@/config'
 import { NewsletterSignup } from './newsletterSignup'
@@ -47,10 +48,11 @@ export function Footer() {
 
           {/* Links Grid */}
           {FOOTER_LINKS.map(group => (
-            <div key={group.title}>
-              <h3 className='mb-4 text-lg font-semibold text-pedie-text'>
+            <details key={group.title} className='footer-accordion group'>
+              <summary className='flex cursor-pointer items-center justify-between text-lg font-semibold text-pedie-text mb-4 list-none md:cursor-default [&::-webkit-details-marker]:hidden'>
                 {group.title}
-              </h3>
+                <TbChevronDown className='h-4 w-4 transition-transform group-open:rotate-180 md:hidden' />
+              </summary>
               <ul className='flex flex-col gap-3 text-sm text-pedie-text-muted'>
                 {group.links.map(link => (
                   <li key={link.href}>
@@ -63,7 +65,7 @@ export function Footer() {
                   </li>
                 ))}
               </ul>
-            </div>
+            </details>
           ))}
         </div>
 

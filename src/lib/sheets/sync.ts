@@ -237,7 +237,9 @@ export async function syncFromSheets(): Promise<SyncReport> {
         source: parsed.source || null,
         source_listing_id: parsed.source_listing_id || null,
         source_url: parsed.source_url || null,
-        is_on_sale: parsed.is_on_sale?.toLowerCase() === 'true' ? true : false,
+        listing_type:
+          (parsed.listing_type as 'standard' | 'sale' | 'affiliate') ||
+          'standard',
         final_price_kes: (() => {
           const parsed_final = parsed.final_price_kes
             ? parseInt(parsed.final_price_kes, 10)
@@ -398,7 +400,7 @@ const SHEET_HEADERS = [
   'source_url',
   'status',
   'images',
-  'is_on_sale',
+  'listing_type',
   'final_price_kes',
 ]
 
@@ -484,7 +486,7 @@ export async function syncToSheets(
       listing.source_url || '',
       (listing.status as string) || '',
       Array.isArray(listing.images) ? listing.images.join(',') : '',
-      listing.is_on_sale ? 'true' : 'false',
+      (listing.listing_type as string) || 'standard',
       listing.final_price_kes?.toString() || '',
     ]
   }

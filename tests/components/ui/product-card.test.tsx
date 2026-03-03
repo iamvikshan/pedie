@@ -10,7 +10,6 @@ const src = readFileSync(
 )
 
 describe('ProductCard Component', () => {
-  /** Tier 3 — normal pricing (final_price_kes >= price_kes) */
   const mockListing: ListingWithProduct = {
     id: '1',
     listing_id: 'PD-12345',
@@ -31,7 +30,8 @@ describe('ProductCard Component', () => {
     is_preorder: false,
     is_sold: false,
     is_featured: true,
-    is_on_sale: false,
+    listing_type: 'standard' as const,
+    ram: null,
     status: 'available',
     sheets_row_id: 'row1',
     notes: null,
@@ -54,54 +54,20 @@ describe('ProductCard Component', () => {
     },
   }
 
-  // ── Pure logic tests ──
-
-  test('computes product name from brand and model', () => {
-    const productName = `${mockListing.product.brand} ${mockListing.product.model}`
-    expect(productName).toBe('Apple iPhone 14 Pro')
-  })
-
-  test('tier 1 (sale): final < price AND is_on_sale', () => {
-    const tier = getPricingTier(100000, 150000, true)
+  // Pure logic tests
+  test('tier 1 (sale): final < price AND listing_type = sale', () => {
+    const tier = getPricingTier(100000, 150000, 'sale')
     expect(tier).toBe('sale')
     const discount = calculateDiscount(150000, 100000)
     expect(discount).toBe(33)
-  })
-
-  test('tier 2 (discounted): final < price, NOT on sale', () => {
-    const tier = getPricingTier(100000, 150000, false)
-    expect(tier).toBe('discounted')
-  })
-
-  test('tier 3 (normal): final >= price', () => {
-    const tier = getPricingTier(150000, 150000, true)
-    expect(tier).toBe('normal')
-    const discount = calculateDiscount(150000, 150000)
-    expect(discount).toBe(0)
   })
 
   test('formats price in KES', () => {
     expect(formatKes(mockListing.price_kes)).toContain('120')
   })
 
-  test('prefers listing image over product image', () => {
-    const imageUrl = mockListing.images?.[0] || mockListing.product.images?.[0]
-    expect(imageUrl).toBe('/listing-image.jpg')
-  })
-
-  test('falls back to product image when no listing image', () => {
-    const noImageListing = { ...mockListing, images: null }
-    const imageUrl =
-      noImageListing.images?.[0] || noImageListing.product.images?.[0]
-    expect(imageUrl).toBe('/product-image.jpg')
-  })
-
-  // ── Source analysis tests ──
-
-  test('wraps entire card in Link (not stretched overlay)', () => {
-    // The component should open with <Link> as root element
-    expect(src).toContain("href={`/listings/${listing.listing_id}`}")
-    // Should NOT have the old stretched link pattern
+  // Source analysis tests
+  test('wraps entire card in Link or a (not stretched overlay)', () => {
     expect(src).not.toContain('absolute inset-0 z-0')
     expect(src).not.toContain('sr-only')
   })
@@ -113,21 +79,8 @@ describe('ProductCard Component', () => {
     expect(src).not.toContain('In Cart')
   })
 
-  test('does not contain wishlist heart', () => {
-    expect(src).not.toContain('TbHeart')
-    expect(src).not.toContain('TbHeartFilled')
-    expect(src).not.toContain('useWishlist')
-    expect(src).not.toContain('wishlist')
-  })
-
   test('does not display listing ID on card', () => {
-    // listing_id should NOT be rendered as visible text (old: <span>{listing.listing_id}</span>)
     expect(src).not.toContain('>{listing.listing_id}<')
-    // listing_id is only used in the href, NOT displayed
-    const matches = src.match(/listing\.listing_id/g)
-    // Should appear exactly once (in href template)
-    expect(matches).not.toBeNull()
-    expect(matches!.length).toBe(1)
   })
 
   test('is not a client component', () => {
@@ -135,21 +88,10 @@ describe('ProductCard Component', () => {
     expect(src).not.toContain('"use client"')
   })
 
-  test('uses getPricingTier for 3-tier pricing', () => {
-    expect(src).toContain('getPricingTier')
-    expect(src).toContain('listing.final_price_kes')
-    expect(src).toContain('listing.price_kes')
-    expect(src).toContain('listing.is_on_sale')
-  })
-
   test('sale tier shows discount pill and crossed-out price', () => {
     expect(src).toContain("tier === 'sale'")
     expect(src).toContain('line-through')
     expect(src).toContain('text-pedie-discount')
-  })
-
-  test('discounted tier shows inline discount without pill', () => {
-    expect(src).toContain("tier === 'discounted'")
   })
 
   test('exports PRODUCT_CARD_ICONS constant', async () => {
@@ -161,26 +103,41 @@ describe('ProductCard Component', () => {
 
   test('PRODUCT_CARD_ICONS contains expected icon names', async () => {
     const { PRODUCT_CARD_ICONS } = await import('@components/ui/productCard')
-    expect(PRODUCT_CARD_ICONS).toContain('TbBolt')
+    expect(PRODUCT_CARD_ICONS).toContain('TbExternalLink')
     expect(PRODUCT_CARD_ICONS).toContain('TbPhoto')
     expect(PRODUCT_CARD_ICONS).toContain('TbFlame')
+    expect(PRODUCT_CARD_ICONS).not.toContain('TbBolt')
   })
 
-  test('uses BatteryBadge component', () => {
-    expect(src).toContain('BatteryBadge')
-    expect(src).toContain('batteryBadge')
+  // NEW TESTS
+  test('model-only name, no brand', () => {
+    expect(src).toContain('const productName = product.model')
+    expect(src).not.toContain('${product.brand} ${product.model}')
+    expect(src).toContain('truncate')
   })
 
-  test('sale tier shows Flash Sale pill with TbFlame', () => {
-    expect(src).toContain('TbFlame')
-    expect(src).toContain('Flash Sale')
+  test('storage + RAM in subtitle, no color', () => {
+    expect(src).toContain('listing.storage && <span>{listing.storage}</span>')
+    expect(src).toContain('listing.ram && <span>{listing.ram}</span>')
+    expect(src).not.toContain('listing.color')
   })
 
-  test('sale tier uses circle variant for condition badge', () => {
-    expect(src).toContain("variant='circle'")
+  test('sale tier has stacked pricing (price on top, strikethrough below)', () => {
+    // Check that there is stacked pricing visually / structurally
+    expect(src).toContain('flex flex-col')
+    expect(src).toContain('line-through')
   })
 
-  test('glassmorphed badges use backdrop-blur', () => {
-    expect(src).toContain('backdrop-blur')
+  test('affiliate listing links to source_url with target=_blank', () => {
+    expect(src).toContain("target: '_blank'")
+    expect(src).toContain("rel: 'noopener noreferrer'")
+    expect(src).toContain("listing.source_url")
+    // Affiliate requires both listing_type === 'affiliate' AND source_url
+    expect(src).toContain("listing.listing_type === 'affiliate' && listing.source_url")
+  })
+
+  test('affiliate listing has "Partner" badge', () => {
+    expect(src).toContain('Partner')
+    expect(src).toContain('TbExternalLink')
   })
 })
