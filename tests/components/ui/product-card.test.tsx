@@ -27,8 +27,6 @@ describe('ProductCard Component', () => {
     source_listing_id: 'ebay123',
     source_url: 'https://ebay.com',
     images: ['/listing-image.jpg'],
-    is_preorder: false,
-    is_sold: false,
     is_featured: true,
     listing_type: 'standard' as const,
     ram: null,
@@ -55,8 +53,8 @@ describe('ProductCard Component', () => {
   }
 
   // Pure logic tests
-  test('tier 1 (sale): final < price AND listing_type = sale', () => {
-    const tier = getPricingTier(100000, 150000, 'sale')
+  test('tier 1 (sale): final < price AND status = onsale', () => {
+    const tier = getPricingTier(100000, 150000, 'onsale')
     expect(tier).toBe('sale')
     const discount = calculateDiscount(150000, 100000)
     expect(discount).toBe(33)

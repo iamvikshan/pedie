@@ -105,13 +105,13 @@ Defined in `src/app/globals.css`:
 
 ### Product Card (3-Tier Pricing)
 
-Cards use `getPricingTier(finalPriceKes, priceKes, listingType)` from `@helpers/pricing`:
+Cards use `getPricingTier(finalPriceKes, priceKes, status)` from `@helpers/pricing`:
 
-| Tier           | Trigger                                        | Visual                                         |
-| -------------- | ---------------------------------------------- | ---------------------------------------------- |
-| **Sale**       | `final < original` AND `listing_type = 'sale'` | Red discount pill, crossed-out price, bold red |
-| **Discounted** | `final < original` AND `listing_type ≠ 'sale'` | Inline strikethrough + small % pill            |
-| **Normal**     | `final >= original`                            | Single price, no discount display              |
+| Tier           | Trigger                                    | Visual                                         |
+| -------------- | ------------------------------------------ | ---------------------------------------------- |
+| **Sale**       | `final < original` AND `status = 'onsale'` | Red discount pill, crossed-out price, bold red |
+| **Discounted** | `final < original` AND `status ≠ 'onsale'` | Inline strikethrough + small % pill            |
+| **Normal**     | `final >= original`                        | Single price, no discount display              |
 
 ### Condition Badge
 

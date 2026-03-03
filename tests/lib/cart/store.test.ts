@@ -22,8 +22,6 @@ function makeListing(
 		source_listing_id: "EBAY-001",
 		source_url: "https://ebay.com/1",
 		images: ["/img1.jpg"],
-		is_preorder: false,
-		is_sold: false,
 		is_featured: false,
 		listing_type: 'standard' as const,
 		ram: null,
@@ -145,7 +143,8 @@ describe("CartStore", () => {
 			makeListing({
 				listing_id: "PD-00001",
 				price_kes: 50000,
-				is_preorder: false,
+				final_price_kes: 50000,
+				listing_type: 'standard',
 			}),
 		);
 		// Preorder, under 70k — 5% deposit = 2500
@@ -154,7 +153,8 @@ describe("CartStore", () => {
 				id: "2",
 				listing_id: "PD-00002",
 				price_kes: 50000,
-				is_preorder: true,
+				final_price_kes: 50000,
+				listing_type: 'preorder',
 			}),
 		);
 
@@ -168,7 +168,8 @@ describe("CartStore", () => {
 				id: "1",
 				listing_id: "PD-00001",
 				price_kes: 70000,
-				is_preorder: true,
+				final_price_kes: 70000,
+				listing_type: 'preorder',
 			}),
 		);
 		// Preorder, above 70k — 10% deposit = 10000
@@ -177,7 +178,8 @@ describe("CartStore", () => {
 				id: "2",
 				listing_id: "PD-00002",
 				price_kes: 100000,
-				is_preorder: true,
+				final_price_kes: 100000,
+				listing_type: 'preorder',
 			}),
 		);
 

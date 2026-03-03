@@ -22,7 +22,7 @@ interface ListingData {
   original_price_usd?: number | null
   landed_cost_kes?: number | null
   status?: string
-  is_preorder?: boolean
+  listing_type?: string
   is_featured?: boolean
   notes?: string | null
   images?: string[] | null
@@ -35,7 +35,8 @@ interface ListingFormProps {
 }
 
 const CONDITIONS = ['acceptable', 'good', 'excellent', 'premium']
-const STATUSES = ['available', 'reserved', 'sold', 'unlisted']
+const STATUSES = ['available', 'reserved', 'sold', 'onsale']
+const LISTING_TYPES = ['standard', 'preorder', 'affiliate', 'referral']
 
 export function ListingForm({
   initialData,
@@ -56,7 +57,7 @@ export function ListingForm({
     original_price_usd: initialData?.original_price_usd ?? '',
     landed_cost_kes: initialData?.landed_cost_kes ?? '',
     status: initialData?.status ?? 'available',
-    is_preorder: initialData?.is_preorder ?? false,
+    listing_type: initialData?.listing_type ?? 'standard',
     is_featured: initialData?.is_featured ?? false,
     notes: initialData?.notes ?? '',
   })
@@ -339,17 +340,31 @@ export function ListingForm({
         </select>
       </div>
 
+      {/* Listing Type */}
+      <div>
+        <label
+          htmlFor='listing_type'
+          className='mb-1 block text-sm font-medium text-pedie-text'
+        >
+          Listing Type
+        </label>
+        <select
+          id='listing_type'
+          name='listing_type'
+          value={formData.listing_type}
+          onChange={handleChange}
+          className='w-full rounded border border-pedie-border bg-pedie-card px-3 py-2 text-sm capitalize text-pedie-text'
+        >
+          {LISTING_TYPES.map(t => (
+            <option key={t} value={t}>
+              {t}
+            </option>
+          ))}
+        </select>
+      </div>
+
       {/* Checkboxes */}
       <div className='flex gap-6'>
-        <label className='flex items-center gap-2 text-sm text-pedie-text'>
-          <input
-            type='checkbox'
-            name='is_preorder'
-            checked={formData.is_preorder}
-            onChange={handleChange}
-          />
-          Pre-order
-        </label>
         <label className='flex items-center gap-2 text-sm text-pedie-text'>
           <input
             type='checkbox'

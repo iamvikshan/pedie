@@ -21,8 +21,6 @@ const mockListings = [
 		source_listing_id: null,
 		source_url: null,
 		images: null,
-		is_preorder: false,
-		is_sold: false,
 		is_featured: true,
 		status: "available",
 		sheets_row_id: null,

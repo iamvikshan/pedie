@@ -82,8 +82,6 @@ export async function POST(request: Request) {
       original_price_usd: body.original_price_usd,
       landed_cost_kes: body.landed_cost_kes,
       images: body.images,
-      is_preorder: body.is_preorder,
-      is_sold: body.is_sold,
       is_featured: body.is_featured,
       status: body.status,
       source: body.source,

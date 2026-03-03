@@ -8,7 +8,7 @@ export function CartSummary() {
   const items = useCartStore(s => s.items)
   const total = useCartStore(s => s.getTotal())
   const depositTotal = useCartStore(s => s.getDepositTotal())
-  const hasPreorderItems = items.some(item => item.is_preorder)
+  const hasPreorderItems = items.some(item => item.listing_type === 'preorder')
 
   return (
     <div className='rounded-xl border border-pedie-border bg-pedie-card p-6'>

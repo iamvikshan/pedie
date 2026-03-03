@@ -7,8 +7,8 @@ export type Json =
 	| Json[];
 
 export type ConditionGrade = "acceptable" | "good" | "excellent" | "premium";
-export type ListingStatus = "available" | "reserved" | "sold" | "unlisted";
-export type ListingType = 'standard' | 'sale' | 'affiliate';
+export type ListingStatus = "available" | "reserved" | "sold" | "onsale";
+export type ListingType = 'standard' | 'preorder' | 'affiliate' | 'referral';
 
 export type Category = {
 	id: string;
@@ -54,8 +54,6 @@ export type Listing = {
 	source_listing_id: string | null;
 	source_url: string | null;
 	images: string[] | null;
-	is_preorder: boolean;
-	is_sold: boolean;
 	is_featured: boolean;
 	listing_type: ListingType;
 	ram: string | null;

@@ -24,8 +24,6 @@ const mockListing: ListingWithProduct = {
 	source_listing_id: null,
 	source_url: null,
 	images: ["https://example.com/img1.jpg"],
-	is_preorder: false,
-	is_sold: false,
 	is_featured: true,
 	listing_type: 'standard' as const,
 	ram: null,

@@ -46,7 +46,7 @@ async function fetchDiscountedListings(): Promise<{
     const tier = getPricingTier(
       listing.final_price_kes,
       listing.price_kes,
-      listing.listing_type ?? 'standard'
+      listing.status ?? 'available'
     )
     const pct = computeDiscount(listing)
 

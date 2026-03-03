@@ -29,6 +29,7 @@ export const SITE_DESCRIPTION =
 export const SITE_URL = 'https://pedie.tech'
 export const SUPPORT_EMAIL = 'pedietech@gmail.com'
 export const URGENCY_TEXT = 'Selling fast — limited stock!'
+export const WHATSAPP_NUMBER = '+254715012665'
 
 export const URLS = {
   social: {

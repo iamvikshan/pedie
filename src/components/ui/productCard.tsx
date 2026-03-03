@@ -23,7 +23,7 @@ export function ProductCard({ listing }: ProductCardProps) {
   const tier = getPricingTier(
     listing.final_price_kes,
     listing.price_kes,
-    listing.listing_type
+    listing.status
   )
   const discount =
     tier !== 'normal'

@@ -34,8 +34,6 @@ const mockListing = {
 	storage: "64GB",
 	color: "White",
 	battery_health: 88,
-	is_preorder: false,
-	is_sold: false,
 	is_featured: false,
 	listing_type: 'standard' as const,
 	ram: null,

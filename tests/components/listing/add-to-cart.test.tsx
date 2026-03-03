@@ -9,12 +9,12 @@ const src = readFileSync(
 
 describe('AddToCart Component', () => {
   test('standard listing renders Add to Cart text', () => {
-    expect(src).toContain("listing.is_preorder ? 'Preorder Now' : 'Add to Cart'")
+    expect(src).toContain("listing.listing_type === 'preorder' ? 'Preorder Now' : 'Add to Cart'")
   })
 
   test('sold out listing renders Sold Out button', () => {
     expect(src).toContain('Sold Out')
-    expect(src).toContain('listing.is_sold')
+    expect(src).toContain("listing.status === 'sold'")
   })
 
   test('affiliate listing renders external link', () => {

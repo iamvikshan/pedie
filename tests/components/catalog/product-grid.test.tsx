@@ -45,8 +45,6 @@ const mockListings: ListingWithProduct[] = [
 		source_listing_id: "EBAY-001",
 		source_url: "https://ebay.com/1",
 		images: ["/img1.jpg"],
-		is_preorder: false,
-		is_sold: false,
 		is_featured: false,
 		listing_type: 'standard' as const,
 		ram: null,

@@ -32,8 +32,8 @@ export function calculateDiscount(original: number, current: number): number {
 
 /**
  * Pricing tier for display logic.
- * - 'sale': final_price_kes < price_kes AND listing_type = 'sale' — full sale treatment (pill, hot deals, priority)
- * - 'discounted': final_price_kes < price_kes but listing_type ≠ 'sale' — show discount inline, no pill
+ * - 'sale': final_price_kes < price_kes AND status = 'onsale' — full sale treatment (pill, hot deals, priority)
+ * - 'discounted': final_price_kes < price_kes but status ≠ 'onsale' — show discount inline, no pill
  * - 'normal': final_price_kes >= price_kes — show final price only
  */
 export type PricingTier = 'sale' | 'discounted' | 'normal'
@@ -41,9 +41,9 @@ export type PricingTier = 'sale' | 'discounted' | 'normal'
 export function getPricingTier(
   finalPriceKes: number,
   priceKes: number,
-  listingType: string
+  status: string
 ): PricingTier {
-  if (finalPriceKes < priceKes && listingType === 'sale') return 'sale'
+  if (finalPriceKes < priceKes && status === 'onsale') return 'sale'
   if (finalPriceKes < priceKes) return 'discounted'
   return 'normal'
 }

@@ -67,9 +67,7 @@ export type Database = {
 					images: string[] | null;
 					is_featured: boolean | null;
 					listing_type: Database["public"]["Enums"]["listing_type"];
-					is_preorder: boolean | null;
 					ram: string | null;
-					is_sold: boolean | null;
 					landed_cost_kes: number | null;
 					listing_id: string;
 					notes: string | null;
@@ -95,8 +93,6 @@ export type Database = {
 					images?: string[] | null;
 					is_featured?: boolean | null;
 					listing_type?: Database["public"]["Enums"]["listing_type"];
-					is_preorder?: boolean | null;
-					is_sold?: boolean | null;
 					landed_cost_kes?: number | null;
 					listing_id: string;
 					notes?: string | null;
@@ -123,8 +119,6 @@ export type Database = {
 					images?: string[] | null;
 					is_featured?: boolean | null;
 					listing_type?: Database["public"]["Enums"]["listing_type"];
-					is_preorder?: boolean | null;
-					is_sold?: boolean | null;
 					landed_cost_kes?: number | null;
 					listing_id?: string;
 					notes?: string | null;
@@ -519,8 +513,8 @@ export type Database = {
 		};
 		Enums: {
 			condition_grade: "acceptable" | "good" | "excellent" | "premium";
-			listing_status: "available" | "sold" | "preorder" | "reserved";
-			listing_type: "standard" | "sale" | "affiliate";
+			listing_status: "available" | "sold" | "preorder" | "reserved" | "onsale";
+			listing_type: "standard" | "sale" | "affiliate" | "preorder" | "referral";
 			order_status:
 				| "pending"
 				| "confirmed"
@@ -661,8 +655,8 @@ export const Constants = {
 	public: {
 		Enums: {
 			condition_grade: ["acceptable", "good", "excellent", "premium"],
-			listing_status: ["available", "sold", "preorder", "reserved"],
-			listing_type: ["standard", "sale", "affiliate"],
+			listing_status: ["available", "sold", "preorder", "reserved", "onsale"],
+			listing_type: ["standard", "sale", "affiliate", "preorder", "referral"],
 			order_status: [
 				"pending",
 				"confirmed",

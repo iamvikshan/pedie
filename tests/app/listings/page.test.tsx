@@ -50,8 +50,6 @@ mock.module("@lib/data/listings", () => ({
 				color: "Black",
 				carrier: "Unlocked",
 				battery_health: 92,
-				is_preorder: false,
-				is_sold: false,
 				is_featured: false,
 				status: "available",
 				images: ["https://example.com/img.jpg"],

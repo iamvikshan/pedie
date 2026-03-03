@@ -42,8 +42,11 @@ export const useCartStore = create<CartStore>()(
 
       getDepositTotal: () =>
         get()
-          .items.filter(item => item.is_preorder)
-          .reduce((sum, item) => sum + calculateDeposit(item.price_kes), 0),
+          .items.filter(item => item.listing_type === 'preorder')
+          .reduce(
+            (sum, item) => sum + calculateDeposit(item.final_price_kes),
+            0
+          ),
 
       getItemCount: () => get().items.length,
     }),

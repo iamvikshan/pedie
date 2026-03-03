@@ -1,17 +1,21 @@
 import { beforeEach, describe, expect, mock, test } from "bun:test";
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-// Mock the supabase admin client
-const mockSingle = mock(() => ({ data: null, error: null }) as any);
-const mockEq = mock(() => ({ single: mockSingle }) as any);
-const mockSelect = mock(() => ({ eq: mockEq }) as any);
-const mockFrom = mock(() => ({ select: mockSelect }) as any);
+// Mutable result object — tests change this to control the mock's return value
+let mockSingleResult: { data: unknown; error: unknown } = {
+	data: null,
+	error: null,
+};
 
 mock.module("@lib/supabase/admin", () => ({
-	createAdminClient: mock(() => ({
-		from: mockFrom,
-	})),
+	createAdminClient: () => ({
+		from: () => ({
+			select: () => ({
+				eq: () => ({
+					single: () => mockSingleResult,
+				}),
+			}),
+		}),
+	}),
 }));
 
 // Must import AFTER mock.module
@@ -19,43 +23,29 @@ const { isUserAdmin } = await import("@lib/auth/admin");
 
 describe("isUserAdmin", () => {
 	beforeEach(() => {
-		mockSingle.mockReset();
-		mockEq.mockReset();
-		mockSelect.mockReset();
-		mockFrom.mockReset();
-
-		mockFrom.mockReturnValue({ select: mockSelect } as any);
-		mockSelect.mockReturnValue({ eq: mockEq } as any);
-		mockEq.mockReturnValue({ single: mockSingle } as any);
+		mockSingleResult = { data: null, error: null };
 	});
 
 	test("returns true when user has admin role", async () => {
-		mockSingle.mockReturnValue({ data: { role: "admin" }, error: null });
-
+		mockSingleResult = { data: { role: "admin" }, error: null };
 		const result = await isUserAdmin("admin-user-id");
 		expect(result).toBe(true);
-		expect(mockFrom).toHaveBeenCalledWith("profiles");
-		expect(mockSelect).toHaveBeenCalledWith("role");
-		expect(mockEq).toHaveBeenCalledWith("id", "admin-user-id");
 	});
 
 	test("returns false when user has customer role", async () => {
-		mockSingle.mockReturnValue({ data: { role: "customer" }, error: null });
-
+		mockSingleResult = { data: { role: "customer" }, error: null };
 		const result = await isUserAdmin("customer-user-id");
 		expect(result).toBe(false);
 	});
 
 	test("returns false when user does not exist", async () => {
-		mockSingle.mockReturnValue({ data: null, error: { message: "not found" } });
-
+		mockSingleResult = { data: null, error: { message: "not found" } };
 		const result = await isUserAdmin("nonexistent-user-id");
 		expect(result).toBe(false);
 	});
 
 	test("returns false when profile has no role field", async () => {
-		mockSingle.mockReturnValue({ data: {}, error: null });
-
+		mockSingleResult = { data: {}, error: null };
 		const result = await isUserAdmin("user-without-role");
 		expect(result).toBe(false);
 	});

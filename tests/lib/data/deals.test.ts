@@ -18,8 +18,8 @@ describe("deals data helpers", () => {
 		expect(SOURCE).toContain("@helpers/pricing");
 	});
 
-	test("source contains listing_type check for sale-first logic", () => {
-		expect(SOURCE).toContain("listing_type");
+	test("source uses status for sale-first pricing tier logic", () => {
+		expect(SOURCE).toContain("listing.status");
 	});
 
 	test("source contains limit logic for hot deals (slice to 20)", () => {

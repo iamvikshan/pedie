@@ -115,11 +115,11 @@ export default async function ListingPage({ params }: PageProps) {
             <PriceDisplay
               priceKes={listing.price_kes}
               originalPriceKes={product.original_price_kes}
-              isPreorder={listing.is_preorder}
+              isPreorder={listing.listing_type === 'preorder'}
             />
 
             <PreorderBadge
-              isPreorder={listing.is_preorder}
+              isPreorder={listing.listing_type === 'preorder'}
               depositAmount={deposit}
             />
 

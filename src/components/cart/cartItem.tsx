@@ -58,7 +58,7 @@ export function CartItem({ listing }: CartItemProps) {
           {listing.storage && <span>{listing.storage}</span>}
           {listing.color && <span>{listing.color}</span>}
         </div>
-        {listing.is_preorder && (
+        {listing.listing_type === 'preorder' && (
           <span className='text-xs font-medium text-yellow-400'>Preorder</span>
         )}
       </div>

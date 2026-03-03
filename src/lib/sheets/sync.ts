@@ -238,8 +238,11 @@ export async function syncFromSheets(): Promise<SyncReport> {
         source_listing_id: parsed.source_listing_id || null,
         source_url: parsed.source_url || null,
         listing_type:
-          (parsed.listing_type as 'standard' | 'sale' | 'affiliate') ||
-          'standard',
+          (parsed.listing_type as
+            | 'standard'
+            | 'preorder'
+            | 'affiliate'
+            | 'referral') || 'standard',
         final_price_kes: (() => {
           const parsed_final = parsed.final_price_kes
             ? parseInt(parsed.final_price_kes, 10)

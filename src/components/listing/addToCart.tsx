@@ -37,7 +37,7 @@ export function AddToCart({ listing }: AddToCartProps) {
     )
   }
 
-  if (listing.is_sold) {
+  if (listing.status === 'sold' || listing.status === 'reserved') {
     return (
       <Button variant='primary' size='lg' className='w-full' disabled>
         Sold Out
@@ -73,7 +73,7 @@ export function AddToCart({ listing }: AddToCartProps) {
       className='w-full'
       onClick={handleClick}
     >
-      {listing.is_preorder ? 'Preorder Now' : 'Add to Cart'}
+      {listing.listing_type === 'preorder' ? 'Preorder Now' : 'Add to Cart'}
     </Button>
   )
 }
