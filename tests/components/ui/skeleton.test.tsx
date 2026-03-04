@@ -3,13 +3,13 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 const src = readFileSync(
-  resolve('src/components/ui/skeleton.tsx'),
+  resolve('src/components/skeletons/skeleton.tsx'),
   'utf-8'
 )
 
 describe('Skeleton Component', () => {
   test('module exports Skeleton function', async () => {
-    const mod = await import('@components/ui/skeleton')
+    const mod = await import('@components/skeletons/skeleton')
     expect(mod.Skeleton).toBeDefined()
     expect(typeof mod.Skeleton).toBe('function')
   })

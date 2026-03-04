@@ -1,20 +1,17 @@
+import { Suspense } from 'react'
 import { CategoryShowcase } from '@components/home/categoryShowcase'
-import { CustomerFavorites } from '@components/home/customerFavorites'
-import { HotDeals } from '@components/home/hotDeals'
+import { CategoryShowcaseSkeleton } from '@components/home/categoryShowcaseSkeleton'
+import { CustomerFavoritesServer } from '@components/home/customerFavoritesServer'
+import { CustomerFavoritesSkeleton } from '@components/home/customerFavoritesSkeleton'
+import { HotDealsServer } from '@components/home/hotDealsServer'
+import { HotDealsSkeleton } from '@components/home/hotDealsSkeleton'
 import { HeroBanner } from '@components/home/heroBanner'
 import { PopularCategories } from '@components/home/popularCategories'
 import { SustainabilitySection } from '@components/home/sustainabilitySection'
 import { TrustBadges } from '@components/home/trustBadges'
 import { ErrorBoundary } from '@components/ui/errorBoundary'
-import { getHotDealsListings } from '@data/deals'
-import { getProductFamilies } from '@data/products'
 
-export default async function Home() {
-  const [productFamilies, hotDealsListings] = await Promise.all([
-    getProductFamilies(12),
-    getHotDealsListings(),
-  ])
-
+export default function Home() {
   return (
     <>
       <ErrorBoundary>
@@ -27,16 +24,24 @@ export default async function Home() {
         <PopularCategories />
       </ErrorBoundary>
       <ErrorBoundary>
-        <CustomerFavorites families={productFamilies} />
+        <Suspense fallback={<CustomerFavoritesSkeleton />}>
+          <CustomerFavoritesServer />
+        </Suspense>
       </ErrorBoundary>
       <ErrorBoundary>
-        <HotDeals listings={hotDealsListings} />
+        <Suspense fallback={<HotDealsSkeleton />}>
+          <HotDealsServer />
+        </Suspense>
       </ErrorBoundary>
       <ErrorBoundary>
-        <CategoryShowcase categorySlug='smartphones' title='Smartphones' />
+        <Suspense fallback={<CategoryShowcaseSkeleton />}>
+          <CategoryShowcase categorySlug='smartphones' title='Smartphones' />
+        </Suspense>
       </ErrorBoundary>
       <ErrorBoundary>
-        <CategoryShowcase categorySlug='laptops' title='Laptops' />
+        <Suspense fallback={<CategoryShowcaseSkeleton />}>
+          <CategoryShowcase categorySlug='laptops' title='Laptops' />
+        </Suspense>
       </ErrorBoundary>
       <ErrorBoundary>
         <SustainabilitySection />

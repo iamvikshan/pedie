@@ -103,6 +103,8 @@ Defined in `src/app/globals.css`:
 
 ## Component Patterns
 
+> Full product/listing/card architecture: [`docs/product-architecture.md`](product-architecture.md)
+
 ### Product Card (3-Tier Pricing)
 
 Cards use `getPricingTier(finalPriceKes, priceKes, status)` from `@helpers/pricing`:
@@ -125,6 +127,24 @@ Icon-only with tooltip, uses `ConditionGrade`:
 ### Glassmorphism
 
 Applied via `.glass` class or inline: `bg-pedie-glass backdrop-blur-[24px] border border-pedie-glass-border`
+
+### Skeleton Loading States
+
+All skeleton components live in `src/components/skeletons/`. Route-level loading files live alongside their `page.tsx`.
+
+| Component                  | File                                           | Purpose                         |
+| -------------------------- | ---------------------------------------------- | ------------------------------- |
+| `Skeleton`                 | `skeletons/skeleton.tsx`                        | Generic reusable pulse block    |
+| `ProductFamilyCardSkeleton`| `skeletons/productFamilyCardSkeleton.tsx`       | Matches `ProductFamilyCard`     |
+| `ProductCardSkeleton`      | `skeletons/productCardSkeleton.tsx`             | Matches `ProductCard`           |
+
+**Rules:**
+- Card-level skeletons apply `animate-pulse` on their root container (single cohesive unit, all children pulse in sync)
+- Section-level skeletons (in `src/components/home/`) do **not** apply `animate-pulse` on their wrapper `<section>` — only on standalone header placeholders — since composed card skeletons already pulse independently
+- `role='status'` + `aria-label='Loading'` on root element for accessibility
+- `bg-pedie-card` + `border border-pedie-border` for themed appearance
+
+See [`docs/product-architecture.md`](product-architecture.md) for full page → component → card mapping.
 
 ---
 

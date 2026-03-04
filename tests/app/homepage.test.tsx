@@ -31,4 +31,18 @@ describe("Homepage (page.tsx)", () => {
 	test("main element has overflow-x-hidden to prevent horizontal scroll", () => {
 		expect(layoutSource).toMatch(/main\s+className=['"][^'"]*overflow-x-hidden/);
 	});
+
+	test("imports Suspense from react", () => {
+		expect(content).toContain("Suspense");
+		expect(content).toMatch(/from\s+['"]react['"]/);
+	});
+
+	test("uses Suspense boundaries", () => {
+		expect(content).toContain("<Suspense");
+	});
+
+	test("has skeleton fallbacks", () => {
+		expect(content).toContain("fallback=");
+		expect(content).toContain("Skeleton");
+	});
 });

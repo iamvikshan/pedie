@@ -241,37 +241,38 @@ Restructure Pedie from individual-listing browsing to product-family browsing, a
 
 ---
 
-### 5. ⬜ Phase 5: Performance & Loading UX
+### 5. ✅ Phase 5: Performance & Loading UX
 
-**Objective:** Skeleton states, streaming, and perceived performance for product family pages and variant selectors.
+**Objective:** Skeleton loading states and Suspense streaming for product family pages, homepage sections, and collection pages. Variant selection is already instant (client-side state) so no shimmer/optimistic UI needed there.
 
 **Changes:**
-- Product detail page skeleton with variant selector button placeholders
+- Product detail page skeleton (`/products/[slug]/loading.tsx`) mirroring the existing listing detail skeleton pattern
 - Product family card skeleton component (matching card dimensions)
-- Homepage streaming with `<Suspense>` boundaries per section
-- Collection page pagination with skeleton fallback
-- Optimistic UI for variant selection (instant visual feedback while data loads)
-- Variant selector shimmer states during price recalculation
+- Homepage refactored from blocking `Promise.all` to per-section `<Suspense>` streaming with skeleton fallbacks
+- Collection page Suspense for product grid streaming
 
 **Files/Functions to Create/Modify:**
-- `src/app/(store)/products/[slug]/loading.tsx` — product detail skeleton
-- `src/components/ui/productFamilyCardSkeleton.tsx` — family card skeleton
-- `src/components/listing/variantSelectorSkeleton.tsx` — selector button placeholders
-- Update `src/app/page.tsx` — add `<Suspense>` boundaries
-- Update `src/app/(store)/collections/*/loading.tsx` — collection skeleton
+- `src/app/(store)/products/[slug]/loading.tsx` — NEW: product detail skeleton (image + variant pills + price + CTA placeholders)
+- `src/components/ui/productFamilyCardSkeleton.tsx` — NEW: family card skeleton matching `ProductFamilyCard` dimensions
+- `src/components/ui/productCardSkeleton.tsx` — NEW: individual card skeleton matching `ProductCard` dimensions
+- `src/app/page.tsx` — refactor: extract async data-fetching into child server components, wrap each section in `<Suspense>` with skeleton fallbacks
+- `src/app/(store)/collections/[slug]/page.tsx` — add `<Suspense>` around product grid
 
 **Tests to Write:**
-- `tests/components/ui/productFamilyCardSkeleton.test.ts` — renders with `role='status'`, `aria-label='Loading'`
-- `tests/components/listing/variantSelectorSkeleton.test.ts` — renders placeholder buttons
-- `tests/app/products/productDetailLoading.test.ts` — skeleton page renders
+- `tests/components/ui/product-family-card-skeleton.test.ts` — renders with `role='status'`, `aria-label='Loading'`, correct structure
+- `tests/components/ui/product-card-skeleton.test.ts` — renders with accessibility attributes
+- `tests/app/products/productDetailLoading.test.ts` — skeleton page renders with correct structure
+- `tests/app/homepage.test.ts` — update: homepage uses Suspense boundaries
 
 **Steps:**
-1. Write failing tests for skeleton components (accessibility attributes)
+1. Write failing tests for skeleton components (accessibility attributes, structure)
 2. Implement product family card skeleton
-3. Implement variant selector skeleton
+3. Implement product card skeleton
 4. Implement product detail page loading skeleton
-5. Add `<Suspense>` boundaries to homepage and collection pages
-6. Run `bun f && bun check && bun test` — all tests pass
+5. Write failing test for homepage Suspense usage
+6. Refactor homepage to use Suspense streaming with skeleton fallbacks
+7. Update collection page with Suspense boundary
+8. Run `bun f && bun check && bun test` — all tests pass
 
 ---
 

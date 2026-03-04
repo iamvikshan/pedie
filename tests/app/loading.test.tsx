@@ -9,7 +9,7 @@ const src = readFileSync(
 
 describe('Homepage Loading', () => {
   test('imports Skeleton component', () => {
-    expect(src).toContain("from '@components/ui/skeleton'")
+    expect(src).toContain("from '@components/skeletons/skeleton'")
   })
 
   test('renders skeleton placeholders', () => {
