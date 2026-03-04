@@ -1,4 +1,4 @@
-import { getProductFamilyBySlug } from '@lib/data/families'
+import { getProductFamilyBySlug, getRelatedListings } from '@data/products'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { formatKes } from '@helpers'
@@ -6,7 +6,6 @@ import { ImageGallery } from '@components/listing/imageGallery'
 import { ProductSpecs } from '@components/listing/productSpecs'
 import { ProductDescription } from '@components/listing/productDescription'
 import { SimilarListings } from '@components/listing/similarListings'
-import { ConditionBadge } from '@components/ui/conditionBadge'
 import ProductDetailClient from '@components/listing/productDetailClient'
 
 interface PageProps {
@@ -40,7 +39,12 @@ export default async function ProductPage({ params }: PageProps) {
     notFound()
   }
 
-  const { product, representative } = family
+  const { product } = family
+
+  const relatedListings = await getRelatedListings(
+    product.category_id,
+    product.id
+  )
 
   return (
     <main className='container mx-auto px-4 py-8 max-w-7xl'>
@@ -59,7 +63,6 @@ export default async function ProductPage({ params }: PageProps) {
             <h1 className='text-3xl font-bold tracking-tight mb-2'>
               {product.brand} {product.model}
             </h1>
-            <ConditionBadge condition={representative.condition} />
           </div>
 
           <ProductDetailClient family={family} product={product} />
@@ -85,7 +88,7 @@ export default async function ProductPage({ params }: PageProps) {
        * See: https://github.com/iamvikshan/pedie — reviews system milestone
        */}
 
-      <SimilarListings listings={[]} />
+      <SimilarListings listings={relatedListings} />
     </main>
   )
 }

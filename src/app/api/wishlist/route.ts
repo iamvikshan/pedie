@@ -3,7 +3,7 @@ import {
   addToWishlist,
   getWishlistByUser,
   removeFromWishlist,
-} from '@lib/data/wishlist'
+} from '@data/wishlist'
 import { NextResponse } from 'next/server'
 
 export async function GET() {

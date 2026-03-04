@@ -1,4 +1,4 @@
-import { getOrderByPaymentRef, updateOrderStatus } from '@lib/data/orders'
+import { getOrderByPaymentRef, updateOrderStatus } from '@data/orders'
 import { sendPaymentConfirmation } from '@lib/email/send'
 import type { STKCallback } from '@lib/payments/mpesa'
 import { parseCallback } from '@lib/payments/mpesa'

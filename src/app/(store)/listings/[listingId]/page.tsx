@@ -11,9 +11,10 @@ import { SimilarListings } from '@components/listing/similarListings'
 import VariantSelector from '@components/listing/variantSelector'
 import BetterDealNudge from '@components/listing/betterDealNudge'
 import { calculateDeposit, formatKes } from '@helpers'
-import { getListingById, getSimilarListings } from '@lib/data/listings'
-import { getProductReviews, getReviewStats } from '@lib/data/reviews'
-import { getProductFamilyBySlug, findBetterDeal } from '@lib/data/families'
+import { getListingById } from '@data/listings'
+import { getProductReviews, getReviewStats } from '@data/reviews'
+import { findBetterDeal } from '@utils/products'
+import { getProductFamilyBySlug, getRelatedListings } from '@data/products'
 import Link from 'next/link'
 import {
   breadcrumbJsonLd,
@@ -70,7 +71,7 @@ export default async function ListingPage({ params }: PageProps) {
   const deposit = calculateDeposit(listing.price_kes)
 
   const [similarListings, reviews, reviewStats, family] = await Promise.all([
-    getSimilarListings(listing.product_id, listing.listing_id),
+    getRelatedListings(listing.product.category_id, listing.product_id),
     getProductReviews(listing.product_id, { page: 1, perPage: 5 }),
     getReviewStats(listing.product_id),
     getProductFamilyBySlug(listing.product.slug),

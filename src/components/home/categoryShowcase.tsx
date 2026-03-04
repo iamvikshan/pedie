@@ -1,6 +1,6 @@
-import { ProductCard } from '@components/ui/productCard'
-import { getCategoryBySlug } from '@lib/data/categories'
-import { getListingsByCategory } from '@lib/data/products'
+import { ProductFamilyCard } from '@components/ui/productFamilyCard'
+import { getCategoryBySlug } from '@data/categories'
+import { getProductFamiliesByCategory } from '@data/products'
 import Link from 'next/link'
 import {
   CategoryShowcaseWrapper,
@@ -16,12 +16,12 @@ export async function CategoryShowcase({
   categorySlug,
   title,
 }: CategoryShowcaseProps) {
-  const [category, listings] = await Promise.all([
+  const [category, families] = await Promise.all([
     getCategoryBySlug(categorySlug),
-    getListingsByCategory(categorySlug, 8),
+    getProductFamiliesByCategory(categorySlug, 8),
   ])
 
-  if (!category || !listings || listings.length === 0) return null
+  if (!category || !families || families.length === 0) return null
 
   return (
     <CategoryShowcaseWrapper>
@@ -40,12 +40,12 @@ export async function CategoryShowcase({
         </div>
 
         <div className='flex overflow-x-auto gap-6 pb-8 hide-scrollbar snap-x'>
-          {listings.map(listing => (
+          {families.map(family => (
             <div
-              key={listing.id}
+              key={family.product.id}
               className='min-w-[280px] max-w-[300px] snap-start'
             >
-              <ProductCard listing={listing} />
+              <ProductFamilyCard family={family} />
             </div>
           ))}
         </div>

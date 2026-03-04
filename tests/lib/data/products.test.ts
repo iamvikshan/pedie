@@ -4,7 +4,7 @@ import {
 	getFeaturedListings,
 	getLatestListings,
 	getListingsByCategory,
-} from "@lib/data/products";
+} from "@data/products";
 
 // Mock the server client
 mock.module("@lib/supabase/server", () => ({

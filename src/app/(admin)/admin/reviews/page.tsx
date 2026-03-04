@@ -1,5 +1,5 @@
 import { DataTableShell } from '@components/admin/dataTableShell'
-import { getAdminReviews } from '@lib/data/admin'
+import { getAdminReviews } from '@data/admin'
 import type { ColumnDef } from '@tanstack/react-table'
 import { reviewColumns } from './columns'
 

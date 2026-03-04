@@ -1,6 +1,6 @@
 import { SyncLog } from '@components/admin/syncLog'
 import { SyncStatus } from '@components/admin/syncStatus'
-import { getSyncHistory } from '@lib/data/admin'
+import { getSyncHistory } from '@data/admin'
 
 export default async function AdminSyncPage() {
   const history = await getSyncHistory()

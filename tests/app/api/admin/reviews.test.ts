@@ -25,7 +25,7 @@ const mockGetAdminReviews = mock<any>(() =>
 );
 const mockDeleteReview = mock<any>(() => Promise.resolve(true));
 
-mock.module("@lib/data/admin", () => ({
+mock.module("@data/admin", () => ({
 	getAdminReviews: mockGetAdminReviews,
 	deleteReview: mockDeleteReview,
 	getAdminOrders: mock(),

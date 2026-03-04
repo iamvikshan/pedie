@@ -32,7 +32,7 @@ const mockOrders = {
 	totalPages: 1,
 };
 
-mock.module("@lib/data/admin", () => ({
+mock.module("@data/admin", () => ({
 	getAdminOrders: mock(() => Promise.resolve(mockOrders)),
 	getAdminOrderDetail: mock(() =>
 		Promise.resolve({

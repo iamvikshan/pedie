@@ -1,6 +1,8 @@
 import { describe, expect, mock, test } from "bun:test";
 import React from "react";
 import { renderToString } from "react-dom/server";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 // Mock ProductCard and its dependencies
 mock.module("next/link", () => ({
@@ -24,6 +26,11 @@ mock.module("next/image", () => ({
 
 import { SimilarListings } from "@components/listing/similarListings";
 
+const SOURCE = readFileSync(
+	resolve("src/components/listing/similarListings.tsx"),
+	"utf-8",
+);
+
 const mockListing = {
 	id: "uuid-1",
 	listing_id: "PD-SIM01",
@@ -35,7 +42,7 @@ const mockListing = {
 	color: "White",
 	battery_health: 88,
 	is_featured: false,
-	listing_type: 'standard' as const,
+	listing_type: "standard" as const,
 	ram: null,
 	status: "available" as const,
 	images: [],
@@ -67,17 +74,25 @@ const mockListing = {
 };
 
 describe("SimilarListings", () => {
-	test("renders similar listings section with heading and cards", () => {
+	test("renders similar listings section with heading and product cards", () => {
 		const html = renderToString(
 			<SimilarListings
 				listings={[
 					mockListing,
-					{ ...mockListing, id: "uuid-2", listing_id: "PD-SIM02" },
+					{
+						...mockListing,
+						listing_id: "PD-SIM02",
+						product: {
+							...mockListing.product,
+							id: "prod-2",
+							slug: "apple-iphone-13",
+						},
+					},
 				]}
 			/>,
 		);
 
-		expect(html).toContain("Similar Listings");
+		expect(html).toContain("Similar Products");
 		expect(html).toContain("PD-SIM01");
 		expect(html).toContain("PD-SIM02");
 	});
@@ -86,5 +101,14 @@ describe("SimilarListings", () => {
 		const html = renderToString(<SimilarListings listings={[]} />);
 
 		expect(html).toBe("");
+	});
+
+	test("uses ProductCard instead of ProductFamilyCard", () => {
+		expect(SOURCE).toContain("ProductCard");
+		expect(SOURCE).not.toContain("ProductFamilyCard");
+	});
+
+	test("accepts listings prop", () => {
+		expect(SOURCE).toContain("listings: ListingWithProduct[]");
 	});
 });

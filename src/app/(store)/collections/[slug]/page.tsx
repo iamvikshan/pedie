@@ -10,8 +10,8 @@ import { FilterSidebar } from '@components/catalog/filterSidebar'
 import { Pagination } from '@components/catalog/pagination'
 import { ProductGrid } from '@components/catalog/productGrid'
 import { SortDropdown } from '@components/catalog/sortDropdown'
-import { getCategoryBySlug } from '@lib/data/categories'
-import { getAvailableFilters, getFilteredListings } from '@lib/data/listings'
+import { getCategoryBySlug } from '@data/categories'
+import { getAvailableFilters, getFilteredListings } from '@data/listings'
 import {
   breadcrumbJsonLd,
   collectionJsonLd,

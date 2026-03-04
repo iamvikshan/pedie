@@ -5,7 +5,7 @@ import React from "react";
 
 // ── Mocks ──────────────────────────────────────────────────────────────────
 
-mock.module("@lib/data/admin", () => ({
+mock.module("@data/admin", () => ({
 	getAdminReviews: mock(() =>
 		Promise.resolve({
 			data: [

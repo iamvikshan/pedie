@@ -34,7 +34,7 @@ const mockUpdateUserRole = mock<any>(() =>
 	Promise.resolve({ id: "user-1", role: "admin" }),
 );
 
-mock.module("@lib/data/admin", () => ({
+mock.module("@data/admin", () => ({
 	getAdminCustomers: mockGetAdminCustomers,
 	getAdminCustomerDetail: mockGetAdminCustomerDetail,
 	updateUserRole: mockUpdateUserRole,

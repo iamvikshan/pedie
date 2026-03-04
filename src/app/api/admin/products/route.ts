@@ -1,6 +1,6 @@
 import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
-import { createProduct, getAdminProducts } from '@lib/data/admin'
+import { createProduct, getAdminProducts } from '@data/admin'
 import { productSlug } from '@utils/slug'
 import { NextResponse } from 'next/server'
 

@@ -6,12 +6,12 @@ import { PopularCategories } from '@components/home/popularCategories'
 import { SustainabilitySection } from '@components/home/sustainabilitySection'
 import { TrustBadges } from '@components/home/trustBadges'
 import { ErrorBoundary } from '@components/ui/errorBoundary'
-import { getHotDealsListings } from '@lib/data/deals'
-import { getFeaturedListings } from '@lib/data/products'
+import { getHotDealsListings } from '@data/deals'
+import { getProductFamilies } from '@data/products'
 
 export default async function Home() {
-  const [featuredListings, hotDealsListings] = await Promise.all([
-    getFeaturedListings(12),
+  const [productFamilies, hotDealsListings] = await Promise.all([
+    getProductFamilies(12),
     getHotDealsListings(),
   ])
 
@@ -27,7 +27,7 @@ export default async function Home() {
         <PopularCategories />
       </ErrorBoundary>
       <ErrorBoundary>
-        <CustomerFavorites listings={featuredListings} />
+        <CustomerFavorites families={productFamilies} />
       </ErrorBoundary>
       <ErrorBoundary>
         <HotDeals listings={hotDealsListings} />

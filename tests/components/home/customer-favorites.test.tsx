@@ -53,7 +53,6 @@ describe("CustomerFavorites", () => {
                 expect(SOURCE).toContain("View All");
         });
 
-        // NEW TESTS
         test('has useRef for scroll container', () => {
                 expect(SOURCE).toContain('useRef');
                 expect(SOURCE).toContain('scrollRef');
@@ -70,5 +69,20 @@ describe("CustomerFavorites", () => {
 
         test('cards have flex-shrink-0 class', () => {
                 expect(SOURCE).toContain('flex-shrink-0');
+        });
+
+        // Phase 3: ProductFamily integration tests
+        test('accepts families prop instead of listings', () => {
+                expect(SOURCE).toContain('families: ProductFamily[]');
+                expect(SOURCE).not.toContain('listings: ListingWithProduct[]');
+        });
+
+        test('uses ProductFamilyCard instead of ProductCard', () => {
+                expect(SOURCE).toContain('ProductFamilyCard');
+                expect(SOURCE).not.toContain('ProductCard');
+        });
+
+        test('filters by product category slug', () => {
+                expect(SOURCE).toContain('f.product?.category?.slug === activeTab');
         });
 });

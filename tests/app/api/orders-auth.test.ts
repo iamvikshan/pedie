@@ -16,7 +16,7 @@ const mockCreateOrder = mock(() =>
 	Promise.resolve({ id: "order-new-123", status: "pending" }),
 );
 
-mock.module("@lib/data/orders", () => ({
+mock.module("@data/orders", () => ({
 	createOrder: mockCreateOrder,
 	getOrderById: mock(() => Promise.resolve(null)),
 	getOrdersByUser: mock(() => Promise.resolve([])),

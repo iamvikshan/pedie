@@ -11,7 +11,7 @@ export function SimilarListings({ listings }: SimilarListingsProps) {
   return (
     <section className='pb-12'>
       <h2 className='text-2xl font-bold text-pedie-text mb-6'>
-        Similar Listings
+        Similar Products
       </h2>
       <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4'>
         {listings.map(listing => (

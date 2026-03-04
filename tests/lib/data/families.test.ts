@@ -4,7 +4,7 @@ import {
 	LISTING_TYPE_PRIORITY,
 	findBetterDeal,
 	selectRepresentative,
-} from "@lib/data/families";
+} from "@utils/products";
 
 const makeListing = (overrides: Partial<Listing> = {}): Listing => ({
 	id: "uuid-1",

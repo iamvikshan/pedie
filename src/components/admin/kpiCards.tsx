@@ -1,5 +1,5 @@
 import { formatKes } from '@helpers'
-import type { AdminDashboardStats } from '@lib/data/admin'
+import type { AdminDashboardStats } from '@data/admin'
 
 interface KpiCardsProps {
   stats: AdminDashboardStats

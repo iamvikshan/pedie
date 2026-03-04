@@ -5,12 +5,12 @@
     "": {
       "name": "amina",
       "dependencies": {
-        "@supabase/ssr": "^0.8.0",
+        "@supabase/ssr": "^0.9.0",
         "@supabase/supabase-js": "^2.98.0",
         "@tanstack/react-table": "^8.21.3",
         "@vercel/speed-insights": "^1.3.1",
         "cheerio": "^1.2.0",
-        "framer-motion": "^12.34.4",
+        "framer-motion": "^12.34.5",
         "googleapis": "^171.4.0",
         "next": "16.1.6",
         "next-themes": "^0.4.6",
@@ -34,7 +34,7 @@
         "@types/react": "^19.2.14",
         "@types/react-dom": "^19.2.3",
         "conventional-changelog-conventionalcommits": "^9.2.0",
-        "eslint": "^9.39.3",
+        "eslint": "9.39.3",
         "eslint-config-next": "16.1.6",
         "husky": "^9.1.7",
         "prettier": "^3.8.1",
@@ -285,7 +285,7 @@
 
     "@supabase/realtime-js": ["@supabase/realtime-js@2.98.0", "", { "dependencies": { "@types/phoenix": "^1.6.6", "@types/ws": "^8.18.1", "tslib": "2.8.1", "ws": "^8.18.2" } }, "sha512-rOWt28uGyFipWOSd+n0WVMr9kUXiWaa7J4hvyLCIHjRFqWm1z9CaaKAoYyfYMC1Exn3WT8WePCgiVhlAtWC2yw=="],
 
-    "@supabase/ssr": ["@supabase/ssr@0.8.0", "", { "dependencies": { "cookie": "^1.0.2" }, "peerDependencies": { "@supabase/supabase-js": "^2.76.1" } }, "sha512-/PKk8kNFSs8QvvJ2vOww1mF5/c5W8y42duYtXvkOSe+yZKRgTTZywYG2l41pjhNomqESZCpZtXuWmYjFRMV+dw=="],
+    "@supabase/ssr": ["@supabase/ssr@0.9.0", "", { "dependencies": { "cookie": "^1.0.2" }, "peerDependencies": { "@supabase/supabase-js": "^2.97.0" } }, "sha512-UFY6otYV3yqCgV+AyHj80vNkTvbf1Gas2LW4dpbQ4ap6p6v3eB2oaDfcI99jsuJzwVBCFU4BJI+oDYyhNk1z0Q=="],
 
     "@supabase/storage-js": ["@supabase/storage-js@2.98.0", "", { "dependencies": { "iceberg-js": "^0.8.1", "tslib": "2.8.1" } }, "sha512-tzr2mG+v7ILSAZSfZMSL9OPyIH4z1ikgQ8EcQTKfMRz4EwmlFt3UnJaGzSOxyvF5b+fc9So7qdSUWTqGgeLokQ=="],
 

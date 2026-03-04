@@ -1,6 +1,6 @@
 import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
-import { getAdminCustomerDetail, updateUserRole } from '@lib/data/admin'
+import { getAdminCustomerDetail, updateUserRole } from '@data/admin'
 import { NextResponse } from 'next/server'
 
 export async function GET(

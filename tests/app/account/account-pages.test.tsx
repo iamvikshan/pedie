@@ -47,7 +47,7 @@ mock.module("@helpers/auth", () => ({
 const mockGetOrdersByUser = mock(() => Promise.resolve([] as any[]));
 const mockGetOrderById = mock(() => Promise.resolve(null as any));
 
-mock.module("@lib/data/orders", () => ({
+mock.module("@data/orders", () => ({
 	getOrdersByUser: mockGetOrdersByUser,
 	getOrderById: mockGetOrderById,
 	createOrder: mock(() =>

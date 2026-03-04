@@ -26,7 +26,7 @@ const mockUpdateCategory = mock(() =>
 );
 const mockDeleteCategory = mock(() => Promise.resolve(true));
 
-mock.module("@lib/data/admin", () => ({
+mock.module("@data/admin", () => ({
 	getAdminCategories: mockGetAdminCategories,
 	createCategory: mockCreateCategory,
 	updateCategory: mockUpdateCategory,

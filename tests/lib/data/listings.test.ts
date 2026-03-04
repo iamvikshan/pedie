@@ -134,7 +134,7 @@ import {
 	getFilteredListings,
 	getListingById,
 	getSimilarListings,
-} from "@lib/data/listings";
+} from "@data/listings";
 
 describe("Listings Data Functions", () => {
 	describe("getFilteredListings", () => {

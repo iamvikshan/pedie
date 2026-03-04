@@ -1,4 +1,4 @@
-import { getSearchSuggestions } from '@lib/data/search'
+import { getSearchSuggestions } from '@data/search'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function GET(request: NextRequest) {

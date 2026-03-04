@@ -138,9 +138,18 @@ Restructure Pedie from individual-listing browsing to product-family browsing, a
 
 ---
 
-### 3. ⬜ Phase 3: Product Family Cards + Homepage Refresh
+### 3. ✅ Phase 3: Product Family Cards + Homepage Refresh
 
 **Objective:** Replace individual listing cards with product family cards for non-hot-deals contexts. Hot deals + `/deals` keep individual listing cards unchanged. Merge `families.ts` into `products.ts`. Implement "other products in same category" for `SimilarListings`.
+
+**Changes from plan:**
+- `families.ts` merged into `products.ts` with all 5 exports preserved; families.ts deleted
+- Added `getRelatedFamilies(categoryId, excludeProductId)` and `getProductFamiliesByCategory(categorySlug, limit)` to products.ts
+- Created `ProductFamilyGrid` as a parallel component to `ProductGrid` (not a replacement)
+- Search/collections pages (`search/page.tsx`, `collections/[slug]/page.tsx`) still use `ProductGrid` with individual listings — their filter/sort/pagination pipeline is deeply listing-based; family conversion deferred to a future search-refactor task
+- `SimilarListings` component updated to accept `ProductFamily[]` instead of `ListingWithProduct[]`; heading changed to "Similar Products"
+- Listing detail page updated to use `getRelatedFamilies` for SimilarListings (replacing `getSimilarListings`)
+- Tests: 998 pass, 0 fail (up from 958 pre-Phase-3)
 
 **Card display logic (based on representative listing):**
 - **Sale card:** Representative has `status === 'onsale'` — red discount pill, crossed-out price, bold red final price, urgency styling

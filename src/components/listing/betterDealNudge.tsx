@@ -18,7 +18,7 @@ export default function BetterDealNudge({
   if (!betterDeal) return null
 
   // If savings is not provided, we just show the better deal's price or a generic difference
-  const difference = savings ? formatKes(savings) : ''
+  const difference = typeof savings === 'number' ? formatKes(savings) : ''
 
   return (
     <motion.div

@@ -3,7 +3,7 @@ import {
   getLatestCrawlDate,
   getPriceComparisons,
   getProductMinPrices,
-} from '@lib/data/admin'
+} from '@data/admin'
 
 interface ComparisonRow {
   id: string

@@ -18,7 +18,9 @@ export function findBestMatch(
   dimension: string,
   value: string
 ): Listing {
-  const available = listings.filter(l => l.status !== 'sold')
+  const available = listings.filter(
+    l => l.status !== 'sold' && l.status !== 'reserved'
+  )
   if (available.length === 0) return current
 
   const matchingValue = available.filter(
@@ -106,7 +108,9 @@ export default function VariantSelector({
   onSelect,
   disabled = false,
 }: VariantSelectorProps) {
-  const availableListings = listings.filter(l => l.status !== 'sold')
+  const availableListings = listings.filter(
+    l => l.status !== 'sold' && l.status !== 'reserved'
+  )
 
   const storages = Array.from(
     new Set(availableListings.map(l => l.storage).filter(Boolean))

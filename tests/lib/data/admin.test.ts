@@ -40,7 +40,7 @@ const {
 	logSyncResult,
 	getPriceComparisons,
 	getLatestCrawlDate,
-} = await import("@lib/data/admin");
+} = await import("@data/admin");
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 

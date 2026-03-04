@@ -6,7 +6,7 @@ const SOURCE = readFileSync(resolve("src/lib/data/deals.ts"), "utf-8");
 
 describe("deals data helpers", () => {
 	test("module exports getDealsListings and getHotDealsListings", async () => {
-		const mod = await import("@lib/data/deals");
+		const mod = await import("@data/deals");
 		expect(mod.getDealsListings).toBeDefined();
 		expect(typeof mod.getDealsListings).toBe("function");
 		expect(mod.getHotDealsListings).toBeDefined();

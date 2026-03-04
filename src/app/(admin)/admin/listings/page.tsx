@@ -1,5 +1,5 @@
 import { DataTableShell } from '@components/admin/dataTableShell'
-import { getAdminListings } from '@lib/data/admin'
+import { getAdminListings } from '@data/admin'
 import type { ColumnDef } from '@tanstack/react-table'
 import Link from 'next/link'
 import { listingColumns } from './columns'

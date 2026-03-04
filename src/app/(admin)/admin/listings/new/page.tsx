@@ -1,4 +1,4 @@
-import { getAdminProducts } from '@lib/data/admin'
+import { getAdminProducts } from '@data/admin'
 import { NewListingClient } from './client'
 
 export default async function NewListingPage() {

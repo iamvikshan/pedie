@@ -36,7 +36,7 @@ const mockUpdateOrder = mock<any>(() =>
 	Promise.resolve({ id: "order-1", status: "shipped", user_id: "user-1" }),
 );
 
-mock.module("@lib/data/admin", () => ({
+mock.module("@data/admin", () => ({
 	getAdminOrders: mockGetAdminOrders,
 	getAdminOrderDetail: mockGetAdminOrderDetail,
 	updateOrder: mockUpdateOrder,

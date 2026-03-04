@@ -1,7 +1,7 @@
 import { generateListingId } from '@helpers'
 import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
-import { createListing, getAdminListings } from '@lib/data/admin'
+import { createListing, getAdminListings } from '@data/admin'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {

@@ -1,4 +1,4 @@
-import { getCategories } from '@lib/data/categories'
+import { getCategories } from '@data/categories'
 import Image from 'next/image'
 import Link from 'next/link'
 

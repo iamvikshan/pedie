@@ -1,5 +1,5 @@
 import { describe, expect, mock, test } from "bun:test";
-import { getCategories, getCategoryBySlug } from "@lib/data/categories";
+import { getCategories, getCategoryBySlug } from "@data/categories";
 
 // Mock the server client
 mock.module("@lib/supabase/server", () => ({

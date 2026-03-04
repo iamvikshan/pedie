@@ -1,5 +1,5 @@
 import { ProductCard } from '@components/ui/productCard'
-import { getDealsListings } from '@lib/data/deals'
+import { getDealsListings } from '@data/deals'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {

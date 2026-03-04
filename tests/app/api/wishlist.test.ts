@@ -14,7 +14,7 @@ const mockGetWishlistByUser = mock(() => Promise.resolve([] as any[]));
 const mockAddToWishlist = mock(() => Promise.resolve({ id: "w1" } as any));
 const mockRemoveFromWishlist = mock(() => Promise.resolve(true));
 
-mock.module("@lib/data/wishlist", () => ({
+mock.module("@data/wishlist", () => ({
 	getWishlistByUser: mockGetWishlistByUser,
 	addToWishlist: mockAddToWishlist,
 	removeFromWishlist: mockRemoveFromWishlist,

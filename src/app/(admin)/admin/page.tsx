@@ -5,7 +5,7 @@ import {
   getAdminDashboardStats,
   getAdminOrders,
   getRevenueData,
-} from '@lib/data/admin'
+} from '@data/admin'
 
 export default async function AdminDashboardPage() {
   const [statsResult, revenueResult, ordersResult] = await Promise.allSettled([

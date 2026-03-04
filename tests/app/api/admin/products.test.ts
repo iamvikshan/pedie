@@ -31,7 +31,7 @@ const mockUpdateProduct = mock<any>(() =>
 );
 const mockDeleteProduct = mock<any>(() => Promise.resolve(true));
 
-mock.module("@lib/data/admin", () => ({
+mock.module("@data/admin", () => ({
 	getAdminProducts: mockGetAdminProducts,
 	createProduct: mockCreateProduct,
 	updateProduct: mockUpdateProduct,

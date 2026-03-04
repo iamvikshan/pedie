@@ -1,6 +1,6 @@
 import { Button } from '@components/ui/button'
 import { getProfile, requireAuth } from '@helpers/auth'
-import { getOrdersByUser } from '@lib/data/orders'
+import { getOrdersByUser } from '@data/orders'
 import Link from 'next/link'
 
 export default async function AccountDashboard() {

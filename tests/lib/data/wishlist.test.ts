@@ -19,7 +19,7 @@ const {
 	removeFromWishlist,
 	isInWishlist,
 	getWishlistProductIds,
-} = await import("@lib/data/wishlist");
+} = await import("@data/wishlist");
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 

@@ -1,4 +1,4 @@
-import { updateOrderStatus } from '@lib/data/orders'
+import { updateOrderStatus } from '@data/orders'
 import { initiateSTKPush } from '@lib/payments/mpesa'
 import { NextResponse } from 'next/server'
 

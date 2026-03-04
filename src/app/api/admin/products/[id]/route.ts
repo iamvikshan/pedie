@@ -1,6 +1,6 @@
 import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
-import { deleteProduct, updateProduct } from '@lib/data/admin'
+import { deleteProduct, updateProduct } from '@data/admin'
 import { NextResponse } from 'next/server'
 
 export async function PUT(

@@ -1,4 +1,4 @@
-import { getAdminProducts } from '@lib/data/admin'
+import { getAdminProducts } from '@data/admin'
 import { createAdminClient } from '@lib/supabase/admin'
 import { notFound } from 'next/navigation'
 import { EditListingClient } from './client'

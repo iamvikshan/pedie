@@ -1,6 +1,6 @@
 import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
-import { getAdminCustomers } from '@lib/data/admin'
+import { getAdminCustomers } from '@data/admin'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {

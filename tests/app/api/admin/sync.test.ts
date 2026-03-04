@@ -20,7 +20,7 @@ const mockLogSyncResult = mock<any>(() =>
 	Promise.resolve({ id: "log-1", status: "success" }),
 );
 
-mock.module("@lib/data/admin", () => ({
+mock.module("@data/admin", () => ({
 	getSyncHistory: mockGetSyncHistory,
 	logSyncResult: mockLogSyncResult,
 	getAdminOrders: mock(),

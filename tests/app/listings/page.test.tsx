@@ -38,8 +38,8 @@ mock.module("next/link", () => ({
 	}),
 }));
 
-// Mock @lib/data/families
-mock.module("@lib/data/families", () => ({
+// Mock @data/products
+mock.module("@data/products", () => ({
   getProductFamilyBySlug: mock(() => Promise.resolve({
     product: { slug: 'test' },
     listings: [],
@@ -47,11 +47,12 @@ mock.module("@lib/data/families", () => ({
     variantCount: 1
   })),
   findBetterDeal: mock(() => null),
+  getRelatedFamilies: mock(() => Promise.resolve([])),
   LISTING_TYPE_PRIORITY: {}
 }));
 
-// Mock @lib/data/listings
-mock.module("@lib/data/listings", () => ({
+// Mock @data/listings
+mock.module("@data/listings", () => ({
 	getListingById: mock((id: string) => {
 		if (id === "PD-TEST1")
 			return Promise.resolve({
@@ -97,8 +98,8 @@ mock.module("@lib/data/listings", () => ({
 	getSimilarListings: mock(() => Promise.resolve([])),
 }));
 
-// Mock @lib/data/reviews
-mock.module("@lib/data/reviews", () => ({
+// Mock @data/reviews
+mock.module("@data/reviews", () => ({
 	getProductReviews: mock(() => Promise.resolve({ data: [], count: 0 })),
 	getReviewStats: mock(() =>
 		Promise.resolve({
@@ -128,7 +129,7 @@ mock.module("@lib/cart/store", () => ({
 const { default: ListingPage, generateMetadata } = await import(
 	"@/app/(store)/listings/[listingId]/page"
 );
-const { getListingById } = await import("@lib/data/listings");
+const { getListingById } = await import("@data/listings");
 
 describe("ListingPage", () => {
 	beforeEach(() => {

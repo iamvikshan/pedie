@@ -1,6 +1,6 @@
 import { formatKes } from '@helpers'
 import { requireAuth } from '@helpers/auth'
-import { getOrdersByUser } from '@lib/data/orders'
+import { getOrdersByUser } from '@data/orders'
 import Link from 'next/link'
 
 const STATUS_COLORS: Record<string, string> = {

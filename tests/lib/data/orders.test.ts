@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import type { CreateOrderInput } from "@lib/data/orders";
+import type { CreateOrderInput } from "@data/orders";
 
 describe("Order Management", () => {
 	describe("CreateOrderInput structure", () => {

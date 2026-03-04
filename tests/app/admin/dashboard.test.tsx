@@ -41,7 +41,7 @@ const mockOrders = {
 	totalPages: 1,
 };
 
-mock.module("@lib/data/admin", () => ({
+mock.module("@data/admin", () => ({
 	getAdminDashboardStats: mock(() => Promise.resolve(mockStats)),
 	getRevenueData: mock(() => Promise.resolve(mockRevenueData)),
 	getAdminOrders: mock(() => Promise.resolve(mockOrders)),

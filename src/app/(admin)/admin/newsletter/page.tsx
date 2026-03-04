@@ -1,6 +1,6 @@
 import { DataTableShell } from '@components/admin/dataTableShell'
 import { NewsletterExportButton } from '@components/admin/newsletterExportButton'
-import { getNewsletterSubscribers } from '@lib/data/admin'
+import { getNewsletterSubscribers } from '@data/admin'
 import type { ColumnDef } from '@tanstack/react-table'
 import { newsletterColumns } from './columns'
 

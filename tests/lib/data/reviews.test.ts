@@ -61,8 +61,8 @@ mock.module("@lib/supabase/server", () => ({
 	),
 }));
 
-import type { Review, ReviewStats } from "@lib/data/reviews";
-import { getProductReviews, getReviewStats } from "@lib/data/reviews";
+import type { Review, ReviewStats } from "@data/reviews";
+import { getProductReviews, getReviewStats } from "@data/reviews";
 
 describe("Reviews Data Functions", () => {
 	describe("getProductReviews", () => {

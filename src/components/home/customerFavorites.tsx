@@ -1,7 +1,7 @@
 'use client'
 
-import type { ListingWithProduct } from '@app-types/product'
-import { ProductCard } from '@components/ui/productCard'
+import type { ProductFamily } from '@app-types/product'
+import { ProductFamilyCard } from '@components/ui/productFamilyCard'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { useState, useRef } from 'react'
@@ -14,10 +14,10 @@ export const TABS = [
 ] as const
 
 interface CustomerFavoritesProps {
-  listings: ListingWithProduct[]
+  families: ProductFamily[]
 }
 
-export function CustomerFavorites({ listings }: CustomerFavoritesProps) {
+export function CustomerFavorites({ families }: CustomerFavoritesProps) {
   const [activeTab, setActiveTab] = useState('all')
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -30,8 +30,8 @@ export function CustomerFavorites({ listings }: CustomerFavoritesProps) {
 
   const filtered =
     activeTab === 'all'
-      ? listings
-      : listings.filter(l => l.product?.category?.slug === activeTab)
+      ? families
+      : families.filter(f => f.product?.category?.slug === activeTab)
 
   return (
     <motion.section
@@ -96,16 +96,16 @@ export function CustomerFavorites({ listings }: CustomerFavoritesProps) {
             visible: { transition: { staggerChildren: 0.1 } },
           }}
         >
-          {filtered.map(listing => (
+          {filtered.map(family => (
             <motion.div
-              key={listing.id}
+              key={family.product.id}
               className='min-w-[280px] max-w-[300px] snap-start flex-shrink-0'
               variants={{
                 hidden: { opacity: 0, y: 20 },
                 visible: { opacity: 1, y: 0 },
               }}
             >
-              <ProductCard listing={listing} />
+              <ProductFamilyCard family={family} />
             </motion.div>
           ))}
         </motion.div>

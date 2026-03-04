@@ -1,6 +1,6 @@
 import { ProductGrid } from '@components/catalog/productGrid'
 import { FilterSidebar } from '@components/search/filterSidebar'
-import { getAvailableFilters, searchListings } from '@lib/data/search'
+import { getAvailableFilters, searchListings } from '@data/search'
 import type { ConditionGrade } from '@app-types/product'
 import type { Metadata } from 'next'
 import Link from 'next/link'

@@ -14,9 +14,9 @@ describe("Deals Page", () => {
 		expect(typeof mod.default).toBe("function");
 	});
 
-	test("imports getDealsListings from @lib/data/deals", () => {
+	test("imports getDealsListings from @data/deals", () => {
 		expect(SOURCE).toContain("getDealsListings");
-		expect(SOURCE).toContain("@lib/data/deals");
+		expect(SOURCE).toContain("@data/deals");
 	});
 
 	test("imports ProductCard", () => {

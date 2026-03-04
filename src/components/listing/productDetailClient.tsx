@@ -13,8 +13,9 @@ import { PriceDisplay } from '@components/listing/priceDisplay'
 import { PreorderBadge } from '@components/listing/preorderBadge'
 import { AddToCart } from '@components/listing/addToCart'
 import { ShippingInfo } from '@components/listing/shippingInfo'
+import { ConditionBadge } from '@components/ui/conditionBadge'
 import { calculateDeposit } from '@helpers'
-import { findBetterDeal } from '@lib/data/families'
+import { findBetterDeal } from '@utils/products'
 
 interface ProductDetailClientProps {
   family: ProductFamily
@@ -48,6 +49,7 @@ export default function ProductDetailClient({
         selectedListing={selectedListing}
         onSelect={setSelectedListing}
       />
+      <ConditionBadge condition={selectedListing.condition} />
       <BetterDealNudge betterDeal={betterDeal} savings={savings} />
       <PriceDisplay
         priceKes={selectedListing.final_price_kes}

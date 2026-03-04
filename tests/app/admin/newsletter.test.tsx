@@ -6,7 +6,7 @@ import { renderToString } from "react-dom/server";
 
 // ── Mocks ──────────────────────────────────────────────────────────────────
 
-mock.module("@lib/data/admin", () => ({
+mock.module("@data/admin", () => ({
 	getNewsletterSubscribers: mock(() =>
 		Promise.resolve({
 			data: [

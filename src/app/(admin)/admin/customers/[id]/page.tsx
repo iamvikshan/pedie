@@ -1,6 +1,6 @@
 import { CustomerRoleSwitcher } from '@components/admin/customerRoleSwitcher'
 import { formatKes } from '@helpers'
-import { getAdminCustomerDetail } from '@lib/data/admin'
+import { getAdminCustomerDetail } from '@data/admin'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 

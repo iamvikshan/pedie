@@ -31,7 +31,7 @@ const mockUpdateListing = mock<any>(() =>
 );
 const mockDeleteListing = mock<any>(() => Promise.resolve(true));
 
-mock.module("@lib/data/admin", () => ({
+mock.module("@data/admin", () => ({
 	getAdminListings: mockGetAdminListings,
 	createListing: mockCreateListing,
 	updateListing: mockUpdateListing,

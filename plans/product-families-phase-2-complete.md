@@ -3,7 +3,7 @@
 Built the product family data layer with representative selection algorithm, Reebelo-style variant selector with color swatches and accessibility, product detail page at `/products/[slug]`, better deal nudge component, and repurposed `/listings/[listingId]` as a locked-variant mirror page. Applied DB migrations (enum values + sale→onsale migration) and seeded 5 new listings (3 preorder, 2 referral).
 
 **Files created/changed:**
-- `src/lib/data/families.ts` — product family queries and representative selection
+- `src/lib/data/products.ts` — product family queries and representative selection
 - `src/components/listing/variantSelector.tsx` — Reebelo-style variant selector with color swatches
 - `src/components/listing/betterDealNudge.tsx` — "Better deal available" banner
 - `src/components/listing/productDetailClient.tsx` — client wrapper managing variant selection state

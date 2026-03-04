@@ -1,6 +1,6 @@
 'use client'
 
-import type { RevenueDataPoint } from '@lib/data/admin'
+import type { RevenueDataPoint } from '@data/admin'
 import {
   Area,
   AreaChart,

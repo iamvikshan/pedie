@@ -10,7 +10,7 @@ const searchPageSource = readFileSync(
 );
 
 // Mock search data
-mock.module("@lib/data/search", () => ({
+mock.module("@data/search", () => ({
 	searchListings: mock((query: string) => {
 		if (query === "iphone") {
 			return Promise.resolve({

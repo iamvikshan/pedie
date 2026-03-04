@@ -2,7 +2,7 @@ import { OrderStatusUpdater } from '@components/admin/orderStatusUpdater'
 import { TrackingForm } from '@components/admin/trackingForm'
 import { OrderStatusTimeline } from '@components/orders/statusTimeline'
 import { formatKes } from '@helpers'
-import { getAdminOrderDetail } from '@lib/data/admin'
+import { getAdminOrderDetail } from '@data/admin'
 import { formatAdminDate } from '@utils/format'
 import { notFound } from 'next/navigation'
 

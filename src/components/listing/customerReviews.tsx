@@ -1,4 +1,4 @@
-import type { Review, ReviewStats } from '@lib/data/reviews'
+import type { Review, ReviewStats } from '@data/reviews'
 
 interface CustomerReviewsProps {
   reviews: Review[]

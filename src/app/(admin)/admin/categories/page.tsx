@@ -1,4 +1,4 @@
-import { getAdminCategories } from '@lib/data/admin'
+import { getAdminCategories } from '@data/admin'
 import { CategoriesClient } from './client'
 
 export default async function AdminCategoriesPage() {

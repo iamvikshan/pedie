@@ -1,5 +1,5 @@
 import { DataTableShell } from '@components/admin/dataTableShell'
-import { getAdminOrders } from '@lib/data/admin'
+import { getAdminOrders } from '@data/admin'
 import type { ColumnDef } from '@tanstack/react-table'
 import { orderColumns } from './columns'
 

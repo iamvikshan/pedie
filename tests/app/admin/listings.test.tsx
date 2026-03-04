@@ -34,7 +34,7 @@ const mockListings = {
 	totalPages: 1,
 };
 
-mock.module("@lib/data/admin", () => ({
+mock.module("@data/admin", () => ({
 	getAdminListings: mock(() => Promise.resolve(mockListings)),
 	getAdminProducts: mock(() =>
 		Promise.resolve({

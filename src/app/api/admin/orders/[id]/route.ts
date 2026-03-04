@@ -1,6 +1,6 @@
 import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
-import { getAdminOrderDetail, updateOrder } from '@lib/data/admin'
+import { getAdminOrderDetail, updateOrder } from '@data/admin'
 import {
   sendDeliveryConfirmation,
   sendOrderCancelled,

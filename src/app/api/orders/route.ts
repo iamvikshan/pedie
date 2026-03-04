@@ -1,6 +1,6 @@
 import { getUser } from '@helpers/auth'
-import type { CreateOrderInput } from '@lib/data/orders'
-import { createOrder } from '@lib/data/orders'
+import type { CreateOrderInput } from '@data/orders'
+import { createOrder } from '@data/orders'
 import { sendOrderConfirmation } from '@lib/email/send'
 import { NextResponse } from 'next/server'
 

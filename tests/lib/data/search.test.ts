@@ -78,7 +78,7 @@ mock.module("@lib/supabase/server", () => ({
 	),
 }));
 
-import { searchListings } from "@lib/data/search";
+import { searchListings } from "@data/search";
 
 describe("Search Data Functions", () => {
 	describe("searchListings", () => {
@@ -186,13 +186,13 @@ describe("Search Data Functions", () => {
 	});
 
 	test("exports getSearchSuggestions function", async () => {
-		const mod = await import("@lib/data/search");
+		const mod = await import("@data/search");
 		expect(mod.getSearchSuggestions).toBeDefined();
 		expect(typeof mod.getSearchSuggestions).toBe("function");
 	});
 
 	test("exports getAvailableFilters function", async () => {
-		const mod = await import("@lib/data/search");
+		const mod = await import("@data/search");
 		expect(mod.getAvailableFilters).toBeDefined();
 		expect(typeof mod.getAvailableFilters).toBe("function");
 	});
