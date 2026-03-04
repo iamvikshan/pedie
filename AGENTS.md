@@ -18,7 +18,7 @@ tooling:
   dev: bun dev
   build: bun run build
   check: bun check # eslint + tsc --noEmit (runs BOTH — never run lint/typecheck separately)
-  format: bun run f:changed # prettier on git-changed files only (fast); use `bun f` for full repo
+  format: bun run f # prettier on git-changed files only (fast); use `bun f:all` for full repo
   test: bun test # bun's built-in test runner
   seed: bun seed # scripts/seed.ts
   syncsheets: bun syncsheets # scripts/sheets.ts — Google Sheets ↔ DB sync
@@ -29,11 +29,11 @@ tooling:
 
 Run these in order after every change:
 
-1. **Format changed files**: `bun run f:changed`
+1. **Format changed files**: `bun run f`
 2. **Lint + Typecheck**: `bun check`
 3. **Tests**: `bun test`
 
-Do **not** run `bun f` (formats entire repo — slow and noisy). Use `bun run f:changed` instead. That script only formats files with uncommitted changes via `git diff`.
+Do **not** run `bun f:all` (formats entire repo — slow and noisy). Use `bun run f` instead. That script only formats files with uncommitted changes via `git diff`.
 
 ## Conventions
 

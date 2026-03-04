@@ -2,7 +2,7 @@
 
 Comprehensive overhaul addressing carousel/brands bugs, restructuring category hierarchy with many-to-many support, adding mega-menu navigation with breadcrumbs, redesigning homepage sections, and adding a repairs placeholder page. All DB changes via Supabase MCP migrations. Docs (DESIGN.md, product-architecture.md) updated as affected.
 
-**Resolved Tooling:** `{ pm: "bun", format: "bun run f:changed", lint: "bun lint", typecheck: "tsc --noEmit", test: "bun test", build: "bun run build", check: "bun check" }`
+**Resolved Tooling:** `{ pm: "bun", format: "bun run f", lint: "bun lint", typecheck: "tsc --noEmit", test: "bun test", build: "bun run build", check: "bun check" }`
 **Agent Conventions:** See `AGENTS.md` for full tooling, quality gate workflow, and coding conventions.
 
 **Phase Count Rationale:**

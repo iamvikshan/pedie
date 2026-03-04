@@ -105,6 +105,13 @@ export async function findOrCreateProduct(
       .limit(1)
       .maybeSingle()
 
+    if (!electronicsRoot?.id) {
+      throw new Error(
+        `Cannot create category "${categorySlug}": Electronics root category not found. ` +
+          `Aborting insert to avoid creating a top-level orphan.`
+      )
+    }
+
     const categoryName = categorySlug
       .replace(/-/g, ' ')
       .replace(/\b\w/g, c => c.toUpperCase())
@@ -114,7 +121,7 @@ export async function findOrCreateProduct(
       .insert({
         name: categoryName,
         slug: categorySlug,
-        parent_id: electronicsRoot?.id ?? null,
+        parent_id: electronicsRoot.id,
       })
       .select('id')
       .single()
