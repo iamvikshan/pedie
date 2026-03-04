@@ -8,9 +8,13 @@ import { ProductDescription } from '@components/listing/productDescription'
 import { ProductSpecs } from '@components/listing/productSpecs'
 import { ShippingInfo } from '@components/listing/shippingInfo'
 import { SimilarListings } from '@components/listing/similarListings'
+import VariantSelector from '@components/listing/variantSelector'
+import BetterDealNudge from '@components/listing/betterDealNudge'
 import { calculateDeposit, formatKes } from '@helpers'
 import { getListingById, getSimilarListings } from '@lib/data/listings'
 import { getProductReviews, getReviewStats } from '@lib/data/reviews'
+import { getProductFamilyBySlug, findBetterDeal } from '@lib/data/families'
+import Link from 'next/link'
 import {
   breadcrumbJsonLd,
   productJsonLd,
@@ -65,11 +69,17 @@ export default async function ListingPage({ params }: PageProps) {
   ].filter(Boolean)
   const deposit = calculateDeposit(listing.price_kes)
 
-  const [similarListings, reviews, reviewStats] = await Promise.all([
+  const [similarListings, reviews, reviewStats, family] = await Promise.all([
     getSimilarListings(listing.product_id, listing.listing_id),
     getProductReviews(listing.product_id, { page: 1, perPage: 5 }),
     getReviewStats(listing.product_id),
+    getProductFamilyBySlug(listing.product.slug),
   ])
+
+  const betterDeal = family ? findBetterDeal(listing, family.listings) : null
+  const savings = betterDeal
+    ? listing.final_price_kes - betterDeal.final_price_kes
+    : 0
 
   return (
     <>
@@ -111,6 +121,24 @@ export default async function ListingPage({ params }: PageProps) {
           {/* Right column: Listing Info */}
           <div className='flex flex-col gap-4'>
             <ListingInfo listing={listing} />
+
+            {family && (
+              <>
+                <VariantSelector
+                  listings={family.listings}
+                  selectedListing={listing}
+                  onSelect={() => {}}
+                  disabled
+                />
+                <BetterDealNudge betterDeal={betterDeal} savings={savings} />
+                <Link
+                  href={`/products/${listing.product.slug}`}
+                  className='text-sm text-pedie-green hover:underline'
+                >
+                  See all {family.variantCount} variants &rarr;
+                </Link>
+              </>
+            )}
 
             <PriceDisplay
               priceKes={listing.price_kes}

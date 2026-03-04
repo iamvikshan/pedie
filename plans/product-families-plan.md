@@ -64,13 +64,30 @@ Restructure Pedie from individual-listing browsing to product-family browsing, a
 
 ---
 
-### 2. ⬜ Phase 2: Product Family Data Layer + Product Detail Page
+### 2. ✅ Phase 2: Product Family Data Layer + Product Detail Page
 
 **Objective:** Build product family queries with representative selection, create `/products/[slug]` route with Reebelo-style visual variant selectors, repurpose `/listings/[id]` as locked-variant mirror page.
 
+**Changes from plan:**
+- Data layer placed in `src/lib/data/families.ts` (not `products.ts` as originally planned) to avoid collision with existing data modules — will merge into `products.ts` in Phase 3
+- Search integration deferred — `src/lib/data/search.ts` not modified in this phase (will revisit when search is updated in Phase 3/5)
+- N+1 query in `getProductFamilies` fixed during review: now uses a single batch query + client-side grouping instead of per-product queries
+- Color selector renders as circular color swatches (hex background) with label — not plain text pills
+- Full accessibility: `role='radiogroup'`, `aria-pressed`, `aria-disabled`, `disabled` on all interactive variant buttons
+- `CustomerReviews` removed from product page (called without required props) — JSDoc TODO added for future reviews system
+- `SimilarListings` still hardcoded to `[]` — will implement as "other products in same category" in Phase 3
+- Reserved listings now filtered from all family queries and pure functions (`selectRepresentative`, `getProductFamilyBySlug`, `getProductFamilies`, `findBetterDeal`) — 3 new tests added (20 total in families.test.ts)
+
+**Post-Phase-2 schema cleanup (pre-Phase-3):**
+- Enum-replace migration (`20250705000000_cleanup_dead_enum_values.sql`): removed dead `sale` from `listing_type`, dead `preorder` from `listing_status`. Dropped stale `idx_listings_sale` partial index, recreated `idx_listings_affiliate`.
+- Added `refunded` to `order_status` enum (`20250706000000_add_order_status_refunded.sql`)
+- Regenerated `types/database.ts` from live DB schema (single source of truth)
+- `types/product.ts` now derives `ListingStatus`, `ListingType`, `ConditionGrade` from `Database['public']['Enums']` instead of hand-maintained string unions
+- `scripts/seed.ts` updated: replaced dead `listing_type: 'sale'` with `status: 'onsale'` for on-sale seed listings
+
 **Representative algorithm:**
 1. Group listings by `product_id`
-2. Filter out `status = 'sold'`
+2. Filter out `status = 'sold'` and `status = 'reserved'`
 3. Rank by `listing_type` priority: `standard`(1) > `preorder`(2) > `affiliate`(3) > `referral`(4)
 4. The entire highest-priority type tier always wins regardless of price
 5. Within the winning tier, pick the listing with lowest `final_price_kes`
@@ -123,7 +140,7 @@ Restructure Pedie from individual-listing browsing to product-family browsing, a
 
 ### 3. ⬜ Phase 3: Product Family Cards + Homepage Refresh
 
-**Objective:** Replace individual listing cards with product family cards for non-hot-deals contexts. Hot deals + `/deals` keep individual listing cards unchanged.
+**Objective:** Replace individual listing cards with product family cards for non-hot-deals contexts. Hot deals + `/deals` keep individual listing cards unchanged. Merge `families.ts` into `products.ts`. Implement "other products in same category" for `SimilarListings`.
 
 **Card display logic (based on representative listing):**
 - **Sale card:** Representative has `status === 'onsale'` — red discount pill, crossed-out price, bold red final price, urgency styling
@@ -138,12 +155,15 @@ Restructure Pedie from individual-listing browsing to product-family browsing, a
 **Non-hot-deals behavior:** If the representative listing happens to be `onsale`, the family card shows sale styling. If it's discounted, shows discounted styling. Otherwise, normal. The card reflects the representative, not the family aggregate.
 
 **Files/Functions to Create/Modify:**
+- `src/lib/data/products.ts` — merge in family queries from `families.ts` (`getProductFamilyBySlug`, `getProductFamilies`, `selectRepresentative`, `findBetterDeal`, `LISTING_TYPE_PRIORITY`); add `getRelatedProducts(categoryId, excludeProductId)` for SimilarListings
+- `src/lib/data/families.ts` — DELETE after merge into `products.ts`
 - `src/components/ui/productFamilyCard.tsx` — new family card component (3-tier styling based on representative)
 - `src/components/home/customerFavorites.tsx` — switch from individual listing cards to product family cards
 - `src/components/catalog/productGrid.tsx` — use family cards for collections/search results
 - `src/components/home/hotDeals.tsx` — UNCHANGED, keeps individual `ProductCard`
 - `src/app/(store)/deals/page.tsx` — UNCHANGED, keeps individual listing cards
 - `src/app/page.tsx` — update data fetching to use family queries for featured/favorites sections
+- `src/app/(store)/products/[slug]/page.tsx` — wire up `SimilarListings` with `getRelatedProducts()` instead of hardcoded `[]`
 - `src/components/home/categoryShowcase.tsx` — use family cards
 
 **Tests to Write:**
@@ -153,13 +173,15 @@ Restructure Pedie from individual-listing browsing to product-family browsing, a
 - `tests/app/homepage.test.ts` — homepage favorites section uses family cards
 
 **Steps:**
-1. Write failing tests for product family card (3 tiers)
-2. Implement `ProductFamilyCard` component with sale/discounted/normal styling
-3. Write tests for homepage integration
-4. Update homepage data fetching to use product family queries
-5. Update customer favorites, category showcase to use family cards
-6. Verify hot deals and `/deals` page remain unchanged
-7. Run `bun f && bun check && bun test` — all tests pass
+1. Merge `families.ts` queries/functions into `products.ts`, update all imports, delete `families.ts`
+2. Write failing tests for product family card (3 tiers)
+3. Implement `ProductFamilyCard` component with sale/discounted/normal styling
+4. Write tests for homepage integration
+5. Update homepage data fetching to use product family queries
+6. Update customer favorites, category showcase to use family cards
+7. Implement `getRelatedProducts()` and wire up `SimilarListings` on product detail page
+8. Verify hot deals and `/deals` page remain unchanged
+9. Run `bun f && bun check && bun test` — all tests pass
 
 ---
 

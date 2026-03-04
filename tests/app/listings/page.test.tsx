@@ -1,4 +1,6 @@
 import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import React from "react";
 import { renderToString } from "react-dom/server";
 
@@ -34,6 +36,18 @@ mock.module("next/link", () => ({
 			children as React.ReactNode,
 		);
 	}),
+}));
+
+// Mock @lib/data/families
+mock.module("@lib/data/families", () => ({
+  getProductFamilyBySlug: mock(() => Promise.resolve({
+    product: { slug: 'test' },
+    listings: [],
+    representative: {},
+    variantCount: 1
+  })),
+  findBetterDeal: mock(() => null),
+  LISTING_TYPE_PRIORITY: {}
 }));
 
 // Mock @lib/data/listings
@@ -185,4 +199,11 @@ describe("ListingPage", () => {
 		expect(html).toContain("Free Shipping via Aquantuo");
 		expect(html).toContain("business days");
 	});
+});
+
+describe('Phase 3 locked-variant mirror page checks', () => {
+  const src = readFileSync(resolve('src/app/(store)/listings/[listingId]/page.tsx'), 'utf-8');
+  test('fetches getProductFamilyBySlug', () => { expect(src).toContain('getProductFamilyBySlug') });
+  test('renders VariantSelector with disabled prop', () => { expect(src).toContain('disabled') });
+  test('shows See all variants link', () => { expect(src).toContain('See all') });
 });

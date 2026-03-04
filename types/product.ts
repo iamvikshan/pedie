@@ -1,3 +1,5 @@
+import type { Database } from "./database";
+
 export type Json =
 	| string
 	| number
@@ -6,9 +8,12 @@ export type Json =
 	| { [key: string]: Json | undefined }
 	| Json[];
 
-export type ConditionGrade = "acceptable" | "good" | "excellent" | "premium";
-export type ListingStatus = "available" | "reserved" | "sold" | "onsale";
-export type ListingType = 'standard' | 'preorder' | 'affiliate' | 'referral';
+/** Derived from the database enum — single source of truth */
+export type ConditionGrade = Database["public"]["Enums"]["condition_grade"];
+/** Derived from the database enum — single source of truth */
+export type ListingStatus = Database["public"]["Enums"]["listing_status"];
+/** Derived from the database enum — single source of truth */
+export type ListingType = Database["public"]["Enums"]["listing_type"];
 
 export type Category = {
 	id: string;
@@ -67,4 +72,12 @@ export type Listing = {
 export interface ListingWithProduct extends Listing {
 	product: Product;
 	category?: Category;
+}
+
+/** A product with all its available listings grouped as a "family" */
+export interface ProductFamily {
+	product: Product;
+	listings: Listing[];
+	representative: Listing;
+	variantCount: number;
 }

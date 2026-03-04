@@ -553,7 +553,8 @@ interface ListingSeed {
   price_kes: number
   original_price_usd: number
   source: string
-  listing_type?: 'standard' | 'sale' | 'affiliate'
+  listing_type?: 'standard' | 'affiliate'
+  status?: 'available' | 'onsale'
   final_price_kes?: number
   ram?: string
   source_url?: string
@@ -570,7 +571,7 @@ const listings: ListingSeed[] = [
     price_kes: 195000,
     original_price_usd: 1099,
     source: 'swappa',
-    listing_type: 'sale',
+    status: 'onsale',
     final_price_kes: 169000,
   },
   {
@@ -593,7 +594,7 @@ const listings: ListingSeed[] = [
     price_kes: 135000,
     original_price_usd: 899,
     source: 'swappa',
-    listing_type: 'sale',
+    status: 'onsale',
     final_price_kes: 115000,
   },
   {
@@ -966,7 +967,7 @@ async function seed() {
       source: l.source,
       source_url: l.source_url ?? null,
       ram: l.ram ?? null,
-      status: 'available' as const,
+      status: (l.status ?? 'available') as 'available' | 'onsale',
       is_featured: l.condition === 'premium' || l.condition === 'excellent',
     }
   })

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import heroSlides from "../../src/data/hero.json";
+import heroSlides from "../../src/lib/data/hero.json";
 
 describe("hero.json", () => {
 	test("has 3 slides", () => {

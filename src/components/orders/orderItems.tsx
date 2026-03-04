@@ -27,7 +27,7 @@ export function OrderItemsList({ items }: OrderItemsListProps) {
           >
             <div>
               <p className='text-sm font-mono text-pedie-text-muted'>
-                {item.listing_id.slice(0, 12)}...
+                {item.listing_id?.slice(0, 12)}...
               </p>
             </div>
             <div className='text-right'>

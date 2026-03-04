@@ -25,7 +25,8 @@
       "@components/*": ["./src/components/*"],
       "@utils/*": ["./src/utils/*"],
       "@helpers": ["./src/helpers"],
-      "@helpers/*": ["./src/helpers/*"]
+      "@helpers/*": ["./src/helpers/*"],
+      "@data/*": ["./src/lib/data/*"]
     }
   },
   "include": [

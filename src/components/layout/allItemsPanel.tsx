@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useCallback, useEffect, useRef } from 'react'
 import { TbFlame, TbX } from 'react-icons/tb'
-import brands from '@/data/brands.json'
+import brands from '@data/brands.json'
 import { CATEGORIES } from './categoryNav'
 
 const FEATURED_COLLECTIONS = [

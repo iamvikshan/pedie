@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import brands from '../../src/data/brands.json'
+import brands from '../../src/lib/data/brands.json'
 
 describe('brands.json', () => {
   test('has at least 6 brands', () => {

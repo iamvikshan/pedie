@@ -10,7 +10,7 @@ import {
   TbPlayerPause,
   TbPlayerPlay,
 } from 'react-icons/tb'
-import heroSlides from '@/data/hero.json'
+import heroSlides from '@data/hero.json'
 
 export { heroSlides as SLIDES }
 
