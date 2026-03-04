@@ -49,13 +49,50 @@ describe('AllItemsPanel', () => {
     expect(src).toContain('Escape')
     expect(src).toContain('focusable')
   })
+})
 
-  test('brand logos are circular', () => {
-    expect(src).toContain('rounded-full')
-    expect(src).toContain('overflow-hidden')
+describe('AllItemsPanel Popular Brands redesign', () => {
+  test('brands section does NOT use dark:invert class', () => {
+    expect(src).not.toContain('dark:invert')
   })
 
-  test('brand logos invert in dark mode', () => {
-    expect(src).toContain('dark:invert')
+  test('brands section uses theme-aware bg-pedie-card class', () => {
+    expect(src).toContain('bg-pedie-card')
+  })
+
+  test('brands section uses theme-aware border-pedie-border class', () => {
+    expect(src).toContain('border-pedie-border')
+  })
+
+  test('brands layout uses grid for logo-only card display', () => {
+    expect(src).toContain('grid-cols-3')
+  })
+
+  test('brands use card-style layout with rounded-2xl', () => {
+    expect(src).toContain('rounded-2xl')
+    expect(src).toContain('bg-pedie-card')
+  })
+
+  test('brand logos display at sufficient size without brand name text', () => {
+    // Logo-only cards — no brand name span, large logo dimensions
+    expect(src).toContain("width={80}")
+    expect(src).toContain("height={32}")
+    expect(src).not.toContain('group-hover:text-pedie-green')
+  })
+
+  test('brand hover uses pedie-green accent', () => {
+    expect(src).toContain('border-pedie-green/30')
+    expect(src).toContain('hover:bg-pedie-card-hover')
+  })
+
+  test('brand logos have subtle opacity transition on hover', () => {
+    expect(src).toContain('opacity-70')
+    expect(src).toContain('group-hover:opacity-100')
+  })
+
+  test('does not use glass-border for brand items', () => {
+    // The redesign replaces glass-border with pedie-border on brand items
+    const brandsSection = src.slice(src.indexOf('Popular Brands'))
+    expect(brandsSection).not.toContain('border-pedie-glass-border')
   })
 })

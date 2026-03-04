@@ -14,8 +14,21 @@ import heroSlides from '@data/hero.json'
 
 export { heroSlides as SLIDES }
 
+export const slideVariants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? 300 : -300,
+    opacity: 0,
+  }),
+  center: { x: 0, opacity: 1 },
+  exit: (direction: number) => ({
+    x: direction > 0 ? -300 : 300,
+    opacity: 0,
+  }),
+}
+
 export function HeroBanner() {
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [direction, setDirection] = useState<number>(1)
   const [isManuallyPaused, setIsManuallyPaused] = useState(false)
   const [isInteractionPaused, setIsInteractionPaused] = useState(false)
   const [imgError, setImgError] = useState<Record<number, boolean>>({})
@@ -30,6 +43,7 @@ export function HeroBanner() {
   useEffect(() => {
     if (isPaused || !hasSlides) return
     const timer = setInterval(() => {
+      setDirection(1)
       setCurrentSlide(prev => (prev + 1) % heroSlides.length)
     }, 5000)
     return () => clearInterval(timer)
@@ -46,10 +60,11 @@ export function HeroBanner() {
     setLastInteraction(Date.now())
   }, [])
 
-  const handleChevronClick = useCallback((direction: 'prev' | 'next') => {
+  const handleChevronClick = useCallback((dir: 'prev' | 'next') => {
     setLastInteraction(Date.now())
+    setDirection(dir === 'next' ? 1 : -1)
     setCurrentSlide(prev =>
-      direction === 'prev'
+      dir === 'prev'
         ? (prev - 1 + heroSlides.length) % heroSlides.length
         : (prev + 1) % heroSlides.length
     )
@@ -73,12 +88,6 @@ export function HeroBanner() {
     }
   }, [])
 
-  const slideVariants = {
-    enter: { x: 300, opacity: 0 },
-    center: { x: 0, opacity: 1 },
-    exit: { x: -300, opacity: 0 },
-  }
-
   // Defensive guard for empty or malformed slide data
   if (!slide) {
     return (
@@ -97,9 +106,10 @@ export function HeroBanner() {
       onFocus={handleFocus}
       onBlur={handleBlur}
     >
-      <AnimatePresence mode='wait'>
+      <AnimatePresence mode='wait' custom={direction}>
         <motion.div
           key={safeIndex}
+          custom={direction}
           variants={slideVariants}
           initial='enter'
           animate='center'
@@ -188,7 +198,10 @@ export function HeroBanner() {
           <button
             key={index}
             type='button'
-            onClick={() => setCurrentSlide(index)}
+            onClick={() => {
+              setDirection(index > safeIndex ? 1 : -1)
+              setCurrentSlide(index)
+            }}
             className={`h-2 w-2 rounded-full transition-colors ${
               index === safeIndex
                 ? 'bg-pedie-green'

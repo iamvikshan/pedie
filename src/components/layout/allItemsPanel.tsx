@@ -210,39 +210,34 @@ export function AllItemsPanel({ isOpen, onClose }: AllItemsPanelProps) {
                 <h3 className='mb-3 text-xs font-semibold uppercase tracking-wider text-pedie-text-muted'>
                   Popular Brands
                 </h3>
-                <div className='grid grid-cols-3 gap-2'>
+                <div className='grid grid-cols-3 gap-3'>
                   {brands.map(brand => (
                     <Link
                       key={brand.slug}
                       href={`/collections/brands/${brand.slug}`}
                       onClick={onClose}
-                      className='group flex flex-col items-center gap-1.5 rounded-lg border border-pedie-glass-border p-2.5 transition-colors hover:bg-pedie-card hover:text-pedie-green'
+                      className='group relative flex items-center justify-center rounded-2xl border border-pedie-border bg-pedie-card p-4 h-16 transition-all duration-200 hover:bg-pedie-card-hover hover:border-pedie-green/30 hover:scale-[1.02]'
                     >
-                      <div className='relative h-8 w-8 rounded-full overflow-hidden'>
-                        <Image
-                          src={brand.logo}
-                          alt={brand.name}
-                          width={32}
-                          height={32}
-                          className='object-contain dark:invert'
-                          onError={e => {
-                            const target = e.currentTarget
-                            target.style.display = 'none'
-                            if (target.nextElementSibling)
-                              (
-                                target.nextElementSibling as HTMLElement
-                              ).style.display = 'flex'
-                          }}
-                        />
-                        <span
-                          className='hidden h-full w-full items-center justify-center text-xs font-bold text-pedie-text-muted'
-                          style={{ display: 'none' }}
-                        >
-                          {brand.name.charAt(0)}
-                        </span>
-                      </div>
-                      <span className='text-xs font-medium text-pedie-text group-hover:text-pedie-green'>
-                        {brand.name}
+                      <Image
+                        src={brand.logo}
+                        alt={brand.name}
+                        width={80}
+                        height={32}
+                        className='object-contain max-h-8 w-auto opacity-70 transition-opacity group-hover:opacity-100'
+                        onError={e => {
+                          const target = e.currentTarget
+                          target.style.display = 'none'
+                          if (target.nextElementSibling)
+                            (
+                              target.nextElementSibling as HTMLElement
+                            ).style.display = 'flex'
+                        }}
+                      />
+                      <span
+                        className='hidden h-full w-full items-center justify-center text-sm font-bold text-pedie-text-muted'
+                        style={{ display: 'none' }}
+                      >
+                        {brand.name.charAt(0)}
                       </span>
                     </Link>
                   ))}

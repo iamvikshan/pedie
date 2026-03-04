@@ -54,3 +54,62 @@ describe("HeroBanner", () => {
 		expect(SOURCE).toContain("lastInteraction");
 	});
 });
+
+describe("HeroBanner slideVariants direction", () => {
+	test("exports slideVariants object", async () => {
+		const mod = await import("@components/home/heroBanner");
+		expect(mod.slideVariants).toBeDefined();
+	});
+
+	test("slideVariants.enter is a function accepting direction", async () => {
+		const { slideVariants } = await import("@components/home/heroBanner");
+		expect(typeof slideVariants.enter).toBe("function");
+	});
+
+	test("slideVariants.exit is a function accepting direction", async () => {
+		const { slideVariants } = await import("@components/home/heroBanner");
+		expect(typeof slideVariants.exit).toBe("function");
+	});
+
+	test("enter returns x:300 for direction=1 (next)", async () => {
+		const { slideVariants } = await import("@components/home/heroBanner");
+		const result = (slideVariants.enter as (d: number) => { x: number })(1);
+		expect(result.x).toBe(300);
+		expect(result).toHaveProperty("opacity", 0);
+	});
+
+	test("enter returns x:-300 for direction=-1 (prev)", async () => {
+		const { slideVariants } = await import("@components/home/heroBanner");
+		const result = (slideVariants.enter as (d: number) => { x: number })(-1);
+		expect(result.x).toBe(-300);
+		expect(result).toHaveProperty("opacity", 0);
+	});
+
+	test("exit returns x:-300 for direction=1 (next)", async () => {
+		const { slideVariants } = await import("@components/home/heroBanner");
+		const result = (slideVariants.exit as (d: number) => { x: number })(1);
+		expect(result.x).toBe(-300);
+		expect(result).toHaveProperty("opacity", 0);
+	});
+
+	test("exit returns x:300 for direction=-1 (prev)", async () => {
+		const { slideVariants } = await import("@components/home/heroBanner");
+		const result = (slideVariants.exit as (d: number) => { x: number })(-1);
+		expect(result.x).toBe(300);
+		expect(result).toHaveProperty("opacity", 0);
+	});
+
+	test("center variant is static with x:0 and opacity:1", async () => {
+		const { slideVariants } = await import("@components/home/heroBanner");
+		expect(slideVariants.center).toEqual({ x: 0, opacity: 1 });
+	});
+
+	test("source uses custom prop on AnimatePresence and motion.div", () => {
+		expect(SOURCE).toContain("custom={direction}");
+	});
+
+	test("source tracks direction state", () => {
+		expect(SOURCE).toContain("useState<number>");
+		expect(SOURCE).toContain("setDirection");
+	});
+});
