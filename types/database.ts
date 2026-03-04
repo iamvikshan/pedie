@@ -17,6 +17,7 @@ export type Database = {
       categories: {
         Row: {
           created_at: string | null
+          description: string | null
           id: string
           image_url: string | null
           name: string
@@ -27,6 +28,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          description?: string | null
           id?: string
           image_url?: string | null
           name: string
@@ -37,6 +39,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          description?: string | null
           id?: string
           image_url?: string | null
           name?: string
@@ -140,6 +143,39 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_categories: {
+        Row: {
+          product_id: string
+          category_id: string
+          created_at: string | null
+        }
+        Insert: {
+          product_id: string
+          category_id: string
+          created_at?: string | null
+        }
+        Update: {
+          product_id?: string
+          category_id?: string
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_categories_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
             referencedColumns: ["id"]
           },
         ]

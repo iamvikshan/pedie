@@ -1,14 +1,8 @@
 import { describe, expect, mock, test } from "bun:test";
 import { readFileSync } from "fs";
 import { resolve } from "path";
-import {
-	getDealListings,
-	getFeaturedListings,
-	getLatestListings,
-	getListingsByCategory,
-} from "@data/products";
 
-// Mock the server client
+// Mock the server client — must handle both categories and listings query patterns
 mock.module("@lib/supabase/server", () => ({
 	createClient: mock(() =>
 		Promise.resolve({
@@ -16,6 +10,7 @@ mock.module("@lib/supabase/server", () => ({
 				if (table === "categories") {
 					return {
 						select: mock(() => ({
+							// .eq('slug', ...).single() pattern (getCategoryBySlug, getListingsByCategory)
 							eq: mock(() => ({
 								single: mock(() =>
 									Promise.resolve({
@@ -24,6 +19,13 @@ mock.module("@lib/supabase/server", () => ({
 									}),
 								),
 							})),
+							// .order('sort_order', ...) pattern (getCategories, used by getCategoryAndDescendantIds)
+							order: mock(() =>
+								Promise.resolve({
+									data: [{ id: "cat-1", name: "Phones", slug: "phones", parent_id: null }],
+									error: null,
+								}),
+							),
 						})),
 					};
 				}
@@ -46,43 +48,42 @@ mock.module("@lib/supabase/server", () => ({
 							}, // 50% discount
 						];
 
-						const eqMock = mock(() => {
-							const eqResult = {
-								eq: mock(() => {
-									const eq2Result = {
-										order: mock(() => ({
-											limit: mock(() =>
-												Promise.resolve({ data: mockData, error: null }),
-											),
-										})),
-									};
-									return Object.assign(
-										Promise.resolve({ data: mockData, error: null }),
-										eq2Result,
-									);
-								}),
-								order: mock(() => ({
-									limit: mock(() =>
-										Promise.resolve({ data: mockData, error: null }),
-									),
-								})),
+						const terminalMock = {
+							order: mock(() => ({
 								limit: mock(() =>
 									Promise.resolve({ data: mockData, error: null }),
 								),
-							};
+							})),
+							limit: mock(() =>
+								Promise.resolve({ data: mockData, error: null }),
+							),
+							in: mock(function () { return terminalMock; }),
+							not: mock(function () { return terminalMock; }),
+							neq: mock(function () { return terminalMock; }),
+							eq: mock(function () { return terminalMock; }),
+						};
+
+						const eqMock = mock(() => {
 							return Object.assign(
 								Promise.resolve({ data: mockData, error: null }),
-								eqResult,
+								terminalMock,
 							);
 						});
 
-						return { eq: eqMock };
+						return { eq: eqMock, not: mock(() => ({ eq: eqMock, in: eqMock })), in: eqMock };
 					}),
 				};
 			}),
 		}),
 	),
 }));
+
+import {
+	getDealListings,
+	getFeaturedListings,
+	getLatestListings,
+	getListingsByCategory,
+} from "@data/products";
 
 describe("Products Data Functions", () => {
 	const SOURCE = readFileSync(

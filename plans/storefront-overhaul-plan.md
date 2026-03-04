@@ -2,7 +2,8 @@
 
 Comprehensive overhaul addressing carousel/brands bugs, restructuring category hierarchy with many-to-many support, adding mega-menu navigation with breadcrumbs, redesigning homepage sections, and adding a repairs placeholder page. All DB changes via Supabase MCP migrations. Docs (DESIGN.md, product-architecture.md) updated as affected.
 
-**Resolved Tooling:** `{ pm: "bun", format: "bun f", lint: "bun lint", typecheck: "tsc --noEmit", test: "bun test", build: "bun run build", check: "bun check" }`
+**Resolved Tooling:** `{ pm: "bun", format: "bun run f:changed", lint: "bun lint", typecheck: "tsc --noEmit", test: "bun test", build: "bun run build", check: "bun check" }`
+**Agent Conventions:** See `AGENTS.md` for full tooling, quality gate workflow, and coding conventions.
 
 **Phase Count Rationale:**
 - Phase 1 (Bugs): Self-contained UI fixes with zero DB dependency — quick wins that unblock user testing
@@ -34,7 +35,15 @@ Comprehensive overhaul addressing carousel/brands bugs, restructuring category h
       5. Redesign brands grid: rounded `bg-pedie-card border border-pedie-border` containers, remove `dark:invert`, use properly themed brand display with hover state
       6. Run tests, verify all pass; run `bun check`
 
-2. **⬜ Phase 2: Category Hierarchy DB Migration + Many-to-Many**
+2. **✅ Phase 2: Category Hierarchy DB Migration + Many-to-Many**
+    - **Changes from plan:** Added cycle protection (visited sets) to `getCategoryBreadcrumb` and `getCategoryAndDescendantIds` per review feedback. Fixed `ProductCategory.created_at` type to `string | null`. Made migration policies idempotent with `DROP POLICY IF EXISTS`. Added `CategoryWithChildren` type to `types/product.ts`. Test file at `tests/data/categories.test.ts`.
+    - **Post-phase fixes:**
+      - Created `AGENTS.md` with full tooling, quality gate workflow (`f:changed` → `check` → `test`), and coding conventions (source-analysis tests, MCP migrations, sync verification, breaking-changes-welcome policy)
+      - Added `f:changed` script to `package.json` — formats only git-changed files instead of entire repo
+      - Fixed `src/lib/sheets/sync.ts` `findOrCreateProduct` — replaced flat `upsert` (which created orphan categories) with hierarchy-aware select-first, insert-under-Electronics-root pattern
+      - Added Gaming category + 3 subcategories (Consoles, Handhelds, Accessories) to `scripts/seed.ts`, migration SQL, and live DB
+      - Added 10 new products (4 Gaming, 3 Audio, 2 Cameras) and 17 listings to seed data for homepage/menu testing
+      - Sync verification: confirmed `findOrCreateProduct` logic compatible with hierarchy; all 1083 tests passing
     - **Objective:** Restructure categories with Electronics root, add all subcategories, create `product_categories` junction table for many-to-many, seed data via MCP, update types and data-fetching
     - **Files/Functions to Modify/Create:**
       - New migration: `supabase/migrations/20250707000000_category_hierarchy.sql` — add `description` column, insert Electronics root, reparent existing categories, add all subcategories, create `product_categories` junction table with RLS

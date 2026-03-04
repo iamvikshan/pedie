@@ -69,6 +69,16 @@ export type Listing = {
 	updated_at: string;
 };
 
+export type CategoryWithChildren = Category & {
+	children: Category[];
+};
+
+export type ProductCategory = {
+	product_id: string;
+	category_id: string;
+	created_at: string | null;
+};
+
 export interface ListingWithProduct extends Listing {
 	product: Product;
 	category?: Category;

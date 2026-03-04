@@ -11,10 +11,12 @@
     "start": "next start",
     "lint": "eslint",
     "f": "prettier --write .",
+    "f:changed": "git diff --name-only --diff-filter=ACMR HEAD | grep -E '\\.(ts|tsx|js|jsx|json|css|md|mjs)$' | xargs bunx prettier --write --ignore-unknown",
     "f:check": "prettier --check .",
     "check": "bun lint && tsc --noEmit",
     "test": "bun test",
     "seed": "bun scripts/seed.ts",
+    "syncsheets": "bun scripts/sheets.ts",
     "crawl": "bun scripts/crawlers/index.ts",
     "postinstall": "touch .env.local && (grep -q NEXT_TELEMETRY_DISABLED .env.local || echo 'NEXT_TELEMETRY_DISABLED=1' >> .env.local) && (grep -q REACT_EDITOR .env.local || echo 'REACT_EDITOR=code' >> .env.local)"
   },

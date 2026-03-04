@@ -83,24 +83,47 @@ export async function findOrCreateProduct(
 
   if (existing) return existing.id
 
-  // Find or create category — ignoreDuplicates avoids overwriting manually edited names
-  const categoryName = categorySlug
-    .replace(/-/g, ' ')
-    .replace(/\b\w/g, c => c.toUpperCase())
-
-  const { data: category, error: catError } = await supabase
+  // Look up the category by slug in the hierarchy.
+  // If it doesn't exist, create it under the Electronics root.
+  const { data: category } = await supabase
     .from('categories')
-    .upsert(
-      { name: categoryName, slug: categorySlug },
-      { onConflict: 'slug', ignoreDuplicates: true }
-    )
     .select('id')
-    .single()
+    .eq('slug', categorySlug)
+    .limit(1)
+    .maybeSingle()
 
-  if (catError || !category) {
-    throw new Error(`Failed to find or create category: ${catError?.message}`)
+  let categoryId: string
+
+  if (category) {
+    categoryId = category.id
+  } else {
+    // Find or default to Electronics root as parent
+    const { data: electronicsRoot } = await supabase
+      .from('categories')
+      .select('id')
+      .eq('slug', 'electronics')
+      .limit(1)
+      .maybeSingle()
+
+    const categoryName = categorySlug
+      .replace(/-/g, ' ')
+      .replace(/\b\w/g, c => c.toUpperCase())
+
+    const { data: newCategory, error: catError } = await supabase
+      .from('categories')
+      .insert({
+        name: categoryName,
+        slug: categorySlug,
+        parent_id: electronicsRoot?.id ?? null,
+      })
+      .select('id')
+      .single()
+
+    if (catError || !newCategory) {
+      throw new Error(`Failed to find or create category: ${catError?.message}`)
+    }
+    categoryId = newCategory.id
   }
-  const categoryId = category.id
 
   // Generate slug from brand + model
   const slug = `${brand}-${model}`

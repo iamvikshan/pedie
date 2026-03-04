@@ -24,38 +24,283 @@ const supabase = createClient<Database>(supabaseUrl, serviceRoleKey, {
 })
 
 // ---------------------------------------------------------------------------
-// Categories
+// Categories (hierarchical)
 // ---------------------------------------------------------------------------
-const categories = [
+interface CategorySeed {
+  name: string
+  slug: string
+  description?: string
+  sort_order: number
+  image_url?: string
+  parent_slug?: string
+}
+
+const categories: CategorySeed[] = [
+  // Root
+  {
+    name: 'Electronics',
+    slug: 'electronics',
+    description: 'All electronic devices and accessories',
+    sort_order: 0,
+  },
+  // Top-level (children of Electronics)
   {
     name: 'Smartphones',
     slug: 'smartphones',
     sort_order: 1,
     image_url: '/images/categories/smartphones.svg',
+    parent_slug: 'electronics',
   },
   {
     name: 'Laptops',
     slug: 'laptops',
     sort_order: 2,
     image_url: '/images/categories/laptops.svg',
+    parent_slug: 'electronics',
   },
   {
     name: 'Tablets',
     slug: 'tablets',
     sort_order: 3,
     image_url: '/images/categories/tablets.svg',
+    parent_slug: 'electronics',
   },
   {
     name: 'Wearables',
     slug: 'wearables',
     sort_order: 4,
     image_url: '/images/categories/wearables.svg',
+    parent_slug: 'electronics',
   },
   {
     name: 'Accessories',
     slug: 'accessories',
     sort_order: 5,
     image_url: '/images/categories/accessories.svg',
+    parent_slug: 'electronics',
+  },
+  {
+    name: 'Audio',
+    slug: 'audio',
+    description: 'Audio equipment and accessories',
+    sort_order: 6,
+    parent_slug: 'electronics',
+  },
+  // Other Electronics
+  {
+    name: 'Desktop Computers',
+    slug: 'desktop-computers',
+    description: 'Desktop PCs and all-in-ones',
+    sort_order: 7,
+    parent_slug: 'electronics',
+  },
+  {
+    name: 'Portable Power Banks',
+    slug: 'portable-power-banks',
+    description: 'Portable battery packs and power stations',
+    sort_order: 8,
+    parent_slug: 'electronics',
+  },
+  {
+    name: 'Cameras',
+    slug: 'cameras',
+    description: 'Digital cameras and action cameras',
+    sort_order: 9,
+    parent_slug: 'electronics',
+  },
+  {
+    name: 'Gaming',
+    slug: 'gaming',
+    description: 'Gaming consoles, handhelds, and gaming accessories',
+    sort_order: 10,
+    image_url: '/images/categories/gaming.svg',
+    parent_slug: 'electronics',
+  },
+  {
+    name: 'Camera Accessories',
+    slug: 'camera-accessories',
+    description: 'Lenses, tripods, and camera gear',
+    sort_order: 10,
+    parent_slug: 'electronics',
+  },
+  {
+    name: 'VR Headsets',
+    slug: 'vr-headsets',
+    description: 'Virtual reality headsets',
+    sort_order: 11,
+    parent_slug: 'electronics',
+  },
+  {
+    name: 'VR Headset Accessories',
+    slug: 'vr-headset-accessories',
+    description: 'Controllers, straps, and VR accessories',
+    sort_order: 12,
+    parent_slug: 'electronics',
+  },
+  // Gaming subcategories
+  {
+    name: 'Gaming Consoles',
+    slug: 'gaming-consoles',
+    description: 'Home gaming consoles from top brands',
+    sort_order: 1,
+    parent_slug: 'gaming',
+  },
+  {
+    name: 'Gaming Handhelds',
+    slug: 'gaming-handhelds',
+    description: 'Portable gaming devices',
+    sort_order: 2,
+    parent_slug: 'gaming',
+  },
+  {
+    name: 'Gaming Accessories',
+    slug: 'gaming-accessories',
+    description: 'Controllers, headsets, and gaming gear',
+    sort_order: 3,
+    parent_slug: 'gaming',
+  },
+  // Wearables subcategories
+  {
+    name: 'Smartwatches',
+    slug: 'smartwatches',
+    description: 'Smart wristwatches from top brands',
+    sort_order: 1,
+    parent_slug: 'wearables',
+  },
+  {
+    name: 'Smart Rings',
+    slug: 'smart-rings',
+    description: 'Smart rings for health and fitness tracking',
+    sort_order: 2,
+    parent_slug: 'wearables',
+  },
+  // Accessories subcategories
+  {
+    name: 'Phone Accessories',
+    slug: 'phone-accessories',
+    description: 'Cases, chargers, cables, and more for smartphones',
+    sort_order: 1,
+    parent_slug: 'accessories',
+  },
+  {
+    name: 'Screen Protectors',
+    slug: 'screen-protectors',
+    description: 'Tempered glass and film protectors',
+    sort_order: 2,
+    parent_slug: 'accessories',
+  },
+  {
+    name: 'Phone Cases',
+    slug: 'phone-cases',
+    description: 'Protective cases and covers',
+    sort_order: 3,
+    parent_slug: 'accessories',
+  },
+  {
+    name: 'Chargers',
+    slug: 'chargers',
+    description: 'Wired and wireless chargers',
+    sort_order: 4,
+    parent_slug: 'accessories',
+  },
+  {
+    name: 'Charging & Data Cables',
+    slug: 'charging-data-cables',
+    description: 'USB-C, Lightning, and other cables',
+    sort_order: 5,
+    parent_slug: 'accessories',
+  },
+  {
+    name: 'Computer Accessories',
+    slug: 'computer-accessories',
+    description: 'Keyboards, mice, and more for computers',
+    sort_order: 6,
+    parent_slug: 'accessories',
+  },
+  {
+    name: 'Keyboards',
+    slug: 'keyboards',
+    description: 'Mechanical and membrane keyboards',
+    sort_order: 7,
+    parent_slug: 'accessories',
+  },
+  {
+    name: 'Mice',
+    slug: 'mice',
+    description: 'Wired and wireless mice',
+    sort_order: 8,
+    parent_slug: 'accessories',
+  },
+  {
+    name: 'Laptop Accessories',
+    slug: 'laptop-accessories',
+    description: 'Bags, stands, docks, and more',
+    sort_order: 9,
+    parent_slug: 'accessories',
+  },
+  {
+    name: 'Smartwatch Accessories',
+    slug: 'smartwatch-accessories',
+    description: 'Bands, chargers, and protectors for smartwatches',
+    sort_order: 10,
+    parent_slug: 'accessories',
+  },
+  {
+    name: 'Tablet Accessories',
+    slug: 'tablet-accessories',
+    description: 'Cases, keyboards, and styluses for tablets',
+    sort_order: 11,
+    parent_slug: 'accessories',
+  },
+  // Audio subcategories
+  {
+    name: 'Earphones',
+    slug: 'earphones',
+    description: 'Wired earphones and in-ear monitors',
+    sort_order: 1,
+    parent_slug: 'audio',
+  },
+  {
+    name: 'Earbuds & In-Ear Headphones',
+    slug: 'earbuds',
+    description: 'True wireless and in-ear headphones',
+    sort_order: 2,
+    parent_slug: 'audio',
+  },
+  {
+    name: 'Headphones',
+    slug: 'headphones',
+    description: 'Over-ear and on-ear headphones',
+    sort_order: 3,
+    parent_slug: 'audio',
+  },
+  {
+    name: 'Portable Bluetooth Speakers',
+    slug: 'portable-bluetooth-speakers',
+    description: 'Wireless portable speakers',
+    sort_order: 4,
+    parent_slug: 'audio',
+  },
+  {
+    name: 'Speakers',
+    slug: 'speakers',
+    description: 'Home and desktop speakers',
+    sort_order: 5,
+    parent_slug: 'audio',
+  },
+  {
+    name: 'Earphone Accessories',
+    slug: 'earphone-accessories',
+    description: 'Tips, cases, and adapters for earphones',
+    sort_order: 6,
+    parent_slug: 'audio',
+  },
+  {
+    name: 'Microphones',
+    slug: 'microphones',
+    description: 'USB, condenser, and lavalier microphones',
+    sort_order: 7,
+    parent_slug: 'audio',
   },
 ]
 
@@ -539,6 +784,207 @@ const products: ProductSeed[] = [
       connectivity: 'Bluetooth 5.4',
     },
   },
+  // Gaming
+  {
+    brand: 'Nintendo',
+    model: 'Switch OLED',
+    slug: 'nintendo-switch-oled',
+    category_slug: 'gaming',
+    description:
+      'Hybrid gaming console with vibrant 7-inch OLED screen and versatile play modes.',
+    original_price_kes: 55000,
+    key_features: [
+      '7" OLED screen',
+      'Tabletop/TV/Handheld modes',
+      '64GB internal storage',
+      'Enhanced audio',
+      'Wide adjustable stand',
+    ],
+    specs: {
+      display: '7" OLED 1280x720',
+      storage: '64GB',
+      battery: '4.5-9 hours',
+      weight: '420g (with Joy-Cons)',
+    },
+  },
+  {
+    brand: 'Sony',
+    model: 'PlayStation 5 Slim',
+    slug: 'sony-playstation-5-slim',
+    category_slug: 'gaming',
+    description:
+      'Compact PS5 with 1TB SSD, 4K gaming, and DualSense controller.',
+    original_price_kes: 85000,
+    key_features: [
+      'Custom AMD Zen 2 CPU',
+      '4K/120fps gaming',
+      '1TB SSD',
+      'DualSense haptic feedback',
+      'Ray tracing',
+    ],
+    specs: {
+      cpu: 'AMD Zen 2, 8-core 3.5GHz',
+      gpu: 'AMD RDNA 2, 10.28 TFLOPS',
+      storage: '1TB NVMe SSD',
+      output: '4K@120Hz, 8K',
+    },
+  },
+  {
+    brand: 'Valve',
+    model: 'Steam Deck OLED',
+    slug: 'valve-steam-deck-oled',
+    category_slug: 'gaming',
+    description:
+      'Handheld PC gaming device with gorgeous HDR OLED display and full Steam library access.',
+    original_price_kes: 75000,
+    key_features: [
+      '7.4" HDR OLED',
+      'AMD APU (Zen 2 + RDNA 2)',
+      'Full Steam library',
+      'SteamOS',
+      'Hall-effect joysticks',
+    ],
+    specs: {
+      display: '7.4" HDR OLED 1280x800',
+      cpu: 'AMD Zen 2, 4-core',
+      storage: '512GB / 1TB NVMe',
+      battery: '3-12 hours',
+    },
+  },
+  {
+    brand: 'Microsoft',
+    model: 'Xbox Series X',
+    slug: 'microsoft-xbox-series-x',
+    category_slug: 'gaming',
+    description:
+      'Most powerful Xbox with 4K gaming, Quick Resume, and Game Pass support.',
+    original_price_kes: 80000,
+    key_features: [
+      '12 TFLOPS GPU',
+      '4K/120fps',
+      '1TB SSD',
+      'Quick Resume',
+      'Xbox Game Pass',
+    ],
+    specs: {
+      cpu: 'AMD Zen 2, 8-core 3.8GHz',
+      gpu: 'AMD RDNA 2, 12 TFLOPS',
+      storage: '1TB NVMe SSD',
+      output: '4K@120Hz, 8K',
+    },
+  },
+  // Audio
+  {
+    brand: 'Sony',
+    model: 'WH-1000XM5',
+    slug: 'sony-wh-1000xm5',
+    category_slug: 'audio',
+    description:
+      'Industry-leading noise cancellation headphones with exceptional sound quality.',
+    original_price_kes: 55000,
+    key_features: [
+      'Best-in-class ANC',
+      '30hr battery',
+      'Multipoint connection',
+      'Speak-to-Chat',
+      'LDAC Hi-Res',
+    ],
+    specs: {
+      driver: '30mm',
+      anc: 'Adaptive (8 mics)',
+      battery: '30 hours',
+      weight: '250g',
+    },
+  },
+  {
+    brand: 'JBL',
+    model: 'Flip 6',
+    slug: 'jbl-flip-6',
+    category_slug: 'audio',
+    description:
+      'Portable Bluetooth speaker with bold sound, IP67 waterproof rating, and 12-hour battery.',
+    original_price_kes: 18000,
+    key_features: [
+      'IP67 waterproof/dustproof',
+      '12hr battery',
+      'PartyBoost pairing',
+      'JBL Pro Sound',
+      'USB-C',
+    ],
+    specs: {
+      driver: 'Racetrack-shaped',
+      battery: '12 hours',
+      waterproof: 'IP67',
+      connectivity: 'Bluetooth 5.1',
+    },
+  },
+  {
+    brand: 'Apple',
+    model: 'AirPods Max',
+    slug: 'apple-airpods-max',
+    category_slug: 'audio',
+    description:
+      'Premium over-ear headphones with Apple H1 chip, ANC, and Spatial Audio.',
+    original_price_kes: 90000,
+    key_features: [
+      'Apple H1 chip',
+      'Active Noise Cancellation',
+      'Spatial Audio',
+      'Digital Crown',
+      'Stainless steel/aluminum',
+    ],
+    specs: {
+      driver: '40mm Apple-designed',
+      anc: 'Active + Transparency',
+      battery: '20 hours',
+      weight: '384g',
+    },
+  },
+  // Cameras
+  {
+    brand: 'GoPro',
+    model: 'HERO12 Black',
+    slug: 'gopro-hero12-black',
+    category_slug: 'cameras',
+    description:
+      'Ultimate action camera with 5.3K video, HyperSmooth 6.0, and 10-bit color.',
+    original_price_kes: 65000,
+    key_features: [
+      '5.3K60 video',
+      'HyperSmooth 6.0',
+      '27MP photos',
+      '10-bit color',
+      'Waterproof 33ft',
+    ],
+    specs: {
+      video: '5.3K60 / 4K120',
+      photo: '27MP',
+      stabilization: 'HyperSmooth 6.0',
+      waterproof: '10m without housing',
+    },
+  },
+  {
+    brand: 'Canon',
+    model: 'EOS R50',
+    slug: 'canon-eos-r50',
+    category_slug: 'cameras',
+    description:
+      'Compact mirrorless camera ideal for content creators with 4K video and eye-tracking AF.',
+    original_price_kes: 110000,
+    key_features: [
+      '24.2MP APS-C sensor',
+      '4K 30fps video',
+      'Dual Pixel CMOS AF II',
+      'Eye-tracking AF',
+      'Compact & lightweight',
+    ],
+    specs: {
+      sensor: '24.2MP APS-C CMOS',
+      video: '4K 30fps, FHD 120fps',
+      af: 'Dual Pixel CMOS AF II, 651 points',
+      weight: '375g (body only)',
+    },
+  },
 ]
 
 // ---------------------------------------------------------------------------
@@ -885,6 +1331,187 @@ const listings: ListingSeed[] = [
     listing_type: 'affiliate',
     final_price_kes: 185000,
   },
+  // Nintendo Switch OLED
+  {
+    product_slug: 'nintendo-switch-oled',
+    storage: '64GB',
+    color: 'White',
+    condition: 'excellent',
+    battery_health: 95,
+    price_kes: 38000,
+    original_price_usd: 299,
+    source: 'swappa',
+    status: 'onsale',
+    final_price_kes: 33000,
+  },
+  {
+    product_slug: 'nintendo-switch-oled',
+    storage: '64GB',
+    color: 'Neon Red/Blue',
+    condition: 'good',
+    battery_health: 88,
+    price_kes: 32000,
+    original_price_usd: 299,
+    source: 'backmarket',
+  },
+  // PlayStation 5 Slim
+  {
+    product_slug: 'sony-playstation-5-slim',
+    storage: '1TB',
+    color: 'White',
+    condition: 'excellent',
+    battery_health: 100,
+    price_kes: 62000,
+    original_price_usd: 449,
+    source: 'backmarket',
+    status: 'onsale',
+    final_price_kes: 55000,
+  },
+  {
+    product_slug: 'sony-playstation-5-slim',
+    storage: '1TB',
+    color: 'Black',
+    condition: 'good',
+    battery_health: 100,
+    price_kes: 58000,
+    original_price_usd: 449,
+    source: 'swappa',
+  },
+  // Steam Deck OLED
+  {
+    product_slug: 'valve-steam-deck-oled',
+    storage: '512GB',
+    color: 'Black',
+    condition: 'excellent',
+    battery_health: 96,
+    price_kes: 55000,
+    original_price_usd: 449,
+    source: 'swappa',
+  },
+  {
+    product_slug: 'valve-steam-deck-oled',
+    storage: '1TB',
+    color: 'Black',
+    condition: 'premium',
+    battery_health: 100,
+    price_kes: 72000,
+    original_price_usd: 549,
+    source: 'backmarket',
+    final_price_kes: 65000,
+  },
+  // Xbox Series X
+  {
+    product_slug: 'microsoft-xbox-series-x',
+    storage: '1TB',
+    color: 'Black',
+    condition: 'excellent',
+    battery_health: 100,
+    price_kes: 58000,
+    original_price_usd: 449,
+    source: 'backmarket',
+  },
+  // Sony WH-1000XM5
+  {
+    product_slug: 'sony-wh-1000xm5',
+    storage: 'N/A',
+    color: 'Black',
+    condition: 'excellent',
+    battery_health: 98,
+    price_kes: 38000,
+    original_price_usd: 299,
+    source: 'swappa',
+    status: 'onsale',
+    final_price_kes: 32000,
+  },
+  {
+    product_slug: 'sony-wh-1000xm5',
+    storage: 'N/A',
+    color: 'Silver',
+    condition: 'good',
+    battery_health: 92,
+    price_kes: 34000,
+    original_price_usd: 299,
+    source: 'backmarket',
+  },
+  // JBL Flip 6
+  {
+    product_slug: 'jbl-flip-6',
+    storage: 'N/A',
+    color: 'Blue',
+    condition: 'excellent',
+    battery_health: 97,
+    price_kes: 12000,
+    original_price_usd: 99,
+    source: 'swappa',
+  },
+  {
+    product_slug: 'jbl-flip-6',
+    storage: 'N/A',
+    color: 'Black',
+    condition: 'good',
+    battery_health: 90,
+    price_kes: 10000,
+    original_price_usd: 99,
+    source: 'backmarket',
+    status: 'onsale',
+    final_price_kes: 8500,
+  },
+  // AirPods Max
+  {
+    product_slug: 'apple-airpods-max',
+    storage: 'N/A',
+    color: 'Space Gray',
+    condition: 'excellent',
+    battery_health: 95,
+    price_kes: 62000,
+    original_price_usd: 449,
+    source: 'backmarket',
+  },
+  {
+    product_slug: 'apple-airpods-max',
+    storage: 'N/A',
+    color: 'Silver',
+    condition: 'good',
+    battery_health: 88,
+    price_kes: 55000,
+    original_price_usd: 449,
+    source: 'swappa',
+    final_price_kes: 48000,
+  },
+  // GoPro HERO12 Black
+  {
+    product_slug: 'gopro-hero12-black',
+    storage: 'N/A',
+    color: 'Black',
+    condition: 'excellent',
+    battery_health: 96,
+    price_kes: 45000,
+    original_price_usd: 349,
+    source: 'swappa',
+  },
+  {
+    product_slug: 'gopro-hero12-black',
+    storage: 'N/A',
+    color: 'Black',
+    condition: 'good',
+    battery_health: 90,
+    price_kes: 40000,
+    original_price_usd: 349,
+    source: 'backmarket',
+    status: 'onsale',
+    final_price_kes: 35000,
+  },
+  // Canon EOS R50
+  {
+    product_slug: 'canon-eos-r50',
+    storage: 'N/A',
+    color: 'Black',
+    condition: 'excellent',
+    battery_health: 98,
+    price_kes: 82000,
+    original_price_usd: 599,
+    source: 'backmarket',
+  },
 ]
 
 // ---------------------------------------------------------------------------
@@ -903,20 +1530,80 @@ function generateListingId(): string {
 async function seed() {
   console.log('🌱 Starting seed...\n')
 
-  // 1. Insert categories
+  // 1. Insert categories (two passes: roots first, then children)
   console.log('📁 Inserting categories...')
-  const { data: catData, error: catError } = await supabase
+
+  // First pass: insert categories without parents (root nodes + those whose parent_slug is undefined)
+  const rootCategories = categories.filter(c => !c.parent_slug)
+  const rootRows = rootCategories.map(c => ({
+    name: c.name,
+    slug: c.slug,
+    description: c.description ?? null,
+    sort_order: c.sort_order,
+    image_url: c.image_url ?? null,
+    parent_id: null,
+  }))
+
+  const { data: rootData, error: rootError } = await supabase
     .from('categories')
-    .upsert(categories, { onConflict: 'slug' })
+    .upsert(rootRows, { onConflict: 'slug' })
     .select('id, slug')
 
-  if (catError) {
-    console.error('❌ Categories error:', catError.message)
+  if (rootError) {
+    console.error('❌ Root categories error:', rootError.message)
     process.exit(1)
   }
-  console.log(`   ✅ ${catData.length} categories inserted`)
 
-  const categoryMap = new Map(catData.map(c => [c.slug, c.id]))
+  const categoryMap = new Map(rootData.map(c => [c.slug, c.id]))
+
+  // Second pass: insert child categories (resolve parent_slug to parent_id)
+  // Repeat until all are inserted (handles multi-level nesting)
+  let remaining = categories.filter(c => c.parent_slug)
+  let insertedInPass = true
+
+  while (remaining.length > 0 && insertedInPass) {
+    insertedInPass = false
+    const canInsert = remaining.filter(c => categoryMap.has(c.parent_slug!))
+    const cannotInsert = remaining.filter(c => !categoryMap.has(c.parent_slug!))
+
+    if (canInsert.length > 0) {
+      const childRows = canInsert.map(c => ({
+        name: c.name,
+        slug: c.slug,
+        description: c.description ?? null,
+        sort_order: c.sort_order,
+        image_url: c.image_url ?? null,
+        parent_id: categoryMap.get(c.parent_slug!) ?? null,
+      }))
+
+      const { data: childData, error: childError } = await supabase
+        .from('categories')
+        .upsert(childRows, { onConflict: 'slug' })
+        .select('id, slug')
+
+      if (childError) {
+        console.error('❌ Child categories error:', childError.message)
+        process.exit(1)
+      }
+
+      for (const c of childData) {
+        categoryMap.set(c.slug, c.id)
+      }
+      insertedInPass = true
+    }
+
+    remaining = cannotInsert
+  }
+
+  if (remaining.length > 0) {
+    console.error(
+      '❌ Could not resolve parent for categories:',
+      remaining.map(c => c.slug)
+    )
+    process.exit(1)
+  }
+
+  console.log(`   ✅ ${categoryMap.size} categories inserted`)
 
   // 2. Insert products
   console.log('📦 Inserting products...')
@@ -996,7 +1683,7 @@ async function seed() {
   }
 
   console.log('\n🎉 Seed complete!')
-  console.log(`   Categories: ${catData.length}`)
+  console.log(`   Categories: ${categoryMap.size}`)
   console.log(`   Products:   ${prodData.length}`)
   console.log(`   Listings:   ${listData.length}`)
 }
