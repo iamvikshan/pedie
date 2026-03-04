@@ -28,7 +28,7 @@ async function fetchDiscountedListings(): Promise<{
   const { data, error } = await supabase
     .from('listings')
     .select('*, product:products!inner(*, category:categories(*))')
-    .eq('status', 'available')
+    .not('status', 'in', '(sold,reserved)')
 
   if (error) {
     console.error('Error fetching deal listings:', error)

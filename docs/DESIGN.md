@@ -153,7 +153,9 @@ Applied via `.glass` class or inline: `bg-pedie-glass backdrop-blur-[24px] borde
 | `@/*`           | `src/*`            |
 | `@app-types/*`  | `types/*`          |
 | `@lib/*`        | `src/lib/*`        |
+| `@data/*`       | `src/lib/data/*`   |
 | `@components/*` | `src/components/*` |
+| `@utils/*`      | `src/utils/*`      |
 | `@config`       | `src/config`       |
 | `@helpers`      | `src/helpers`      |
 

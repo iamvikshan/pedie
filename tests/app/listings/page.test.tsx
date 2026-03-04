@@ -46,6 +46,7 @@ mock.module("@data/products", () => ({
     representative: {},
     variantCount: 1
   })),
+  getRelatedListings: mock(() => Promise.resolve([])),
   findBetterDeal: mock(() => null),
   getRelatedFamilies: mock(() => Promise.resolve([])),
   LISTING_TYPE_PRIORITY: {}

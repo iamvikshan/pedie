@@ -16,7 +16,6 @@
     "test": "bun test",
     "seed": "bun scripts/seed.ts",
     "crawl": "bun scripts/crawlers/index.ts",
-    "prepare": "husky",
     "postinstall": "touch .env.local && (grep -q NEXT_TELEMETRY_DISABLED .env.local || echo 'NEXT_TELEMETRY_DISABLED=1' >> .env.local) && (grep -q REACT_EDITOR .env.local || echo 'REACT_EDITOR=code' >> .env.local)"
   },
   "dependencies": {

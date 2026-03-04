@@ -172,7 +172,7 @@ export async function getRelatedListings(
   const { data, error } = await supabase
     .from('listings')
     .select('*, product:products!inner(*, category:categories(*))')
-    .eq('status', 'available')
+    .not('status', 'in', '(sold,reserved)')
     .eq('product.category_id', categoryId)
     .neq('product_id', excludeProductId)
     .order('created_at', { ascending: false })

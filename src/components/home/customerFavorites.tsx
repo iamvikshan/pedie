@@ -28,10 +28,11 @@ export function CustomerFavorites({ families }: CustomerFavoritesProps) {
     }
   }
 
-  const filtered =
-    activeTab === 'all'
-      ? families
-      : families.filter(f => f.product?.category?.slug === activeTab)
+  const filtered = families.filter(
+    f =>
+      f.product &&
+      (activeTab === 'all' || f.product.category?.slug === activeTab)
+  )
 
   return (
     <motion.section

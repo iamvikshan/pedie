@@ -5,17 +5,19 @@ import { TbCrown, TbDiamond, TbThumbUp, TbCircleCheck } from 'react-icons/tb'
 import { formatKes } from '@helpers'
 import type { Listing, ConditionGrade } from '../../../types/product'
 
+type VariantDimension = 'storage' | 'color' | 'condition' | 'carrier'
+
 interface VariantSelectorProps {
   listings: Listing[]
   selectedListing: Listing
-  onSelect: (listing: Listing) => void
+  onSelect?: (listing: Listing) => void
   disabled?: boolean
 }
 
 export function findBestMatch(
   listings: Listing[],
   current: Listing,
-  dimension: string,
+  dimension: VariantDimension,
   value: string
 ): Listing {
   const available = listings.filter(
@@ -125,8 +127,8 @@ export default function VariantSelector({
     new Set(availableListings.map(l => l.carrier).filter(Boolean))
   ) as string[]
 
-  const handleSelect = (dimension: string, value: string) => {
-    if (disabled) return
+  const handleSelect = (dimension: VariantDimension, value: string) => {
+    if (disabled || !onSelect) return
     const bestMatch = findBestMatch(
       availableListings,
       selectedListing,

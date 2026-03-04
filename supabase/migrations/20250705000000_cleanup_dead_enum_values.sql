@@ -6,7 +6,16 @@
 DROP INDEX IF EXISTS idx_listings_sale;
 DROP INDEX IF EXISTS idx_listings_affiliate;
 
--- Step 2: Replace listing_type enum (remove 'sale')
+-- Step 2: Pre-flight guard — abort if any rows still use 'sale' listing_type
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM listings WHERE listing_type = 'sale') THEN
+    RAISE EXCEPTION 'Cannot remove listing_type ''sale'': % row(s) still reference it. Update those rows first.',
+      (SELECT COUNT(*) FROM listings WHERE listing_type = 'sale');
+  END IF;
+END $$;
+
+-- Step 3: Replace listing_type enum (remove 'sale')
 ALTER TABLE listings ALTER COLUMN listing_type DROP DEFAULT;
 CREATE TYPE listing_type_new AS ENUM ('standard', 'preorder', 'affiliate', 'referral');
 ALTER TABLE listings
@@ -16,11 +25,20 @@ DROP TYPE listing_type;
 ALTER TYPE listing_type_new RENAME TO listing_type;
 ALTER TABLE listings ALTER COLUMN listing_type SET DEFAULT 'standard'::listing_type;
 
--- Step 3: Recreate affiliate partial index (sale index intentionally removed - dead value)
+-- Step 4: Recreate affiliate partial index (sale index intentionally removed - dead value)
 CREATE INDEX idx_listings_affiliate ON listings USING btree (listing_type)
   WHERE (listing_type = 'affiliate'::listing_type);
 
--- Step 4: Replace listing_status enum (remove 'preorder')
+-- Step 5: Pre-flight guard — abort if any rows still use 'preorder' status
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM listings WHERE status = 'preorder') THEN
+    RAISE EXCEPTION 'Cannot remove listing_status ''preorder'': % row(s) still reference it. Update those rows first.',
+      (SELECT COUNT(*) FROM listings WHERE status = 'preorder');
+  END IF;
+END $$;
+
+-- Step 6: Replace listing_status enum (remove 'preorder')
 ALTER TABLE listings ALTER COLUMN status DROP DEFAULT;
 CREATE TYPE listing_status_new AS ENUM ('available', 'sold', 'reserved', 'onsale');
 ALTER TABLE listings

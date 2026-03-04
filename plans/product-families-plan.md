@@ -194,50 +194,50 @@ Restructure Pedie from individual-listing browsing to product-family browsing, a
 
 ---
 
-### 4. ⬜ Phase 4: Preorder & Referral Listing Types + On-Sale Flow
+### 4. ✅ Phase 4: Referral WhatsApp CTA + Cart Validation
 
-**Objective:** Implement preorder deposit checkout flow, referral WhatsApp CTA, and status-aware cart logic.
+**Objective:** Implement referral WhatsApp CTA, add referral badge to individual product cards, and add status-aware cart validation. Preorder flow (`calculateDeposit`, `PreorderBadge`, preorder CTA) was already implemented in Phase 2.
 
-**Preorder flow:**
-- Deposit = `DEPOSIT_RATE * final_price_kes` (5% if `final_price_kes` < KES 70k, 10% if ≥ KES 70k)
-- Example: product with `final_price_kes=50000` → deposit = 5% × 50000 = KES 2,500
-- Note: A product with `final_price_kes=50000` and `price_kes=70000` IS discounted — the family card shows discounted styling for this representative
-- Deposit shown on product detail page only — cards show full `final_price_kes`
-- "Preorder Now — KES X,XXX deposit" CTA → adds deposit amount to cart
-- Shipping estimate badge: "7-14 days delivery"
+**Already complete (from Phase 1-3):**
+- `calculateDeposit()` — implemented and tested in `src/helpers/pricing.ts`
+- `WHATSAPP_NUMBER` — already in `src/config.ts`
+- `PreorderBadge` — working, shown on product detail page for preorder listings
+- `AddToCart` — handles standard/preorder/affiliate CTA variants
+- On-sale pricing tier — `getPricingTier` uses `status === 'onsale'`
 
 **Referral flow:**
-- WhatsApp CTA: "Ask about this on WhatsApp" → opens `wa.me/254715012665?text=Hi, I'm interested in [Product Name] ([listing_id])`
-- No add-to-cart for referral listings
-- Referral badge on card and detail page
+- WhatsApp CTA: "WhatsApp" button (short text for mobile) → opens `wa.me/254715012665?text=Hi, I'm interested in [Brand] [Model] ([listing_id])`
+- No add-to-cart for referral listings — WhatsApp CTA replaces the add-to-cart button
+- `TbBrandWhatsapp` icon on the button for recognition
+- Referral badge on individual product cards (like affiliate "Partner" badge) — NOT on product detail pages (variant selector + listing type context already explains the type there)
 
-**On-sale (status-aware):**
-- Any listing type can have `status='onsale'` — sale styling uses `price_kes` as original, `final_price_kes` as sale price
-- Cart validates status on add: reject `sold`/`reserved` listings, allow `available`/`onsale`/`preorder` (with deposit logic)
+**Cart validation (store-level):**
+- `addListing` rejects: `status === 'sold'`, `status === 'reserved'`, `listing_type === 'referral'`, `listing_type === 'affiliate'`
+- `addListing` allows: `available`, `onsale`, preorder listings
 
 **Files/Functions to Create/Modify:**
-- `src/components/listing/addToCart.tsx` — update CTA: standard (Add to Cart), preorder (Preorder Now + deposit), affiliate (external link), referral (WhatsApp CTA)
-- `src/components/listing/preorderDeposit.tsx` — deposit calculator display on detail page
-- `src/components/listing/referralCta.tsx` — WhatsApp deep link button using `TbBrandWhatsapp` icon
-- `src/lib/cart/actions.ts` — status-aware add-to-cart validation
-- `src/helpers/pricing.ts` — `calculateDeposit(finalPriceKes)` function
+- `src/components/listing/referralCta.tsx` — NEW: WhatsApp deep link button with `TbBrandWhatsapp` icon; accepts `listing: ListingWithProduct`; generates URL with product name + listing_id
+- `src/components/listing/addToCart.tsx` — Add referral case before sold/reserved check; render `ReferralCta` for referral listings
+- `src/components/ui/productCard.tsx` — Add referral badge (like affiliate "Partner"), with `TbBrandWhatsapp` icon and "Referral" text; referral cards link to `/listings/[id]` (not WhatsApp — card takes you to detail page where the CTA lives)
+- `src/lib/cart/store.ts` — Guard `addListing` against invalid types/statuses
+- `src/components/listing/productDetailClient.tsx` — Verify flow is clean for referral variant selection (AddToCart handles CTA swap)
 
 **Tests to Write:**
-- `tests/helpers/pricing.test.ts` — `calculateDeposit`: 5% for < 70k, 10% for ≥ 70k; edge cases at boundary
-- `tests/components/listing/addToCart.test.ts` — correct CTA per listing type
-- `tests/components/listing/preorderDeposit.test.ts` — deposit amount display, formatted in KES
-- `tests/components/listing/referralCta.test.ts` — WhatsApp URL generation with product name + listing_id
-- `tests/lib/cart/actions.test.ts` — reject sold/reserved, allow available/onsale/preorder
+- `tests/components/listing/referral-cta.test.tsx` — WhatsApp URL contains WHATSAPP_NUMBER, product name, listing_id; renders TbBrandWhatsapp; correct link text "WhatsApp"
+- `tests/components/listing/add-to-cart.test.tsx` — Add referral type check (renders ReferralCta)
+- `tests/components/ui/product-card.test.tsx` — Add referral badge test (like affiliate "Partner" badge)
+- `tests/lib/cart/store.test.ts` — Reject sold, reserved, referral, affiliate; allow available, onsale, preorder
 
 **Steps:**
-1. Write failing tests for `calculateDeposit()` and updated pricing logic
-2. Implement deposit calculation in `src/helpers/pricing.ts`
-3. Write failing tests for each CTA variant (standard, preorder, affiliate, referral)
-4. Implement CTA updates in `addToCart.tsx`
-5. Build preorder deposit display component
-6. Build referral WhatsApp CTA component
-7. Update cart actions with status-aware validation
-8. Run `bun f && bun check && bun test` — all tests pass
+1. Write failing tests for ReferralCta (WhatsApp URL, icon, text)
+2. Implement `referralCta.tsx`
+3. Write failing test for AddToCart referral branch
+4. Update `addToCart.tsx` with referral case
+5. Write failing test for referral badge on ProductCard
+6. Update `productCard.tsx` with referral badge
+7. Write failing tests for cart store validation
+8. Update cart store `addListing` with type/status guards
+9. Run `bun run f && bun check && bun test` — all tests pass
 
 ---
 

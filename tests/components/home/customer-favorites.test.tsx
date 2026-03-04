@@ -83,6 +83,10 @@ describe("CustomerFavorites", () => {
         });
 
         test('filters by product category slug', () => {
-                expect(SOURCE).toContain('f.product?.category?.slug === activeTab');
+                expect(SOURCE).toContain('category?.slug === activeTab');
+        });
+
+        test('guards against null product before accessing properties', () => {
+                expect(SOURCE).toContain('f.product &&');
         });
 });

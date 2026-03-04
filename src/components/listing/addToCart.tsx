@@ -1,6 +1,7 @@
 'use client'
 
 import type { ListingWithProduct } from '@app-types/product'
+import { ReferralCta } from '@components/listing/referralCta'
 import { Button } from '@components/ui/button'
 import { useCartStore } from '@lib/cart/store'
 
@@ -14,6 +15,10 @@ export function AddToCart({ listing }: AddToCartProps) {
 
   const handleClick = () => {
     addListing(listing)
+  }
+
+  if (listing.listing_type === 'referral') {
+    return <ReferralCta listing={listing} />
   }
 
   if (listing.listing_type === 'affiliate' && listing.source_url) {

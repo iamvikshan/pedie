@@ -128,7 +128,6 @@ export default async function ListingPage({ params }: PageProps) {
                 <VariantSelector
                   listings={family.listings}
                   selectedListing={listing}
-                  onSelect={() => {}}
                   disabled
                 />
                 <BetterDealNudge betterDeal={betterDeal} savings={savings} />

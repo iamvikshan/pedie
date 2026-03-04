@@ -24,7 +24,10 @@ describe("BetterDealNudge", () => {
   test("uses formatKes for savings display", () => {
     expect(src).toContain("formatKes(savings)");
   });
-
+  test('handles missing or zero savings gracefully', () => {
+    expect(src).toContain('savings > 0');
+    expect(src).toContain('View better deal');
+  });
   test("uses Framer Motion for animation", () => {
     expect(src).toContain("motion.div");
     expect(src).toContain("framer-motion");

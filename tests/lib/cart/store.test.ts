@@ -186,7 +186,7 @@ describe("CartStore", () => {
 		expect(useCartStore.getState().getDepositTotal()).toBe(17000);
 	});
 
-	test("getItemCount returns correct count", () => {
+	test('getItemCount returns correct count', () => {
 		expect(useCartStore.getState().getItemCount()).toBe(0);
 
 		useCartStore.getState().addListing(makeListing({ listing_id: "PD-00001" }));
@@ -199,5 +199,47 @@ describe("CartStore", () => {
 
 		useCartStore.getState().removeListing("PD-00001");
 		expect(useCartStore.getState().getItemCount()).toBe(1);
+	});
+
+	test('addListing rejects sold listing', () => {
+		const sold = makeListing({ listing_id: 'PD-SOLD', status: 'sold' as const });
+		useCartStore.getState().addListing(sold);
+		expect(useCartStore.getState().items).toHaveLength(0);
+	});
+
+	test('addListing rejects reserved listing', () => {
+		const reserved = makeListing({ listing_id: 'PD-RES', status: 'reserved' as const });
+		useCartStore.getState().addListing(reserved);
+		expect(useCartStore.getState().items).toHaveLength(0);
+	});
+
+	test('addListing rejects referral listing', () => {
+		const referral = makeListing({ listing_id: 'PD-REF', listing_type: 'referral' as const });
+		useCartStore.getState().addListing(referral);
+		expect(useCartStore.getState().items).toHaveLength(0);
+	});
+
+	test('addListing rejects affiliate listing', () => {
+		const affiliate = makeListing({ listing_id: 'PD-AFF', listing_type: 'affiliate' as const });
+		useCartStore.getState().addListing(affiliate);
+		expect(useCartStore.getState().items).toHaveLength(0);
+	});
+
+	test('addListing allows available standard listing', () => {
+		const standard = makeListing({ listing_id: 'PD-STD', status: 'available' as const, listing_type: 'standard' as const });
+		useCartStore.getState().addListing(standard);
+		expect(useCartStore.getState().items).toHaveLength(1);
+	});
+
+	test('addListing allows onsale listing', () => {
+		const onsale = makeListing({ listing_id: 'PD-SALE', status: 'onsale' as const });
+		useCartStore.getState().addListing(onsale);
+		expect(useCartStore.getState().items).toHaveLength(1);
+	});
+
+	test('addListing allows preorder listing', () => {
+		const preorder = makeListing({ listing_id: 'PD-PRE', listing_type: 'preorder' as const });
+		useCartStore.getState().addListing(preorder);
+		expect(useCartStore.getState().items).toHaveLength(1);
 	});
 });

@@ -96,7 +96,7 @@ describe('ProductCard Component', () => {
     const mod = await import('@components/ui/productCard')
     expect(mod.PRODUCT_CARD_ICONS).toBeDefined()
     expect(Array.isArray(mod.PRODUCT_CARD_ICONS)).toBe(true)
-    expect(mod.PRODUCT_CARD_ICONS.length).toBe(3)
+    expect(mod.PRODUCT_CARD_ICONS.length).toBe(4)
   })
 
   test('PRODUCT_CARD_ICONS contains expected icon names', async () => {
@@ -149,5 +149,19 @@ describe('ProductCard Component', () => {
 
   test('affiliate does not show condition badge', () => {
     expect(src).toContain('!isAffiliate')
+  })
+
+  test('referral listing has "Referral" badge with WhatsApp icon', () => {
+    expect(src).toContain('Referral')
+    expect(src).toContain('TbBrandWhatsapp')
+    expect(src).toContain('isReferral')
+  })
+
+  test('referral badge has tooltip', () => {
+    expect(src).toContain("title='Ask about this product on WhatsApp'")
+  })
+
+  test('referral does not show condition badge', () => {
+    expect(src).toContain('!isReferral')
   })
 })

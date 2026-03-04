@@ -21,6 +21,14 @@ export const useCartStore = create<CartStore>()(
       items: [],
 
       addListing: listing => {
+        // Reject non-purchasable listings
+        if (listing.status === 'sold' || listing.status === 'reserved') return
+        if (
+          listing.listing_type === 'referral' ||
+          listing.listing_type === 'affiliate'
+        )
+          return
+
         const { items } = get()
         if (items.some(item => item.listing_id === listing.listing_id)) return
         set({ items: [...items, listing] })

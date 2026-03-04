@@ -31,6 +31,20 @@ describe("Variant Selector Component", () => {
     expect(source).toContain("disabled={disabled}");
   });
 
+  it("Source analysis: VariantDimension type restricts dimension to valid keys", () => {
+    const source = readFileSync(componentPath, "utf-8");
+    expect(source).toContain("type VariantDimension");
+    expect(source).toContain("'storage'");
+    expect(source).toContain("'color'");
+    expect(source).toContain("'condition'");
+    expect(source).toContain("'carrier'");
+  });
+
+  it("Source analysis: onSelect is optional (disabled mode works without handler)", () => {
+    const source = readFileSync(componentPath, "utf-8");
+    expect(source).toContain("onSelect?: (listing: Listing) => void");
+  });
+
   it("Source analysis: renders storage section conditionally", () => {
     const source = readFileSync(componentPath, "utf-8");
     expect(source).toMatch(/storage(s?)\.length > 1/i);

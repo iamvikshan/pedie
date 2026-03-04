@@ -1,4 +1,6 @@
 import { describe, expect, mock, test } from "bun:test";
+import { readFileSync } from "fs";
+import { resolve } from "path";
 import {
 	getDealListings,
 	getFeaturedListings,
@@ -83,6 +85,11 @@ mock.module("@lib/supabase/server", () => ({
 }));
 
 describe("Products Data Functions", () => {
+	const SOURCE = readFileSync(
+		resolve("src/lib/data/products.ts"),
+		"utf-8"
+	);
+
 	test("getFeaturedListings returns listings", async () => {
 		const listings = await getFeaturedListings();
 		expect(Array.isArray(listings)).toBe(true);
@@ -111,5 +118,10 @@ describe("Products Data Functions", () => {
 		// L2 has 50% discount, L1 has ~16.6% discount, so L2 should be first
 		expect(listings[0].listing_id).toBe("L2");
 		expect(listings[1].listing_id).toBe("L1");
+	});
+
+	test("getRelatedListings uses non-sold/reserved filter", () => {
+		// getRelatedListings should use .not('status', 'in', '(sold,reserved)')
+		expect(SOURCE).toContain(".not('status', 'in', '(sold,reserved)')");
 	});
 });

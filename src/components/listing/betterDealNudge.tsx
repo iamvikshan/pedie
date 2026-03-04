@@ -17,8 +17,8 @@ export default function BetterDealNudge({
 }: BetterDealNudgeProps) {
   if (!betterDeal) return null
 
-  // If savings is not provided, we just show the better deal's price or a generic difference
-  const difference = typeof savings === 'number' ? formatKes(savings) : ''
+  const difference =
+    typeof savings === 'number' && savings > 0 ? formatKes(savings) : ''
 
   return (
     <motion.div
@@ -36,7 +36,7 @@ export default function BetterDealNudge({
         href={`/listings/${betterDeal.listing_id}`}
         className='text-sm font-medium text-pedie-green hover:underline'
       >
-        Save {difference} &rarr;
+        {difference ? `Save ${difference}` : 'View better deal'} &rarr;
       </Link>
     </motion.div>
   )

@@ -2,13 +2,19 @@ import type { ListingWithProduct } from '@app-types/product'
 import { calculateDiscount, formatKes, getPricingTier } from '@helpers'
 import Image from 'next/image'
 import Link from 'next/link'
-import { TbFlame, TbPhoto, TbExternalLink } from 'react-icons/tb'
+import {
+  TbFlame,
+  TbPhoto,
+  TbExternalLink,
+  TbBrandWhatsapp,
+} from 'react-icons/tb'
 import { ConditionBadge } from './conditionBadge'
 
 export const PRODUCT_CARD_ICONS = [
   'TbPhoto',
   'TbFlame',
   'TbExternalLink',
+  'TbBrandWhatsapp',
 ] as const
 
 interface ProductCardProps {
@@ -31,6 +37,7 @@ export function ProductCard({ listing }: ProductCardProps) {
       : 0
   const imageUrl = listing.images?.[0] || product.images?.[0]
   const isAffiliate = listing.listing_type === 'affiliate' && listing.source_url
+  const isReferral = listing.listing_type === 'referral'
   const isSale = tier === 'sale'
 
   const CardWrapper = isAffiliate ? 'a' : Link
@@ -77,13 +84,23 @@ export function ProductCard({ listing }: ProductCardProps) {
               Partner
             </span>
           )}
+          {isReferral && (
+            <span
+              title='Ask about this product on WhatsApp'
+              className='glass bg-green-600/20 backdrop-blur-sm text-green-600 text-xs font-bold px-2.5 py-1 rounded-full inline-flex items-center gap-1'
+            >
+              <TbBrandWhatsapp className='w-3.5 h-3.5' aria-hidden='true' />
+              Referral
+            </span>
+          )}
           {isSale ? (
             <span className='glass bg-pedie-discount/20 backdrop-blur-sm text-pedie-discount text-xs font-bold px-2.5 py-1 rounded-full inline-flex items-center gap-1'>
               <TbFlame className='w-3.5 h-3.5' aria-hidden='true' />
               Flash Sale
             </span>
           ) : (
-            !isAffiliate && (
+            !isAffiliate &&
+            !isReferral && (
               <span className='glass backdrop-blur-sm rounded-full px-2 py-1'>
                 <ConditionBadge condition={listing.condition} />
               </span>

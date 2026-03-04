@@ -22,6 +22,11 @@ describe("deals data helpers", () => {
 		expect(SOURCE).toContain("listing.status");
 	});
 
+	test("source includes onsale items by not filtering only available", () => {
+		expect(SOURCE).not.toContain(".eq('status', 'available')");
+		expect(SOURCE).toContain(".not('status', 'in', '(sold,reserved)')");
+	});
+
 	test("source contains limit logic for hot deals (slice to 20)", () => {
 		expect(SOURCE).toMatch(/\.slice\(0,\s*20\)|\.slice\(0, limit\)/);
 	});

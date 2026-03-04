@@ -31,4 +31,13 @@ describe('AddToCart Component', () => {
     expect(src).toContain("listing.listing_type === 'affiliate'")
     expect(src).toContain('Unavailable')
   })
+
+  test('referral listing renders ReferralCta component', () => {
+    expect(src).toContain("listing.listing_type === 'referral'")
+    expect(src).toContain('ReferralCta')
+  })
+
+  test('imports ReferralCta component', () => {
+    expect(src).toContain("import { ReferralCta } from '@components/listing/referralCta'")
+  })
 })
