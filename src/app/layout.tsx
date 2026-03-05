@@ -4,7 +4,7 @@ import './globals.css'
 import { AuthProvider } from '@components/auth/authProvider'
 import { CartHydration } from '@components/cart/cartHydration'
 import { Footer } from '@components/layout/footer'
-import { Header } from '@components/layout/header'
+import { HeaderWrapper } from '@components/layout/headerWrapper'
 import { WishlistProvider } from '@components/wishlist/wishlistProvider'
 import { organizationJsonLd, safeJsonLd } from '@lib/seo/structuredData'
 import { SpeedInsights } from '@vercel/speed-insights/next'
@@ -60,7 +60,7 @@ export default function RootLayout({
           <AuthProvider>
             <WishlistProvider>
               <CartHydration />
-              <Header />
+              <HeaderWrapper />
               <main className='flex-1 overflow-x-hidden'>{children}</main>
               <Footer />
             </WishlistProvider>

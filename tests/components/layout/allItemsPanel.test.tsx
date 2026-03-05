@@ -44,6 +44,17 @@ describe('AllItemsPanel', () => {
     expect(src).toContain('bg-gradient-to-t')
   })
 
+  test('accepts categories prop of type Category[]', () => {
+    expect(src).toContain('categories: Category[]')
+    expect(src).toContain('categories.map')
+  })
+
+  test('renders dynamic categories from prop, not hardcoded CATEGORIES', () => {
+    expect(src).not.toContain('CATEGORIES.map')
+    expect(src).toContain('categories.map')
+    expect(src).toContain('/collections/${cat.slug}')
+  })
+
   test('traps focus within panel', () => {
     expect(src).toContain('Tab')
     expect(src).toContain('Escape')
@@ -75,8 +86,8 @@ describe('AllItemsPanel Popular Brands redesign', () => {
 
   test('brand logos display at sufficient size without brand name text', () => {
     // Logo-only cards — no brand name span, large logo dimensions
-    expect(src).toContain("width={80}")
-    expect(src).toContain("height={32}")
+    expect(src).toContain('width={80}')
+    expect(src).toContain('height={32}')
     expect(src).not.toContain('group-hover:text-pedie-green')
   })
 

@@ -3,6 +3,7 @@
 Restructured the flat 5-category schema into a full hierarchy with Electronics as root, reparented existing categories, added Audio and 26+ subcategories, and created a `product_categories` junction table for many-to-many product-category relationships. Updated all types, data-fetching functions, product queries, and seed script to support the new hierarchy.
 
 **Files created/changed:**
+
 - `supabase/migrations/20250707000000_category_hierarchy.sql` (new)
 - `types/product.ts`
 - `types/database.ts`
@@ -12,6 +13,7 @@ Restructured the flat 5-category schema into a full hierarchy with Electronics a
 - `tests/data/categories.test.ts` (new)
 
 **Functions created/changed:**
+
 - `getTopLevelCategories()` — returns children of Electronics root
 - `getCategoryTree()` — full hierarchy as CategoryWithChildren[]
 - `getCategoryWithChildren(slug)` — single category with its children
@@ -23,6 +25,7 @@ Restructured the flat 5-category schema into a full hierarchy with Electronics a
 - `getListingsByCategory()` — updated to use descendant IDs
 
 **Tests created/changed:**
+
 - `getCategoryTree returns nested hierarchy`
 - `getCategoryWithChildren returns parent with children array`
 - `getCategoryBreadcrumb returns path from root to leaf`
@@ -33,6 +36,7 @@ Restructured the flat 5-category schema into a full hierarchy with Electronics a
 **Review Status:** APPROVED (after addressing 3 revision items: type nullability, policy idempotency, cycle protection)
 
 **Git Commit Message:**
+
 ```
 feat: add category hierarchy with subcategories and M2M junction
 

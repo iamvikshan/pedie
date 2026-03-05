@@ -26,7 +26,7 @@ export async function getProductFamilyBySlug(
 
   const { data: product, error: productError } = await supabase
     .from('products')
-    .select('*, category:categories(*)')
+    .select('*, category:categories!products_category_id_fkey(*)')
     .eq('slug', slug)
     .single()
 
@@ -67,7 +67,7 @@ export async function getProductFamilies(
   const [productsResult, listingsResult] = await Promise.all([
     supabase
       .from('products')
-      .select('*, category:categories(*)')
+      .select('*, category:categories!products_category_id_fkey(*)')
       .order('brand', { ascending: true }),
     supabase
       .from('listings')
@@ -119,7 +119,7 @@ export async function getRelatedFamilies(
 
   const { data: products, error: productsError } = await supabase
     .from('products')
-    .select('*, category:categories(*)')
+    .select('*, category:categories!products_category_id_fkey(*)')
     .in('category_id', categoryIds)
     .neq('id', excludeProductId)
 
@@ -176,7 +176,9 @@ export async function getRelatedListings(
 
   const { data, error } = await supabase
     .from('listings')
-    .select('*, product:products!inner(*, category:categories(*))')
+    .select(
+      '*, product:products!inner(*, category:categories!products_category_id_fkey(*))'
+    )
     .not('status', 'in', '(sold,reserved)')
     .in('product.category_id', categoryIds)
     .neq('product_id', excludeProductId)
@@ -222,7 +224,7 @@ export async function getProductFamiliesByCategory(
   // Query products by direct category_id
   const { data: directProducts, error: directError } = await supabase
     .from('products')
-    .select('*, category:categories(*)')
+    .select('*, category:categories!products_category_id_fkey(*)')
     .in('category_id', categoryIds)
 
   if (directError) return []
@@ -232,7 +234,7 @@ export async function getProductFamiliesByCategory(
   if (junctionProductIds.length > 0) {
     const { data: jp } = await supabase
       .from('products')
-      .select('*, category:categories(*)')
+      .select('*, category:categories!products_category_id_fkey(*)')
       .in('id', junctionProductIds)
 
     junctionProducts = jp ?? []
@@ -293,7 +295,9 @@ export async function getFeaturedListings(
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('listings')
-    .select('*, product:products(*, category:categories(*))')
+    .select(
+      '*, product:products(*, category:categories!products_category_id_fkey(*))'
+    )
     .eq('is_featured', true)
     .eq('status', 'available')
     .order('created_at', { ascending: false })
@@ -313,7 +317,9 @@ export async function getLatestListings(
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('listings')
-    .select('*, product:products(*, category:categories(*))')
+    .select(
+      '*, product:products(*, category:categories!products_category_id_fkey(*))'
+    )
     .eq('status', 'available')
     .order('created_at', { ascending: false })
     .limit(limit)
@@ -351,7 +357,9 @@ export async function getListingsByCategory(
 
   const { data, error } = await supabase
     .from('listings')
-    .select('*, product:products!inner(*, category:categories(*))')
+    .select(
+      '*, product:products!inner(*, category:categories!products_category_id_fkey(*))'
+    )
     .eq('status', 'available')
     .in('product.category_id', categoryIds)
     .order('created_at', { ascending: false })
@@ -374,7 +382,9 @@ export async function getDealListings(
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('listings')
-    .select('*, product:products!inner(*, category:categories(*))')
+    .select(
+      '*, product:products!inner(*, category:categories!products_category_id_fkey(*))'
+    )
     .eq('status', 'available')
     .limit(limit * 3)
 

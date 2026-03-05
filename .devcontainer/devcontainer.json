@@ -1,6 +1,6 @@
 {
   "name": "Ubuntu + Bun + Docker",
-  "image": "vikshan/ubuntu-bun-node:latest",
+  "image": "vikshan/ubuntu-bun:latest",
 
   // Add Docker-in-Docker feature
   "features": {
@@ -33,13 +33,14 @@
         "coderabbit.coderabbit-vscode",
         "DeepScan.vscode-deepscan",
         "jetbrains.qodana-code",
-        "shenyq.gs-lang"
+        "shenyq.gs-lang",
+        "ms-playwright.playwright"
       ]
     }
   },
 
   // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "[ -f scripts/iamvikshan.sh ] && chmod +x scripts/iamvikshan.sh; bun install && sudo ln -sf /usr/share/zoneinfo/Africa/Nairobi /etc/localtime",
+  "postCreateCommand": "[ -f scripts/iamvikshan.sh ] && chmod +x scripts/iamvikshan.sh; bun install && sudo ln -sf /usr/share/zoneinfo/Africa/Nairobi /etc/localtime && curl -fsSL https://cli.coderabbit.ai/install.sh | sh",
 
   // Set `remoteUser` to `root` to connect as root.
   "remoteUser": "root",

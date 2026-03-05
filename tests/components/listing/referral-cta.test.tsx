@@ -13,8 +13,8 @@ describe('ReferralCta', () => {
   })
 
   test('imports WHATSAPP_NUMBER from config', () => {
-    expect(src).toContain("WHATSAPP_NUMBER")
-    expect(src).toContain("@/config")
+    expect(src).toContain('WHATSAPP_NUMBER')
+    expect(src).toContain('@/config')
   })
 
   test('generates wa.me URL with phone number', () => {

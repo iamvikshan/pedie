@@ -30,7 +30,7 @@ describe('ConditionBadge Component', () => {
   test('renders tooltip via title attribute', () => {
     expect(src).toContain('title={label}')
     // label is capitalized condition
-    expect(src).toContain("condition.charAt(0).toUpperCase()")
+    expect(src).toContain('condition.charAt(0).toUpperCase()')
   })
 
   test('includes sr-only label for accessibility', () => {

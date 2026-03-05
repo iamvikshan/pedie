@@ -31,7 +31,7 @@ describe('getProductFamiliesByCategory', () => {
 
   test('source looks up category by slug', () => {
     expect(src).toContain('categorySlug')
-    expect(src).toContain('.eq(\'slug\', categorySlug)')
+    expect(src).toContain(".eq('slug', categorySlug)")
   })
 
   test('source filters out sold/reserved listings', () => {

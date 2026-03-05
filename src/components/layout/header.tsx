@@ -7,13 +7,27 @@ import { useScrollDirection } from '@/hooks/useScrollDirection'
 import { useCartStore } from '@lib/cart/store'
 import Link from 'next/link'
 import { useState } from 'react'
-import { TbMenu2, TbShoppingCart, TbUser } from 'react-icons/tb'
+import {
+  TbMenu2,
+  TbShoppingCart,
+  TbUser,
+  TbFlame,
+  TbTool,
+} from 'react-icons/tb'
 import { AllItemsPanel } from './allItemsPanel'
 import { CategoryNav } from './categoryNav'
 import { MobileNav } from './mobileNav'
 import { SearchBar } from './searchBar'
 
-export function Header() {
+import { Category, CategoryWithChildren } from '@app-types/product'
+
+export function Header({
+  categories = [],
+  categoryTree = [],
+}: {
+  categories?: Category[]
+  categoryTree?: CategoryWithChildren[]
+}) {
   const itemCount = useCartStore(s => s.getItemCount())
   const { user, loading, profile } = useAuth()
   const [isAllItemsOpen, setIsAllItemsOpen] = useState(false)
@@ -29,7 +43,7 @@ export function Header() {
         {/* Row 1: Logo + Search + Icons */}
         <div className='w-full max-w-7xl mx-auto flex h-16 items-center gap-4 px-4 md:px-6'>
           {/* Mobile burger */}
-          <MobileNav />
+          <MobileNav categories={categories} />
 
           {/* Logo */}
           <Link
@@ -101,7 +115,25 @@ export function Header() {
         {/* Row 2: Category Nav + All Items (desktop only) */}
         <div className='hidden border-t border-pedie-glass-border md:block'>
           <div className='w-full max-w-7xl mx-auto flex h-10 items-center justify-between px-4 md:px-6'>
-            <CategoryNav />
+            <CategoryNav categories={categories} categoryTree={categoryTree} />
+
+            {/* Deals and Repairs Links */}
+            <div className='flex items-center gap-4 ml-6 pl-6 border-l border-pedie-glass-border'>
+              <Link
+                href='/deals'
+                className='flex items-center gap-2 text-sm font-medium text-amber-500 hover:text-amber-400 transition-colors'
+              >
+                <TbFlame className='h-4 w-4' />
+                Deals
+              </Link>
+              <Link
+                href='/repairs'
+                className='flex items-center gap-2 text-sm font-medium text-pedie-text hover:text-pedie-green transition-colors'
+              >
+                <TbTool className='h-4 w-4' />
+                Repairs
+              </Link>
+            </div>
 
             <button
               onClick={() => setIsAllItemsOpen(true)}
@@ -118,6 +150,7 @@ export function Header() {
       <AllItemsPanel
         isOpen={isAllItemsOpen}
         onClose={() => setIsAllItemsOpen(false)}
+        categories={categories}
       />
     </>
   )

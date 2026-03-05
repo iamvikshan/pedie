@@ -10,36 +10,18 @@ import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import {
-  TbDeviceLaptop,
-  TbDeviceMobile,
-  TbDeviceTablet,
-  TbDeviceWatch,
   TbFlame,
-  TbHeadphones,
   TbHeart,
   TbLogout,
   TbMenu2,
   TbPackage,
-  TbPlug,
   TbSparkles,
+  TbTool,
   TbTrendingUp,
   TbUser,
   TbX,
 } from 'react-icons/tb'
 import { SearchBar } from './searchBar'
-
-const MOBILE_CATEGORIES = [
-  {
-    name: 'Smartphones',
-    href: '/collections/smartphones',
-    icon: TbDeviceMobile,
-  },
-  { name: 'Laptops', href: '/collections/laptops', icon: TbDeviceLaptop },
-  { name: 'Tablets', href: '/collections/tablets', icon: TbDeviceTablet },
-  { name: 'Accessories', href: '/collections/accessories', icon: TbPlug },
-  { name: 'Wearables', href: '/collections/wearables', icon: TbDeviceWatch },
-  { name: 'Audio', href: '/collections/audio', icon: TbHeadphones },
-] as const
 
 const CATEGORY_IMAGES: Record<string, string> = {
   smartphones: '/images/categories/smartphones.jpg',
@@ -48,15 +30,19 @@ const CATEGORY_IMAGES: Record<string, string> = {
   accessories: '/images/categories/accessories.jpg',
   wearables: '/images/categories/wearables.jpg',
   audio: '/images/categories/audio.jpg',
+  gaming: '/images/categories/gaming.jpg',
 }
 
 const QUICK_LINKS = [
   { name: 'Deals', href: '/deals' },
+  { name: 'Repairs', href: '/repairs' },
   { name: 'New Arrivals', href: '/collections/new-arrivals' },
   { name: 'Best Sellers', href: '/collections/best-sellers' },
 ] as const
 
-export function MobileNav() {
+import type { Category } from '@app-types/product'
+
+export function MobileNav({ categories }: { categories: Category[] }) {
   const { user, loading, profile } = useAuth()
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
@@ -178,19 +164,20 @@ export function MobileNav() {
                       Categories
                     </h3>
                     <div className='grid grid-cols-2 gap-3'>
-                      {MOBILE_CATEGORIES.map(cat => {
-                        const slug = cat.href.split('/').pop() ?? ''
+                      {categories.map(cat => {
+                        const imgSrc =
+                          cat.image_url || CATEGORY_IMAGES[cat.slug] || ''
                         return (
                           <Link
-                            key={cat.href}
-                            href={cat.href}
+                            key={cat.id}
+                            href={`/collections/${cat.slug}`}
                             onClick={close}
                             className='group relative overflow-hidden rounded-lg border border-pedie-glass-border'
                           >
                             <div className='relative h-20 w-full'>
-                              {CATEGORY_IMAGES[slug] ? (
+                              {imgSrc ? (
                                 <Image
-                                  src={CATEGORY_IMAGES[slug]}
+                                  src={imgSrc}
                                   alt={cat.name}
                                   width={160}
                                   height={100}
@@ -211,9 +198,7 @@ export function MobileNav() {
                                 data-fallback
                                 className='flex h-20 w-full items-center justify-center bg-pedie-card text-pedie-text-muted text-xs'
                                 style={{
-                                  display: CATEGORY_IMAGES[slug]
-                                    ? 'none'
-                                    : 'flex',
+                                  display: imgSrc ? 'none' : 'flex',
                                 }}
                               >
                                 {cat.name}
@@ -242,6 +227,9 @@ export function MobileNav() {
                       >
                         {link.name === 'Deals' && (
                           <TbFlame className='h-4 w-4 text-amber-400' />
+                        )}
+                        {link.name === 'Repairs' && (
+                          <TbTool className='h-4 w-4 text-pedie-text-muted' />
                         )}
                         {link.name === 'New Arrivals' && (
                           <TbSparkles className='h-4 w-4 text-pedie-green' />

@@ -8,7 +8,8 @@ import type {
 import type { ConditionGrade, ListingWithProduct } from '@app-types/product'
 import { createClient } from '@lib/supabase/server'
 
-const LISTING_SELECT = '*, product:products!inner(*, category:categories(*))'
+const LISTING_SELECT =
+  '*, product:products!inner(*, category:categories!products_category_id_fkey(*))'
 
 function emptyPaginatedResult<T>(
   pagination: PaginationParams
@@ -153,7 +154,9 @@ export async function getListingById(
 
   const { data, error } = await supabase
     .from('listings')
-    .select('*, product:products(*, category:categories(*))')
+    .select(
+      '*, product:products(*, category:categories!products_category_id_fkey(*))'
+    )
     .eq('listing_id', listingId)
     .single()
 
@@ -174,7 +177,9 @@ export async function getSimilarListings(
 
   const { data, error } = await supabase
     .from('listings')
-    .select('*, product:products(*, category:categories(*))')
+    .select(
+      '*, product:products(*, category:categories!products_category_id_fkey(*))'
+    )
     .eq('product_id', productId)
     .neq('listing_id', excludeListingId)
     .eq('status', 'available')

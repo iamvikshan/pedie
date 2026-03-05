@@ -9,7 +9,9 @@ const src = readFileSync(
 
 describe('AddToCart Component', () => {
   test('standard listing renders Add to Cart text', () => {
-    expect(src).toContain("listing.listing_type === 'preorder' ? 'Preorder Now' : 'Add to Cart'")
+    expect(src).toContain(
+      "listing.listing_type === 'preorder' ? 'Preorder Now' : 'Add to Cart'"
+    )
   })
 
   test('sold out listing renders Sold Out button', () => {
@@ -18,7 +20,9 @@ describe('AddToCart Component', () => {
   })
 
   test('affiliate listing renders external link', () => {
-    expect(src).toContain("listing.listing_type === 'affiliate' && listing.source_url")
+    expect(src).toContain(
+      "listing.listing_type === 'affiliate' && listing.source_url"
+    )
     expect(src).toContain("target='_blank'")
     expect(src).toContain("rel='noopener noreferrer'")
   })
@@ -38,6 +42,8 @@ describe('AddToCart Component', () => {
   })
 
   test('imports ReferralCta component', () => {
-    expect(src).toContain("import { ReferralCta } from '@components/listing/referralCta'")
+    expect(src).toContain(
+      "import { ReferralCta } from '@components/listing/referralCta'"
+    )
   })
 })

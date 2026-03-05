@@ -4,10 +4,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { calculateDiscount, formatKes, getPricingTier } from '@helpers'
 
-const src = readFileSync(
-  resolve('src/components/ui/productCard.tsx'),
-  'utf-8'
-)
+const src = readFileSync(resolve('src/components/ui/productCard.tsx'), 'utf-8')
 
 describe('ProductCard Component', () => {
   const mockListing: ListingWithProduct = {
@@ -129,9 +126,11 @@ describe('ProductCard Component', () => {
   test('affiliate listing links to source_url with target=_blank', () => {
     expect(src).toContain("target: '_blank'")
     expect(src).toContain("rel: 'noopener noreferrer'")
-    expect(src).toContain("listing.source_url")
+    expect(src).toContain('listing.source_url')
     // Affiliate requires both listing_type === 'affiliate' AND source_url
-    expect(src).toContain("listing.listing_type === 'affiliate' && listing.source_url")
+    expect(src).toContain(
+      "listing.listing_type === 'affiliate' && listing.source_url"
+    )
   })
 
   test('affiliate listing has "Partner" badge', () => {

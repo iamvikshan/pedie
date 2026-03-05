@@ -2,10 +2,7 @@ import { describe, expect, test } from 'bun:test'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
-const src = readFileSync(
-  resolve('src/app/loading.tsx'),
-  'utf-8'
-)
+const src = readFileSync(resolve('src/app/loading.tsx'), 'utf-8')
 
 describe('Homepage Loading', () => {
   test('imports Skeleton component', () => {

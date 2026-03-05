@@ -1,8 +1,7 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from 'bun:test'
 
-const { parsePhonePlacePage } = await import(
-	"../../../scripts/crawlers/phoneplace"
-);
+const { parsePhonePlacePage } =
+  await import('../../../scripts/crawlers/phoneplace')
 
 // ── HTML Fixtures ──────────────────────────────────────────────────────────
 
@@ -23,38 +22,38 @@ const PHONEPLACE_HTML = `
   </div>
 </body>
 </html>
-`;
+`
 
 const PHONEPLACE_EMPTY_HTML = `
 <html><body><p>No products found.</p></body></html>
-`;
+`
 
 // ── Tests ──────────────────────────────────────────────────────────────────
 
-describe("PhonePlace Crawler", () => {
-	describe("parsePhonePlacePage", () => {
-		test("parses product listings with prices", () => {
-			const results = parsePhonePlacePage(PHONEPLACE_HTML);
-			expect(results.length).toBeGreaterThanOrEqual(1);
+describe('PhonePlace Crawler', () => {
+  describe('parsePhonePlacePage', () => {
+    test('parses product listings with prices', () => {
+      const results = parsePhonePlacePage(PHONEPLACE_HTML)
+      expect(results.length).toBeGreaterThanOrEqual(1)
 
-			const first = results[0];
-			expect(first.price_kes).toBe(44500);
-			expect(first.url).toContain("/shop/");
-		});
+      const first = results[0]
+      expect(first.price_kes).toBe(44500)
+      expect(first.url).toContain('/shop/')
+    })
 
-		test("returns empty array for no results page", () => {
-			const results = parsePhonePlacePage(PHONEPLACE_EMPTY_HTML);
-			expect(results).toHaveLength(0);
-		});
+    test('returns empty array for no results page', () => {
+      const results = parsePhonePlacePage(PHONEPLACE_EMPTY_HTML)
+      expect(results).toHaveLength(0)
+    })
 
-		test("extracts URLs from product links", () => {
-			const results = parsePhonePlacePage(PHONEPLACE_HTML);
-			expect(results.length).toBeGreaterThan(0);
-			expect(results[0].url).toBeTruthy();
-		});
+    test('extracts URLs from product links', () => {
+      const results = parsePhonePlacePage(PHONEPLACE_HTML)
+      expect(results.length).toBeGreaterThan(0)
+      expect(results[0].url).toBeTruthy()
+    })
 
-		test("picks sale price from <ins> element over <del> price", () => {
-			const saleHtml = `
+    test('picks sale price from <ins> element over <del> price', () => {
+      const saleHtml = `
 <html>
 <body>
   <div class="product-item">
@@ -65,12 +64,12 @@ describe("PhonePlace Crawler", () => {
   </div>
 </body>
 </html>
-`;
-			const results = parsePhonePlacePage(saleHtml);
-			expect(results.length).toBeGreaterThan(0);
-			// Should pick the sale (ins) price, not the original (del) price
-			expect(results[0].price_kes).toBe(42000);
-			expect(results[0].url).toContain("/shop/");
-		});
-	});
-});
+`
+      const results = parsePhonePlacePage(saleHtml)
+      expect(results.length).toBeGreaterThan(0)
+      // Should pick the sale (ins) price, not the original (del) price
+      expect(results[0].price_kes).toBe(42000)
+      expect(results[0].url).toContain('/shop/')
+    })
+  })
+})

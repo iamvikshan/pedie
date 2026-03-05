@@ -27,7 +27,9 @@ async function fetchDiscountedListings(): Promise<{
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('listings')
-    .select('*, product:products!inner(*, category:categories(*))')
+    .select(
+      '*, product:products!inner(*, category:categories!products_category_id_fkey(*))'
+    )
     .not('status', 'in', '(sold,reserved)')
 
   if (error) {

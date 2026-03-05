@@ -132,13 +132,14 @@ Applied via `.glass` class or inline: `bg-pedie-glass backdrop-blur-[24px] borde
 
 All skeleton components live in `src/components/skeletons/`. Route-level loading files live alongside their `page.tsx`.
 
-| Component                  | File                                           | Purpose                         |
-| -------------------------- | ---------------------------------------------- | ------------------------------- |
-| `Skeleton`                 | `skeletons/skeleton.tsx`                        | Generic reusable pulse block    |
-| `ProductFamilyCardSkeleton`| `skeletons/productFamilyCardSkeleton.tsx`       | Matches `ProductFamilyCard`     |
-| `ProductCardSkeleton`      | `skeletons/productCardSkeleton.tsx`             | Matches `ProductCard`           |
+| Component                   | File                                      | Purpose                      |
+| --------------------------- | ----------------------------------------- | ---------------------------- |
+| `Skeleton`                  | `skeletons/skeleton.tsx`                  | Generic reusable pulse block |
+| `ProductFamilyCardSkeleton` | `skeletons/productFamilyCardSkeleton.tsx` | Matches `ProductFamilyCard`  |
+| `ProductCardSkeleton`       | `skeletons/productCardSkeleton.tsx`       | Matches `ProductCard`        |
 
 **Rules:**
+
 - Card-level skeletons apply `animate-pulse` on their root container (single cohesive unit, all children pulse in sync)
 - Section-level skeletons (in `src/components/home/`) do **not** apply `animate-pulse` on their wrapper `<section>` — only on standalone header placeholders — since composed card skeletons already pulse independently
 - `role='status'` + `aria-label='Loading'` on root element for accessibility

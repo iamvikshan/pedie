@@ -32,7 +32,7 @@ describe('useScrollDirection', () => {
   })
 
   test('registers scroll event listener with passive option', () => {
-    expect(hookSource).toContain("{ passive: true }")
+    expect(hookSource).toContain('{ passive: true }')
   })
 
   test('cleans up scroll listener on unmount', () => {

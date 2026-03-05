@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useCallback, useEffect, useRef } from 'react'
 import { TbFlame, TbX } from 'react-icons/tb'
 import brands from '@data/brands.json'
-import { CATEGORIES } from './categoryNav'
+import { Category } from '@app-types/product'
 
 const FEATURED_COLLECTIONS = [
   { name: 'Best Sellers', href: '/collections/best-sellers' },
@@ -31,11 +31,16 @@ const CATEGORY_IMAGES: Record<string, string> = {
 }
 
 interface AllItemsPanelProps {
+  categories: Category[]
   isOpen: boolean
   onClose: () => void
 }
 
-export function AllItemsPanel({ isOpen, onClose }: AllItemsPanelProps) {
+export function AllItemsPanel({
+  isOpen,
+  onClose,
+  categories,
+}: AllItemsPanelProps) {
   const panelRef = useRef<HTMLDivElement>(null)
   const closeButtonRef = useRef<HTMLButtonElement>(null)
 
@@ -127,19 +132,20 @@ export function AllItemsPanel({ isOpen, onClose }: AllItemsPanelProps) {
                   Categories
                 </h3>
                 <div className='grid grid-cols-2 gap-3'>
-                  {CATEGORIES.map(cat => {
-                    const slug = cat.href.split('/').pop() ?? ''
+                  {categories.map(cat => {
+                    const imgSrc =
+                      cat.image_url || CATEGORY_IMAGES[cat.slug] || ''
                     return (
                       <Link
-                        key={cat.href}
-                        href={cat.href}
+                        key={cat.id}
+                        href={`/collections/${cat.slug}`}
                         onClick={onClose}
                         className='group relative overflow-hidden rounded-lg border border-pedie-glass-border'
                       >
                         <div className='relative h-20 w-full'>
-                          {CATEGORY_IMAGES[slug] ? (
+                          {imgSrc ? (
                             <Image
-                              src={CATEGORY_IMAGES[slug]}
+                              src={imgSrc}
                               alt={cat.name}
                               width={160}
                               height={100}
@@ -159,7 +165,7 @@ export function AllItemsPanel({ isOpen, onClose }: AllItemsPanelProps) {
                             data-fallback
                             className='flex h-20 w-full items-center justify-center bg-pedie-card text-pedie-text-muted text-xs'
                             style={{
-                              display: CATEGORY_IMAGES[slug] ? 'none' : 'flex',
+                              display: imgSrc ? 'none' : 'flex',
                             }}
                           >
                             {cat.name}

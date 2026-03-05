@@ -1,7 +1,9 @@
 import { getProductFamilyBySlug, getRelatedListings } from '@data/products'
+import { getCategoryBreadcrumb } from '@data/categories'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { formatKes } from '@helpers'
+import { Breadcrumbs } from '@components/ui/breadcrumbs'
 import { ImageGallery } from '@components/listing/imageGallery'
 import { ProductSpecs } from '@components/listing/productSpecs'
 import { ProductDescription } from '@components/listing/productDescription'
@@ -46,8 +48,21 @@ export default async function ProductPage({ params }: PageProps) {
     product.id
   )
 
+  const breadcrumbTrail = product.category?.slug
+    ? await getCategoryBreadcrumb(product.category.slug)
+    : []
+
   return (
     <main className='container mx-auto px-4 py-8 max-w-7xl'>
+      <Breadcrumbs
+        segments={[
+          ...breadcrumbTrail.map(seg => ({
+            name: seg.name,
+            href: `/collections/${seg.slug}`,
+          })),
+          { name: `${product.brand} ${product.model}` },
+        ]}
+      />
       <div className='grid grid-cols-1 md:grid-cols-2 gap-8 mb-16'>
         {/* Left Column - Images */}
         <div>

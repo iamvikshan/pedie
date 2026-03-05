@@ -10,11 +10,13 @@ import { ShippingInfo } from '@components/listing/shippingInfo'
 import { SimilarListings } from '@components/listing/similarListings'
 import VariantSelector from '@components/listing/variantSelector'
 import BetterDealNudge from '@components/listing/betterDealNudge'
+import { Breadcrumbs } from '@components/ui/breadcrumbs'
 import { calculateDeposit, formatKes } from '@helpers'
 import { getListingById } from '@data/listings'
 import { getProductReviews, getReviewStats } from '@data/reviews'
 import { findBetterDeal } from '@utils/products'
 import { getProductFamilyBySlug, getRelatedListings } from '@data/products'
+import { getCategoryBreadcrumb } from '@data/categories'
 import Link from 'next/link'
 import {
   breadcrumbJsonLd,
@@ -82,6 +84,10 @@ export default async function ListingPage({ params }: PageProps) {
     ? listing.final_price_kes - betterDeal.final_price_kes
     : 0
 
+  const breadcrumbTrail = listing.product.category?.slug
+    ? await getCategoryBreadcrumb(listing.product.category.slug)
+    : []
+
   return (
     <>
       <script
@@ -111,6 +117,19 @@ export default async function ListingPage({ params }: PageProps) {
         }}
       />
       <main className='mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8'>
+        <Breadcrumbs
+          segments={[
+            ...breadcrumbTrail.map(seg => ({
+              name: seg.name,
+              href: `/collections/${seg.slug}`,
+            })),
+            {
+              name: `${product.brand} ${product.model}`,
+              href: `/products/${product.slug}`,
+            },
+            { name: listing.listing_id },
+          ]}
+        />
         {/* Above the fold: image + info */}
         <div className='grid grid-cols-1 gap-8 md:grid-cols-2'>
           {/* Left column: Image Gallery */}

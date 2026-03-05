@@ -1,6 +1,6 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, test } from 'bun:test'
 
-const { parseBadiliPage } = await import("../../../scripts/crawlers/badili");
+const { parseBadiliPage } = await import('../../../scripts/crawlers/badili')
 
 // ── HTML Fixtures ──────────────────────────────────────────────────────────
 
@@ -21,7 +21,7 @@ const BADILI_PRODUCT_HTML = `
   </div>
 </body>
 </html>
-`;
+`
 
 const BADILI_EMPTY_HTML = `
 <html>
@@ -29,7 +29,7 @@ const BADILI_EMPTY_HTML = `
   <div class="no-results">No products found</div>
 </body>
 </html>
-`;
+`
 
 const BADILI_MALFORMED_HTML = `
 <html>
@@ -39,36 +39,36 @@ const BADILI_MALFORMED_HTML = `
   </div>
 </body>
 </html>
-`;
+`
 
 // ── Tests ──────────────────────────────────────────────────────────────────
 
-describe("Badili Crawler", () => {
-	describe("parseBadiliPage", () => {
-		test("parses product listings with prices", () => {
-			const results = parseBadiliPage(BADILI_PRODUCT_HTML);
-			expect(results.length).toBeGreaterThanOrEqual(1);
+describe('Badili Crawler', () => {
+  describe('parseBadiliPage', () => {
+    test('parses product listings with prices', () => {
+      const results = parseBadiliPage(BADILI_PRODUCT_HTML)
+      expect(results.length).toBeGreaterThanOrEqual(1)
 
-			const first = results[0];
-			expect(first.price_kes).toBe(45000);
-			expect(first.url).toContain("/product/");
-		});
+      const first = results[0]
+      expect(first.price_kes).toBe(45000)
+      expect(first.url).toContain('/product/')
+    })
 
-		test("returns empty array for no results page", () => {
-			const results = parseBadiliPage(BADILI_EMPTY_HTML);
-			expect(results).toHaveLength(0);
-		});
+    test('returns empty array for no results page', () => {
+      const results = parseBadiliPage(BADILI_EMPTY_HTML)
+      expect(results).toHaveLength(0)
+    })
 
-		test("handles malformed HTML gracefully", () => {
-			const results = parseBadiliPage(BADILI_MALFORMED_HTML);
-			// Should not crash, may return empty array since price text is invalid
-			expect(Array.isArray(results)).toBe(true);
-		});
+    test('handles malformed HTML gracefully', () => {
+      const results = parseBadiliPage(BADILI_MALFORMED_HTML)
+      // Should not crash, may return empty array since price text is invalid
+      expect(Array.isArray(results)).toBe(true)
+    })
 
-		test("extracts URLs from product links", () => {
-			const results = parseBadiliPage(BADILI_PRODUCT_HTML);
-			expect(results.length).toBeGreaterThan(0);
-			expect(results[0].url).toBeTruthy();
-		});
-	});
-});
+    test('extracts URLs from product links', () => {
+      const results = parseBadiliPage(BADILI_PRODUCT_HTML)
+      expect(results.length).toBeGreaterThan(0)
+      expect(results[0].url).toBeTruthy()
+    })
+  })
+})

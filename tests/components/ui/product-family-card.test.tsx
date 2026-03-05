@@ -23,9 +23,8 @@ describe('ProductFamilyCard Component', () => {
   })
 
   test('PRODUCT_FAMILY_CARD_ICONS contains expected icon names', async () => {
-    const { PRODUCT_FAMILY_CARD_ICONS } = await import(
-      '@components/ui/productFamilyCard'
-    )
+    const { PRODUCT_FAMILY_CARD_ICONS } =
+      await import('@components/ui/productFamilyCard')
     expect(PRODUCT_FAMILY_CARD_ICONS).toContain('TbPhoto')
     expect(PRODUCT_FAMILY_CARD_ICONS).toContain('TbFlame')
   })

@@ -10,7 +10,8 @@ import { FilterSidebar } from '@components/catalog/filterSidebar'
 import { Pagination } from '@components/catalog/pagination'
 import { ProductGrid } from '@components/catalog/productGrid'
 import { SortDropdown } from '@components/catalog/sortDropdown'
-import { getCategoryBySlug } from '@data/categories'
+import { Breadcrumbs } from '@components/ui/breadcrumbs'
+import { getCategoryBySlug, getCategoryBreadcrumb } from '@data/categories'
 import { getAvailableFilters, getFilteredListings } from '@data/listings'
 import {
   breadcrumbJsonLd,
@@ -120,10 +121,12 @@ export default async function CollectionPage({
   }
 
   // Fetch data
-  const [availableFilters, paginatedResult] = await Promise.all([
-    getAvailableFilters(slug),
-    getFilteredListings(slug, filters, sort, pagination),
-  ])
+  const [availableFilters, paginatedResult, breadcrumbTrail] =
+    await Promise.all([
+      getAvailableFilters(slug),
+      getFilteredListings(slug, filters, sort, pagination),
+      getCategoryBreadcrumb(slug),
+    ])
 
   return (
     <>
@@ -148,6 +151,12 @@ export default async function CollectionPage({
         }}
       />
       <div className='w-full max-w-7xl mx-auto px-4 py-8'>
+        <Breadcrumbs
+          segments={breadcrumbTrail.map(seg => ({
+            name: seg.name,
+            href: `/collections/${seg.slug}`,
+          }))}
+        />
         <CollectionBanner
           category={category}
           listingCount={paginatedResult.total}

@@ -62,7 +62,9 @@ export async function searchListings(
   // Step 2: Fetch listings for matched products
   let listingQuery = supabase
     .from('listings')
-    .select('*, product:products(*, category:categories(*))')
+    .select(
+      '*, product:products(*, category:categories!products_category_id_fkey(*))'
+    )
     .eq('status', 'available')
     .in('product_id', productIds)
 

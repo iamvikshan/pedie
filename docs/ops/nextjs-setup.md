@@ -29,19 +29,19 @@
 
 ## 🎯 Quick Overview
 
-| Component           | Details                                        |
-| ------------------- | ---------------------------------------------- |
-| **Framework**       | Next.js 16 (App Router, React 19)              |
-| **Runtime**         | Bun 1.3+                                       |
-| **Database**        | Supabase (PostgreSQL + Auth + Storage)          |
-| **Hosting**         | Vercel (primary) / Docker on VPS (alternative)  |
-| **Payments**        | M-Pesa (Daraja API) + PayPal                   |
-| **Email**           | Gmail API (transactional) + SMTP (auth emails) |
-| **Inventory Sync**  | Google Sheets → Apps Script → Supabase          |
-| **CDN / DNS**       | Cloudflare                                     |
-| **CI/CD**           | GitHub Actions (lint, test, Docker, releases)   |
-| **Region**          | `jnb1` (Johannesburg, South Africa)            |
-| **Image Formats**   | AVIF, WebP (automatic optimization)            |
+| Component          | Details                                        |
+| ------------------ | ---------------------------------------------- |
+| **Framework**      | Next.js 16 (App Router, React 19)              |
+| **Runtime**        | Bun 1.3+                                       |
+| **Database**       | Supabase (PostgreSQL + Auth + Storage)         |
+| **Hosting**        | Vercel (primary) / Docker on VPS (alternative) |
+| **Payments**       | M-Pesa (Daraja API) + PayPal                   |
+| **Email**          | Gmail API (transactional) + SMTP (auth emails) |
+| **Inventory Sync** | Google Sheets → Apps Script → Supabase         |
+| **CDN / DNS**      | Cloudflare                                     |
+| **CI/CD**          | GitHub Actions (lint, test, Docker, releases)  |
+| **Region**         | `jnb1` (Johannesburg, South Africa)            |
+| **Image Formats**  | AVIF, WebP (automatic optimization)            |
 
 ---
 
@@ -67,15 +67,15 @@ cp .env.example .env
 
 ### Available Scripts
 
-| Command         | Description                        |
-| --------------- | ---------------------------------- |
-| `bun dev`       | Start the development server       |
-| `bun build`     | Production build                   |
-| `bun start`     | Start the production server        |
-| `bun test`      | Run the test suite                 |
-| `bun lint`      | Run ESLint                         |
-| `bun check`     | Run lint + TypeScript type check   |
-| `bun f`         | Format all files with Prettier     |
+| Command     | Description                      |
+| ----------- | -------------------------------- |
+| `bun dev`   | Start the development server     |
+| `bun build` | Production build                 |
+| `bun start` | Start the production server      |
+| `bun test`  | Run the test suite               |
+| `bun lint`  | Run ESLint                       |
+| `bun check` | Run lint + TypeScript type check |
+| `bun f`     | Format all files with Prettier   |
 
 ---
 
@@ -128,6 +128,7 @@ Create the following storage buckets in **Dashboard → Storage**:
 2. **`uploads`** — private bucket for admin file uploads
 
 Set RLS policies to allow:
+
 - Public read on `product-images`
 - Authenticated admin write on both buckets
 
@@ -255,6 +256,7 @@ DARAJA_ENV=sandbox
 ### Security Notes
 
 The M-Pesa callback endpoint (`/api/payments/mpesa/callback`) includes:
+
 - **IP allowlisting** — only Safaricom IPs (`196.201.214.*`, `196.201.213.*`) are accepted
 - **Callback secret** validation via `x-callback-secret` header
 - **Idempotent processing** — duplicate callbacks are safely ignored
@@ -324,12 +326,12 @@ The Apps Script code lives at `scripts/gAppS/sheetsSync.gs` in this repo.
 3. Replace the default `Code.gs` with the contents of `scripts/gAppS/sheetsSync.gs`
 4. Set **Script Properties** (Project Settings → Script Properties):
 
-   | Property              | Value                                           |
-   | --------------------- | ----------------------------------------------- |
-   | `SITE_URL`            | `https://pedie.tech` (no trailing /)             |
-   | `REVALIDATION_SECRET` | Same as your `REVALIDATION_SECRET`               |
-   | `SYNC_API_KEY`        | Same as your `SYNC_API_KEY`                      |
-   | `SHEET_TAB_NAME`      | Inventory tab name (default: `inv`)              |
+   | Property              | Value                                |
+   | --------------------- | ------------------------------------ |
+   | `SITE_URL`            | `https://pedie.tech` (no trailing /) |
+   | `REVALIDATION_SECRET` | Same as your `REVALIDATION_SECRET`   |
+   | `SYNC_API_KEY`        | Same as your `SYNC_API_KEY`          |
+   | `SHEET_TAB_NAME`      | Inventory tab name (default: `inv`)  |
 
 5. Save and run `testRevalidation()` once to authorize the script
 6. Add a trigger:
@@ -387,6 +389,7 @@ REVALIDATION_SECRET=<generate-a-secure-random-string>
 ```
 
 Generate with:
+
 ```bash
 openssl rand -base64 32
 ```
@@ -394,6 +397,7 @@ openssl rand -base64 32
 ### Usage
 
 The revalidation endpoint is called by:
+
 1. **Apps Script** — after inventory edits in Google Sheets
 2. **Admin panel** — after product CRUD operations
 3. **Webhooks** — from external systems if needed
@@ -432,16 +436,17 @@ The project is configured to deploy to **Johannesburg (`jnb1`)** via `vercel.jso
 
 `vercel.json` also configures production security headers:
 
-| Header                  | Value                                |
-| ----------------------- | ------------------------------------ |
-| `X-Content-Type-Options`| `nosniff`                            |
-| `X-Frame-Options`       | `DENY`                               |
-| `Referrer-Policy`       | `strict-origin-when-cross-origin`    |
-| API `Cache-Control`     | `no-store`                           |
+| Header                   | Value                             |
+| ------------------------ | --------------------------------- |
+| `X-Content-Type-Options` | `nosniff`                         |
+| `X-Frame-Options`        | `DENY`                            |
+| `Referrer-Policy`        | `strict-origin-when-cross-origin` |
+| API `Cache-Control`      | `no-store`                        |
 
 ### Image Optimization
 
 The `next.config.ts` is tuned for e-commerce:
+
 - **Formats:** AVIF → WebP (automatic negotiation)
 - **Device sizes:** 640, 750, 828, 1080, 1200
 - **Image sizes:** 16, 32, 48, 64, 96, 128, 256
@@ -474,10 +479,10 @@ curl -X POST https://pedie.tech/api/revalidate \
 
 ### DNS Records
 
-| Type  | Name | Content                   | Proxy |
-| ----- | ---- | ------------------------- | ----- |
-| CNAME | `@`  | `cname.vercel-dns.com`    | ✅    |
-| CNAME | `www`| `cname.vercel-dns.com`    | ✅    |
+| Type  | Name  | Content                | Proxy |
+| ----- | ----- | ---------------------- | ----- |
+| CNAME | `@`   | `cname.vercel-dns.com` | ✅    |
+| CNAME | `www` | `cname.vercel-dns.com` | ✅    |
 
 ### Vercel Domain Configuration
 
@@ -526,6 +531,7 @@ bash scripts/deploy.sh
 ```
 
 The deploy script handles:
+
 - Docker image build
 - Container creation with env vars
 - Health check verification
@@ -538,11 +544,11 @@ services:
   pedie:
     build: .
     ports:
-      - "3000:3000"
+      - '3000:3000'
     env_file: .env
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000/api/health']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -615,13 +621,13 @@ Triggered on push to `main`:
 
 ### Required GitHub Secrets
 
-| Secret                          | Description                              |
-| ------------------------------- | ---------------------------------------- |
+| Secret                          | Description                                 |
+| ------------------------------- | ------------------------------------------- |
 | `SITE_URL`                      | Production URL (e.g., `https://pedie.tech`) |
-| `REVALIDATION_SECRET`           | Same as the env var                      |
-| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase project URL                    |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key                        |
-| `SUPABASE_SERVICE_ROLE_KEY`     | Supabase service role key                |
+| `REVALIDATION_SECRET`           | Same as the env var                         |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase project URL                        |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key                           |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Supabase service role key                   |
 
 ---
 
@@ -642,6 +648,7 @@ Next.js 16 uses `proxy.ts` (instead of `middleware.ts`) for request interception
 ### File Upload Security (`src/lib/security/magic-bytes.ts`)
 
 Admin file uploads are validated at multiple levels:
+
 1. **MIME type** from `Content-Type` header
 2. **Magic bytes** — the first bytes of the file buffer are checked against known signatures (JPEG `FF D8 FF`, PNG `89 50 4E 47`, GIF `47 49 46`, WebP `52 49 46 46`)
 3. **File size** — maximum 5 MB
@@ -655,6 +662,7 @@ Admin file uploads are validated at multiple levels:
 ### Privacy Policy
 
 A comprehensive privacy policy page is available at `/privacy`, covering:
+
 - Data collection practices
 - Usage and sharing policies
 - Security measures
@@ -714,32 +722,32 @@ The repo uses [Renovate](https://renovatebot.com/) for automated dependency upda
 
 ## 📑 Environment Variables Reference
 
-| Variable | Required | Where to Get |
-|---|---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | ✅ | Supabase Dashboard → Settings → API |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ✅ | Supabase Dashboard → Settings → API (legacy anon key) |
-| `SUPABASE_SERVICE_ROLE_KEY` | ✅ | Supabase Dashboard → Settings → API |
-| `GCP_SERVICE_ACC` | ✅ | Google Cloud → Service Account JSON → base64 |
-| `GS_SPREADSHEET_ID` | ✅ | From Google Sheets URL |
-| `SYNC_API_KEY` | ✅ | Generate any secure string |
-| `REVALIDATION_SECRET` | ✅ | Generate: `openssl rand -base64 32` |
-| `DARAJA_CONSUMER_KEY` | ✅ | Safaricom Developer Portal |
-| `DARAJA_CONSUMER_SECRET` | ✅ | Safaricom Developer Portal |
-| `DARAJA_SHORTCODE` | ✅ | Safaricom Developer Portal |
-| `DARAJA_PASSKEY` | ✅ | Safaricom Developer Portal |
-| `DARAJA_CALLBACK_URL` | ✅ | Your domain + `/api/payments/mpesa/callback` |
-| `DARAJA_ENV` | ✅ | `sandbox` or `production` |
-| `MPESA_CALLBACK_SECRET` | ✅ | Generate any secure string |
-| `PAYPAL_CLIENT_ID` | ✅ | PayPal Developer Dashboard |
-| `PAYPAL_CLIENT_SECRET` | ✅ | PayPal Developer Dashboard |
-| `PAYPAL_ENV` | ✅ | `sandbox` or `production` |
-| `GCP_CLIENT_ID` | ⚡ | Google Cloud → OAuth2 Credentials |
-| `GCP_CLIENT_SECRET` | ⚡ | Google Cloud → OAuth2 Credentials |
-| `GMAIL_REFRESH_TOKEN` | ⚡ | OAuth Playground (see Step 3) |
-| `GMAIL_SENDER_EMAIL` | ⚡ | Your sender email address |
-| `CF_TUNNEL` | 🔧 | Cloudflare Dashboard (for VPS) |
+| Variable                        | Required | Where to Get                                          |
+| ------------------------------- | -------- | ----------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | ✅       | Supabase Dashboard → Settings → API                   |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ✅       | Supabase Dashboard → Settings → API (legacy anon key) |
+| `SUPABASE_SERVICE_ROLE_KEY`     | ✅       | Supabase Dashboard → Settings → API                   |
+| `GCP_SERVICE_ACC`               | ✅       | Google Cloud → Service Account JSON → base64          |
+| `GS_SPREADSHEET_ID`             | ✅       | From Google Sheets URL                                |
+| `SYNC_API_KEY`                  | ✅       | Generate any secure string                            |
+| `REVALIDATION_SECRET`           | ✅       | Generate: `openssl rand -base64 32`                   |
+| `DARAJA_CONSUMER_KEY`           | ✅       | Safaricom Developer Portal                            |
+| `DARAJA_CONSUMER_SECRET`        | ✅       | Safaricom Developer Portal                            |
+| `DARAJA_SHORTCODE`              | ✅       | Safaricom Developer Portal                            |
+| `DARAJA_PASSKEY`                | ✅       | Safaricom Developer Portal                            |
+| `DARAJA_CALLBACK_URL`           | ✅       | Your domain + `/api/payments/mpesa/callback`          |
+| `DARAJA_ENV`                    | ✅       | `sandbox` or `production`                             |
+| `MPESA_CALLBACK_SECRET`         | ✅       | Generate any secure string                            |
+| `PAYPAL_CLIENT_ID`              | ✅       | PayPal Developer Dashboard                            |
+| `PAYPAL_CLIENT_SECRET`          | ✅       | PayPal Developer Dashboard                            |
+| `PAYPAL_ENV`                    | ✅       | `sandbox` or `production`                             |
+| `GCP_CLIENT_ID`                 | ⚡       | Google Cloud → OAuth2 Credentials                     |
+| `GCP_CLIENT_SECRET`             | ⚡       | Google Cloud → OAuth2 Credentials                     |
+| `GMAIL_REFRESH_TOKEN`           | ⚡       | OAuth Playground (see Step 3)                         |
+| `GMAIL_SENDER_EMAIL`            | ⚡       | Your sender email address                             |
+| `CF_TUNNEL`                     | 🔧       | Cloudflare Dashboard (for VPS)                        |
 
- = Required for core functionality | ⚡ = Required for email features | 🔧 = Required for self-hosted deployment
+= Required for core functionality | ⚡ = Required for email features | 🔧 = Required for self-hosted deployment
 
 > **Note:** `GS_SHEET_NAME` has been removed. The sheet tab name is now configured in `src/config/index.ts` as `SHEETS_TAB_NAME`.
 
@@ -750,6 +758,7 @@ The repo uses [Renovate](https://renovatebot.com/) for automated dependency upda
 ### Common Issues
 
 #### `bun check` fails with TypeScript errors
+
 ```bash
 # Check if types are out of date
 bun install
@@ -757,22 +766,26 @@ bun check
 ```
 
 #### Supabase connection refused
+
 - Verify `NEXT_PUBLIC_SUPABASE_URL` starts with `https://`
 - Check if the project is paused in the Supabase dashboard (free-tier projects pause after 7 days of inactivity)
 - Ensure the anon key is the **legacy** format (`eyJhbG...`)
 
 #### M-Pesa callback not received
+
 - Ensure `DARAJA_CALLBACK_URL` is publicly accessible (HTTPS)
 - Verify your IP is not being blocked by Cloudflare
 - Check that `DARAJA_ENV` matches your credentials (sandbox vs production)
 - In sandbox, use the Safaricom test phone numbers
 
 #### Gmail API "Token has been revoked"
+
 - Refresh tokens can expire if the Google project is in "Testing" mode
 - Go to Google Cloud Console → **OAuth consent screen** → move to **Production** (requires verification)
 - Re-generate the refresh token via OAuth Playground
 
 #### Google Sheets sync not triggering
+
 - Verify Apps Script trigger is installed (Extensions → Apps Script → Triggers)
 - Check Script Properties are set correctly (`SITE_URL`, `REVALIDATION_SECRET`)
 - Run `testRevalidation()` manually from the Apps Script editor to check logs
@@ -787,11 +800,13 @@ Images are stored as Supabase Storage public URLs in the `images TEXT[]` column 
 Use `POST /api/sync/export` (with `x-api-key` header) to push all listings from the database back to Google Sheets. This is useful for seeding the sheet from existing DB data.
 
 #### Docker build fails
+
 - Ensure `bun.lock` is committed (the Dockerfile uses `--frozen-lockfile`)
 - Check that all required env vars are in `.env` before building
 - Verify the `standalone` output works: `bun run build && bun .next/standalone/server.js`
 
 #### Vercel deployment fails
+
 - Check the build logs in the Vercel dashboard
 - Verify all env vars are set in Project Settings
 - Ensure the `jnb1` region is available (check Vercel status page)
