@@ -38,4 +38,27 @@ describe('CategoryNav', () => {
     expect(src).toContain('useState')
     expect(src).toContain('setActiveCategory')
   })
+
+  test('uses text-xs font size for compact nav', () => {
+    expect(src).toContain('text-xs')
+    expect(src).not.toContain('text-sm')
+  })
+
+  test('does not use animated underline span', () => {
+    // No underline span — clean hover via transition-colors only
+    expect(src).not.toContain('scale-x-0')
+    expect(src).not.toContain('scale-x-100')
+    expect(src).not.toContain('origin-left')
+    expect(src).not.toContain('h-0.5')
+  })
+
+  test('uses transition-colors hover without group/relative', () => {
+    expect(src).toContain('transition-colors')
+    expect(src).toContain('hover:text-pedie-green')
+    expect(src).not.toContain('group relative')
+  })
+
+  test('nav links have horizontal padding', () => {
+    expect(src).toContain('px-3')
+  })
 })

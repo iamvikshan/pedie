@@ -15,109 +15,48 @@ describe('MobileNav', () => {
     expect(typeof mod.MobileNav).toBe('function')
   })
 
-  test('does NOT contain Create Account link', () => {
-    expect(mobileNavSource).not.toContain('Create Account')
+  test('is a thin wrapper delegating to SidebarPanel', () => {
+    expect(src).toContain('SidebarPanel')
+    expect(src).toContain("import { SidebarPanel } from './sidebarPanel'")
   })
 
-  test('contains Sign In link for unauthenticated users', () => {
-    expect(mobileNavSource).toContain('Sign In')
-    expect(mobileNavSource).toContain('/auth/signin')
-  })
-
-  test('contains ThemeToggle at the bottom of drawer', () => {
-    expect(mobileNavSource).toContain('<ThemeToggle />')
-    expect(mobileNavSource).toContain('Theme')
-  })
-
-  test('has accessible dialog role and aria-modal', () => {
-    expect(mobileNavSource).toContain("role='dialog'")
-    expect(mobileNavSource).toContain("aria-modal='true'")
+  test('passes mobile variant to SidebarPanel', () => {
+    expect(src).toContain("variant='mobile'")
   })
 
   test('contains hamburger button with accessible label', () => {
-    expect(mobileNavSource).toContain("aria-label='Open menu'")
-    expect(mobileNavSource).toContain('TbMenu2')
+    expect(src).toContain("aria-label='Open menu'")
+    expect(src).toContain('TbMenu2')
   })
 
-  test('contains close button with accessible label', () => {
-    expect(mobileNavSource).toContain("aria-label='Close menu'")
-    expect(mobileNavSource).toContain('TbX')
-  })
-
-  test('renders category grid from categories prop', () => {
-    expect(mobileNavSource).toContain('categories.map')
-    expect(mobileNavSource).toContain('/collections/${cat.slug}')
+  test('hides on lg+ breakpoint (not md)', () => {
+    expect(src).toContain("className='lg:hidden'")
+    expect(src).not.toContain("className='md:hidden'")
   })
 
   test('accepts categories prop of type Category[]', () => {
-    expect(mobileNavSource).toContain('categories: Category[]')
-    expect(mobileNavSource).toContain('import type { Category }')
+    expect(src).toContain('categories: Category[]')
+    expect(src).toContain('import type { Category }')
   })
 
-  test('uses framer-motion AnimatePresence for drawer animation', () => {
-    expect(mobileNavSource).toContain('AnimatePresence')
-    expect(mobileNavSource).toContain('motion.div')
+  test('passes categories and onClose to SidebarPanel', () => {
+    expect(src).toContain('categories={categories}')
+    expect(src).toContain('onClose={close}')
   })
 
-  test('traps focus within the drawer', () => {
-    expect(mobileNavSource).toContain('Tab')
-    expect(mobileNavSource).toContain('Escape')
-    expect(mobileNavSource).toContain('focusable')
+  test('manages open/close state', () => {
+    expect(src).toContain('useState(false)')
+    expect(src).toContain('setIsOpen(true)')
+    expect(src).toContain('setIsOpen(false)')
   })
 
-  test('hides on md+ breakpoint', () => {
-    expect(mobileNavSource).toContain("className='md:hidden'")
-  })
-
-  test('renders SearchBar inside the drawer', () => {
-    expect(mobileNavSource).toContain('SearchBar')
-  })
-
-  test('passes defaultExpanded to SearchBar', () => {
-    expect(mobileNavSource).toContain('<SearchBar defaultExpanded')
-  })
-
-  test('uses card-style categories with images', () => {
-    expect(mobileNavSource).toContain('CATEGORY_IMAGES')
-    expect(mobileNavSource).toContain("import Image from 'next/image'")
-    expect(mobileNavSource).toContain('group-hover:scale-105')
-  })
-
-  test('has quick links section with Repairs', () => {
-    expect(mobileNavSource).toContain('QUICK_LINKS')
-    expect(mobileNavSource).toContain('Quick Links')
-    expect(mobileNavSource).toContain('/deals')
-    expect(mobileNavSource).toContain('/repairs')
-    expect(mobileNavSource).toContain('New Arrivals')
-    expect(mobileNavSource).toContain('Best Sellers')
-  })
-
-  test('quick links use Tabler icons', () => {
-    expect(mobileNavSource).toContain('TbFlame')
-    expect(mobileNavSource).toContain('TbTool')
-    expect(mobileNavSource).toContain('TbSparkles')
-    expect(mobileNavSource).toContain('TbTrendingUp')
-  })
-
-  test('sign-out handler destructures error from signOut result', () => {
-    expect(src).toContain('const { error } = await supabase.auth.signOut()')
-  })
-
-  test('sign-out handler checks error before navigating', () => {
-    // The error check must come BEFORE router.push
-    const errorCheckIdx = src.indexOf('if (error)')
-    const routerPushIdx = src.indexOf("router.push('/')")
-    expect(errorCheckIdx).toBeGreaterThan(-1)
-    expect(routerPushIdx).toBeGreaterThan(-1)
-    expect(errorCheckIdx).toBeLessThan(routerPushIdx)
-  })
-
-  test('sign-out handler returns early on error without navigating', () => {
-    // After error check, there should be a return before close/push/refresh
-    const signOutBlock = src.slice(
-      src.indexOf('const { error } = await supabase.auth.signOut()'),
-      src.indexOf("router.push('/')")
-    )
-    expect(signOutBlock).toContain('return')
+  test('does not contain drawer content directly (delegated to SidebarPanel)', () => {
+    // Thin wrapper should NOT contain drawer internals
+    expect(src).not.toContain('AnimatePresence')
+    expect(src).not.toContain('motion.div')
+    expect(src).not.toContain('CATEGORY_IMAGES')
+    expect(src).not.toContain('QUICK_LINKS')
+    expect(src).not.toContain('ThemeToggle')
+    expect(src).not.toContain('SearchBar')
   })
 })

@@ -49,20 +49,13 @@ describe('Header', () => {
     )
   })
 
-  test('ThemeToggle is desktop-only (hidden on mobile)', () => {
-    // ThemeToggle should be wrapped in a div with hidden md:block
-    expect(headerSource).toContain('hidden md:block')
+  test('ThemeToggle is desktop-only (hidden below lg)', () => {
+    expect(headerSource).toContain('hidden lg:block')
     expect(headerSource).toContain('<ThemeToggle />')
   })
 
   test('has sticky positioning with z-50', () => {
     expect(headerSource).toContain('sticky top-0 z-50')
-  })
-
-  test('includes mobile SearchBar in right icons area', () => {
-    // Should have md:hidden wrapper for mobile search
-    expect(headerSource).toContain("className='md:hidden'")
-    expect(headerSource).toContain('<SearchBar />')
   })
 
   test('renders cart link with accessible label', () => {
@@ -80,23 +73,69 @@ describe('Header', () => {
     expect(headerSource).toContain('Deals')
   })
 
-  test('renders Repairs link with TbTool icon in Row 2', () => {
-    expect(headerSource).toContain('TbTool')
-    expect(headerSource).toContain('/repairs')
-    expect(headerSource).toContain('Repairs')
-  })
-
   test('accepts categories and categoryTree props', () => {
     expect(headerSource).toContain('categories?: Category[]')
     expect(headerSource).toContain('categoryTree?: CategoryWithChildren[]')
   })
 
-  test('sign-in link is visible on all breakpoints (not hidden on mobile)', () => {
-    // The TbUser sign-in link should use 'flex' (not 'hidden md:flex')
-    // so it shows on mobile when user is not authenticated
-    expect(headerSource).not.toContain('hidden md:flex items-center gap-2')
-    expect(headerSource).toContain(
-      'flex items-center gap-2 rounded-lg p-2 text-sm'
+  test('uses lg: breakpoint for desktop/mobile toggle (not md:)', () => {
+    // Row 2 uses lg:block
+    expect(headerSource).toContain('lg:block')
+    // Desktop search uses lg:flex
+    expect(headerSource).toContain('lg:flex')
+    // Mobile search uses lg:hidden
+    expect(headerSource).toContain('lg:hidden')
+    // Should NOT use md: for visibility (md:px-6 for padding is fine)
+    expect(headerSource).not.toContain('hidden md:block')
+    expect(headerSource).not.toContain('md:flex')
+  })
+
+  test('Row 2 order: All Items (left), then Deals, then CategoryNav', () => {
+    const row2Start = headerSource.indexOf('Row 2')
+    const allItemsIdx = headerSource.indexOf('All Items', row2Start)
+    const dealsIdx = headerSource.indexOf('/deals', row2Start)
+    const categoryNavIdx = headerSource.indexOf('CategoryNav', row2Start)
+    expect(allItemsIdx).toBeLessThan(dealsIdx)
+    expect(dealsIdx).toBeLessThan(categoryNavIdx)
+  })
+
+  test('Row 1 has icon+text stacked actions (flex-col items-center)', () => {
+    expect(headerSource).toContain('flex-col items-center')
+  })
+
+  test('Row 1 text labels hidden below lg breakpoint', () => {
+    expect(headerSource).toContain('hidden lg:inline')
+  })
+
+  test('Row 1 has Trade In and Repairs icon+text actions', () => {
+    expect(headerSource).toContain('TbArrowsExchange')
+    expect(headerSource).toContain('/trade-in')
+    expect(headerSource).toContain('Trade In')
+    expect(headerSource).toContain('TbTool')
+    expect(headerSource).toContain('/repairs')
+    expect(headerSource).toContain('Repairs')
+  })
+
+  test('imports SidebarPanel instead of AllItemsPanel', () => {
+    expect(headerSource).toContain('SidebarPanel')
+    expect(headerSource).not.toContain('AllItemsPanel')
+  })
+
+  test('mobile shows expanded centered SearchBar', () => {
+    expect(headerSource).toContain('<SearchBar defaultExpanded')
+    // Mobile search is flex-1 lg:hidden
+    expect(headerSource).toContain('flex-1 lg:hidden')
+  })
+
+  test('Repairs link moved from Row 2 to Row 1', () => {
+    // Row 2 should NOT have Repairs
+    const row2 = headerSource.slice(headerSource.indexOf('Row 2'))
+    expect(row2).not.toContain('/repairs')
+    // Row 1 should have Repairs
+    const row1 = headerSource.slice(
+      headerSource.indexOf('Row 1'),
+      headerSource.indexOf('Row 2')
     )
+    expect(row1).toContain('/repairs')
   })
 })

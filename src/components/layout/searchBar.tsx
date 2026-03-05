@@ -143,12 +143,12 @@ export function SearchBar({ defaultExpanded = false }: SearchBarProps) {
         onSubmit={handleSubmit}
         onClick={handleFormClick}
         className={`flex cursor-text items-center overflow-hidden rounded-full glass-search transition-all duration-300 ${
-          isExpanded ? 'w-full' : 'w-10 md:w-full md:max-w-lg'
+          isExpanded ? 'w-full' : 'w-10 lg:w-full lg:max-w-lg'
         }`}
       >
         <button
           type='submit'
-          className='flex h-10 w-10 shrink-0 items-center justify-center text-pedie-text-muted hover:text-pedie-green transition-colors md:pointer-events-none'
+          className='flex h-10 w-10 shrink-0 items-center justify-center text-pedie-text-muted hover:text-pedie-green transition-colors lg:pointer-events-none'
           onClick={e => {
             if (!isExpanded) {
               e.preventDefault()
@@ -174,7 +174,7 @@ export function SearchBar({ defaultExpanded = false }: SearchBarProps) {
           onKeyDown={handleKeyDown}
           onBlur={handleBlur}
           className={`h-10 w-full bg-transparent px-2 text-sm text-pedie-text placeholder:text-pedie-text-muted focus:outline-none ${
-            isExpanded ? 'opacity-100' : 'sr-only md:not-sr-only md:opacity-100'
+            isExpanded ? 'opacity-100' : 'sr-only lg:not-sr-only lg:opacity-100'
           }`}
           tabIndex={0}
         />

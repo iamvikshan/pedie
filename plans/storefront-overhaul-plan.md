@@ -120,7 +120,8 @@ Comprehensive overhaul: carousel/brands bugs → category hierarchy with M2M →
      9. Update all existing tests for changed components
      10. Run quality gates: `bun run f && bun check && bun test`
 
-4. **[ ] Phase 4: Header & Responsive Overhaul + Placeholder Pages**
+4. **[x] Phase 4: Header & Responsive Overhaul + Placeholder Pages**
+   - **Changes from plan:** SearchBar `md:` → `lg:` breakpoints also updated for consistency (not originally listed). AllItemsPanel fully deleted (replaced by SidebarPanel). MobileNav refactored to thin wrapper (37 lines, down from 350). No `getRandomBrands()` helper needed — SidebarPanel imports brands.json directly (only 6 brands). Tests: 1114 → 1123 (+9 net: +29 new, -20 deleted with AllItemsPanel).
    - **Objective:** Restructure header layout, fix breakpoints to match Reebelo (desktop→mobile at `lg:` 1024px instead of `md:` 768px), rearrange nav Row 2 (All Items left → Deals → categories), redesign Row 1 top-header actions with icon+text stacked pattern, build unified `SidebarPanel` (shared mobile/desktop with conditional account+theme), expand mobile search bar, fix mega-menu hover inconsistency, create Trade In + Repair placeholder pages
    - **Files/Functions to Modify/Create:**
      - `src/components/layout/header.tsx` — Row 1: right-side actions become icon+text stacked (flex-col, text below icon, text hidden below `lg:`); order from right: theme (icon only), sign-in/account (icon + text), cart (icon + text), repair (icon + text), trade-in (icon + text). Row 2: All Items moves to left, then Deals link, then CategoryNav. Switch all `md:` responsive prefixes to `lg:`. Mobile: show expanded centered SearchBar (reuse existing component) instead of icon-only

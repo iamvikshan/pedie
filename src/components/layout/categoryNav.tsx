@@ -19,7 +19,7 @@ export function CategoryNav({
   return (
     <div className='relative'>
       <nav
-        className='flex items-center gap-6 text-sm font-medium text-pedie-text'
+        className='flex items-center gap-1 text-xs font-medium text-pedie-text'
         onMouseLeave={() => setActiveCategory(null)}
       >
         {categories.map(cat => {
@@ -29,17 +29,12 @@ export function CategoryNav({
             <Link
               key={cat.id}
               href={href}
-              className={`group relative py-2 transition-colors hover:text-pedie-green ${
+              className={`px-3 py-2 transition-colors hover:text-pedie-green ${
                 isActive ? 'text-pedie-green' : ''
               }`}
               onMouseEnter={() => setActiveCategory(cat.slug)}
             >
               {cat.name}
-              <span
-                className={`absolute inset-x-0 bottom-0 h-0.5 bg-pedie-green transition-transform duration-200 origin-left ${
-                  isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
-                }`}
-              />
             </Link>
           )
         })}

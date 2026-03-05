@@ -8,16 +8,17 @@ import { useCartStore } from '@lib/cart/store'
 import Link from 'next/link'
 import { useState } from 'react'
 import {
+  TbArrowsExchange,
+  TbFlame,
   TbMenu2,
   TbShoppingCart,
-  TbUser,
-  TbFlame,
   TbTool,
+  TbUser,
 } from 'react-icons/tb'
-import { AllItemsPanel } from './allItemsPanel'
 import { CategoryNav } from './categoryNav'
 import { MobileNav } from './mobileNav'
 import { SearchBar } from './searchBar'
+import { SidebarPanel } from './sidebarPanel'
 
 import { Category, CategoryWithChildren } from '@app-types/product'
 
@@ -30,7 +31,7 @@ export function Header({
 }) {
   const itemCount = useCartStore(s => s.getItemCount())
   const { user, loading, profile } = useAuth()
-  const [isAllItemsOpen, setIsAllItemsOpen] = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const scrollDirection = useScrollDirection()
 
   return (
@@ -54,37 +55,60 @@ export function Header({
           </Link>
 
           {/* Search — desktop expanded, hidden on mobile */}
-          <div className='hidden flex-1 justify-center md:flex'>
+          <div className='hidden flex-1 justify-center lg:flex'>
             <div className='w-full max-w-lg'>
               <SearchBar />
             </div>
           </div>
 
-          {/* Right icons */}
-          <div className='ml-auto flex items-center gap-2'>
-            {/* Search — mobile collapsed icon */}
-            <div className='md:hidden'>
-              <SearchBar />
-            </div>
+          {/* Mobile search — expanded, centered */}
+          <div className='flex-1 lg:hidden'>
+            <SearchBar defaultExpanded />
+          </div>
+
+          {/* Right icons — icon+text stacked */}
+          <div className='ml-auto flex items-center gap-1'>
+            {/* Trade In */}
+            <Link
+              href='/trade-in'
+              className='hidden lg:flex flex-col items-center rounded-lg px-2 py-1 text-pedie-text hover:text-pedie-green transition-colors'
+              aria-label='Trade In'
+            >
+              <TbArrowsExchange className='h-5 w-5' />
+              <span className='text-[10px] leading-tight'>Trade In</span>
+            </Link>
+
+            {/* Repairs */}
+            <Link
+              href='/repairs'
+              className='hidden lg:flex flex-col items-center rounded-lg px-2 py-1 text-pedie-text hover:text-pedie-green transition-colors'
+              aria-label='Repairs'
+            >
+              <TbTool className='h-5 w-5' />
+              <span className='text-[10px] leading-tight'>Repairs</span>
+            </Link>
 
             {/* Cart */}
             <Link
               href='/cart'
-              className='relative rounded-lg p-2 text-pedie-text hover:text-pedie-green transition-colors'
+              className='relative flex flex-col items-center rounded-lg px-2 py-1 text-pedie-text hover:text-pedie-green transition-colors'
               aria-label='Cart'
             >
-              <TbShoppingCart className='h-6 w-6' />
+              <TbShoppingCart className='h-5 w-5' />
               {itemCount > 0 && (
                 <span className='absolute -top-1 -right-1 flex min-w-[20px] h-5 px-1 items-center justify-center rounded-full bg-pedie-green text-xs font-bold text-white'>
                   {itemCount > 99 ? '99+' : itemCount}
                 </span>
               )}
+              <span className='hidden lg:inline text-[10px] leading-tight'>
+                Cart
+              </span>
               <span className='sr-only'>Cart: {itemCount} items</span>
             </Link>
 
             {/* User section */}
             {loading ? (
-              <div className='hidden md:block h-8 w-8 rounded-full bg-pedie-card animate-pulse' />
+              <div className='hidden lg:block h-8 w-8 rounded-full bg-pedie-card animate-pulse' />
             ) : user ? (
               <UserMenu
                 userName={
@@ -98,59 +122,56 @@ export function Header({
             ) : (
               <Link
                 href='/auth/signin'
-                className='flex items-center gap-2 rounded-lg p-2 text-sm font-medium text-pedie-text hover:text-pedie-green transition-colors'
+                className='flex flex-col items-center rounded-lg px-2 py-1 text-pedie-text hover:text-pedie-green transition-colors'
+                aria-label='Sign In'
               >
-                <TbUser className='h-6 w-6' />
-                <span className='sr-only lg:not-sr-only'>Sign In</span>
+                <TbUser className='h-5 w-5' />
+                <span className='hidden lg:inline text-[10px] leading-tight'>
+                  Sign In
+                </span>
               </Link>
             )}
 
             {/* Theme toggle — desktop only */}
-            <div className='hidden md:block'>
+            <div className='hidden lg:block'>
               <ThemeToggle />
             </div>
           </div>
         </div>
 
-        {/* Row 2: Category Nav + All Items (desktop only) */}
-        <div className='hidden border-t border-pedie-glass-border md:block'>
-          <div className='w-full max-w-7xl mx-auto flex h-10 items-center justify-between px-4 md:px-6'>
-            <CategoryNav categories={categories} categoryTree={categoryTree} />
-
-            {/* Deals and Repairs Links */}
-            <div className='flex items-center gap-4 ml-6 pl-6 border-l border-pedie-glass-border'>
-              <Link
-                href='/deals'
-                className='flex items-center gap-2 text-sm font-medium text-amber-500 hover:text-amber-400 transition-colors'
-              >
-                <TbFlame className='h-4 w-4' />
-                Deals
-              </Link>
-              <Link
-                href='/repairs'
-                className='flex items-center gap-2 text-sm font-medium text-pedie-text hover:text-pedie-green transition-colors'
-              >
-                <TbTool className='h-4 w-4' />
-                Repairs
-              </Link>
-            </div>
-
+        {/* Row 2: All Items + Deals + Category Nav (desktop only) */}
+        <div className='hidden border-t border-pedie-glass-border lg:block'>
+          <div className='w-full max-w-7xl mx-auto flex h-10 items-center gap-2 px-4 md:px-6'>
+            {/* All Items — left */}
             <button
-              onClick={() => setIsAllItemsOpen(true)}
-              className='flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-pedie-text hover:text-pedie-green hover:bg-pedie-card transition-colors'
+              onClick={() => setIsSidebarOpen(true)}
+              className='flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-pedie-text hover:text-pedie-green hover:bg-pedie-card transition-colors'
               aria-label='All Items'
             >
-              <TbMenu2 className='h-5 w-5' />
+              <TbMenu2 className='h-4 w-4' />
               <span>All Items</span>
             </button>
+
+            {/* Deals */}
+            <Link
+              href='/deals'
+              className='flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-amber-500 hover:text-amber-400 transition-colors'
+            >
+              <TbFlame className='h-4 w-4' />
+              Deals
+            </Link>
+
+            {/* Category Nav */}
+            <CategoryNav categories={categories} categoryTree={categoryTree} />
           </div>
         </div>
       </header>
 
-      <AllItemsPanel
-        isOpen={isAllItemsOpen}
-        onClose={() => setIsAllItemsOpen(false)}
+      <SidebarPanel
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
         categories={categories}
+        variant='desktop'
       />
     </>
   )
