@@ -103,6 +103,22 @@ describe('Header', () => {
     expect(headerSource).toContain('flex-col items-center')
   })
 
+  test('Row 1 icons use h-6 w-6 size', () => {
+    // Row 1 icons (TbArrowsExchange, TbTool, TbShoppingCart, TbUser) should be 24px
+    const row1 = headerSource.slice(
+      headerSource.indexOf('Row 1'),
+      headerSource.indexOf('Row 2')
+    )
+    expect(row1).toContain('h-6 w-6')
+    expect(row1).not.toContain('h-5 w-5')
+  })
+
+  test('Row 2 uses h-12 for height', () => {
+    const row2 = headerSource.slice(headerSource.indexOf('Row 2'))
+    expect(row2).toContain('h-12')
+    expect(row2).not.toContain('flex h-10 items-center')
+  })
+
   test('Row 1 text labels hidden below lg breakpoint', () => {
     expect(headerSource).toContain('hidden lg:inline')
   })

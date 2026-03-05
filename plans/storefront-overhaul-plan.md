@@ -164,7 +164,8 @@ Comprehensive overhaul: carousel/brands bugs → category hierarchy with M2M →
      10. Create `/repairs` and `/trade-in` Coming Soon placeholder pages
      11. Run quality gates: `bun run f && bun check && bun test`
 
-5. **[ ] Phase 5: Shop Page + Collections Descendant Fix + Breadcrumb Rework**
+5. **[x] Phase 5: Shop Page + Collections Descendant Fix + Breadcrumb Rework**
+   - **Changes from plan:** Also updated `src/lib/data/search.ts` to include `categories: []` in its AvailableFilters default (type conformance). Skipped the "expandable category tree filter" in FilterSidebar (deferred as nice-to-have per plan). Updated `activeFilters.tsx`, `sortDropdown.tsx`, `pagination.tsx` with basePath routing for `/shop` support. Tests: 1123 → 1144 (+21 net: +20 new tests, +1 updated mock).
    - **Objective:** Create `/shop` as the "browse all products" page with category filtering, fix the collections descendant-category bug (`/collections/electronics` shows no products because `getFilteredListings` uses `.eq()` instead of `.in()` with descendant IDs), and rework all breadcrumbs to root at `Shop` instead of `Home` (logo already navigates to `/`)
    - **Files/Functions to Modify/Create:**
      - `src/app/(store)/shop/page.tsx` — New page: all-products grid with category filter in sidebar. Reuses FilterSidebar + ProductGrid. Equivalent to Reebelo's `/collections/electronics/...` view

@@ -16,7 +16,6 @@ import {
   TbUser,
   TbX,
 } from 'react-icons/tb'
-import brands from '@data/brands.json'
 import type { Category } from '@app-types/product'
 
 const CATEGORY_IMAGES: Record<string, string> = {
@@ -46,13 +45,13 @@ const QUICK_LINKS = [
     name: 'Trade In',
     href: '/trade-in',
     icon: TbArrowsExchange,
-    iconClass: 'text-pedie-text-muted',
+    iconClass: 'text-blue-400',
   },
   {
     name: 'Repairs',
     href: '/repairs',
     icon: TbTool,
-    iconClass: 'text-pedie-text-muted',
+    iconClass: 'text-amber-400',
   },
 ] as const
 
@@ -60,6 +59,7 @@ interface SidebarPanelProps {
   isOpen: boolean
   onClose: () => void
   categories: Category[]
+  brands: { name: string; slug: string; logo_url: string | null }[]
   variant: 'mobile' | 'desktop'
 }
 
@@ -67,6 +67,7 @@ export function SidebarPanel({
   isOpen,
   onClose,
   categories,
+  brands,
   variant,
 }: SidebarPanelProps) {
   const { user, loading, profile } = useAuth()
@@ -159,7 +160,7 @@ export function SidebarPanel({
                 className='rounded-lg p-2 text-pedie-text-muted hover:text-pedie-text hover:bg-pedie-card transition-colors'
                 aria-label='Close menu'
               >
-                <TbX className='h-5 w-5' />
+                <TbX className='h-6 w-6' />
               </button>
             </div>
 
@@ -185,7 +186,7 @@ export function SidebarPanel({
               <h3 className='mb-3 text-xs font-semibold uppercase tracking-wider text-pedie-text-muted'>
                 Quick Links
               </h3>
-              <div className='flex flex-wrap gap-2'>
+              <div className='grid grid-cols-2 gap-2'>
                 {QUICK_LINKS.map(link => {
                   const Icon = link.icon
                   return (
@@ -216,24 +217,26 @@ export function SidebarPanel({
                     onClick={onClose}
                     className='group relative flex items-center justify-center rounded-2xl border border-pedie-border bg-pedie-card p-4 h-16 transition-all duration-200 hover:bg-pedie-card-hover hover:border-pedie-green/30 hover:scale-[1.02]'
                   >
-                    <Image
-                      src={brand.logo}
-                      alt={brand.name}
-                      width={80}
-                      height={32}
-                      className='object-contain max-h-8 w-auto opacity-70 transition-opacity group-hover:opacity-100'
-                      onError={e => {
-                        const target = e.currentTarget
-                        target.style.display = 'none'
-                        if (target.nextElementSibling)
-                          (
-                            target.nextElementSibling as HTMLElement
-                          ).style.display = 'flex'
-                      }}
-                    />
+                    {brand.logo_url ? (
+                      <Image
+                        src={brand.logo_url}
+                        alt={brand.name}
+                        width={80}
+                        height={32}
+                        className='object-contain max-h-8 w-auto opacity-70 transition-opacity group-hover:opacity-100'
+                        onError={e => {
+                          const target = e.currentTarget
+                          target.style.display = 'none'
+                          if (target.nextElementSibling)
+                            (
+                              target.nextElementSibling as HTMLElement
+                            ).style.display = 'flex'
+                        }}
+                      />
+                    ) : null}
                     <span
                       className='hidden h-full w-full items-center justify-center text-sm font-bold text-pedie-text-muted'
-                      style={{ display: 'none' }}
+                      style={{ display: brand.logo_url ? 'none' : 'flex' }}
                     >
                       {brand.name.charAt(0)}
                     </span>
@@ -297,9 +300,9 @@ export function SidebarPanel({
               <Link
                 href='/shop'
                 onClick={onClose}
-                className='mt-3 flex w-full items-center justify-center rounded-lg border border-pedie-glass-border px-4 py-2.5 text-sm font-medium text-pedie-text transition-colors hover:bg-pedie-card hover:text-pedie-green'
+                className='mt-3 flex w-fit mx-auto items-center justify-center rounded-full border border-pedie-glass-border bg-pedie-green/10 backdrop-blur-sm px-4 py-2.5 text-sm font-medium text-pedie-green transition-colors hover:bg-pedie-green/20'
               >
-                See All Categories
+                All Products
               </Link>
             </section>
 

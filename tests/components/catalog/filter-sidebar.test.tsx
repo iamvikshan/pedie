@@ -1,8 +1,15 @@
 import { describe, expect, mock, test } from 'bun:test'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import type { AvailableFilters, ListingFilters } from '@app-types/filters'
 import { FilterSidebar } from '@components/catalog/filterSidebar'
 import React from 'react'
 import { renderToString } from 'react-dom/server'
+
+const filterSidebarSrc = readFileSync(
+  resolve('src/components/catalog/filterSidebar.tsx'),
+  'utf-8'
+)
 
 // Mock next/navigation
 mock.module('next/navigation', () => ({
@@ -18,6 +25,7 @@ const mockAvailableFilters: AvailableFilters = {
   colors: ['Black', 'White'],
   carriers: ['Unlocked'],
   priceRange: { min: 10000, max: 100000 },
+  categories: [],
 }
 
 describe('FilterSidebar', () => {
@@ -76,5 +84,38 @@ describe('FilterSidebar', () => {
     // Verify exactly 2 checkboxes are checked (excellent condition + Apple brand)
     const checkedCount = (html.match(/checked=""/g) || []).length
     expect(checkedCount).toBe(2)
+  })
+
+  test('FilterSidebar with empty categorySlug navigates to /shop', () => {
+    // Source analysis: check that the component handles empty categorySlug → /shop
+    expect(filterSidebarSrc).toContain(
+      'categorySlug ? `/collections/${categorySlug}`'
+    )
+    expect(filterSidebarSrc).toContain("'/shop'")
+  })
+
+  test('renders category filter when categories are available', () => {
+    const filtersWithCategories: AvailableFilters = {
+      ...mockAvailableFilters,
+      categories: [
+        { name: 'Smartphones', slug: 'smartphones', count: 18 },
+        { name: 'Laptops', slug: 'laptops', count: 5 },
+      ],
+    }
+    const html = renderToString(
+      <FilterSidebar
+        availableFilters={filtersWithCategories}
+        currentFilters={{}}
+        categorySlug=''
+      />
+    )
+    expect(html).toContain('Category')
+    expect(html).toContain('Smartphones')
+    expect(html).toContain('Laptops')
+  })
+
+  test('source has category filter section', () => {
+    expect(filterSidebarSrc).toContain('availableFilters.categories')
+    expect(filterSidebarSrc).toContain('handleCategoryChange')
   })
 })

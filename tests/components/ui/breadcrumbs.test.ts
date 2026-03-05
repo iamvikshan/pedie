@@ -17,9 +17,9 @@ describe('Breadcrumbs', () => {
     expect(src).toContain('href?: string')
   })
 
-  test('renders Home link as first breadcrumb', () => {
-    expect(src).toContain("href='/'")
-    expect(src).toContain('Home')
+  test('renders Shop link as first breadcrumb', () => {
+    expect(src).toContain("href='/shop'")
+    expect(src).toContain('Shop')
   })
 
   test('has accessible nav landmark with aria-label', () => {

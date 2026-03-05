@@ -39,17 +39,22 @@ describe('SidebarPanel', () => {
     expect(quickLinksSection).not.toContain("name: 'Deals'")
   })
 
-  test('renders Top Brands section from brands.json', () => {
-    expect(src).toContain('brands.json')
+  test('renders Top Brands section from brands prop', () => {
+    expect(src).toContain('brands')
     expect(src).toContain('Top Brands')
     expect(src).toContain('brand.slug')
-    expect(src).toContain('brand.logo')
+    expect(src).toContain('brand.logo_url')
+    // Should NOT import from brands.json
+    expect(src).not.toContain('brands.json')
   })
 
-  test('renders category grid with See All link to /shop', () => {
+  test('renders category grid with All Products pill link to /shop', () => {
     expect(src).toContain('categories.map')
     expect(src).toContain('/shop')
-    expect(src).toContain('See All Categories')
+    expect(src).toContain('All Products')
+    expect(src).not.toContain('See All Products')
+    expect(src).toContain('w-fit')
+    expect(src).toContain('rounded-full')
   })
 
   test('mobile variant shows account + theme at bottom', () => {
@@ -94,8 +99,13 @@ describe('SidebarPanel', () => {
     expect(src).toContain('/trade-in')
   })
 
-  test('Quick Links rendered as inline flex-wrap row', () => {
-    expect(src).toContain('flex flex-wrap gap-2')
+  test('Quick Links rendered as 2x2 grid', () => {
+    expect(src).toContain('grid grid-cols-2 gap-2')
+  })
+
+  test('Quick Links Trade In uses blue-400 and Repairs uses amber-400', () => {
+    expect(src).toContain('text-blue-400')
+    expect(src).toContain('text-amber-400')
   })
 
   test('category cards use image with fallback', () => {

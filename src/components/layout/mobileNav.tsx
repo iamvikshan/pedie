@@ -5,8 +5,15 @@ import { TbMenu2 } from 'react-icons/tb'
 import { SidebarPanel } from './sidebarPanel'
 
 import type { Category } from '@app-types/product'
+import type { Brand } from '@lib/data/brands'
 
-export function MobileNav({ categories }: { categories: Category[] }) {
+export function MobileNav({
+  categories,
+  brands = [],
+}: {
+  categories: Category[]
+  brands?: Brand[]
+}) {
   const [isOpen, setIsOpen] = useState(false)
   const hamburgerRef = useRef<HTMLButtonElement>(null)
 
@@ -30,6 +37,7 @@ export function MobileNav({ categories }: { categories: Category[] }) {
         isOpen={isOpen}
         onClose={close}
         categories={categories}
+        brands={brands}
         variant='mobile'
       />
     </div>

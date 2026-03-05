@@ -227,6 +227,7 @@ export async function getAvailableFilters(
     carriers: [],
     brands: [],
     priceRange: { min: 0, max: 0 },
+    categories: [],
   }
 
   // Get product IDs matching query
@@ -285,5 +286,6 @@ export async function getAvailableFilters(
     carriers: [...carriers],
     brands: [...brands],
     priceRange: { min: min === Infinity ? 0 : min, max },
+    categories: [],
   }
 }

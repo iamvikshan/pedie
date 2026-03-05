@@ -79,6 +79,7 @@ mock.module('@data/search', () => ({
       carriers: [],
       brands: ['Apple'],
       priceRange: { min: 30000, max: 90000 },
+      categories: [],
     })
   ),
 }))

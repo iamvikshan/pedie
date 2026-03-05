@@ -25,7 +25,8 @@ export function SortDropdown({ currentSort, categorySlug }: SortDropdownProps) {
     // Reset page when sorting changes
     params.delete('page')
 
-    router.push(`/collections/${categorySlug}?${params.toString()}`)
+    const basePath = categorySlug ? `/collections/${categorySlug}` : '/shop'
+    router.push(`${basePath}?${params.toString()}`)
   }
 
   return (

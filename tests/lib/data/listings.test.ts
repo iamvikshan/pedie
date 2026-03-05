@@ -1,4 +1,8 @@
 import { beforeEach, describe, expect, mock, test } from 'bun:test'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+
+const listingsSrc = readFileSync(resolve('src/lib/data/listings.ts'), 'utf-8')
 
 // --- Mock Setup ---
 
@@ -125,6 +129,13 @@ mock.module('@lib/supabase/server', () => ({
     Promise.resolve({
       from: mock((table: string) => fromHandler(table)),
     })
+  ),
+}))
+
+// Mock getCategoryAndDescendantIds — returns the input ID plus a child
+mock.module('@data/categories', () => ({
+  getCategoryAndDescendantIds: mock((categoryId: string) =>
+    Promise.resolve([categoryId, `${categoryId}-child`])
   ),
 }))
 
@@ -349,6 +360,100 @@ describe('Listings Data Functions', () => {
       expect(filters.brands).toEqual([])
       expect(filters.priceRange.min).toBe(0)
       expect(filters.priceRange.max).toBe(0)
+    })
+  })
+
+  describe('source-analysis: descendant fix and null categorySlug', () => {
+    test('getFilteredListings accepts null categorySlug', () => {
+      expect(listingsSrc).toContain('categorySlug: string | null')
+    })
+
+    test('getFilteredListings uses getCategoryAndDescendantIds for category filtering', () => {
+      expect(listingsSrc).toContain('getCategoryAndDescendantIds')
+      expect(listingsSrc).toContain('.in(')
+      expect(listingsSrc).toContain("'product.category_id', descendantIds")
+    })
+
+    test('getFilteredListings skips category filter when categorySlug is null', () => {
+      // The function should have a conditional branch for null categorySlug
+      expect(listingsSrc).toContain('categorySlug')
+      // It should not always require category lookup
+      expect(listingsSrc).toContain('if (categorySlug')
+    })
+
+    test('getAvailableFilters accepts null categorySlug', () => {
+      // The second function signature should also accept null
+      const signatures = listingsSrc.match(/categorySlug: string \| null/g)
+      expect(signatures).not.toBeNull()
+      expect(signatures!.length).toBeGreaterThanOrEqual(2)
+    })
+
+    test('getAvailableFilters uses getCategoryAndDescendantIds', () => {
+      // Both functions should use descendant IDs
+      expect(listingsSrc).toContain(
+        "import { getCategoryAndDescendantIds } from '@data/categories'"
+      )
+    })
+
+    test('getAvailableFilters populates categories array', () => {
+      expect(listingsSrc).toContain('categoryCounts')
+      expect(listingsSrc).toContain('cat.slug')
+      // The final return should use the computed categories, not a hardcoded empty array
+      expect(listingsSrc).toContain('categories,')
+    })
+
+    test('getFilteredListings handles filters.category', () => {
+      expect(listingsSrc).toContain('filters.category')
+      expect(listingsSrc).toContain("'slug', filters.category")
+    })
+  })
+
+  describe('getFilteredListings with null categorySlug', () => {
+    beforeEach(() => {
+      fromHandler = (table: string) => {
+        if (table === 'categories') {
+          return chainable({ data: mockCategoryData, error: null })
+        }
+        return chainable({ data: mockListings, error: null, count: 2 })
+      }
+    })
+
+    test('returns all products when categorySlug is null', async () => {
+      const result = await getFilteredListings(null, {}, 'newest', {
+        page: 1,
+        perPage: 10,
+      })
+      expect(result.data).toBeArray()
+      expect(result.page).toBe(1)
+    })
+  })
+
+  describe('getAvailableFilters with null categorySlug', () => {
+    beforeEach(() => {
+      fromHandler = (table: string) => {
+        if (table === 'categories') {
+          return chainable({ data: mockCategoryData, error: null })
+        }
+        return chainable({
+          data: [
+            {
+              storage: '128GB',
+              color: 'Black',
+              carrier: 'Unlocked',
+              condition: 'excellent',
+              price_kes: 45000,
+              product: { brand: 'Apple' },
+            },
+          ],
+          error: null,
+        })
+      }
+    })
+
+    test('returns filters for all products when categorySlug is null', async () => {
+      const filters = await getAvailableFilters(null)
+      expect(filters).toBeDefined()
+      expect(filters.conditions).toBeArray()
     })
   })
 })

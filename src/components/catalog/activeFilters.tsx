@@ -37,11 +37,12 @@ export function ActiveFilters({
     }
 
     params.delete('page')
-    router.push(`/collections/${categorySlug}?${params.toString()}`)
+    const basePath = categorySlug ? `/collections/${categorySlug}` : '/shop'
+    router.push(`${basePath}?${params.toString()}`)
   }
 
   const clearAll = () => {
-    router.push(`/collections/${categorySlug}`)
+    router.push(categorySlug ? `/collections/${categorySlug}` : '/shop')
   }
 
   return (
@@ -161,7 +162,61 @@ export function ActiveFilters({
           </button>
         </span>
       ))}
+      {currentFilters.carrier?.map(carrier => (
+        <span
+          key={`carrier-${carrier}`}
+          className='inline-flex items-center gap-1 px-3 py-1 rounded-full bg-pedie-card border border-pedie-border text-sm text-pedie-text'
+        >
+          <span>{carrier}</span>
+          <button
+            onClick={() => removeFilter('carrier', carrier)}
+            className='text-pedie-text-muted hover:text-pedie-accent ml-1'
+            aria-label={`Remove carrier filter: ${carrier}`}
+          >
+            <svg
+              className='w-3 h-3'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M6 18L18 6M6 6l12 12'
+              />
+            </svg>
+          </button>
+        </span>
+      ))}
 
+      {currentFilters.category?.map(category => (
+        <span
+          key={`category-${category}`}
+          className='inline-flex items-center gap-1 px-3 py-1 rounded-full bg-pedie-card border border-pedie-border text-sm text-pedie-text'
+        >
+          <span className='capitalize'>{category}</span>
+          <button
+            onClick={() => removeFilter('category', category)}
+            className='text-pedie-text-muted hover:text-pedie-accent ml-1'
+            aria-label={`Remove category filter: ${category}`}
+          >
+            <svg
+              className='w-3 h-3'
+              fill='none'
+              stroke='currentColor'
+              viewBox='0 0 24 24'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M6 18L18 6M6 6l12 12'
+              />
+            </svg>
+          </button>
+        </span>
+      ))}
       {(currentFilters.priceMin !== undefined ||
         currentFilters.priceMax !== undefined) && (
         <span className='inline-flex items-center gap-1 px-3 py-1 rounded-full bg-pedie-card border border-pedie-border text-sm text-pedie-text'>
@@ -175,7 +230,10 @@ export function ActiveFilters({
               params.delete('priceMin')
               params.delete('priceMax')
               params.delete('page')
-              router.push(`/collections/${categorySlug}?${params.toString()}`)
+              const basePath = categorySlug
+                ? `/collections/${categorySlug}`
+                : '/shop'
+              router.push(`${basePath}?${params.toString()}`)
             }}
             aria-label='Remove price range filter'
             className='text-pedie-text-muted hover:text-pedie-accent ml-1'

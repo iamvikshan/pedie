@@ -11,6 +11,7 @@ export interface ListingFilters {
   brand?: string[]
   priceMin?: number
   priceMax?: number
+  category?: string[]
 }
 
 export interface PaginationParams {
@@ -33,4 +34,5 @@ export interface AvailableFilters {
   carriers: string[]
   brands: string[]
   priceRange: { min: number; max: number }
+  categories: { name: string; slug: string; count: number }[]
 }

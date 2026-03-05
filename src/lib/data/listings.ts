@@ -6,6 +6,7 @@ import type {
   SortOption,
 } from '@app-types/filters'
 import type { ConditionGrade, ListingWithProduct } from '@app-types/product'
+import { getCategoryAndDescendantIds } from '@data/categories'
 import { createClient } from '@lib/supabase/server'
 
 const LISTING_SELECT =
@@ -24,36 +25,67 @@ function emptyPaginatedResult<T>(
 }
 
 export async function getFilteredListings(
-  categorySlug: string,
+  categorySlug: string | null,
   filters: ListingFilters,
   sort: SortOption,
   pagination: PaginationParams
 ): Promise<PaginatedResult<ListingWithProduct>> {
   const supabase = await createClient()
 
-  // Get category ID
-  const { data: categoryData, error: categoryError } = await supabase
-    .from('categories')
-    .select('id')
-    .eq('slug', categorySlug)
-    .single()
+  let descendantIds: string[] | null = null
 
-  if (categoryError || !categoryData) {
-    console.error(
-      `Error fetching category by slug ${categorySlug}:`,
-      categoryError
-    )
-    return emptyPaginatedResult(pagination)
+  if (categorySlug) {
+    // Get category ID
+    const { data: categoryData, error: categoryError } = await supabase
+      .from('categories')
+      .select('id')
+      .eq('slug', categorySlug)
+      .single()
+
+    if (categoryError || !categoryData) {
+      console.error(
+        `Error fetching category by slug ${categorySlug}:`,
+        categoryError
+      )
+      return emptyPaginatedResult(pagination)
+    }
+
+    descendantIds = await getCategoryAndDescendantIds(categoryData.id)
   }
 
-  const categoryId = categoryData.id
+  // Handle category sub-filter
+  if (filters.category && filters.category.length > 0) {
+    const { data: catData } = await supabase
+      .from('categories')
+      .select('id')
+      .in('slug', filters.category)
+
+    if (catData && catData.length > 0) {
+      const allSubIds = await Promise.all(
+        catData.map(c => getCategoryAndDescendantIds(c.id))
+      )
+      const subIds = new Set(allSubIds.flat())
+
+      if (descendantIds) {
+        descendantIds = descendantIds.filter(id => subIds.has(id))
+      } else {
+        descendantIds = [...subIds]
+      }
+    } else {
+      // Invalid category slugs → no results
+      descendantIds = []
+    }
+  }
 
   // Build data query
   let query = supabase
     .from('listings')
     .select(LISTING_SELECT)
     .eq('status', 'available')
-    .eq('product.category_id', categoryId)
+
+  if (descendantIds) {
+    query = query.in('product.category_id', descendantIds)
+  }
 
   // Apply filters
   if (filters.condition && filters.condition.length > 0) {
@@ -111,7 +143,10 @@ export async function getFilteredListings(
       head: true,
     } as never)
     .eq('status', 'available')
-    .eq('product.category_id', categoryId)
+
+  if (descendantIds) {
+    countQuery = countQuery.in('product.category_id', descendantIds)
+  }
 
   if (filters.condition && filters.condition.length > 0) {
     countQuery = countQuery.in('condition', filters.condition)
@@ -195,7 +230,7 @@ export async function getSimilarListings(
 }
 
 export async function getAvailableFilters(
-  categorySlug: string
+  categorySlug: string | null
 ): Promise<AvailableFilters> {
   const emptyFilters: AvailableFilters = {
     conditions: [],
@@ -204,35 +239,45 @@ export async function getAvailableFilters(
     carriers: [],
     brands: [],
     priceRange: { min: 0, max: 0 },
+    categories: [],
   }
 
   const supabase = await createClient()
 
-  // Get category ID
-  const { data: categoryData, error: categoryError } = await supabase
-    .from('categories')
-    .select('id')
-    .eq('slug', categorySlug)
-    .single()
+  let descendantIds: string[] | null = null
 
-  if (categoryError || !categoryData) {
-    console.error(
-      `Error fetching category by slug ${categorySlug}:`,
-      categoryError
-    )
-    return emptyFilters
+  if (categorySlug) {
+    // Get category ID
+    const { data: categoryData, error: categoryError } = await supabase
+      .from('categories')
+      .select('id')
+      .eq('slug', categorySlug)
+      .single()
+
+    if (categoryError || !categoryData) {
+      console.error(
+        `Error fetching category by slug ${categorySlug}:`,
+        categoryError
+      )
+      return emptyFilters
+    }
+
+    descendantIds = await getCategoryAndDescendantIds(categoryData.id)
   }
 
-  const categoryId = categoryData.id
-
-  // Fetch listings for this category to extract filter values
-  const { data: listings, error: listingsError } = await supabase
+  // Fetch listings to extract filter values
+  let listingsQuery = supabase
     .from('listings')
     .select(
-      'storage, color, carrier, condition, price_kes, product:products!inner(brand)'
+      'storage, color, carrier, condition, price_kes, product:products!inner(brand, category_id, category:categories!products_category_id_fkey(name, slug))'
     )
     .eq('status', 'available')
-    .eq('product.category_id', categoryId)
+
+  if (descendantIds) {
+    listingsQuery = listingsQuery.in('product.category_id', descendantIds)
+  }
+
+  const { data: listings, error: listingsError } = await listingsQuery
 
   if (listingsError || !listings) {
     console.error('Error fetching filter data:', listingsError)
@@ -245,7 +290,11 @@ export async function getAvailableFilters(
     carrier: string | null
     condition: ConditionGrade
     price_kes: number
-    product: { brand: string } | null
+    product: {
+      brand: string
+      category_id: string
+      category: { name: string; slug: string } | null
+    } | null
   }>
 
   const conditions = [
@@ -272,6 +321,30 @@ export async function getAvailableFilters(
   const min = prices.length > 0 ? Math.min(...prices) : 0
   const max = prices.length > 0 ? Math.max(...prices) : 0
 
+  // Build category counts
+  const categoryCounts = new Map<
+    string,
+    { name: string; slug: string; count: number }
+  >()
+  for (const l of listingData) {
+    const cat = l.product?.category
+    if (cat?.slug) {
+      const existing = categoryCounts.get(cat.slug)
+      if (existing) {
+        existing.count++
+      } else {
+        categoryCounts.set(cat.slug, {
+          name: cat.name,
+          slug: cat.slug,
+          count: 1,
+        })
+      }
+    }
+  }
+  const categories = [...categoryCounts.values()].sort(
+    (a, b) => b.count - a.count
+  )
+
   return {
     conditions,
     storages,
@@ -279,5 +352,6 @@ export async function getAvailableFilters(
     carriers,
     brands,
     priceRange: { min, max },
+    categories,
   }
 }

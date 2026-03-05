@@ -27,11 +27,8 @@ export function Pagination({
       params.set('page', page.toString())
     }
     const paramsStr = params.toString()
-    router.push(
-      paramsStr
-        ? `/collections/${categorySlug}?${paramsStr}`
-        : `/collections/${categorySlug}`
-    )
+    const basePath = categorySlug ? `/collections/${categorySlug}` : '/shop'
+    router.push(paramsStr ? `${basePath}?${paramsStr}` : basePath)
   }
 
   // Generate page numbers to display

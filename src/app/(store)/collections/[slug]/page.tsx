@@ -64,7 +64,7 @@ export default async function CollectionPage({
   const category = await getCategoryBySlug(slug)
 
   if (!category) {
-    notFound()
+    return notFound()
   }
 
   // Parse search params
@@ -97,6 +97,9 @@ export default async function CollectionPage({
   }
   if (resolvedSearchParams.carrier) {
     filters.carrier = resolvedSearchParams.carrier.split(',')
+  }
+  if (resolvedSearchParams.category) {
+    filters.category = resolvedSearchParams.category.split(',')
   }
   if (resolvedSearchParams.priceMin) {
     const parsed = parseInt(resolvedSearchParams.priceMin, 10)
@@ -141,7 +144,7 @@ export default async function CollectionPage({
         dangerouslySetInnerHTML={{
           __html: safeJsonLd(
             breadcrumbJsonLd([
-              { name: 'Home', url: SITE_URL },
+              { name: 'Shop', url: `${SITE_URL}/shop` },
               {
                 name: category.name,
                 url: `${SITE_URL}/collections/${category.slug}`,

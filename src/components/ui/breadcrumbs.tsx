@@ -11,8 +11,11 @@ export function Breadcrumbs({ segments }: { segments: BreadcrumbSegment[] }) {
     <nav aria-label='Breadcrumb' className='my-4'>
       <ol className='flex items-center space-x-2 text-sm text-pedie-text-muted'>
         <li>
-          <Link href='/' className='hover:text-pedie-green transition-colors'>
-            Home
+          <Link
+            href='/shop'
+            className='hover:text-pedie-green transition-colors'
+          >
+            Shop
           </Link>
         </li>
         {segments.map((segment, index) => {

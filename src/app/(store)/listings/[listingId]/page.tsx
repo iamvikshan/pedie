@@ -62,7 +62,7 @@ export default async function ListingPage({ params }: PageProps) {
   const listing = await getListingById(listingId)
 
   if (!listing) {
-    notFound()
+    return notFound()
   }
 
   const { product } = listing
@@ -101,7 +101,7 @@ export default async function ListingPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{
           __html: safeJsonLd(
             breadcrumbJsonLd([
-              { name: 'Home', url: SITE_URL },
+              { name: 'Shop', url: `${SITE_URL}/shop` },
               {
                 name: listing.product.category?.name || 'Products',
                 url: listing.product.category?.slug

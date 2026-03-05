@@ -38,7 +38,8 @@ function FilterSidebarInner({
     // Reset page when filters change
     params.delete('page')
 
-    router.push(`/collections/${categorySlug}?${params.toString()}`)
+    const basePath = categorySlug ? `/collections/${categorySlug}` : '/shop'
+    router.push(`${basePath}?${params.toString()}`)
   }
 
   type ArrayFilterKey = 'condition' | 'storage' | 'color' | 'carrier' | 'brand'
@@ -49,6 +50,14 @@ function FilterSidebarInner({
       : [...currentValues, value]
 
     updateFilter(key, newValues)
+  }
+
+  const handleCategoryChange = (slug: string) => {
+    const currentCategories = currentFilters.category || []
+    const newCategories = currentCategories.includes(slug)
+      ? currentCategories.filter(v => v !== slug)
+      : [...currentCategories, slug]
+    updateFilter('category', newCategories)
   }
 
   const handlePriceChange = (e: React.FormEvent<HTMLFormElement>) => {
@@ -65,7 +74,8 @@ function FilterSidebarInner({
     else params.delete('priceMax')
 
     params.delete('page')
-    router.push(`/collections/${categorySlug}?${params.toString()}`)
+    const basePath = categorySlug ? `/collections/${categorySlug}` : '/shop'
+    router.push(`${basePath}?${params.toString()}`)
   }
 
   return (
@@ -102,13 +112,43 @@ function FilterSidebarInner({
           <h2 className='text-xl font-bold text-pedie-text'>Filters</h2>
           {Object.keys(currentFilters).length > 0 && (
             <button
-              onClick={() => router.push(`/collections/${categorySlug}`)}
+              onClick={() =>
+                router.push(
+                  categorySlug ? `/collections/${categorySlug}` : '/shop'
+                )
+              }
               className='text-sm text-pedie-accent hover:underline'
             >
               Clear all
             </button>
           )}
         </div>
+
+        {/* Category Filter */}
+        {availableFilters.categories.length > 0 && (
+          <div className='border-t border-pedie-border pt-4'>
+            <h3 className='font-semibold text-pedie-text mb-3'>Category</h3>
+            <div className='space-y-2'>
+              {availableFilters.categories.map(cat => (
+                <label
+                  key={cat.slug}
+                  className='flex items-center gap-2 cursor-pointer'
+                >
+                  <input
+                    type='checkbox'
+                    checked={(currentFilters.category || []).includes(cat.slug)}
+                    onChange={() => handleCategoryChange(cat.slug)}
+                    className='w-4 h-4 rounded border-pedie-border bg-pedie-dark text-pedie-accent focus:ring-pedie-accent'
+                  />
+                  <span className='text-pedie-text-muted'>{cat.name}</span>
+                  <span className='ml-auto text-xs text-pedie-text-muted'>
+                    ({cat.count})
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Condition Filter */}
         {availableFilters.conditions.length > 0 && (

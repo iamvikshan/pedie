@@ -21,13 +21,16 @@ import { SearchBar } from './searchBar'
 import { SidebarPanel } from './sidebarPanel'
 
 import { Category, CategoryWithChildren } from '@app-types/product'
+import type { Brand } from '@lib/data/brands'
 
 export function Header({
   categories = [],
   categoryTree = [],
+  brands = [],
 }: {
   categories?: Category[]
   categoryTree?: CategoryWithChildren[]
+  brands?: Brand[]
 }) {
   const itemCount = useCartStore(s => s.getItemCount())
   const { user, loading, profile } = useAuth()
@@ -44,7 +47,7 @@ export function Header({
         {/* Row 1: Logo + Search + Icons */}
         <div className='w-full max-w-7xl mx-auto flex h-16 items-center gap-4 px-4 md:px-6'>
           {/* Mobile burger */}
-          <MobileNav categories={categories} />
+          <MobileNav categories={categories} brands={brands} />
 
           {/* Logo */}
           <Link
@@ -74,7 +77,7 @@ export function Header({
               className='hidden lg:flex flex-col items-center rounded-lg px-2 py-1 text-pedie-text hover:text-pedie-green transition-colors'
               aria-label='Trade In'
             >
-              <TbArrowsExchange className='h-5 w-5' />
+              <TbArrowsExchange className='h-6 w-6' />
               <span className='text-[10px] leading-tight'>Trade In</span>
             </Link>
 
@@ -84,7 +87,7 @@ export function Header({
               className='hidden lg:flex flex-col items-center rounded-lg px-2 py-1 text-pedie-text hover:text-pedie-green transition-colors'
               aria-label='Repairs'
             >
-              <TbTool className='h-5 w-5' />
+              <TbTool className='h-6 w-6' />
               <span className='text-[10px] leading-tight'>Repairs</span>
             </Link>
 
@@ -94,7 +97,7 @@ export function Header({
               className='relative flex flex-col items-center rounded-lg px-2 py-1 text-pedie-text hover:text-pedie-green transition-colors'
               aria-label='Cart'
             >
-              <TbShoppingCart className='h-5 w-5' />
+              <TbShoppingCart className='h-6 w-6' />
               {itemCount > 0 && (
                 <span className='absolute -top-1 -right-1 flex min-w-[20px] h-5 px-1 items-center justify-center rounded-full bg-pedie-green text-xs font-bold text-white'>
                   {itemCount > 99 ? '99+' : itemCount}
@@ -125,7 +128,7 @@ export function Header({
                 className='flex flex-col items-center rounded-lg px-2 py-1 text-pedie-text hover:text-pedie-green transition-colors'
                 aria-label='Sign In'
               >
-                <TbUser className='h-5 w-5' />
+                <TbUser className='h-6 w-6' />
                 <span className='hidden lg:inline text-[10px] leading-tight'>
                   Sign In
                 </span>
@@ -141,14 +144,14 @@ export function Header({
 
         {/* Row 2: All Items + Deals + Category Nav (desktop only) */}
         <div className='hidden border-t border-pedie-glass-border lg:block'>
-          <div className='w-full max-w-7xl mx-auto flex h-10 items-center gap-2 px-4 md:px-6'>
+          <div className='w-full max-w-7xl mx-auto flex h-12 items-center gap-2 px-4 md:px-6'>
             {/* All Items — left */}
             <button
               onClick={() => setIsSidebarOpen(true)}
               className='flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-pedie-text hover:text-pedie-green hover:bg-pedie-card transition-colors'
               aria-label='All Items'
             >
-              <TbMenu2 className='h-4 w-4' />
+              <TbMenu2 className='h-5 w-5' />
               <span>All Items</span>
             </button>
 
@@ -157,7 +160,7 @@ export function Header({
               href='/deals'
               className='flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-amber-500 hover:text-amber-400 transition-colors'
             >
-              <TbFlame className='h-4 w-4' />
+              <TbFlame className='h-5 w-5' />
               Deals
             </Link>
 
@@ -171,6 +174,7 @@ export function Header({
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
         categories={categories}
+        brands={brands}
         variant='desktop'
       />
     </>
