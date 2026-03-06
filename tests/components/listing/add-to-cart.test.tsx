@@ -1,6 +1,17 @@
-import { describe, expect, test } from 'bun:test'
+import { describe, expect, test, mock } from 'bun:test'
+import React from 'react'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import type { ListingWithProduct } from '@app-types/product'
+import { mockNextLink, render, screen } from '../../utils'
+
+mockNextLink()
+
+mock.module('@components/listing/referralCta', () => ({
+  ReferralCta: () => <div data-testid='referral-cta'>ReferralCta</div>,
+}))
+
+const { AddToCart } = await import('@components/listing/addToCart')
 
 const src = readFileSync(
   resolve('src/components/listing/addToCart.tsx'),
@@ -45,5 +56,113 @@ describe('AddToCart Component', () => {
     expect(src).toContain(
       "import { ReferralCta } from '@components/listing/referralCta'"
     )
+  })
+})
+
+describe('AddToCart DOM Rendering', () => {
+  const baseListing: ListingWithProduct = {
+    id: '1',
+    listing_id: 'PD-12345',
+    product_id: 'p1',
+    storage: '256GB',
+    color: 'Space Black',
+    carrier: 'Unlocked',
+    condition: 'excellent',
+    battery_health: 95,
+    price_kes: 120000,
+    final_price_kes: 120000,
+    original_price_usd: 1000,
+    landed_cost_kes: 110000,
+    source: 'eBay',
+    source_listing_id: 'ebay123',
+    source_url: null,
+    images: ['/listing-image.jpg'],
+    is_featured: true,
+    listing_type: 'standard',
+    ram: null,
+    status: 'available',
+    sheets_row_id: 'row1',
+    notes: null,
+    created_at: '2023-01-01T00:00:00Z',
+    updated_at: '2023-01-01T00:00:00Z',
+    product: {
+      id: 'p1',
+      brand: 'Apple',
+      model: 'iPhone 14 Pro',
+      slug: 'apple-iphone-14-pro',
+      category_id: 'cat1',
+      description: 'Great phone',
+      specs: null,
+      key_features: null,
+      images: ['/product-image.jpg'],
+      original_price_kes: 150000,
+      created_at: '2023-01-01T00:00:00Z',
+      updated_at: '2023-01-01T00:00:00Z',
+      fts: null,
+    },
+  }
+
+  test('renders "Add to Cart" for standard listing', () => {
+    render(<AddToCart listing={baseListing} />)
+    expect(
+      screen.getByRole('button', { name: /Add to Cart/i })
+    ).toBeInTheDocument()
+  })
+
+  test('renders "Sold Out" for sold listing', () => {
+    const soldListing: ListingWithProduct = {
+      ...baseListing,
+      status: 'sold',
+    }
+    render(<AddToCart listing={soldListing} />)
+    expect(
+      screen.getByRole('button', { name: /Sold Out/i })
+    ).toBeInTheDocument()
+  })
+
+  test('renders "Preorder Now" for preorder listing', () => {
+    const preorderListing: ListingWithProduct = {
+      ...baseListing,
+      listing_type: 'preorder',
+    }
+    render(<AddToCart listing={preorderListing} />)
+    expect(
+      screen.getByRole('button', { name: /Preorder Now/i })
+    ).toBeInTheDocument()
+  })
+
+  test('renders affiliate link for affiliate listing with source_url', () => {
+    const affiliateListing: ListingWithProduct = {
+      ...baseListing,
+      listing_type: 'affiliate',
+      source_url: 'https://partner.com/product',
+    }
+    render(<AddToCart listing={affiliateListing} />)
+    const link = screen.getByRole('link', { name: /View on Partner Site/i })
+    expect(link).toHaveAttribute('href', 'https://partner.com/product')
+    expect(link).toHaveAttribute('target', '_blank')
+    expect(link).toHaveAttribute('rel', 'noopener noreferrer')
+  })
+
+  test('renders "Unavailable" for affiliate without source_url', () => {
+    const affiliateNoUrl: ListingWithProduct = {
+      ...baseListing,
+      listing_type: 'affiliate',
+      source_url: null,
+    }
+    render(<AddToCart listing={affiliateNoUrl} />)
+    expect(
+      screen.getByRole('button', { name: /Unavailable/i })
+    ).toBeInTheDocument()
+  })
+
+  test('renders ReferralCta for referral listing with source_url', () => {
+    const referralListing: ListingWithProduct = {
+      ...baseListing,
+      listing_type: 'referral',
+      source_url: 'https://example.com',
+    }
+    render(<AddToCart listing={referralListing} />)
+    expect(screen.getByTestId('referral-cta')).toBeInTheDocument()
   })
 })

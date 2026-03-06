@@ -37,7 +37,11 @@ Do **not** run `bun f:all` (formats entire repo — slow and noisy). Use `bun ru
 
 ## Conventions
 
-- **Testing pattern**: Source-analysis (NO jsdom). Tests read source files and assert on exports/string patterns. Test runner: `bun test`.
+- **Testing pattern**: Two approaches depending on what's being tested:
+  - **DOM tests** (preferred for UI components): Use `@testing-library/react` with `happy-dom` (preloaded via `bunfig.toml`). Render components with `render()`, query with `screen.getByRole/getByText`, assert with jest-dom matchers (`toBeInTheDocument`, `toHaveAttribute`). Shared mocks in `tests/utils.tsx`.
+  - **Source-analysis** (for config, CSS, imports, page structure): Read source files with `readFileSync` and assert on string patterns. Use when testing non-rendering concerns (file imports, Tailwind classes, metadata).
+  - **Logic/Mock** (for data fetching, API routes, utilities): Test business logic with mocked dependencies via `mock.module()`. No DOM needed.
+  - Test runner: `bun test`. DOM globals (window, document) are always available via happy-dom preload.
 - **DB schema changes**: Always apply via Supabase MCP migrations. After any schema change, verify the sync system still works (`bun syncsheets`).
 - **Docs**: Keep `docs/DESIGN.md` and `docs/product-architecture.md` up to date when changes affect architecture or UI patterns.
 - **Path aliases**: `@components/*`, `@data/*`, `@app-types/*`, `@helpers`, `@lib/*`, `@/config` — defined in `tsconfig.json`.

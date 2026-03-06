@@ -5,7 +5,6 @@ import { ProductCard } from '@components/ui/productCard'
 import Link from 'next/link'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { TbFlame } from 'react-icons/tb'
-import { URGENCY_TEXT } from '@/config'
 
 interface HotDealsProps {
   listings: ListingWithProduct[]
@@ -61,71 +60,75 @@ export function HotDeals({ listings }: HotDealsProps) {
   if (listings.length === 0) return null
 
   return (
-    <section className='py-16 bg-gradient-to-r from-pedie-card/50 via-amber-950/10 to-pedie-card/50 border-y border-pedie-border'>
+    <section className='py-16'>
       <div className='w-full pedie-container'>
-        <div className='grid grid-cols-1 md:grid-cols-12 gap-6'>
-          {/* Timer Card — left column */}
-          <div className='md:col-span-3'>
-            <div className='relative rounded-2xl bg-gradient-to-br from-amber-400/30 via-red-500/20 to-amber-400/30 p-[2px] shadow-[0_0_30px_rgba(251,191,36,0.15)] h-full'>
-              <div className='bg-pedie-dark rounded-2xl p-6 flex flex-col items-center justify-center h-full gap-4'>
-                <TbFlame
-                  className='w-10 h-10 text-amber-400'
-                  aria-hidden='true'
-                />
-                <h2 className='text-2xl font-bold text-white'>Hot Deals</h2>
+        <div className='flex items-center justify-between mb-8'>
+          <h2 className='text-xl font-bold text-pedie-text'>Hot Deals</h2>
+          <Link
+            href='/deals'
+            className='text-sm font-medium text-pedie-green hover:underline'
+          >
+            See all →
+          </Link>
+        </div>
 
-                <div className='flex items-center gap-2'>
-                  <div className='bg-pedie-dark/80 border border-amber-400/30 rounded-lg px-3 py-2 text-center'>
-                    <span className='text-2xl font-mono font-bold text-amber-400'>
-                      {timeLeft.hours.toString().padStart(2, '0')}
-                    </span>
-                  </div>
-                  <span className='text-amber-400 font-bold text-xl'>:</span>
-                  <div className='bg-pedie-dark/80 border border-amber-400/30 rounded-lg px-3 py-2 text-center'>
-                    <span className='text-2xl font-mono font-bold text-amber-400'>
-                      {timeLeft.minutes.toString().padStart(2, '0')}
-                    </span>
-                  </div>
-                  <span className='text-amber-400 font-bold text-xl'>:</span>
-                  <div className='bg-pedie-dark/80 border border-amber-400/30 rounded-lg px-3 py-2 text-center'>
-                    <span className='text-2xl font-mono font-bold text-amber-400'>
-                      {timeLeft.seconds.toString().padStart(2, '0')}
-                    </span>
-                  </div>
+        <div className='rounded-lg overflow-hidden border border-pedie-border bg-pedie-card'>
+          <div className='grid grid-cols-1 md:grid-cols-6'>
+            <div className='md:col-span-1 bg-pedie-dark p-6 flex flex-col items-center justify-center border-r border-pedie-border gap-4 h-full'>
+              <TbFlame
+                className='w-10 h-10 text-amber-400'
+                aria-hidden='true'
+              />
+              <h3 className='text-xl font-bold text-white text-center leading-tight'>
+                Today Deals
+              </h3>
+
+              <div className='flex items-center gap-1.5'>
+                <div className='bg-black/40 border border-amber-400/20 rounded px-2 py-1.5 text-center min-w-[36px]'>
+                  <span className='text-lg font-mono font-bold text-amber-400 leading-none'>
+                    {timeLeft.hours.toString().padStart(2, '0')}
+                  </span>
                 </div>
-
-                <p className='text-xs text-red-400 font-medium text-center'>
-                  {URGENCY_TEXT}
-                </p>
-
-                <Link
-                  href='/deals'
-                  className='bg-amber-400 text-pedie-dark font-bold rounded-xl px-6 py-2.5 transition-colors hover:bg-amber-300 text-sm'
-                >
-                  View All
-                </Link>
+                <span className='text-amber-400/50 font-bold'>:</span>
+                <div className='bg-black/40 border border-amber-400/20 rounded px-2 py-1.5 text-center min-w-[36px]'>
+                  <span className='text-lg font-mono font-bold text-amber-400 leading-none'>
+                    {timeLeft.minutes.toString().padStart(2, '0')}
+                  </span>
+                </div>
+                <span className='text-amber-400/50 font-bold'>:</span>
+                <div className='bg-black/40 border border-amber-400/20 rounded px-2 py-1.5 text-center min-w-[36px]'>
+                  <span className='text-lg font-mono font-bold text-amber-400 leading-none'>
+                    {timeLeft.seconds.toString().padStart(2, '0')}
+                  </span>
+                </div>
               </div>
-            </div>
-          </div>
 
-          {/* Product Swiper — right column */}
-          <div className='md:col-span-9'>
-            <div
-              ref={scrollRef}
-              className='flex overflow-x-auto hide-scrollbar snap-x snap-mandatory gap-4 pb-4'
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
-              onFocusCapture={handleMouseEnter}
-              onBlurCapture={handleMouseLeave}
-            >
-              {listings.map(listing => (
-                <div
-                  key={listing.id}
-                  className='min-w-[180px] max-w-[200px] snap-start flex-shrink-0'
-                >
-                  <ProductCard listing={listing} />
-                </div>
-              ))}
+              <Link
+                href='/deals'
+                className='bg-amber-400 text-pedie-dark font-bold rounded-lg px-6 py-2 transition-colors hover:bg-amber-300 text-sm mt-2 w-full text-center'
+              >
+                Shop all Deals
+              </Link>
+            </div>
+
+            <div className='md:col-span-5 p-6 bg-gradient-to-r from-amber-50/50 to-transparent'>
+              <div
+                ref={scrollRef}
+                className='flex overflow-x-auto hide-scrollbar snap-x gap-4 pb-2'
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+                onFocusCapture={handleMouseEnter}
+                onBlurCapture={handleMouseLeave}
+              >
+                {listings.map(listing => (
+                  <div
+                    key={listing.id}
+                    className='min-w-[180px] max-w-[200px] flex-shrink-0 snap-start'
+                  >
+                    <ProductCard listing={listing} />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>

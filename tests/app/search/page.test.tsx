@@ -104,21 +104,6 @@ mock.module('next/image', () => ({
   ),
 }))
 
-// Mock @lib/cart/store
-mock.module('@lib/cart/store', () => ({
-  useCartStore: mock(
-    (selector: (state: Record<string, unknown>) => unknown) => {
-      const state = {
-        items: [],
-        addListing: mock(),
-        removeListing: mock(),
-        hasListing: () => false,
-      }
-      return selector(state)
-    }
-  ),
-}))
-
 // Mock FilterSidebar (client component with hooks)
 mock.module('@components/search/filterSidebar', () => ({
   FilterSidebar: mock(({ query }: { filters: unknown; query: string }) =>

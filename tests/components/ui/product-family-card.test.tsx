@@ -2,6 +2,11 @@ import { describe, expect, test } from 'bun:test'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { calculateDiscount, formatKes, getPricingTier } from '@helpers'
+import type { Listing, ProductFamily } from '@app-types/product'
+import { mockNextImage, mockNextLink, render, screen } from '../../utils'
+
+mockNextLink()
+mockNextImage()
 
 const src = readFileSync(
   resolve('src/components/ui/productFamilyCard.tsx'),
@@ -106,9 +111,18 @@ describe('ProductFamilyCard Component', () => {
     expect(src).not.toContain('"use client"')
   })
 
-  test('shows storage and RAM subtitle', () => {
-    expect(src).toContain('representative.storage')
-    expect(src).toContain('representative.ram')
+  test('does not render specs section', () => {
+    expect(src).not.toContain('representative.storage')
+    expect(src).not.toContain('representative.ram')
+  })
+
+  test('images use object-contain', () => {
+    expect(src).toContain('object-contain')
+    expect(src).not.toContain('object-cover')
+  })
+
+  test('price section has fixed minimum height for card alignment', () => {
+    expect(src).toContain('min-h-[60px]')
   })
 
   // Phase 6a: Card sizing tests
@@ -135,5 +149,85 @@ describe('ProductFamilyCard Component', () => {
   test('price uses text-base font-bold', () => {
     expect(src).toContain('text-base font-bold')
     expect(src).not.toContain('text-xl font-bold')
+  })
+
+  test('title uses line-clamp-2 instead of truncate', () => {
+    expect(src).toContain('line-clamp-2')
+    expect(src).not.toContain('truncate')
+  })
+})
+
+describe('ProductFamilyCard DOM Rendering', () => {
+  const mockListing: Listing = {
+    id: '1',
+    listing_id: 'PD-12345',
+    product_id: 'p1',
+    storage: '256GB',
+    color: 'Space Black',
+    carrier: 'Unlocked',
+    condition: 'excellent',
+    battery_health: 95,
+    price_kes: 120000,
+    final_price_kes: 120000,
+    original_price_usd: 1000,
+    landed_cost_kes: 110000,
+    source: 'eBay',
+    source_listing_id: 'ebay123',
+    source_url: 'https://ebay.com',
+    images: ['/listing-image.jpg'],
+    is_featured: true,
+    listing_type: 'standard',
+    ram: null,
+    status: 'available',
+    sheets_row_id: 'row1',
+    notes: null,
+    created_at: '2023-01-01T00:00:00Z',
+    updated_at: '2023-01-01T00:00:00Z',
+  }
+
+  const mockFamily: ProductFamily = {
+    product: {
+      id: 'p1',
+      brand: 'Apple',
+      model: 'iPhone 14 Pro',
+      slug: 'apple-iphone-14-pro',
+      category_id: 'cat1',
+      description: 'Great',
+      specs: null,
+      key_features: null,
+      images: ['/product-image.jpg'],
+      original_price_kes: 150000,
+      created_at: '',
+      updated_at: '',
+      fts: null,
+    },
+    listings: [mockListing],
+    representative: mockListing,
+    variantCount: 1,
+  }
+
+  test('renders product model name', async () => {
+    const { ProductFamilyCard } =
+      await import('@components/ui/productFamilyCard')
+    render(<ProductFamilyCard family={mockFamily} />)
+    expect(screen.getByText('iPhone 14 Pro')).toBeInTheDocument()
+  })
+
+  test('renders link to /products/${slug}', async () => {
+    const { ProductFamilyCard } =
+      await import('@components/ui/productFamilyCard')
+    render(<ProductFamilyCard family={mockFamily} />)
+    const link = screen.getByRole('link', {
+      name: /View Apple iPhone 14 Pro/i,
+    })
+    expect(link).toHaveAttribute('href', '/products/apple-iphone-14-pro')
+  })
+
+  test('renders formatted price', async () => {
+    const { ProductFamilyCard } =
+      await import('@components/ui/productFamilyCard')
+    render(<ProductFamilyCard family={mockFamily} />)
+    const formatted = formatKes(mockListing.final_price_kes)
+    expect(screen.getByText(formatted)).toBeInTheDocument()
   })
 })

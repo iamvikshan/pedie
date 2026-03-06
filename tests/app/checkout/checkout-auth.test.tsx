@@ -30,16 +30,6 @@ mock.module('@components/auth/authProvider', () => ({
     React.createElement('div', null, children),
 }))
 
-mock.module('@lib/cart/store', () => ({
-  useCartStore: (selector: (s: any) => any) =>
-    selector({
-      items: [],
-      getTotal: () => 0,
-      getDepositTotal: () => 0,
-      clearCart: mock(() => {}),
-    }),
-}))
-
 mock.module('@helpers', () => ({
   formatKes: mock((amount: number) => `KES ${amount.toLocaleString('en-KE')}`),
   calculateDeposit: mock((price: number) => Math.round(price * 0.05)),

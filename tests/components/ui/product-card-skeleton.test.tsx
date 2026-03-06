@@ -37,6 +37,10 @@ describe('ProductCardSkeleton', () => {
     expect(src).toContain('border-t')
   })
 
+  test('does not include specs placeholder row', () => {
+    expect(src).not.toContain('h-4 w-1/2 rounded bg-pedie-card mb-3')
+  })
+
   test('uses rounded-lg not rounded-2xl', () => {
     expect(src).toContain('rounded-lg')
     expect(src).not.toContain('rounded-2xl')

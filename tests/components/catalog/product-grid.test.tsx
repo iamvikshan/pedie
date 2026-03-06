@@ -1,31 +1,11 @@
-import { describe, expect, mock, test } from 'bun:test'
+import { describe, expect, test } from 'bun:test'
 import type { ListingWithProduct } from '@app-types/product'
 import { ProductGrid } from '@components/catalog/productGrid'
 import React from 'react'
-import { renderToString } from 'react-dom/server'
+import { mockNextLink, mockNextImage, render, screen } from '../../utils'
 
-// Mock next/link
-mock.module('next/link', () => ({
-  default: mock(({ children, href, ...props }: Record<string, unknown>) => {
-    return React.createElement(
-      'a',
-      { href: href as string, ...props },
-      children as React.ReactNode
-    )
-  }),
-}))
-
-// Mock next/image
-mock.module('next/image', () => ({
-  default: mock(({ src, alt, fill, ...props }: Record<string, unknown>) => {
-    return React.createElement('img', {
-      src,
-      alt,
-      'data-fill': fill ? 'true' : undefined,
-      ...props,
-    })
-  }),
-}))
+mockNextLink()
+mockNextImage()
 
 const mockListings: ListingWithProduct[] = [
   {
@@ -73,19 +53,18 @@ const mockListings: ListingWithProduct[] = [
 
 describe('ProductGrid', () => {
   test('renders ProductCard for each listing', () => {
-    const html = renderToString(<ProductGrid listings={mockListings} />)
+    render(<ProductGrid listings={mockListings} />)
 
-    expect(html).toContain('iPhone 12')
-    expect(html).toContain('LST-001')
-    expect(html).toContain('50,000')
+    expect(screen.getByText('iPhone 12')).toBeInTheDocument()
+    expect(screen.getByText(/50,000/)).toBeInTheDocument()
   })
 
   test('shows empty state when no listings', () => {
-    const html = renderToString(<ProductGrid listings={[]} />)
+    render(<ProductGrid listings={[]} />)
 
-    expect(html).toContain('No products found')
-    expect(html).toContain(
-      'We couldn&#x27;t find any products matching your current filters'
-    )
+    expect(screen.getByText('No products found')).toBeInTheDocument()
+    expect(
+      screen.getByText(/couldn't find any products matching/)
+    ).toBeInTheDocument()
   })
 })

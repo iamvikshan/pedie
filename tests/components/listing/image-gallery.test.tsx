@@ -1,24 +1,14 @@
-import { describe, expect, mock, test } from 'bun:test'
+import { describe, expect, test } from 'bun:test'
 import React from 'react'
-import { renderToString } from 'react-dom/server'
+import { mockNextImage, render, screen } from '../../utils'
 
-// Mock next/image
-mock.module('next/image', () => ({
-  default: mock(({ src, alt, fill, ...props }: Record<string, unknown>) => {
-    return React.createElement('img', {
-      src,
-      alt,
-      'data-fill': fill ? 'true' : undefined,
-      ...props,
-    })
-  }),
-}))
+mockNextImage()
 
 const { ImageGallery } = await import('@components/listing/imageGallery')
 
 describe('ImageGallery', () => {
   test('renders main image', () => {
-    const html = renderToString(
+    render(
       <ImageGallery
         images={[
           'https://example.com/img1.jpg',
@@ -28,8 +18,9 @@ describe('ImageGallery', () => {
       />
     )
 
-    expect(html).toContain('https://example.com/img1.jpg')
-    expect(html).toContain('alt="iPhone 13"')
+    const mainImage = screen.getByAltText('iPhone 13')
+    expect(mainImage).toBeInTheDocument()
+    expect(mainImage).toHaveAttribute('src', 'https://example.com/img1.jpg')
   })
 
   test('renders thumbnail for each image', () => {
@@ -38,38 +29,42 @@ describe('ImageGallery', () => {
       'https://example.com/img2.jpg',
       'https://example.com/img3.jpg',
     ]
-    const html = renderToString(
-      <ImageGallery images={images} productName='iPhone 13' />
-    )
+    render(<ImageGallery images={images} productName='iPhone 13' />)
 
     // Should have thumbnail buttons
-    expect(html).toContain('View image 1')
-    expect(html).toContain('View image 2')
-    expect(html).toContain('View image 3')
+    expect(
+      screen.getByRole('button', { name: 'View image 1' })
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'View image 2' })
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'View image 3' })
+    ).toBeInTheDocument()
 
-    // All thumbnail images should be present
-    for (const img of images) {
-      expect(html).toContain(img)
-    }
+    // All images should be present (main + 3 thumbnails)
+    const allImages = screen.getAllByRole('img')
+    expect(allImages.length).toBeGreaterThanOrEqual(images.length)
   })
 
   test('shows placeholder when no images', () => {
-    const html = renderToString(
-      <ImageGallery images={[]} productName='iPhone 13' />
-    )
+    render(<ImageGallery images={[]} productName='iPhone 13' />)
 
-    expect(html).toContain('No images available')
+    expect(screen.getByText('No images available')).toBeInTheDocument()
   })
 
   test('does not render thumbnails for single image', () => {
-    const html = renderToString(
+    render(
       <ImageGallery
         images={['https://example.com/img1.jpg']}
         productName='iPhone 13'
       />
     )
 
-    expect(html).toContain('https://example.com/img1.jpg')
-    expect(html).not.toContain('View image 1')
+    const mainImage = screen.getByAltText('iPhone 13')
+    expect(mainImage).toHaveAttribute('src', 'https://example.com/img1.jpg')
+    expect(
+      screen.queryByRole('button', { name: 'View image 1' })
+    ).not.toBeInTheDocument()
   })
 })

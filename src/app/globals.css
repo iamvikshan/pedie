@@ -111,7 +111,7 @@ body {
 
 /* Footer glow */
 .glass-footer {
-  border-top: 1px solid var(--color-pedie-glass-border);
+  border-top: 1px solid var(--color-pedie-border);
   box-shadow: 0 -4px 20px rgba(34, 197, 94, 0.08);
 }
 
@@ -121,10 +121,11 @@ body {
 
 /* Footer accordion: always expanded on desktop */
 @media (min-width: 768px) {
-  details.footer-accordion > *:not(summary) {
-    display: block !important;
+  .footer-accordion ul {
+    max-height: 500px !important;
+    overflow: visible !important;
   }
-  details.footer-accordion > summary {
+  .footer-accordion button {
     pointer-events: none;
   }
 }

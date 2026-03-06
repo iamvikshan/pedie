@@ -5,9 +5,9 @@ import {
   TbBrandTiktok,
   TbBrandX,
   TbBrandYoutube,
-  TbChevronDown,
 } from 'react-icons/tb'
 import { URLS } from '@/config'
+import { FooterAccordion } from './footerAccordion'
 import { NewsletterSignup } from './newsletterSignup'
 
 export const FOOTER_LINKS = [
@@ -87,24 +87,18 @@ export function Footer() {
 
           {/* Links Grid */}
           {FOOTER_LINKS.map(group => (
-            <details key={group.title} className='footer-accordion group'>
-              <summary className='flex cursor-pointer items-center justify-between text-lg font-semibold text-pedie-text mb-4 list-none md:cursor-default [&::-webkit-details-marker]:hidden'>
-                {group.title}
-                <TbChevronDown className='h-4 w-4 transition-transform group-open:rotate-180 md:hidden' />
-              </summary>
-              <ul className='flex flex-col gap-3 text-sm text-pedie-text-muted'>
-                {group.links.map(link => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className='hover:text-pedie-green transition-colors'
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </details>
+            <FooterAccordion key={group.title} title={group.title}>
+              {group.links.map(link => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className='hover:text-pedie-green transition-colors'
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </FooterAccordion>
           ))}
         </div>
 

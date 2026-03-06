@@ -2,10 +2,7 @@ import { ProductFamilyCard } from '@components/ui/productFamilyCard'
 import { getCategoryBySlug } from '@data/categories'
 import { getProductFamiliesByCategory } from '@data/products'
 import Link from 'next/link'
-import {
-  CategoryShowcaseWrapper,
-  ViewAllArrow,
-} from './categoryShowcaseWrapper'
+import { CategoryShowcaseWrapper } from './categoryShowcaseWrapper'
 
 interface CategoryShowcaseProps {
   categorySlug: string
@@ -27,18 +24,14 @@ export async function CategoryShowcase({
     <CategoryShowcaseWrapper>
       <div className='w-full pedie-container'>
         <div className='flex items-center justify-between mb-8'>
-          <h2 className='text-2xl md:text-3xl font-bold text-pedie-text'>
-            {title}
-          </h2>
+          <h2 className='text-xl font-bold text-pedie-text'>{title}</h2>
           <Link
             href={`/collections/${category.slug}`}
             className='inline-flex items-center gap-1 text-sm font-medium text-pedie-green hover:underline'
           >
-            View All
-            <ViewAllArrow />
+            See all →
           </Link>
         </div>
-
         <div className='flex overflow-x-auto gap-6 pb-8 hide-scrollbar snap-x'>
           {families.map(family => (
             <div

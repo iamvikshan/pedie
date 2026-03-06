@@ -113,21 +113,6 @@ mock.module('@data/reviews', () => ({
   ),
 }))
 
-// Mock @lib/cart/store
-mock.module('@lib/cart/store', () => ({
-  useCartStore: mock(
-    (selector: (state: Record<string, unknown>) => unknown) => {
-      const state = {
-        items: [],
-        addListing: mock(),
-        removeListing: mock(),
-        hasListing: () => false,
-      }
-      return selector(state)
-    }
-  ),
-}))
-
 // Import components after mocking
 const { default: ListingPage, generateMetadata } =
   await import('@/app/(store)/listings/[listingId]/page')

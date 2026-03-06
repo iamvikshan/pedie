@@ -1,22 +1,17 @@
-import { describe, expect, mock, test } from 'bun:test'
+import { describe, expect, test } from 'bun:test'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import type { AvailableFilters, ListingFilters } from '@app-types/filters'
 import { FilterSidebar } from '@components/catalog/filterSidebar'
 import React from 'react'
-import { renderToString } from 'react-dom/server'
+import { mockNextNavigation, render, screen } from '../../utils'
 
 const filterSidebarSrc = readFileSync(
   resolve('src/components/catalog/filterSidebar.tsx'),
   'utf-8'
 )
 
-// Mock next/navigation
-mock.module('next/navigation', () => ({
-  useRouter: mock(() => ({ push: mock(), replace: mock(), back: mock() })),
-  useSearchParams: mock(() => new URLSearchParams()),
-  usePathname: mock(() => '/collections/smartphones'),
-}))
+mockNextNavigation({ pathname: '/collections/smartphones' })
 
 const mockAvailableFilters: AvailableFilters = {
   conditions: ['excellent', 'good'],
@@ -31,7 +26,7 @@ const mockAvailableFilters: AvailableFilters = {
 describe('FilterSidebar', () => {
   test('renders condition filter options', () => {
     const currentFilters: ListingFilters = {}
-    const html = renderToString(
+    render(
       <FilterSidebar
         availableFilters={mockAvailableFilters}
         currentFilters={currentFilters}
@@ -39,14 +34,14 @@ describe('FilterSidebar', () => {
       />
     )
 
-    expect(html).toContain('Condition')
-    expect(html).toContain('excellent')
-    expect(html).toContain('good')
+    expect(screen.getByText('Condition')).toBeInTheDocument()
+    expect(screen.getByText('excellent')).toBeInTheDocument()
+    expect(screen.getByText('good')).toBeInTheDocument()
   })
 
   test('renders brand/storage/color options from available filters', () => {
     const currentFilters: ListingFilters = {}
-    const html = renderToString(
+    render(
       <FilterSidebar
         availableFilters={mockAvailableFilters}
         currentFilters={currentFilters}
@@ -54,17 +49,17 @@ describe('FilterSidebar', () => {
       />
     )
 
-    expect(html).toContain('Brand')
-    expect(html).toContain('Apple')
-    expect(html).toContain('Samsung')
+    expect(screen.getByText('Brand')).toBeInTheDocument()
+    expect(screen.getByText('Apple')).toBeInTheDocument()
+    expect(screen.getByText('Samsung')).toBeInTheDocument()
 
-    expect(html).toContain('Storage')
-    expect(html).toContain('128GB')
-    expect(html).toContain('256GB')
+    expect(screen.getByText('Storage')).toBeInTheDocument()
+    expect(screen.getByText('128GB')).toBeInTheDocument()
+    expect(screen.getByText('256GB')).toBeInTheDocument()
 
-    expect(html).toContain('Color')
-    expect(html).toContain('Black')
-    expect(html).toContain('White')
+    expect(screen.getByText('Color')).toBeInTheDocument()
+    expect(screen.getByText('Black')).toBeInTheDocument()
+    expect(screen.getByText('White')).toBeInTheDocument()
   })
 
   test('shows correct checked state from current filters', () => {
@@ -72,7 +67,7 @@ describe('FilterSidebar', () => {
       condition: ['excellent'],
       brand: ['Apple'],
     }
-    const html = renderToString(
+    render(
       <FilterSidebar
         availableFilters={mockAvailableFilters}
         currentFilters={currentFilters}
@@ -80,10 +75,9 @@ describe('FilterSidebar', () => {
       />
     )
 
-    // In React 18/19 renderToString, checked attributes are rendered as checked=""
-    // Verify exactly 2 checkboxes are checked (excellent condition + Apple brand)
-    const checkedCount = (html.match(/checked=""/g) || []).length
-    expect(checkedCount).toBe(2)
+    const checkboxes = screen.getAllByRole('checkbox')
+    const checked = checkboxes.filter(cb => (cb as HTMLInputElement).checked)
+    expect(checked.length).toBe(2)
   })
 
   test('FilterSidebar with empty categorySlug navigates to /shop', () => {
@@ -102,16 +96,16 @@ describe('FilterSidebar', () => {
         { name: 'Laptops', slug: 'laptops', count: 5 },
       ],
     }
-    const html = renderToString(
+    render(
       <FilterSidebar
         availableFilters={filtersWithCategories}
         currentFilters={{}}
         categorySlug=''
       />
     )
-    expect(html).toContain('Category')
-    expect(html).toContain('Smartphones')
-    expect(html).toContain('Laptops')
+    expect(screen.getByText('Category')).toBeInTheDocument()
+    expect(screen.getByText('Smartphones')).toBeInTheDocument()
+    expect(screen.getByText('Laptops')).toBeInTheDocument()
   })
 
   test('source has category filter section', () => {

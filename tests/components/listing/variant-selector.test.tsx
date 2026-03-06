@@ -3,6 +3,9 @@ import { readFileSync } from 'fs'
 import { join } from 'path'
 import { findBestMatch } from '../../../src/components/listing/variantSelector'
 import type { Listing } from '../../../types/product'
+import { mockNextNavigation, render, screen } from '../../utils'
+
+mockNextNavigation()
 
 describe('Variant Selector Component', () => {
   const componentPath = join(
@@ -156,5 +159,108 @@ describe('findBestMatch', () => {
     const current = mockListings[0]
     const best = findBestMatch(mockListings, current, 'color', 'White')
     expect(best.id).toBe('3')
+  })
+})
+
+describe('VariantSelector DOM Rendering', () => {
+  const mockListings: Listing[] = [
+    {
+      id: '1',
+      listing_id: 'l1',
+      product_id: 'p1',
+      storage: '128GB',
+      color: 'Black',
+      carrier: 'Unlocked',
+      condition: 'excellent',
+      battery_health: null,
+      price_kes: 50000,
+      final_price_kes: 50000,
+      original_price_usd: 500,
+      landed_cost_kes: 45000,
+      source: null,
+      source_listing_id: null,
+      source_url: null,
+      images: null,
+      is_featured: false,
+      listing_type: 'standard',
+      ram: null,
+      status: 'available',
+      sheets_row_id: null,
+      notes: null,
+      created_at: '',
+      updated_at: '',
+    },
+    {
+      id: '2',
+      listing_id: 'l2',
+      product_id: 'p1',
+      storage: '256GB',
+      color: 'White',
+      carrier: 'Unlocked',
+      condition: 'good',
+      battery_health: null,
+      price_kes: 60000,
+      final_price_kes: 60000,
+      original_price_usd: 600,
+      landed_cost_kes: 55000,
+      source: null,
+      source_listing_id: null,
+      source_url: null,
+      images: null,
+      is_featured: false,
+      listing_type: 'standard',
+      ram: null,
+      status: 'available',
+      sheets_row_id: null,
+      notes: null,
+      created_at: '',
+      updated_at: '',
+    },
+  ]
+
+  it('renders storage dimension buttons', async () => {
+    const VariantSelector = (
+      await import('@components/listing/variantSelector')
+    ).default
+    render(
+      <VariantSelector
+        listings={mockListings}
+        selectedListing={mockListings[0]}
+      />
+    )
+    expect(screen.getByRole('button', { name: '128GB' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '256GB' })).toBeInTheDocument()
+  })
+
+  it('renders condition dimension buttons', async () => {
+    const VariantSelector = (
+      await import('@components/listing/variantSelector')
+    ).default
+    render(
+      <VariantSelector
+        listings={mockListings}
+        selectedListing={mockListings[0]}
+      />
+    )
+    expect(
+      screen.getByRole('button', { name: /excellent/i })
+    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /good/i })).toBeInTheDocument()
+  })
+
+  it('disables buttons when disabled prop is true', async () => {
+    const VariantSelector = (
+      await import('@components/listing/variantSelector')
+    ).default
+    render(
+      <VariantSelector
+        listings={mockListings}
+        selectedListing={mockListings[0]}
+        disabled
+      />
+    )
+    const storageBtn = screen.getByRole('button', { name: '128GB' })
+    expect(storageBtn).toBeDisabled()
+    expect(storageBtn).toHaveAttribute('aria-disabled', 'true')
   })
 })

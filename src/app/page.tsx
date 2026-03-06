@@ -1,14 +1,15 @@
 import { Suspense } from 'react'
-import { CategoryShowcase } from '@components/home/categoryShowcase'
-import { CategoryShowcaseSkeleton } from '@components/home/categoryShowcaseSkeleton'
+import { CategoryShowcaseDynamic } from '@components/home/categoryShowcaseDynamic'
 import { CustomerFavoritesServer } from '@components/home/customerFavoritesServer'
 import { CustomerFavoritesSkeleton } from '@components/home/customerFavoritesSkeleton'
 import { HotDealsServer } from '@components/home/hotDealsServer'
 import { HotDealsSkeleton } from '@components/home/hotDealsSkeleton'
 import { HeroBanner } from '@components/home/heroBanner'
 import { PopularCategories } from '@components/home/popularCategories'
+import { PopularCategoriesSkeleton } from '@components/home/popularCategoriesSkeleton'
 import { SustainabilitySection } from '@components/home/sustainabilitySection'
 import { TrustBadges } from '@components/home/trustBadges'
+import { TrustBanner } from '@components/home/trustBanner'
 import { ErrorBoundary } from '@components/ui/errorBoundary'
 
 export default function Home() {
@@ -21,7 +22,9 @@ export default function Home() {
         <TrustBadges />
       </ErrorBoundary>
       <ErrorBoundary>
-        <PopularCategories />
+        <Suspense fallback={<PopularCategoriesSkeleton />}>
+          <PopularCategories />
+        </Suspense>
       </ErrorBoundary>
       <ErrorBoundary>
         <Suspense fallback={<CustomerFavoritesSkeleton />}>
@@ -34,14 +37,10 @@ export default function Home() {
         </Suspense>
       </ErrorBoundary>
       <ErrorBoundary>
-        <Suspense fallback={<CategoryShowcaseSkeleton />}>
-          <CategoryShowcase categorySlug='smartphones' title='Smartphones' />
-        </Suspense>
+        <TrustBanner />
       </ErrorBoundary>
       <ErrorBoundary>
-        <Suspense fallback={<CategoryShowcaseSkeleton />}>
-          <CategoryShowcase categorySlug='laptops' title='Laptops' />
-        </Suspense>
+        <CategoryShowcaseDynamic />
       </ErrorBoundary>
       <ErrorBoundary>
         <SustainabilitySection />

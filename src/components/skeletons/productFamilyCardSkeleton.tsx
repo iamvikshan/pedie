@@ -11,7 +11,6 @@ export function ProductFamilyCardSkeleton() {
       {/* Content section */}
       <div className='p-4 flex flex-col flex-grow'>
         <div className='h-5 w-3/4 rounded bg-pedie-card mb-2' />
-        <div className='h-4 w-1/2 rounded bg-pedie-card mb-3' />
 
         {/* Pricing area */}
         <div className='mt-auto pt-3 border-t border-pedie-border'>

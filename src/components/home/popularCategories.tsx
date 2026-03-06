@@ -1,4 +1,4 @@
-import { getCategories } from '@data/categories'
+import { getTopLevelCategories } from '@data/categories'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -16,21 +16,27 @@ export const CATEGORY_IMAGES: Record<string, string> = {
 }
 
 export async function PopularCategories() {
-  const categories = await getCategories()
+  const categories = await getTopLevelCategories()
 
   if (!categories || categories.length === 0) {
     return null
   }
 
-  const displayCategories = categories.slice(0, 6)
-
   return (
     <section className='py-16 w-full pedie-container'>
-      <h2 className='text-2xl md:text-3xl font-bold text-pedie-text mb-8'>
-        Popular Categories
-      </h2>
-      <div className='grid grid-cols-3 md:grid-cols-6 gap-4'>
-        {displayCategories.map(category => (
+      <div className='flex items-center justify-between mb-8'>
+        <h2 className='text-xl font-bold text-pedie-text'>
+          Popular Categories
+        </h2>
+        <Link
+          href='/shop'
+          className='text-sm font-medium text-pedie-green hover:underline'
+        >
+          See all →
+        </Link>
+      </div>
+      <div className='grid grid-cols-4 md:grid-cols-5 lg:grid-cols-7 gap-4'>
+        {categories.map(category => (
           <Link
             key={category.id}
             href={`/collections/${category.slug}`}
@@ -50,7 +56,7 @@ export async function PopularCategories() {
                 </div>
               )}
             </div>
-            <span className='text-sm font-medium text-pedie-text text-center group-hover:text-pedie-green transition-colors'>
+            <span className='text-sm font-medium text-pedie-text text-center group-hover:text-pedie-green transition-colors line-clamp-1'>
               {category.name}
             </span>
           </Link>

@@ -64,7 +64,7 @@ export function ProductCard({ listing }: ProductCardProps) {
             src={imageUrl}
             alt={productName}
             fill
-            className='object-cover transition-transform duration-300 group-hover:scale-105'
+            className='object-contain transition-transform duration-300 group-hover:scale-105'
             sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
           />
         ) : (
@@ -118,18 +118,12 @@ export function ProductCard({ listing }: ProductCardProps) {
 
       {/* Content Section */}
       <div className='p-4 flex flex-col flex-grow'>
-        <h3 className='text-sm font-semibold text-pedie-text mb-1 truncate'>
+        <h3 className='text-sm font-semibold text-pedie-text mb-1 line-clamp-2'>
           {productName}
         </h3>
 
-        <div className='text-sm text-pedie-text-muted mb-3 flex flex-wrap gap-x-2'>
-          {listing.storage && <span>{listing.storage}</span>}
-          {listing.storage && listing.ram && <span>•</span>}
-          {listing.ram && <span>{listing.ram}</span>}
-        </div>
-
         {/* Pricing */}
-        <div className='mt-auto pt-3 border-t border-pedie-border'>
+        <div className='mt-auto pt-3 border-t border-pedie-border min-h-[60px]'>
           {isSale ? (
             <div className='flex flex-col'>
               <div className='flex items-baseline gap-2 flex-wrap'>

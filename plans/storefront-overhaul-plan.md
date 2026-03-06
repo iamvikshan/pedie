@@ -217,11 +217,19 @@ Comprehensive overhaul: carousel/brands bugs → category hierarchy with M2M →
 
    ---
 
-   ### 6b. [ ] Sections, Streaming & Content
+   ### 6b. [x] Sections, Streaming & Content
 
-   - **Objective:** Redesign Hot Deals (1:5 split), standardize section headings (20px), expand Popular Categories to all DB categories, make Customer Favorites tabs DB-driven, add Trust/Quality banner, make CategoryShowcase dynamic, fix streaming so PopularCategories doesn't block page render, and source category images.
+   - **Objective:** Redesign Hot Deals (1:5 split), standardize section headings (20px), expand Popular Categories to all DB categories, make Customer Favorites tabs DB-driven, add Trust/Quality banner, make CategoryShowcase dynamic, fix streaming so PopularCategories doesn't block page render, source category images, and add line-clamp text utilities (adopted from Reebelo).
+
+   - **Adopted Reebelo patterns:**
+     - `.line-clamp-2` / `.line-clamp-3` utilities in `globals.css` — `-webkit-line-clamp` for product card title/description truncation (Reebelo uses `.two-line-ellipsis` / `.three-line-ellipsis`)
+     - Swiper pagination bullet sizing reference: inactive 10px gray `#a5a5a5`, active 12px dark `#1f2323`, smaller on mobile (8/10px) — apply to hero carousel dots if time permits
 
    - **Files/Functions to Modify/Create:**
+
+     **Line-Clamp Utilities (adopted from Reebelo):**
+     - `src/app/globals.css` — Add `.line-clamp-2` and `.line-clamp-3` utility classes using `-webkit-line-clamp` (Tailwind v4 may have built-in support; check first, only add custom if needed)
+     - Apply `line-clamp-2` to product card titles across `productCard.tsx` and `productFamilyCard.tsx` to prevent long titles from breaking card layouts
 
      **Hot Deals Redesign (1:5 split):**
      - `src/components/home/hotDeals.tsx` — Outer container: `rounded-lg`. Internal split: `grid-cols-6` (1fr timer, 5fr products). Timer fills left 1/6, dark bg flush to container edge, sharp perpendicular divider (NO rounding on internal timer/products boundary). Timer content: "Today Deals" label, countdown digits (keep amber-400 font-mono), "Shop all Deals" CTA. Products: horizontal scroll in right 5/6, scrollable cards beyond visible area
@@ -267,6 +275,8 @@ Comprehensive overhaul: carousel/brands bugs → category hierarchy with M2M →
      - `Homepage renders CategoryShowcase dynamically per DB category`
      - `TrustBanner section renders trust points and links to /about`
      - `PopularCategories is wrapped in Suspense`
+     - `Product card titles use line-clamp-2 for truncation`
+     - `globals.css defines line-clamp utilities (if custom, not Tailwind built-in)`
 
    - **Steps:**
      1. Write failing tests for hot deals layout, headings, categories, tabs, trust banner, and streaming
@@ -280,34 +290,66 @@ Comprehensive overhaul: carousel/brands bugs → category hierarchy with M2M →
      9. Wrap PopularCategories in Suspense with new skeleton
      10. Run quality gates: `bun run f && bun check && bun test`
 
+   - **Changes from plan:** Line-clamp utilities not needed as custom CSS — Tailwind v4 includes built-in `line-clamp-*`. Applied `line-clamp-2` directly to product card titles in `productCard.tsx` and `productFamilyCard.tsx`. Category image sourcing from Reebelo deferred to future work; existing `CATEGORY_IMAGES` fallbacks retained. Created `categoryShowcaseDynamic.tsx` as new server component for dynamic showcase rendering. Swiper bullet sizing deferred. `customerFavoritesServer.tsx` unchanged — families already include category data from the join. Trust banner heading initially used `text-3xl` — caught in review and corrected to `text-xl font-bold` for consistency.
+
    ---
 
-   ### 6c. [ ] Fixes (Footer + Cleanup)
+   ### 6c. [x] Fixes (Cards, Categories, Footer & Cleanup)
 
-   - **Objective:** Fix footer light-mode visibility bug, overhaul accordion to work properly (visible on desktop, collapsed on mobile), and address any remaining bugs from 6a/6b.
+   - **Objective:** Revert Popular Categories to circles, redesign product cards (remove specs, enforce image dimensions, standardize price section), fix footer light-mode visibility, overhaul footer accordion, and address remaining bugs from 6a/6b.
+
+   - **Changes from plan:**
+     - Created new `FooterAccordion` client component (`src/components/layout/footerAccordion.tsx`) instead of inlining accordion logic in footer.tsx — cleaner separation of concerns
+     - Used `useSyncExternalStore` for viewport-aware accordion state (desktop always expanded, mobile collapsed) — addresses accessibility: `aria-hidden` + `inert` on collapsed panels, correct `aria-expanded` across viewports
+     - Used native DOM assertions (`hasAttribute`/`getAttribute`) instead of jest-dom `toHaveAttribute` to work around bun test runner compatibility issue
+     - Tests mock `window.matchMedia` to simulate mobile viewport (happy-dom defaults to 1024px width)
+
+   - **Adopted Reebelo pattern — CSS accordion:**
+     Reebelo uses a CSS-transition accordion: `[data-toggle='collapse'][data-open]` toggles a `.collapse-icon` rotation (rotate-180) and `.shown { max-height: 200px }` with CSS transition — no JS framework needed. We'll adapt this pattern for our footer: replace broken `<details>/<summary>` with a `max-height` transition accordion that is expanded by default on desktop (via media query) and collapsed on mobile.
 
    - **Files/Functions to Modify/Create:**
 
-     **Footer Overhaul:**
-     - `src/components/layout/footer.tsx` — Overhaul accordion: footer link groups should be **visible (expanded) on desktop screens**, but **collapsed to parent heading only on small screens** with tap-to-expand. Replace broken `<details>/<summary>` approach (Shop/Help/Policies groups render 0-height ULs) with a reliable pattern — either responsive CSS-only approach or lightweight client-side accordion with media-query-aware state
-     - `src/app/globals.css` — Fix light-mode footer visibility: `glass-footer` border uses `rgba(255,255,255,0.2)` → invisible on white. Change to `border-pedie-border` or a visible alternative. Footer bg (`bg-pedie-surface` = `#fff`) blends with body bg (`#FAFAFA`) — add contrast
+     **Popular Categories — Revert to Circles:**
+     - `src/components/home/popularCategories.tsx` — Change `rounded-xl aspect-square` → `rounded-full` with fixed circle dimensions (`h-20 w-20 md:h-24 md:w-24`). Keep showing all categories (no slice). Adjust grid as needed for circles
+     - `src/components/home/popularCategoriesSkeleton.tsx` — Match circle style
+     - `tests/components/home/popular-categories.test.tsx` — Update: assert `rounded-full` instead of `rounded-xl`
+
+     **Product Card Redesign (both productCard + productFamilyCard):**
+     - `src/components/ui/productCard.tsx` — Remove specs section (storage/RAM). Use `object-contain` on product images (prevents stretching for off-dimension images). Standardize price section height (consistent structure across sale/discounted/normal tiers — fixed min-height or spacer). Keep all badges as-is
+     - `src/components/ui/productFamilyCard.tsx` — Same changes: remove specs, `object-contain`, standardize price section
+     - `src/components/skeletons/productCardSkeleton.tsx` — Update skeleton to match new card layout (no specs row)
+     - `src/components/skeletons/productFamilyCardSkeleton.tsx` — Update skeleton
+     - `tests/components/ui/product-card.test.tsx` — Update: remove specs assertions, add object-contain test, add price standardization test
+     - `tests/components/ui/product-family-card.test.tsx` — Same updates
+
+     **Footer Overhaul (using Reebelo CSS accordion pattern):**
+     - `src/components/layout/footer.tsx` — Replace broken `<details>/<summary>` with Reebelo-inspired CSS accordion: use `data-open` attribute toggling + `max-height` CSS transition for smooth expand/collapse. Desktop: always expanded (no toggle needed). Mobile: collapsed by default, tap heading to expand with chevron rotation
+     - `src/app/globals.css` — Replace current `details.footer-accordion` CSS with new `.footer-accordion` styles using `max-height: 0` → `max-height: 200px` transition + `overflow: hidden`. Fix light-mode footer visibility: `glass-footer` border uses `rgba(255,255,255,0.2)` → invisible on white. Change to `border-pedie-border` or a visible alternative. Footer bg (`bg-pedie-surface` = `#fff`) blends with body bg (`#FAFAFA`) — add contrast
 
    - **Tests to Write:**
+     - `PopularCategories uses rounded-full circles (not rounded-xl squares)`
+     - `Product cards do not render specs/storage/RAM section`
+     - `Product card images use object-contain`
+     - `Product card price section has consistent min-height`
      - `Footer link groups are always visible on desktop (no collapsed state)`
-     - `Footer uses accordion pattern for mobile (collapsed by default)`
+     - `Footer uses max-height transition accordion (not details/summary)`
+     - `Footer accordion uses data-open attribute pattern`
      - `Footer has visible border in light mode (not rgba white-on-white)`
      - `Footer bg has contrast with body bg`
+     - **Note:** Use DOM tests (`@testing-library/react` + happy-dom) for footer component rendering tests. See `tests/utils.tsx` for shared mocks.
 
    - **Steps:**
-     1. Write failing tests for footer visibility, accordion behavior, and border contrast
-     2. Overhaul footer: visible on desktop, collapsed on mobile, fix border/contrast
-     3. Address any bugs or visual issues surfaced during 6a/6b
-     4. Run quality gates: `bun run f && bun check && bun test`
+     1. Update tests: popular categories circles, product card no-specs, object-contain, price standardization
+     2. Revert PopularCategories to `rounded-full` circles with fixed dimensions
+     3. Redesign product cards: remove specs, `object-contain`, standardize price section
+     4. Write failing footer tests
+     5. Overhaul footer: visible on desktop, collapsed on mobile, fix border/contrast
+     6. Run quality gates: `bun run f && bun check && bun test`
 
 7. **[ ] Phase 7: Docs Update**
-   - **Objective:** Update DESIGN.md and product-architecture.md to capture all changes from Phases 1-6
+   - **Objective:** Update DESIGN.md and product-architecture.md to capture all changes from Phases 1-6, including the DOM testing transition
    - **Files/Functions to Modify/Create:**
-     - `docs/DESIGN.md` — Add: mega-menu pattern, breadcrumbs pattern, SidebarPanel pattern, header stacked-actions pattern, responsive breakpoint strategy (lg: 1024px), new page routes (/shop, /repairs, /trade-in)
+     - `docs/DESIGN.md` — Add: mega-menu pattern, breadcrumbs pattern, SidebarPanel pattern, header stacked-actions pattern, responsive breakpoint strategy (lg: 1024px), new page routes (/shop, /repairs, /trade-in), DOM testing setup (happy-dom + RTL)
      - `docs/product-architecture.md` — Update: category hierarchy docs, M2M junction table, new pages table, shop page with category filter, breadcrumb rework, collections descendant fix
      - `tests/docs/design.test.ts` — Docs completeness tests
    - **Tests to Write:**
@@ -336,7 +378,8 @@ Comprehensive overhaul: carousel/brands bugs → category hierarchy with M2M →
 12. ~~Breadcrumb root~~ → `Shop > ...` (no Home; logo navigates to `/`)
 13. ~~Card border-radius~~ → `rounded-lg` (8px) — Pedie brand compromise
 14. ~~Card image aspect~~ → `aspect-[3/4]` (portrait — better suits product images at reduced card width)
-15. ~~Trust/Quality banner~~ → New dedicated section between Hot Deals and showcases16. ~~Heading sizes~~ → 20px (`text-xl`) matching Reebelo exactly
+15. ~~Trust/Quality banner~~ → New dedicated section between Hot Deals and showcases
+16. ~~Heading sizes~~ → 20px (`text-xl`) matching Reebelo exactly
 17. ~~Phase 6 scope/splitting~~ → Split into 6a (Container + Cards), 6b (Sections + Streaming + Content), 6c (Fixes — Footer + Cleanup)
 18. ~~Category images~~ → Download from Reebelo via curl/Playwright for testing, seed to Supabase storage. Fallback: stock images
 19. ~~`pedie-container` scope~~ → Apply globally (all pages, not just homepage). Hero remains full-bleed exception
