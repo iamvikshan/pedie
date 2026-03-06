@@ -1,12 +1,12 @@
 export function ProductFamilyCardSkeleton() {
   return (
     <div
-      className='flex flex-col glass rounded-2xl shadow-lg overflow-hidden border border-pedie-border animate-pulse'
+      className='flex flex-col glass rounded-lg shadow-sm overflow-hidden border border-pedie-border animate-pulse'
       role='status'
       aria-label='Loading'
     >
       {/* Image placeholder */}
-      <div className='aspect-square bg-pedie-card w-full' />
+      <div className='aspect-[3/4] bg-pedie-card w-full' />
 
       {/* Content section */}
       <div className='p-4 flex flex-col flex-grow'>

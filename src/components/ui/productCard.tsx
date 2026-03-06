@@ -54,11 +54,11 @@ export function ProductCard({ listing }: ProductCardProps) {
   return (
     <CardWrapper
       {...wrapperProps}
-      className='group flex flex-col glass rounded-2xl shadow-lg overflow-hidden transition-colors duration-300 border border-pedie-border hover:border-pedie-green/30'
+      className='group flex flex-col glass rounded-lg shadow-sm overflow-hidden transition-colors duration-300 border border-pedie-border hover:border-pedie-green/30'
       aria-label={`View ${productName}`}
     >
       {/* Image Section */}
-      <div className='relative aspect-square bg-pedie-surface w-full overflow-hidden'>
+      <div className='relative aspect-[3/4] bg-pedie-surface w-full overflow-hidden'>
         {imageUrl ? (
           <Image
             src={imageUrl}
@@ -118,7 +118,7 @@ export function ProductCard({ listing }: ProductCardProps) {
 
       {/* Content Section */}
       <div className='p-4 flex flex-col flex-grow'>
-        <h3 className='text-lg font-semibold text-pedie-text mb-1 truncate'>
+        <h3 className='text-sm font-semibold text-pedie-text mb-1 truncate'>
           {productName}
         </h3>
 
@@ -133,7 +133,7 @@ export function ProductCard({ listing }: ProductCardProps) {
           {isSale ? (
             <div className='flex flex-col'>
               <div className='flex items-baseline gap-2 flex-wrap'>
-                <span className='text-xl font-bold text-pedie-discount'>
+                <span className='text-base font-bold text-pedie-discount'>
                   {formatKes(listing.final_price_kes)}
                 </span>
                 <span className='glass text-pedie-discount text-xs font-bold px-2 py-0.5 rounded-full backdrop-blur-sm'>
@@ -147,7 +147,7 @@ export function ProductCard({ listing }: ProductCardProps) {
           ) : tier === 'discounted' ? (
             <div className='flex flex-col'>
               <div className='flex items-baseline gap-2 flex-wrap'>
-                <span className='text-xl font-bold text-pedie-accent'>
+                <span className='text-base font-bold text-pedie-accent'>
                   {formatKes(listing.final_price_kes)}
                 </span>
                 <span className='glass text-pedie-discount text-xs font-bold px-2 py-0.5 rounded-full backdrop-blur-sm'>
@@ -160,7 +160,7 @@ export function ProductCard({ listing }: ProductCardProps) {
             </div>
           ) : (
             <div className='flex flex-col'>
-              <span className='text-xl font-bold text-pedie-accent'>
+              <span className='text-base font-bold text-pedie-accent'>
                 {formatKes(listing.final_price_kes)}
               </span>
             </div>

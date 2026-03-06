@@ -14,22 +14,22 @@ export default function HomeLoading() {
       </div>
 
       {/* Categories skeleton */}
-      <div className='max-w-7xl mx-auto w-full px-4'>
+      <div className='pedie-container w-full'>
         <Skeleton className='h-8 w-48 mb-6' />
         <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
           {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className='h-40 rounded-2xl' />
+            <Skeleton key={i} className='h-40 rounded-lg' />
           ))}
         </div>
       </div>
 
       {/* Product section skeleton */}
-      <div className='max-w-7xl mx-auto w-full px-4'>
+      <div className='pedie-container w-full'>
         <Skeleton className='h-8 w-64 mb-6' />
         <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className='flex flex-col gap-3'>
-              <Skeleton className='aspect-square rounded-2xl' />
+              <Skeleton className='aspect-[3/4] rounded-lg' />
               <Skeleton className='h-5 w-3/4' />
               <Skeleton className='h-4 w-1/2' />
               <Skeleton className='h-6 w-1/3' />

@@ -10,11 +10,7 @@ export interface Brand {
 
 export async function getBrands(): Promise<Brand[]> {
   const supabase = await createClient()
-  const { data, error } = await (
-    supabase as unknown as {
-      from: (table: string) => ReturnType<typeof supabase.from>
-    }
-  )
+  const { data, error } = await supabase
     .from('brands')
     .select('*')
     .order('sort_order', { ascending: true })
@@ -24,5 +20,5 @@ export async function getBrands(): Promise<Brand[]> {
     return []
   }
 
-  return (data ?? []) as unknown as Brand[]
+  return (data ?? []) as Brand[]
 }

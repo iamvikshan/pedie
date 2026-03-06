@@ -198,29 +198,111 @@ Comprehensive overhaul: carousel/brands bugs → category hierarchy with M2M →
      8. Update SidebarPanel "See All" → `/shop`
      9. Run quality gates
 
-6. **[ ] Phase 6: Homepage Redesign — All Categories, Smaller Cards, Hot Deals**
-   - **Objective:** Show all DB categories on homepage, reduce card sizes by ~15%, redesign Hot Deals to be cleaner/more aligned with pedie tokens
+6. **Phase 6: Homepage Redesign** _(split into 6a / 6b / 6c sub-phases)_
+
+   _Refined via pixel-level Reebelo comparison (Playwright measurements) + user brainstorm. Comprehensive homepage overhaul aligning layout, sizing, and streaming with Reebelo's design language while keeping Pedie's dark/glass brand identity._
+
+   ---
+
+   ### 6a. [x] Container System + Card Sizing
+
+   - **Objective:** Introduce global `.pedie-container` (responsive breakpoints matching Reebelo) and reduce product card sizes ~35% to match Reebelo proportions. Update all skeletons to match.
+   - **Changes from plan:**
+     - Container system changed from fixed `max-width: 1024px` to responsive breakpoints: mobile `padding: 1.25rem` (20px, matching Reebelo's `px-5`), sm+ `padding: 2rem` (32px, matching Reebelo's `px-8`), lg+ `max-width: 1024px`, xl+ `max-width: 1280px` — discovered Reebelo uses Tailwind's `lg:container` which grows at xl breakpoint
+     - Image aspect set to `aspect-[3/4]` (portrait) instead of originally discussed `aspect-[3/2]` (landscape) — portrait better suits product images at reduced card width
+     - `brands.ts` cast fixed: removed unsafe `as unknown as` double cast; replaced with `as any` + comment (interim fix pending types regen)
+     - `brands.test.ts` rewritten from JSON import to source-analysis pattern (previous version referenced deleted `brands.json`)
+     - Added `brands` table migration (`20250708000000_brands_table.sql`) — table existed in DB but had no migration file
+     - Regenerated `types/database.ts` to include `brands` table, then removed `as any` cast from `brands.ts` entirely
+
+   ---
+
+   ### 6b. [ ] Sections, Streaming & Content
+
+   - **Objective:** Redesign Hot Deals (1:5 split), standardize section headings (20px), expand Popular Categories to all DB categories, make Customer Favorites tabs DB-driven, add Trust/Quality banner, make CategoryShowcase dynamic, fix streaming so PopularCategories doesn't block page render, and source category images.
+
    - **Files/Functions to Modify/Create:**
-     - `src/app/page.tsx` — Dynamically render CategoryShowcase for all top-level categories from DB
-     - `src/components/ui/productCard.tsx` — Reduce sizing (min-w, max-w, padding, font sizes ~15%)
-     - `src/components/ui/productFamilyCard.tsx` — Same sizing reduction
-     - `src/components/home/hotDeals.tsx` — Redesign: compact inline timer, cleaner gradient, pedie tokens
-     - `src/components/home/categoryShowcase.tsx` — Adjust card widths to match new sizing
-     - `src/components/skeletons/productCardSkeleton.tsx` — Match new sizing
-     - `src/components/skeletons/productFamilyCardSkeleton.tsx` — Match new sizing
-     - Tests: card sizing, hot deals, homepage sections
+
+     **Hot Deals Redesign (1:5 split):**
+     - `src/components/home/hotDeals.tsx` — Outer container: `rounded-lg`. Internal split: `grid-cols-6` (1fr timer, 5fr products). Timer fills left 1/6, dark bg flush to container edge, sharp perpendicular divider (NO rounding on internal timer/products boundary). Timer content: "Today Deals" label, countdown digits (keep amber-400 font-mono), "Shop all Deals" CTA. Products: horizontal scroll in right 5/6, scrollable cards beyond visible area
+     - `src/components/home/hotDealsSkeleton.tsx` — Match new 1:5 layout
+
+     **Section Heading & "See all" Standardization:**
+     - ALL homepage section headings → `text-xl font-bold` (20px, matching Reebelo)
+     - ALL sections: heading row = title left + "See all →" link right-aligned (consistent pattern). Currently inconsistent
+     - `src/components/home/customerFavorites.tsx` — Right-align "See all" on heading row
+     - `src/components/home/categoryShowcase.tsx` — Standardize heading + "See all" pattern
+     - `src/components/home/categoryShowcaseWrapper.tsx` — Update wrapper to match
+
+     **Popular Categories Expansion:**
+     - `src/components/home/popularCategories.tsx` — Remove `.slice(0, 6)`, show ALL top-level categories from DB. `rounded-full` → `rounded-xl` square thumbnails. Grid: `grid-cols-4 md:grid-cols-5 lg:grid-cols-7` for 2-row layout. Update `CATEGORY_IMAGES` for all categories
+     - Category images: download from Reebelo via curl/Playwright for testing, seed to Supabase storage. Fallback to stock images if download fails
+
+     **Customer Favorites — DB-Driven Tabs:**
+     - `src/components/home/customerFavorites.tsx` — Replace hardcoded `TABS = [All, Smartphones, Laptops, Tablets]` with DB-driven tabs from unique categories in fetched families. Keep "All" tab + dynamic category tabs. Font `text-sm` → `text-xs` (12px). Keep animated green pill. "See all" link right-aligned on tab row
+     - `src/components/home/customerFavoritesServer.tsx` — Pass category metadata alongside families
+     - `src/components/home/customerFavoritesSkeleton.tsx` — Update skeleton dimensions
+
+     **Dynamic CategoryShowcase:**
+     - `src/app/page.tsx` — Replace hardcoded `CategoryShowcase('smartphones')` + `CategoryShowcase('laptops')` with dynamic rendering: fetch all top-level categories, render CategoryShowcase for each that has products. Suspense per-category for independent streaming
+     - `src/components/home/categoryShowcase.tsx` — Card widths to ~200px. Standardize heading
+
+     **Trust/Quality Banner (NEW):**
+     - `src/components/home/trustBanner.tsx` — New section between Hot Deals and category showcases. Headline + 3-4 trust points (Save up to X%, N-Month Warranty, Quality Tested, Fast Delivery). CTA links to `/about`. Uses pedie-green accent
+     - `tests/components/home/trustBanner.test.ts` — Tests
+
+     **Streaming Fix:**
+     - `src/app/page.tsx` — Wrap `PopularCategories` in `<Suspense fallback={<PopularCategoriesSkeleton />}>` so page doesn't block on category fetch
+     - `src/components/home/popularCategoriesSkeleton.tsx` — **New** skeleton for the Suspense boundary
+
    - **Tests to Write:**
-     - `ProductCard renders with reduced dimensions`
-     - `ProductFamilyCard renders with reduced dimensions`
-     - `HotDeals timer renders inline with products`
-     - `Homepage renders CategoryShowcase for each top-level category`
+     - `HotDeals uses grid-cols-6 layout (1:5 split)`
+     - `HotDeals timer has no separate rounded corners on internal boundary`
+     - `HotDeals outer container uses rounded-lg`
+     - `Section headings use text-xl consistently`
+     - `All sections have right-aligned "See all" link`
+     - `PopularCategories shows all categories (no slice to 6)`
+     - `PopularCategories uses rounded-xl images (not rounded-full)`
+     - `CustomerFavorites tabs are derived from families data (not hardcoded)`
+     - `Homepage renders CategoryShowcase dynamically per DB category`
+     - `TrustBanner section renders trust points and links to /about`
+     - `PopularCategories is wrapped in Suspense`
+
    - **Steps:**
-     1. Write failing tests for new card sizes and homepage sections
-     2. Reduce card sizes globally: scale min-w, max-w, padding, fonts ~15%
-     3. Update skeleton components to match new dimensions
-     4. Redesign HotDeals: compact timer, less amber glow, pedie tokens, keep countdown inline/smaller
-     5. Refactor `page.tsx` to dynamically fetch top-level categories and render CategoryShowcase for each
-     6. Run quality gates
+     1. Write failing tests for hot deals layout, headings, categories, tabs, trust banner, and streaming
+     2. Redesign HotDeals: outer `rounded-lg`, `grid-cols-6` (1:5), sharp internal divider, timer fills left, products scroll right
+     3. Standardize all section headings to `text-xl font-bold` with right-aligned "See all →"
+     4. Expand PopularCategories: remove slice, show all, `rounded-xl` squares, responsive grid
+     5. Source category images from Reebelo (curl/Playwright) → seed to Supabase storage. Fallback: stock images
+     6. Make Customer Favorites tabs DB-driven: derive from families, `text-xs`, keep pill
+     7. Refactor `page.tsx`: dynamic CategoryShowcase per DB category, each in Suspense
+     8. Create TrustBanner component with CTA → `/about`; insert between Hot Deals and showcases
+     9. Wrap PopularCategories in Suspense with new skeleton
+     10. Run quality gates: `bun run f && bun check && bun test`
+
+   ---
+
+   ### 6c. [ ] Fixes (Footer + Cleanup)
+
+   - **Objective:** Fix footer light-mode visibility bug, overhaul accordion to work properly (visible on desktop, collapsed on mobile), and address any remaining bugs from 6a/6b.
+
+   - **Files/Functions to Modify/Create:**
+
+     **Footer Overhaul:**
+     - `src/components/layout/footer.tsx` — Overhaul accordion: footer link groups should be **visible (expanded) on desktop screens**, but **collapsed to parent heading only on small screens** with tap-to-expand. Replace broken `<details>/<summary>` approach (Shop/Help/Policies groups render 0-height ULs) with a reliable pattern — either responsive CSS-only approach or lightweight client-side accordion with media-query-aware state
+     - `src/app/globals.css` — Fix light-mode footer visibility: `glass-footer` border uses `rgba(255,255,255,0.2)` → invisible on white. Change to `border-pedie-border` or a visible alternative. Footer bg (`bg-pedie-surface` = `#fff`) blends with body bg (`#FAFAFA`) — add contrast
+
+   - **Tests to Write:**
+     - `Footer link groups are always visible on desktop (no collapsed state)`
+     - `Footer uses accordion pattern for mobile (collapsed by default)`
+     - `Footer has visible border in light mode (not rgba white-on-white)`
+     - `Footer bg has contrast with body bg`
+
+   - **Steps:**
+     1. Write failing tests for footer visibility, accordion behavior, and border contrast
+     2. Overhaul footer: visible on desktop, collapsed on mobile, fix border/contrast
+     3. Address any bugs or visual issues surfaced during 6a/6b
+     4. Run quality gates: `bun run f && bun check && bun test`
 
 7. **[ ] Phase 7: Docs Update**
    - **Objective:** Update DESIGN.md and product-architecture.md to capture all changes from Phases 1-6
@@ -234,17 +316,16 @@ Comprehensive overhaul: carousel/brands bugs → category hierarchy with M2M →
      - `product-architecture.md documents category hierarchy`
      - `product-architecture.md documents /shop page`
    - **Steps:**
-     1. Write failing tests for docs completeness
-     2. Update DESIGN.md with new component patterns, breakpoint strategy, routes
-     3. Update product-architecture.md with category hierarchy, new pages, shop filter
-     4. Run quality gates + `bun run build`
+     - this is just documentation updates, no code changes needed. Do not write tests nor run quality gates for this phase, but ensure all documentation is clear, comprehensive, and up-to-date with the implemented changes from Phases 1-6.
+     1. Update DESIGN.md with new component patterns, breakpoint strategy, routes
+     2. Update product-architecture.md with category hierarchy, new pages, shop filter
 
 **Open Questions:** _(All resolved)_
 
 1. ~~Shared subcategories~~ → Many-to-many junction table
 2. ~~Electronics visibility~~ → Breadcrumb pathing only; subcategories remain top-level in nav
 3. ~~Mega-menu style~~ → Full-width Reebelo-style panel
-4. ~~Hot Deals timer~~ → Keep but make compact/inline
+4. ~~Hot Deals timer~~ → 1:5 split, sharp internal divider, outer rounded-lg
 5. ~~Audio category~~ → New Audio parent with Earphones/Headphones/Speakers as children
 6. ~~Collections electronics empty~~ → Bug: `.eq()` → `.in()` with descendant IDs
 7. ~~Sidebar merge~~ → Unified `SidebarPanel` (shared mobile/desktop)
@@ -253,3 +334,11 @@ Comprehensive overhaul: carousel/brands bugs → category hierarchy with M2M →
 10. ~~Top Brands~~ → 6 random from DB with images
 11. ~~Hot Deals sidebar~~ → Static banner + "Shop Deals" CTA
 12. ~~Breadcrumb root~~ → `Shop > ...` (no Home; logo navigates to `/`)
+13. ~~Card border-radius~~ → `rounded-lg` (8px) — Pedie brand compromise
+14. ~~Card image aspect~~ → `aspect-[3/4]` (portrait — better suits product images at reduced card width)
+15. ~~Trust/Quality banner~~ → New dedicated section between Hot Deals and showcases16. ~~Heading sizes~~ → 20px (`text-xl`) matching Reebelo exactly
+17. ~~Phase 6 scope/splitting~~ → Split into 6a (Container + Cards), 6b (Sections + Streaming + Content), 6c (Fixes — Footer + Cleanup)
+18. ~~Category images~~ → Download from Reebelo via curl/Playwright for testing, seed to Supabase storage. Fallback: stock images
+19. ~~`pedie-container` scope~~ → Apply globally (all pages, not just homepage). Hero remains full-bleed exception
+20. ~~Footer accordion approach~~ → Overhaul: visible on desktop, collapsed to parent heading on mobile
+21. ~~Trust banner CTA~~ → Links to `/about`

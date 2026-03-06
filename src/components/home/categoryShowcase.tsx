@@ -25,7 +25,7 @@ export async function CategoryShowcase({
 
   return (
     <CategoryShowcaseWrapper>
-      <div className='w-full max-w-7xl mx-auto px-4 md:px-6'>
+      <div className='w-full pedie-container'>
         <div className='flex items-center justify-between mb-8'>
           <h2 className='text-2xl md:text-3xl font-bold text-pedie-text'>
             {title}
@@ -43,7 +43,7 @@ export async function CategoryShowcase({
           {families.map(family => (
             <div
               key={family.product.id}
-              className='min-w-[280px] max-w-[300px] snap-start'
+              className='min-w-[180px] max-w-[200px] snap-start'
             >
               <ProductFamilyCard family={family} />
             </div>

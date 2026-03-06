@@ -23,8 +23,9 @@ describe('ProductCardSkeleton', () => {
     expect(src).toContain('animate-pulse')
   })
 
-  test('has aspect-square image placeholder', () => {
-    expect(src).toContain('aspect-square')
+  test('uses aspect-[3/4] image placeholder', () => {
+    expect(src).toContain('aspect-[3/4]')
+    expect(src).not.toContain('aspect-square')
   })
 
   test('uses glass styling with border', () => {
@@ -34,5 +35,15 @@ describe('ProductCardSkeleton', () => {
 
   test('has pricing area with border-t', () => {
     expect(src).toContain('border-t')
+  })
+
+  test('uses rounded-lg not rounded-2xl', () => {
+    expect(src).toContain('rounded-lg')
+    expect(src).not.toContain('rounded-2xl')
+  })
+
+  test('uses shadow-sm not shadow-lg', () => {
+    expect(src).toContain('shadow-sm')
+    expect(src).not.toContain('shadow-lg')
   })
 })

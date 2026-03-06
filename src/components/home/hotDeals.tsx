@@ -62,7 +62,7 @@ export function HotDeals({ listings }: HotDealsProps) {
 
   return (
     <section className='py-16 bg-gradient-to-r from-pedie-card/50 via-amber-950/10 to-pedie-card/50 border-y border-pedie-border'>
-      <div className='w-full max-w-7xl mx-auto px-4 md:px-6'>
+      <div className='w-full pedie-container'>
         <div className='grid grid-cols-1 md:grid-cols-12 gap-6'>
           {/* Timer Card — left column */}
           <div className='md:col-span-3'>
@@ -121,7 +121,7 @@ export function HotDeals({ listings }: HotDealsProps) {
               {listings.map(listing => (
                 <div
                   key={listing.id}
-                  className='min-w-[280px] max-w-[300px] snap-start flex-shrink-0'
+                  className='min-w-[180px] max-w-[200px] snap-start flex-shrink-0'
                 >
                   <ProductCard listing={listing} />
                 </div>

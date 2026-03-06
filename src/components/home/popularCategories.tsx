@@ -25,7 +25,7 @@ export async function PopularCategories() {
   const displayCategories = categories.slice(0, 6)
 
   return (
-    <section className='py-16 w-full max-w-7xl mx-auto px-4 md:px-6'>
+    <section className='py-16 w-full pedie-container'>
       <h2 className='text-2xl md:text-3xl font-bold text-pedie-text mb-8'>
         Popular Categories
       </h2>

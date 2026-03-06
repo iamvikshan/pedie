@@ -26,8 +26,9 @@ describe('Product Detail Loading Page', () => {
     expect(src).toContain('aspect-square')
   })
 
-  test('uses max-w-7xl container', () => {
-    expect(src).toContain('max-w-7xl')
+  test('uses pedie-container', () => {
+    expect(src).toContain('pedie-container')
+    expect(src).not.toContain('max-w-7xl')
   })
 
   test('has below-fold details section with 3-col grid', () => {

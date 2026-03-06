@@ -25,7 +25,7 @@ export function MegaMenu({
       className='absolute top-full left-0 w-full bg-pedie-glass backdrop-blur-xl border-b border-pedie-glass-border shadow-lg z-40 p-6 animate-in slide-in-from-top-1 fade-in duration-200'
       onMouseLeave={onClose}
     >
-      <div className='max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6'>
+      <div className='pedie-container grid grid-cols-2 md:grid-cols-4 gap-6'>
         {activeData.children.map(child => (
           <Link
             key={child.id}

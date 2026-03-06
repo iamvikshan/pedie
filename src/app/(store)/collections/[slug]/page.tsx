@@ -153,7 +153,7 @@ export default async function CollectionPage({
           ),
         }}
       />
-      <div className='w-full max-w-7xl mx-auto px-4 py-8'>
+      <div className='w-full pedie-container py-8'>
         <Breadcrumbs
           segments={breadcrumbTrail.map(seg => ({
             name: seg.name,

@@ -36,7 +36,7 @@ export function CustomerFavorites({ families }: CustomerFavoritesProps) {
 
   return (
     <motion.section
-      className='py-16 w-full max-w-7xl mx-auto px-4 md:px-6'
+      className='py-16 w-full pedie-container'
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
@@ -100,7 +100,7 @@ export function CustomerFavorites({ families }: CustomerFavoritesProps) {
           {filtered.map(family => (
             <motion.div
               key={family.product.id}
-              className='min-w-[280px] max-w-[300px] snap-start flex-shrink-0'
+              className='min-w-[180px] max-w-[200px] snap-start flex-shrink-0'
               variants={{
                 hidden: { opacity: 0, y: 20 },
                 visible: { opacity: 1, y: 0 },

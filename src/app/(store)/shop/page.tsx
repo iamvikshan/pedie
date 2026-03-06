@@ -89,7 +89,7 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
   ])
 
   return (
-    <div className='w-full max-w-7xl mx-auto px-4 py-8'>
+    <div className='w-full pedie-container py-8'>
       <Breadcrumbs segments={[]} />
 
       <div className='mb-8'>

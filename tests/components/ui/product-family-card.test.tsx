@@ -95,9 +95,9 @@ describe('ProductFamilyCard Component', () => {
     expect(src).toContain('aria-label')
   })
 
-  test('uses glass rounded-2xl card styling', () => {
+  test('uses glass rounded-lg card styling', () => {
     expect(src).toContain(
-      'glass rounded-2xl shadow-lg overflow-hidden transition-colors duration-300 border border-pedie-border hover:border-pedie-green/30'
+      'glass rounded-lg shadow-sm overflow-hidden transition-colors duration-300 border border-pedie-border hover:border-pedie-green/30'
     )
   })
 
@@ -109,5 +109,31 @@ describe('ProductFamilyCard Component', () => {
   test('shows storage and RAM subtitle', () => {
     expect(src).toContain('representative.storage')
     expect(src).toContain('representative.ram')
+  })
+
+  // Phase 6a: Card sizing tests
+  test('uses rounded-lg not rounded-2xl', () => {
+    expect(src).toContain('rounded-lg')
+    expect(src).not.toContain('rounded-2xl')
+  })
+
+  test('uses shadow-sm not shadow-lg', () => {
+    expect(src).toContain('shadow-sm')
+    expect(src).not.toContain('shadow-lg')
+  })
+
+  test('image uses aspect-[3/4]', () => {
+    expect(src).toContain('aspect-[3/4]')
+    expect(src).not.toContain('aspect-square')
+  })
+
+  test('title uses text-sm font-semibold', () => {
+    expect(src).toContain('text-sm font-semibold')
+    expect(src).not.toContain('text-lg font-semibold')
+  })
+
+  test('price uses text-base font-bold', () => {
+    expect(src).toContain('text-base font-bold')
+    expect(src).not.toContain('text-xl font-bold')
   })
 })

@@ -1,6 +1,6 @@
 export default function CollectionLoading() {
   return (
-    <div className='w-full max-w-7xl mx-auto px-4 py-8 animate-pulse'>
+    <div className='w-full pedie-container py-8 animate-pulse'>
       {/* Banner Skeleton */}
       <div className='w-full h-[200px] bg-pedie-card rounded-xl mb-8 border border-pedie-border' />
 

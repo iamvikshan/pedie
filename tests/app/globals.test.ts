@@ -43,4 +43,18 @@ describe('globals.css', () => {
     expect(cssSource).toContain('--color-pedie-glass-border:')
     expect(cssSource).toContain('--color-pedie-glass-hover:')
   })
+
+  test('defines pedie-container with responsive max-width', () => {
+    expect(cssSource).toContain('.pedie-container')
+    expect(cssSource).toContain('max-width: 1024px')
+    expect(cssSource).toContain('max-width: 1280px')
+  })
+
+  test('pedie-container has auto margins and responsive padding', () => {
+    expect(cssSource).toContain('margin-left: auto')
+    expect(cssSource).toContain('margin-right: auto')
+    // mobile: 1.25rem, sm+: 2rem
+    expect(cssSource).toContain('padding-left: 1.25rem')
+    expect(cssSource).toContain('padding-left: 2rem')
+  })
 })

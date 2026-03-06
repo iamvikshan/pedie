@@ -45,7 +45,7 @@ export function Header({
         }`}
       >
         {/* Row 1: Logo + Search + Icons */}
-        <div className='w-full max-w-7xl mx-auto flex h-16 items-center gap-4 px-4 md:px-6'>
+        <div className='w-full pedie-container flex h-16 items-center gap-4'>
           {/* Mobile burger */}
           <MobileNav categories={categories} brands={brands} />
 
@@ -144,7 +144,7 @@ export function Header({
 
         {/* Row 2: All Items + Deals + Category Nav (desktop only) */}
         <div className='hidden border-t border-pedie-glass-border lg:block'>
-          <div className='w-full max-w-7xl mx-auto flex h-12 items-center gap-2 px-4 md:px-6'>
+          <div className='w-full pedie-container flex h-12 items-center gap-2'>
             {/* All Items — left */}
             <button
               onClick={() => setIsSidebarOpen(true)}

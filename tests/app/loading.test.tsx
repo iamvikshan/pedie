@@ -17,7 +17,18 @@ describe('Homepage Loading', () => {
     expect(src).toContain('h-[400px]')
   })
 
-  test('has product grid skeletons', () => {
-    expect(src).toContain('aspect-square')
+  test('has product grid skeletons with aspect-[3/4]', () => {
+    expect(src).toContain('aspect-[3/4]')
+    expect(src).not.toContain('aspect-square')
+  })
+
+  test('uses pedie-container', () => {
+    expect(src).toContain('pedie-container')
+    expect(src).not.toContain('max-w-7xl')
+  })
+
+  test('uses rounded-lg not rounded-2xl for card shapes', () => {
+    expect(src).toContain('rounded-lg')
+    expect(src).not.toContain('rounded-2xl')
   })
 })

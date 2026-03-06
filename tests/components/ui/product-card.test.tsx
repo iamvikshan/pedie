@@ -163,4 +163,30 @@ describe('ProductCard Component', () => {
   test('referral does not show condition badge', () => {
     expect(src).toContain('!isReferral')
   })
+
+  // Phase 6a: Card sizing tests
+  test('uses rounded-lg not rounded-2xl', () => {
+    expect(src).toContain('rounded-lg')
+    expect(src).not.toContain('rounded-2xl')
+  })
+
+  test('uses shadow-sm not shadow-lg', () => {
+    expect(src).toContain('shadow-sm')
+    expect(src).not.toContain('shadow-lg')
+  })
+
+  test('image uses aspect-[3/4]', () => {
+    expect(src).toContain('aspect-[3/4]')
+    expect(src).not.toContain('aspect-square')
+  })
+
+  test('title uses text-sm font-semibold', () => {
+    expect(src).toContain('text-sm font-semibold')
+    expect(src).not.toContain('text-lg font-semibold')
+  })
+
+  test('price uses text-base font-bold', () => {
+    expect(src).toContain('text-base font-bold')
+    expect(src).not.toContain('text-xl font-bold')
+  })
 })

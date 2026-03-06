@@ -134,6 +134,31 @@ body {
   color: #fbbf24;
 }
 
+/* Container utility — responsive like Reebelo:
+   mobile: 20px padding, sm+: 32px, lg+: max-width 1024px, xl+: 1280px */
+.pedie-container {
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+@media (min-width: 640px) {
+  .pedie-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+@media (min-width: 1024px) {
+  .pedie-container {
+    max-width: 1024px;
+  }
+}
+@media (min-width: 1280px) {
+  .pedie-container {
+    max-width: 1280px;
+  }
+}
+
 /* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
   *,

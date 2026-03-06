@@ -53,7 +53,7 @@ export default async function ProductPage({ params }: PageProps) {
     : []
 
   return (
-    <main className='container mx-auto px-4 py-8 max-w-7xl'>
+    <main className='pedie-container py-8'>
       <Breadcrumbs
         segments={[
           ...breadcrumbTrail.map(seg => ({

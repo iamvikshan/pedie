@@ -1,24 +1,31 @@
+import { readFileSync } from 'fs'
 import { describe, expect, test } from 'bun:test'
-import brands from '../../src/lib/data/brands.json'
 
-describe('brands.json', () => {
-  test('has at least 6 brands', () => {
-    expect(brands.length).toBeGreaterThanOrEqual(6)
+const src = readFileSync('src/lib/data/brands.ts', 'utf-8')
+
+describe('brands data module', () => {
+  test('exports getBrands async function', () => {
+    expect(src).toContain('export async function getBrands')
   })
 
-  test('each brand has name, slug, and logo', () => {
-    for (const brand of brands) {
-      expect(brand.name).toBeTruthy()
-      expect(brand.slug).toBeTruthy()
-      expect(brand.logo).toBeTruthy()
-      expect(brand.logo).toMatch(/^\/images\/brands\//)
-    }
+  test('exports Brand interface with required fields', () => {
+    expect(src).toContain('export interface Brand')
+    expect(src).toContain('name: string')
+    expect(src).toContain('slug: string')
+    expect(src).toContain('logo_url: string | null')
   })
 
-  test('contains expected brands', () => {
-    const names = brands.map(b => b.name)
-    expect(names).toContain('Apple')
-    expect(names).toContain('Samsung')
-    expect(names).toContain('Google')
+  test('fetches from brands table via supabase', () => {
+    expect(src).toContain(".from('brands')")
+    expect(src).toContain(".select('*')")
+  })
+
+  test('does not use unsafe casts', () => {
+    expect(src).not.toContain('as unknown as')
+    expect(src).not.toContain('as any')
+  })
+
+  test('orders by sort_order ascending', () => {
+    expect(src).toContain("order('sort_order'")
   })
 })

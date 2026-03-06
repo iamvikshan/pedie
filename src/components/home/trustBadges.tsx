@@ -21,7 +21,7 @@ const BADGE_ICONS = [TbShieldCheck, TbTruck, TbCircleCheck, TbRefresh]
 export function TrustBadges() {
   return (
     <section className='border-b border-pedie-border bg-pedie-surface'>
-      <div className='w-full max-w-7xl mx-auto flex items-center justify-between gap-4 px-4 py-3 md:px-6'>
+      <div className='w-full pedie-container flex items-center justify-between gap-4 py-3'>
         {/* Left: trust badges strip */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
