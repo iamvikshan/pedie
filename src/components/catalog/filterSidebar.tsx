@@ -89,6 +89,7 @@ function FilterSidebarInner({
           variant='secondary'
           className='w-full flex items-center justify-center gap-2'
           onClick={() => setIsOpen(!isOpen)}
+          aria-expanded={isOpen}
         >
           {isOpen ? (
             <TbX className='h-5 w-5' aria-hidden='true' />

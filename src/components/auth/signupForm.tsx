@@ -91,14 +91,15 @@ export function SignUpForm({ redirectTo }: SignUpFormProps) {
   return (
     <div className='space-y-6'>
       {/* Google Sign Up */}
-      <button
+      <Button
         onClick={handleGoogleSignIn}
         disabled={loading}
-        className={`flex w-full items-center justify-center gap-3 rounded-lg border border-pedie-border bg-white px-4 py-3 text-sm font-medium text-pedie-dark transition-colors ${loading ? 'cursor-not-allowed opacity-50' : 'hover:bg-pedie-card-hover'}`}
+        variant='secondary'
+        className='w-full gap-3 rounded-lg bg-white text-pedie-dark hover:bg-pedie-card-hover'
       >
         <GoogleIcon />
         Continue with Google
-      </button>
+      </Button>
 
       <div className='flex items-center gap-4'>
         <div className='flex-1 border-t border-pedie-border' />

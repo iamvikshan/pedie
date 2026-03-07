@@ -271,3 +271,93 @@ describe('Phase 4: Primitive Adoption', () => {
     expect(userMenu).not.toContain('backdrop-blur-xl')
   })
 })
+
+describe('Phase 5: Animations & Accessibility', () => {
+  test('no raw whileInView inline configs in component files', () => {
+    // Components should use shared variant refs (whileInView="visible")
+    // not inline objects (whileInView={{ ... }})
+    const inlinePattern = /whileInView=\{\{/
+    const violations: string[] = []
+    for (const file of componentFiles()) {
+      const content = readFileSync(file, 'utf-8')
+      if (inlinePattern.test(content)) {
+        violations.push(file.replace(ROOT + '/', ''))
+      }
+    }
+    expect(violations).toEqual([])
+  })
+
+  test('SVGs have aria-hidden', () => {
+    // Files with inline <svg elements should also include aria-hidden
+    // Exclude googleIcon.tsx (already has it) and ui/ primitives that
+    // wrap SVGs in role="status" containers
+    const violations: string[] = []
+    for (const file of componentFiles()) {
+      const rel = file.replace(COMPONENTS_DIR + '/', '')
+      // Skip known good patterns
+      if (rel === 'ui/googleIcon.tsx') continue
+      if (rel === 'ui/spinner.tsx') continue
+      const content = readFileSync(file, 'utf-8')
+      if (content.includes('<svg') && !content.includes('aria-hidden')) {
+        violations.push(rel)
+      }
+    }
+    expect(violations).toEqual([])
+  })
+
+  test('targeted components import from @lib/motion instead of inline variants', () => {
+    const files = [
+      'home/trustBadges.tsx',
+      'home/sustainabilitySection.tsx',
+      'home/customerFavorites.tsx',
+      'home/categoryShowcaseWrapper.tsx',
+    ]
+    for (const file of files) {
+      expect(readComponent(file)).toContain('@lib/motion')
+    }
+  })
+
+  test('sidebarPanel uses springTransition from shared motion library', () => {
+    const content = readComponent('layout/sidebarPanel.tsx')
+    expect(content).toContain('@lib/motion')
+    expect(content).toContain('springTransition')
+  })
+
+  test('userMenu dropdown has role="menu" and items have role="menuitem"', () => {
+    const content = readComponent('auth/userMenu.tsx')
+    expect(content).toContain("role='menu'")
+    expect(content).toContain("role='menuitem'")
+  })
+
+  test('filterSidebar mobile toggle has aria-expanded', () => {
+    const content = readComponent('catalog/filterSidebar.tsx')
+    expect(content).toContain('aria-expanded')
+  })
+
+  test('targeted admin forms adopt Button primitive for submit', () => {
+    const files = [
+      'admin/orderStatusUpdater.tsx',
+      'admin/categoryForm.tsx',
+      'admin/productForm.tsx',
+      'admin/listingForm.tsx',
+    ]
+    for (const file of files) {
+      const content = readComponent(file)
+      expect(content).toContain('@components/ui/button')
+    }
+  })
+
+  test('signinForm Google button uses Button component', () => {
+    const content = readComponent('auth/signinForm.tsx')
+    // Should not have a raw <button for Google sign-in
+    // The component already imports Button; check no raw <button elements remain
+    const rawButtons = (content.match(/<button[\s\n]/g) || []).length
+    expect(rawButtons).toBe(0)
+  })
+
+  test('signupForm Google button uses Button component', () => {
+    const content = readComponent('auth/signupForm.tsx')
+    const rawButtons = (content.match(/<button[\s\n]/g) || []).length
+    expect(rawButtons).toBe(0)
+  })
+})

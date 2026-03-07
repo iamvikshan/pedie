@@ -1,6 +1,7 @@
 'use client'
 
 import { Alert } from '@components/ui/alert'
+import { Button } from '@components/ui/button'
 import { Select } from '@components/ui/select'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -84,14 +85,15 @@ export function OrderStatusUpdater({
             </option>
           ))}
         </Select>
-        <button
+        <Button
           type='button'
+          variant='primary'
+          size='sm'
           onClick={handleSubmit}
           disabled={loading || status === currentStatus}
-          className='rounded-lg bg-pedie-green px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50'
         >
-          {loading ? 'Updating…' : 'Update'}
-        </button>
+          {loading ? 'Updating...' : 'Update'}
+        </Button>
       </div>
       {message && (
         <Alert variant={message.type} className='mt-2'>

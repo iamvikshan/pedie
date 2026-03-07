@@ -22,6 +22,7 @@ interface UserMenuProps {
 export function UserMenu({ userName, avatarUrl, isAdmin }: UserMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -30,18 +31,66 @@ export function UserMenu({ userName, avatarUrl, isAdmin }: UserMenuProps) {
         setIsOpen(false)
       }
     }
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setIsOpen(false)
-      }
-    }
     document.addEventListener('mousedown', handleClickOutside)
-    document.addEventListener('keydown', handleKeyDown)
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
-      document.removeEventListener('keydown', handleKeyDown)
     }
   }, [])
+
+  function getMenuItems(): HTMLElement[] {
+    if (!menuRef.current) return []
+    return Array.from(
+      menuRef.current.querySelectorAll<HTMLElement>('[role="menuitem"]')
+    )
+  }
+
+  // Focus first menu item on open
+  useEffect(() => {
+    if (isOpen) {
+      const items = getMenuItems()
+      items[0]?.focus()
+    }
+  }, [isOpen])
+
+  function handleMenuKeyDown(e: React.KeyboardEvent) {
+    const items = getMenuItems()
+    const currentIndex = items.indexOf(e.target as HTMLElement)
+
+    switch (e.key) {
+      case 'ArrowDown': {
+        e.preventDefault()
+        const next = currentIndex < items.length - 1 ? currentIndex + 1 : 0
+        items[next]?.focus()
+        break
+      }
+      case 'ArrowUp': {
+        e.preventDefault()
+        const prev = currentIndex > 0 ? currentIndex - 1 : items.length - 1
+        items[prev]?.focus()
+        break
+      }
+      case 'Home': {
+        e.preventDefault()
+        items[0]?.focus()
+        break
+      }
+      case 'End': {
+        e.preventDefault()
+        items[items.length - 1]?.focus()
+        break
+      }
+      case 'Escape': {
+        e.preventDefault()
+        setIsOpen(false)
+        triggerRef.current?.focus()
+        break
+      }
+      case 'Tab': {
+        setIsOpen(false)
+        break
+      }
+    }
+  }
 
   const [signOutError, setSignOutError] = useState(false)
 
@@ -76,9 +125,11 @@ export function UserMenu({ userName, avatarUrl, isAdmin }: UserMenuProps) {
   return (
     <div className='relative' ref={menuRef}>
       <button
+        ref={triggerRef}
         onClick={() => setIsOpen(!isOpen)}
         className='flex items-center gap-2 p-1.5 rounded-full hover:bg-pedie-card transition-colors'
         aria-label='User menu'
+        aria-haspopup='menu'
         aria-expanded={isOpen}
       >
         {avatarUrl ? (
@@ -97,7 +148,11 @@ export function UserMenu({ userName, avatarUrl, isAdmin }: UserMenuProps) {
       </button>
 
       {isOpen && (
-        <div className='absolute right-0 z-50 mt-2 w-56 rounded-lg glass py-1 shadow-lg'>
+        <div
+          className='absolute right-0 z-50 mt-2 w-56 rounded-lg glass py-1 shadow-lg'
+          role='menu'
+          onKeyDown={handleMenuKeyDown}
+        >
           <div className='px-4 py-2 border-b border-pedie-border'>
             <p className='text-sm font-medium text-pedie-text truncate'>
               {userName || 'User'}
@@ -108,6 +163,8 @@ export function UserMenu({ userName, avatarUrl, isAdmin }: UserMenuProps) {
             href='/account'
             onClick={() => setIsOpen(false)}
             className='flex items-center gap-3 px-4 py-2 text-sm text-pedie-text hover:bg-pedie-card transition-colors'
+            role='menuitem'
+            tabIndex={-1}
           >
             <TbUser className='h-4 w-4 text-pedie-text-muted' />
             My Account
@@ -116,6 +173,8 @@ export function UserMenu({ userName, avatarUrl, isAdmin }: UserMenuProps) {
             href='/account/orders'
             onClick={() => setIsOpen(false)}
             className='flex items-center gap-3 px-4 py-2 text-sm text-pedie-text hover:bg-pedie-card transition-colors'
+            role='menuitem'
+            tabIndex={-1}
           >
             <TbPackage className='h-4 w-4 text-pedie-text-muted' />
             My Orders
@@ -124,6 +183,8 @@ export function UserMenu({ userName, avatarUrl, isAdmin }: UserMenuProps) {
             href='/account/wishlist'
             onClick={() => setIsOpen(false)}
             className='flex items-center gap-3 px-4 py-2 text-sm text-pedie-text hover:bg-pedie-card transition-colors'
+            role='menuitem'
+            tabIndex={-1}
           >
             <TbHeart className='h-4 w-4 text-pedie-text-muted' />
             Wishlist
@@ -136,6 +197,8 @@ export function UserMenu({ userName, avatarUrl, isAdmin }: UserMenuProps) {
                 href='/admin'
                 onClick={() => setIsOpen(false)}
                 className='flex items-center gap-3 px-4 py-2 text-sm text-pedie-green font-medium hover:bg-pedie-card transition-colors'
+                role='menuitem'
+                tabIndex={-1}
               >
                 <TbDashboard className='h-4 w-4' />
                 Admin Dashboard
@@ -152,6 +215,8 @@ export function UserMenu({ userName, avatarUrl, isAdmin }: UserMenuProps) {
           <button
             onClick={handleSignOut}
             className='flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-pedie-discount hover:bg-pedie-card transition-colors'
+            role='menuitem'
+            tabIndex={-1}
           >
             <TbLogout className='h-4 w-4' />
             Sign Out

@@ -2,6 +2,7 @@
 
 import type { ProductFamily } from '@app-types/product'
 import { ProductFamilyCard } from '@components/ui/productFamilyCard'
+import { fadeInUp, staggerContainer, staggerItem } from '@lib/motion'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { useMemo, useRef, useState } from 'react'
@@ -50,8 +51,9 @@ export function CustomerFavorites({ families }: CustomerFavoritesProps) {
   return (
     <motion.section
       className='py-16 w-full pedie-container'
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      variants={fadeInUp}
+      initial='hidden'
+      whileInView='visible'
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
     >
@@ -104,19 +106,13 @@ export function CustomerFavorites({ families }: CustomerFavoritesProps) {
           className='flex overflow-x-auto gap-6 pb-8 hide-scrollbar snap-x'
           initial='hidden'
           animate='visible'
-          variants={{
-            hidden: {},
-            visible: { transition: { staggerChildren: 0.1 } },
-          }}
+          variants={staggerContainer}
         >
           {filtered.map(family => (
             <motion.div
               key={family.product.id}
               className='min-w-[180px] max-w-[200px] snap-start flex-shrink-0'
-              variants={{
-                hidden: { opacity: 0, y: 20 },
-                visible: { opacity: 1, y: 0 },
-              }}
+              variants={staggerItem}
             >
               <ProductFamilyCard family={family} />
             </motion.div>

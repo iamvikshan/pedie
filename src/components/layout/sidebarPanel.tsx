@@ -2,6 +2,7 @@
 
 import { useAuth } from '@components/auth/authProvider'
 import { ThemeToggle } from '@components/ui/themeToggle'
+import { springTransition } from '@lib/motion'
 import { AnimatePresence, motion } from 'framer-motion'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -142,7 +143,7 @@ export function SidebarPanel({
             initial={{ x: '-100%' }}
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            transition={springTransition}
             className='fixed inset-y-0 left-0 z-50 flex w-3/4 max-w-sm flex-col gap-6 overflow-y-auto border-r border-pedie-glass-border bg-pedie-glass p-6 shadow-xl backdrop-blur-xl'
           >
             {/* Header */}

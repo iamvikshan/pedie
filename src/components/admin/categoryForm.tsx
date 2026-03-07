@@ -1,5 +1,6 @@
 'use client'
 
+import { Button } from '@components/ui/button'
 import { Input } from '@components/ui/input'
 import { Select } from '@components/ui/select'
 import { slugify } from '@utils/slug'
@@ -172,17 +173,13 @@ export function CategoryForm({
       </div>
 
       {/* Submit */}
-      <button
-        type='submit'
-        disabled={loading}
-        className='rounded-lg bg-pedie-green px-6 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50'
-      >
+      <Button type='submit' variant='primary' size='md' disabled={loading}>
         {loading
           ? 'Saving...'
           : initialData?.id
             ? 'Update Category'
             : 'Create Category'}
-      </button>
+      </Button>
     </form>
   )
 }

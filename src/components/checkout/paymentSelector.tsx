@@ -35,6 +35,7 @@ export function PaymentSelector({ selected, onSelect }: PaymentSelectorProps) {
             className='ml-auto h-5 w-5 text-pedie-green'
             fill='currentColor'
             viewBox='0 0 20 20'
+            aria-hidden='true'
           >
             <path
               fillRule='evenodd'
@@ -68,6 +69,7 @@ export function PaymentSelector({ selected, onSelect }: PaymentSelectorProps) {
             className='ml-auto h-5 w-5 text-pedie-green'
             fill='currentColor'
             viewBox='0 0 20 20'
+            aria-hidden='true'
           >
             <path
               fillRule='evenodd'

@@ -1,5 +1,6 @@
 'use client'
 
+import { fadeInUp } from '@lib/motion'
 import { motion, useInView } from 'framer-motion'
 import Link from 'next/link'
 import type { ComponentType } from 'react'
@@ -65,8 +66,9 @@ export function SustainabilitySection() {
   return (
     <motion.section
       className='py-20 bg-pedie-card border-y border-pedie-border relative overflow-hidden'
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      variants={fadeInUp}
+      initial='hidden'
+      whileInView='visible'
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
     >

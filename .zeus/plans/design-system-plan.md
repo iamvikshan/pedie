@@ -31,29 +31,8 @@ TL;DR: Audit-driven centralization of the Pedie design system -- fix broken toke
 4. **[x] Phase 4: Adopt Primitives + Fix Deviations**
    - **Changes from plan:** Scope expanded to 45 files (vs 25 planned) -- storefront color fixes, wishlist page cleanup, and additional bg-pedie-dark eliminations were pulled in to satisfy comprehensive guard tests. EmptyState adoption was completed in Phase 3. OrderStatusUpdater message typing made explicit instead of string-includes. Glass guard made symmetric for megaMenu/userMenu. DataTable already used rounded-lg (no change needed).
 
-5. **[ ] Phase 5: Centralize Animations + Accessibility**
-   - **Objective:** Create shared motion presets, unify Framer Motion usage, and fix all identified accessibility gaps.
-   - **Files/Functions:**
-     - Create `src/lib/motion.ts` -- export `fadeInUp`, `staggerContainer`, `staggerItem`, `slideIn` variants with consistent y-offsets and durations
-     - Refactor 4+ components using duplicated whileInView configs to use shared variants (trustBadges, sustainabilitySection, customerFavorites, categoryShowcaseWrapper)
-     - Replace MegaMenu CSS animation with Framer Motion AnimatePresence
-     - Fix SidebarPanel spring config to be consistent with other overlays
-     - Add `aria-hidden` to all 13 inline check/close SVGs (remaining after Phase 4 tb icon replacements)
-     - Add `role='dialog'`, `aria-modal`, focus trap to search/filterSidebar mobile drawer
-     - Add `aria-expanded` to catalog/filterSidebar mobile toggle
-     - Upgrade UserMenu to `role='menu'` with proper focus management
-   - **Tests to Write:**
-     - Unit test: motion.ts exports correct variant shapes
-     - Source analysis test: verify no raw `whileInView: { opacity: 1, y: 0 }` configs (should use shared variants)
-     - Source analysis test: verify all inline SVGs have `aria-hidden="true"`
-   - **Quality Gates:** bun run f -> bun lint -> bunx tsc --noEmit -> bun test
-   - **Steps:**
-     1. Write failing tests for motion presets and a11y attributes
-     2. Create src/lib/motion.ts with shared animation variants
-     3. Refactor components to use shared motion variants
-     4. Replace MegaMenu CSS animation with Framer Motion
-     5. Fix all aria-hidden, role, aria-expanded, focus-trap gaps
-     6. Run quality gates
+5. **[x] Phase 5: Centralize Animations + Accessibility**
+   - **Changes from plan:** Added Button primitive adoption as minor deviation (user-requested). UserMenu fully implements WAI-ARIA menu pattern (arrow keys, focus management, aria-haspopup, tabIndex). SearchBar already had ARIA attributes (no changes needed). FilterSidebar mobile drawer kept as disclosure pattern (not dialog) since it's inline expand/collapse.
 
 ---
 

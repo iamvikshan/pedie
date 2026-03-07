@@ -13,7 +13,7 @@ lint: bun lint # to save time, this is substituted by `bun check` for a combined
 typecheck: bunx tsc --noEmit # see `bun check` above
 test: bun test
 build: bun run build
-fileNaming: camelCase (files/modules/components) | PascalCase (component exports/variables/constants) | UPERCASE SNAKE_CASE (environment/config variables) | tests under tests/
+fileNaming: camelCase (files/modules/components) | PascalCase (component exports/variables/constants) | UPPERCASE SNAKE_CASE (environment/config variables) | tests under tests/
 iconLib: react-icons/tb
 
 plan directory: .zeus/plans

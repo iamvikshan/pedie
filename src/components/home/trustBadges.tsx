@@ -1,5 +1,6 @@
 'use client'
 
+import { fadeInUp } from '@lib/motion'
 import { motion } from 'framer-motion'
 import {
   TbCircleCheck,
@@ -24,8 +25,9 @@ export function TrustBadges() {
       <div className='w-full pedie-container flex items-center justify-between gap-4 py-3'>
         {/* Left: trust badges strip */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          variants={fadeInUp}
+          initial='hidden'
+          whileInView='visible'
           viewport={{ once: true }}
           transition={{ duration: 0.4 }}
           className='flex items-center gap-4 overflow-x-auto hide-scrollbar md:gap-6'
@@ -51,8 +53,9 @@ export function TrustBadges() {
 
         {/* Right: Trustpilot-style review badge placeholder */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          variants={fadeInUp}
+          initial='hidden'
+          whileInView='visible'
           viewport={{ once: true }}
           transition={{ delay: 0.2, duration: 0.4 }}
           className='hidden shrink-0 items-center gap-2 md:flex'
