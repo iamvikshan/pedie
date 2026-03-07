@@ -78,7 +78,7 @@ export function TrackingForm({
         <div>
           <label
             htmlFor='carrier'
-            className='mb-1 block text-sm text-pedie-muted'
+            className='mb-1 block text-sm text-pedie-text-muted'
           >
             Carrier
           </label>
@@ -94,7 +94,7 @@ export function TrackingForm({
         <div>
           <label
             htmlFor='tracking-number'
-            className='mb-1 block text-sm text-pedie-muted'
+            className='mb-1 block text-sm text-pedie-text-muted'
           >
             Tracking Number
           </label>
@@ -110,7 +110,7 @@ export function TrackingForm({
         <div>
           <label
             htmlFor='estimated-delivery'
-            className='mb-1 block text-sm text-pedie-muted'
+            className='mb-1 block text-sm text-pedie-text-muted'
           >
             Estimated Delivery
           </label>
@@ -125,7 +125,7 @@ export function TrackingForm({
         <div>
           <label
             htmlFor='notes'
-            className='mb-1 block text-sm text-pedie-muted'
+            className='mb-1 block text-sm text-pedie-text-muted'
           >
             Notes
           </label>
@@ -141,7 +141,7 @@ export function TrackingForm({
         <button
           type='submit'
           disabled={loading}
-          className='rounded bg-pedie-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50'
+          className='rounded bg-pedie-green px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50'
         >
           {loading ? 'Saving…' : 'Save Tracking'}
         </button>

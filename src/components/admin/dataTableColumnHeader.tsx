@@ -20,7 +20,7 @@ export function DataTableColumnHeader({
   return (
     <button
       type='button'
-      className='flex items-center gap-1 font-medium text-pedie-muted hover:text-pedie-text'
+      className='flex items-center gap-1 font-medium text-pedie-text-muted hover:text-pedie-text'
       onClick={() => sortKey && onSort?.(sortKey)}
       disabled={!sortKey}
     >

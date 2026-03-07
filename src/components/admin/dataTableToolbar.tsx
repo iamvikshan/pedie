@@ -60,7 +60,7 @@ export function DataTableToolbar({
         placeholder={searchPlaceholder}
         value={localSearch}
         onChange={e => setLocalSearch(e.target.value)}
-        className='rounded border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text placeholder:text-pedie-muted'
+        className='rounded border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text placeholder:text-pedie-text-muted'
         aria-label='Search'
       />
       {filters?.map(filter => (
@@ -81,7 +81,7 @@ export function DataTableToolbar({
       ))}
       {selectedCount > 0 && bulkActions && (
         <div className='ml-auto flex items-center gap-2'>
-          <span className='text-sm text-pedie-muted'>
+          <span className='text-sm text-pedie-text-muted'>
             {selectedCount} selected
           </span>
           {bulkActions.map(action => (
@@ -89,7 +89,7 @@ export function DataTableToolbar({
               key={action.label}
               type='button'
               onClick={action.onClick}
-              className='rounded bg-pedie-primary px-3 py-1.5 text-sm text-white hover:opacity-90'
+              className='rounded bg-pedie-green px-3 py-1.5 text-sm text-white hover:opacity-90'
             >
               {action.label}
             </button>

@@ -54,7 +54,7 @@ export function AdminSidebar() {
               aria-current={isActive(item.href) ? 'page' : undefined}
               className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors ${
                 isActive(item.href)
-                  ? 'bg-pedie-primary text-white'
+                  ? 'bg-pedie-green text-white'
                   : 'text-pedie-text hover:bg-pedie-card-hover'
               }`}
             >
@@ -75,7 +75,7 @@ export function AdminSidebar() {
               aria-current={isActive(item.href) ? 'page' : undefined}
               className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm transition-colors ${
                 isActive(item.href)
-                  ? 'bg-pedie-primary text-white'
+                  ? 'bg-pedie-green text-white'
                   : 'text-pedie-text hover:bg-pedie-card-hover'
               }`}
             >

@@ -19,7 +19,7 @@ export function DataTablePagination({
 }: DataTablePaginationProps) {
   return (
     <div className='flex items-center justify-between px-2 py-4'>
-      <div className='flex items-center gap-2 text-sm text-pedie-muted'>
+      <div className='flex items-center gap-2 text-sm text-pedie-text-muted'>
         <span>Rows per page</span>
         <select
           value={perPage}
@@ -35,7 +35,7 @@ export function DataTablePagination({
         </select>
       </div>
       <div className='flex items-center gap-2'>
-        <span className='text-sm text-pedie-muted'>
+        <span className='text-sm text-pedie-text-muted'>
           Page {currentPage} of {totalPages || 1}
         </span>
         <button

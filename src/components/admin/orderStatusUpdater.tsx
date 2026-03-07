@@ -81,7 +81,7 @@ export function OrderStatusUpdater({
           type='button'
           onClick={handleSubmit}
           disabled={loading || status === currentStatus}
-          className='rounded bg-pedie-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50'
+          className='rounded bg-pedie-green px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50'
         >
           {loading ? 'Updating…' : 'Update'}
         </button>

@@ -26,6 +26,19 @@
   --color-pedie-badge-premium: #a855f7;
   --color-pedie-discount: #ef4444;
 
+  /* Status colors */
+  --color-pedie-success: #16a34a;
+  --color-pedie-success-bg: #f0fdf4;
+  --color-pedie-error: #dc2626;
+  --color-pedie-error-bg: #fef2f2;
+  --color-pedie-warning: #d97706;
+  --color-pedie-warning-bg: #fffbeb;
+  --color-pedie-info: #2563eb;
+  --color-pedie-info-bg: #eff6ff;
+
+  /* Surface variants */
+  --color-pedie-sunken: #f3f4f6;
+
   /* Glass tokens */
   --color-pedie-glass: rgba(255, 255, 255, 0.7);
   --color-pedie-glass-border: rgba(255, 255, 255, 0.2);
@@ -44,6 +57,16 @@
   --color-pedie-border: #2a2e3a;
   --color-pedie-text: #e8e8ed;
   --color-pedie-text-muted: #9ca3af;
+
+  --color-pedie-success: #4ade80;
+  --color-pedie-success-bg: rgba(22, 163, 74, 0.1);
+  --color-pedie-error: #f87171;
+  --color-pedie-error-bg: rgba(220, 38, 38, 0.1);
+  --color-pedie-warning: #fbbf24;
+  --color-pedie-warning-bg: rgba(217, 119, 6, 0.1);
+  --color-pedie-info: #60a5fa;
+  --color-pedie-info-bg: rgba(37, 99, 235, 0.1);
+  --color-pedie-sunken: #1a1d27;
 
   --color-pedie-glass: rgba(15, 17, 23, 0.7);
   --color-pedie-glass-border: rgba(255, 255, 255, 0.08);

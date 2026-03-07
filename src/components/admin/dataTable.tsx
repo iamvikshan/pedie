@@ -60,7 +60,7 @@ export function DataTable<TData, TValue>({
                 {headerGroup.headers.map(header => (
                   <th
                     key={header.id}
-                    className='px-4 py-3 font-medium text-pedie-muted'
+                    className='px-4 py-3 font-medium text-pedie-text-muted'
                     scope='col'
                     aria-sort={
                       header.column.getIsSorted() === 'asc'
@@ -104,7 +104,7 @@ export function DataTable<TData, TValue>({
               <tr>
                 <td
                   colSpan={columns.length}
-                  className='px-4 py-8 text-center text-pedie-muted'
+                  className='px-4 py-8 text-center text-pedie-text-muted'
                 >
                   No results found.
                 </td>

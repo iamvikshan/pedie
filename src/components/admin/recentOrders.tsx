@@ -22,17 +22,25 @@ export function RecentOrders({ orders }: RecentOrdersProps) {
         Recent Orders
       </h2>
       {orders.length === 0 ? (
-        <p className='text-pedie-muted'>No orders yet.</p>
+        <p className='text-pedie-text-muted'>No orders yet.</p>
       ) : (
         <div className='overflow-x-auto'>
           <table className='w-full text-left text-sm'>
             <thead>
               <tr className='border-b border-pedie-border'>
-                <th className='pb-2 font-medium text-pedie-muted'>Order ID</th>
-                <th className='pb-2 font-medium text-pedie-muted'>Customer</th>
-                <th className='pb-2 font-medium text-pedie-muted'>Status</th>
-                <th className='pb-2 font-medium text-pedie-muted'>Total</th>
-                <th className='pb-2 font-medium text-pedie-muted'>Date</th>
+                <th className='pb-2 font-medium text-pedie-text-muted'>
+                  Order ID
+                </th>
+                <th className='pb-2 font-medium text-pedie-text-muted'>
+                  Customer
+                </th>
+                <th className='pb-2 font-medium text-pedie-text-muted'>
+                  Status
+                </th>
+                <th className='pb-2 font-medium text-pedie-text-muted'>
+                  Total
+                </th>
+                <th className='pb-2 font-medium text-pedie-text-muted'>Date</th>
               </tr>
             </thead>
             <tbody>
@@ -54,7 +62,7 @@ export function RecentOrders({ orders }: RecentOrdersProps) {
                     <td className='py-2'>
                       <Link
                         href={`/admin/orders/${id}`}
-                        className='text-pedie-primary hover:underline'
+                        className='text-pedie-green hover:underline'
                       >
                         {id.slice(0, 8)}…
                       </Link>
@@ -68,7 +76,7 @@ export function RecentOrders({ orders }: RecentOrdersProps) {
                       </span>
                     </td>
                     <td className='py-2 text-pedie-text'>{formatKes(total)}</td>
-                    <td className='py-2 text-pedie-muted'>{date}</td>
+                    <td className='py-2 text-pedie-text-muted'>{date}</td>
                   </tr>
                 )
               })}

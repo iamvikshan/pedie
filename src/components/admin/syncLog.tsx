@@ -45,7 +45,7 @@ export function SyncLog({ logs }: SyncLogProps) {
   if (logs.length === 0) {
     return (
       <div className='rounded-lg border border-pedie-border bg-pedie-card p-4'>
-        <p className='text-sm text-pedie-muted'>No sync history yet.</p>
+        <p className='text-sm text-pedie-text-muted'>No sync history yet.</p>
       </div>
     )
   }
@@ -55,18 +55,24 @@ export function SyncLog({ logs }: SyncLogProps) {
       <table className='w-full text-left text-sm'>
         <thead>
           <tr className='border-b border-pedie-border bg-pedie-card'>
-            <th className='px-4 py-3 font-medium text-pedie-muted'>
+            <th className='px-4 py-3 font-medium text-pedie-text-muted'>
               Triggered By
             </th>
-            <th className='px-4 py-3 font-medium text-pedie-muted'>Status</th>
-            <th className='px-4 py-3 font-medium text-pedie-muted'>
+            <th className='px-4 py-3 font-medium text-pedie-text-muted'>
+              Status
+            </th>
+            <th className='px-4 py-3 font-medium text-pedie-text-muted'>
               Rows Synced
             </th>
-            <th className='px-4 py-3 font-medium text-pedie-muted'>Errors</th>
-            <th className='px-4 py-3 font-medium text-pedie-muted'>
+            <th className='px-4 py-3 font-medium text-pedie-text-muted'>
+              Errors
+            </th>
+            <th className='px-4 py-3 font-medium text-pedie-text-muted'>
               Started At
             </th>
-            <th className='px-4 py-3 font-medium text-pedie-muted'>Duration</th>
+            <th className='px-4 py-3 font-medium text-pedie-text-muted'>
+              Duration
+            </th>
           </tr>
         </thead>
         <tbody>

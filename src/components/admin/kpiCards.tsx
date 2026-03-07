@@ -48,7 +48,7 @@ export function KpiCards({ stats }: KpiCardsProps) {
         >
           <div className='flex items-center gap-2'>
             <span className='text-2xl'>{kpi.icon}</span>
-            <span className='text-sm text-pedie-muted'>{kpi.label}</span>
+            <span className='text-sm text-pedie-text-muted'>{kpi.label}</span>
           </div>
           <p className='mt-2 text-2xl font-bold text-pedie-text'>
             {kpi.format(stats[kpi.key] ?? 0)}

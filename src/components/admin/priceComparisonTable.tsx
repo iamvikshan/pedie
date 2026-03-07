@@ -27,10 +27,10 @@ export function PriceComparisonTable({
   if (comparisons.length === 0) {
     return (
       <div className='rounded-lg border border-pedie-border bg-pedie-card p-8 text-center'>
-        <p className='text-pedie-muted'>
+        <p className='text-pedie-text-muted'>
           No price comparison data available yet.
         </p>
-        <p className='mt-2 text-sm text-pedie-muted'>
+        <p className='mt-2 text-sm text-pedie-text-muted'>
           Price data will appear here once the crawlers have run.
         </p>
       </div>
@@ -49,7 +49,7 @@ export function PriceComparisonTable({
               {product.productName}
             </h3>
             {product.pediePriceKes !== null && (
-              <p className='text-sm text-pedie-muted'>
+              <p className='text-sm text-pedie-text-muted'>
                 Pedie price: {formatKes(product.pediePriceKes)}
               </p>
             )}
@@ -57,16 +57,18 @@ export function PriceComparisonTable({
           <table className='w-full text-left text-sm'>
             <thead>
               <tr className='border-b border-pedie-border bg-pedie-card'>
-                <th className='px-4 py-2 font-medium text-pedie-muted'>
+                <th className='px-4 py-2 font-medium text-pedie-text-muted'>
                   Competitor
                 </th>
-                <th className='px-4 py-2 font-medium text-pedie-muted'>
+                <th className='px-4 py-2 font-medium text-pedie-text-muted'>
                   Price
                 </th>
-                <th className='px-4 py-2 font-medium text-pedie-muted'>
+                <th className='px-4 py-2 font-medium text-pedie-text-muted'>
                   Margin
                 </th>
-                <th className='px-4 py-2 font-medium text-pedie-muted'>Link</th>
+                <th className='px-4 py-2 font-medium text-pedie-text-muted'>
+                  Link
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -88,7 +90,7 @@ export function PriceComparisonTable({
                         competitorPriceKes={comp.priceKes}
                       />
                     ) : (
-                      <span className='text-pedie-muted'>—</span>
+                      <span className='text-pedie-text-muted'>—</span>
                     )}
                   </td>
                   <td className='px-4 py-2'>
@@ -102,7 +104,7 @@ export function PriceComparisonTable({
                         View ↗
                       </a>
                     ) : (
-                      <span className='text-pedie-muted'>—</span>
+                      <span className='text-pedie-text-muted'>—</span>
                     )}
                   </td>
                 </tr>

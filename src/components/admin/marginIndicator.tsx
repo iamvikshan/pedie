@@ -8,7 +8,7 @@ export function MarginIndicator({
   competitorPriceKes,
 }: MarginIndicatorProps) {
   if (competitorPriceKes <= 0) {
-    return <span className='text-pedie-muted'>—</span>
+    return <span className='text-pedie-text-muted'>—</span>
   }
 
   const diff = competitorPriceKes - pediePriceKes

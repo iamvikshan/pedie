@@ -5,17 +5,19 @@
 - Keep modules cohesive, reusable, and easy to share without creating needless file sprawl.
 - Breaking changes are acceptable in this repo. Remove dead code instead of adding backward-compatibility or deprecation layers.
 
+```yaml
 tooling:
 pm: bun
 format: bun run f
-lint: bun lint
-typecheck: bunx tsc --noEmit
+lint: bun lint # to save time, this is substituted by `bun check` for a combined lint + typecheck pass
+typecheck: bunx tsc --noEmit # see `bun check` above
 test: bun test
 build: bun run build
 fileNaming: camelCase (files/modules/components) | PascalCase (component exports) | tests under tests/
 iconLib: react-icons/tb
 
 plan directory: .zeus/plans
+```
 
 ## Stack
 
@@ -35,6 +37,8 @@ plan directory: .zeus/plans
 - Prefer `bun check` when you want the repo's combined lint + typecheck pass.
 - Use `bun run build` for production validation when a task requires a build check.
 - Update `docs/DESIGN.md` and `docs/product-architecture.md` when architecture, UI patterns, or major data-flow assumptions change.
+- temporary files and experiments can be placed in `.temp/`, but should be removed when the experiment is done or the temporary file is no longer needed. Do not add new long-term code to `.temp/`.
+- For database schema changes, update the Supabase schema through MCP and add a SQL migration to `supabase/migrations/`. Do not change the schema through code or in the Supabase UI without a migration, as that will break the source-of-truth and cause issues for other developers.
 
 ## Naming, structure, and types
 
@@ -43,6 +47,7 @@ plan directory: .zeus/plans
 - Shared and app-wide types always live in `types/` and are imported through `@app-types/*`, not scattered through `src/`.
 - Database types must be regenerated from Supabase after schema changes.
 - Route code lives in the Next.js App Router under `src/app`, including route groups such as `(store)`, `(auth)`, `(admin)`, and `(account)`.
+- useful styles from reebelo.com are stored in `.temp/reebelo/styles`, for reference.
 
 ## Path aliases
 

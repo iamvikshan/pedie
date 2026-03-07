@@ -53,7 +53,7 @@ export function SyncStatus() {
       <div className='flex items-center justify-between'>
         <div>
           <h3 className='font-medium text-pedie-text'>Google Sheets Sync</h3>
-          <p className='text-sm text-pedie-muted'>
+          <p className='text-sm text-pedie-text-muted'>
             Sync product inventory from Google Sheets
           </p>
         </div>
@@ -61,7 +61,7 @@ export function SyncStatus() {
           type='button'
           onClick={handleSync}
           disabled={loading}
-          className='rounded bg-pedie-primary px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50'
+          className='rounded bg-pedie-green px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50'
         >
           {loading ? 'Syncing…' : 'Sync Now'}
         </button>
