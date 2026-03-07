@@ -22,29 +22,8 @@ TL;DR: Audit-driven centralization of the Pedie design system -- fix broken toke
 1. **[x] Phase 1: Fix Broken + Add Missing Tokens**
    - **Changes from plan:** Found 12 files with pedie-primary (vs 8 expected) and 11 with bare pedie-muted (vs 9 expected) -- all fixed. Tests strengthened after review to validate tokens in both @theme and .dark blocks separately.
 
-2. **[ ] Phase 2: Create Shared UI Primitives**
-   - **Objective:** Build the missing reusable primitives that the audit identified as duplicated inline across many files.
-   - **Files/Functions:**
-     - `src/components/ui/input.tsx` -- Input component with storefront styling, size variants
-     - `src/components/ui/select.tsx` -- Select component matching Input styling
-     - `src/components/ui/badge.tsx` -- Badge component with status/condition/sale variants and semantic token colors
-     - `src/components/ui/alert.tsx` -- Alert component for success/error/warning/info feedback
-     - `src/components/ui/spinner.tsx` -- Loading spinner component
-     - `src/components/ui/emptyState.tsx` -- Empty state component with icon, title, description
-   - **Tests to Write:**
-     - Component render tests for each new primitive (Input, Select, Badge, Alert, Spinner, EmptyState)
-     - Variant tests for Badge (status variants use semantic tokens)
-     - Variant tests for Alert (success/error/warning/info)
-   - **Quality Gates:** bun run f -> bun lint -> bunx tsc --noEmit -> bun test
-   - **Steps:**
-     1. Write failing component tests for all 6 primitives
-     2. Implement Input with consistent styling (rounded-lg, border-pedie-border, focus ring)
-     3. Implement Select matching Input styling
-     4. Implement Badge with configurable variants (status, condition, sale, discount, info)
-     5. Implement Alert for form feedback (success, error, warning, info)
-     6. Implement Spinner (replace inline SVG spinner)
-     7. Implement EmptyState (icon + title + description pattern)
-     8. Run quality gates
+2. **[x] Phase 2: Create Shared UI Primitives**
+   - **Changes from plan:** Used `Omit<..., 'size'>` on Input/Select to resolve HTML size attribute conflict. Added DOM attribute passthrough to Badge/Alert/Spinner/EmptyState after review. 52 tests total (vs ~30 planned).
 
 3. **[ ] Phase 3: Eliminate Duplicates**
    - **Objective:** Remove dead code and merge duplicate components to reduce surface area.
