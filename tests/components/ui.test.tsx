@@ -7,6 +7,12 @@ import { Badge } from '@components/ui/badge'
 import { Alert } from '@components/ui/alert'
 import { Spinner } from '@components/ui/spinner'
 import { EmptyState } from '@components/ui/emptyState'
+import { GoogleIcon } from '@components/ui/googleIcon'
+import { StepIndicator } from '@components/ui/stepIndicator'
+import {
+  CheckboxFilterGroup,
+  PriceRangeFilter,
+} from '@components/ui/filterGroup'
 
 // ---------------------------------------------------------------------------
 // Input
@@ -429,5 +435,181 @@ describe('EmptyState', () => {
     )
     const el = screen.getByTestId('empty')
     expect(el.id).toBe('empty-state')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// GoogleIcon
+// ---------------------------------------------------------------------------
+describe('GoogleIcon', () => {
+  test('renders with aria-hidden', () => {
+    const { container } = render(<GoogleIcon />)
+    const svg = container.querySelector('svg')
+    expect(svg).not.toBeNull()
+    expect(svg?.getAttribute('aria-hidden')).toBe('true')
+  })
+
+  test('applies className prop', () => {
+    const { container } = render(<GoogleIcon className='w-6 h-6' />)
+    const svg = container.querySelector('svg')
+    expect(svg?.getAttribute('class')).toContain('w-6')
+  })
+
+  test('renders four colored paths', () => {
+    const { container } = render(<GoogleIcon />)
+    const paths = container.querySelectorAll('path')
+    expect(paths.length).toBe(4)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// StepIndicator
+// ---------------------------------------------------------------------------
+describe('StepIndicator', () => {
+  const steps = [
+    { key: 'a', label: 'Step A' },
+    { key: 'b', label: 'Step B' },
+    { key: 'c', label: 'Step C' },
+  ]
+
+  test('renders all step labels', () => {
+    render(<StepIndicator steps={steps} currentIndex={0} />)
+    expect(screen.getByText('Step A')).toBeInTheDocument()
+    expect(screen.getByText('Step B')).toBeInTheDocument()
+    expect(screen.getByText('Step C')).toBeInTheDocument()
+  })
+
+  test('marks completed steps with check icon', () => {
+    const { container } = render(
+      <StepIndicator steps={steps} currentIndex={2} />
+    )
+    // Steps 0 and 1 are completed (index < currentIndex), should have TbCheck svg
+    // The check icons have aria-hidden
+    const circles = container.querySelectorAll('.rounded-full')
+    // First two should have SVG (check), third should have number "3"
+    expect(circles[0]?.querySelector('svg')).not.toBeNull()
+    expect(circles[1]?.querySelector('svg')).not.toBeNull()
+    expect(circles[2]?.textContent).toBe('3')
+  })
+
+  test('marks future steps as muted', () => {
+    const { container } = render(
+      <StepIndicator steps={steps} currentIndex={0} />
+    )
+    const circles = container.querySelectorAll('.rounded-full')
+    // Step 0 is current (green), steps 1 and 2 are future (muted)
+    expect(circles[0]?.className).toContain('bg-pedie-green')
+    expect(circles[1]?.className).toContain('bg-pedie-border')
+    expect(circles[2]?.className).toContain('bg-pedie-border')
+  })
+
+  test('current step shows number not check', () => {
+    render(<StepIndicator steps={steps} currentIndex={1} />)
+    const circles = document.querySelectorAll('.rounded-full')
+    // Current step (index 1) shows number "2"
+    expect(circles[1]?.textContent).toBe('2')
+  })
+
+  test('applies className prop', () => {
+    const { container } = render(
+      <StepIndicator steps={steps} currentIndex={0} className='my-indicator' />
+    )
+    expect(container.firstElementChild?.className).toContain('my-indicator')
+  })
+})
+
+// ---------------------------------------------------------------------------
+// CheckboxFilterGroup
+// ---------------------------------------------------------------------------
+describe('CheckboxFilterGroup', () => {
+  const options = [
+    { value: 'apple', label: 'Apple', count: 5 },
+    { value: 'samsung', label: 'Samsung', count: 3 },
+  ]
+
+  test('renders title and options', () => {
+    render(
+      <CheckboxFilterGroup
+        title='Brand'
+        options={options}
+        selected={[]}
+        onChange={() => {}}
+      />
+    )
+    expect(screen.getByText('Brand')).toBeInTheDocument()
+    expect(screen.getByText('Apple')).toBeInTheDocument()
+    expect(screen.getByText('Samsung')).toBeInTheDocument()
+  })
+
+  test('renders counts when provided', () => {
+    render(
+      <CheckboxFilterGroup
+        title='Brand'
+        options={options}
+        selected={[]}
+        onChange={() => {}}
+      />
+    )
+    expect(screen.getByText('(5)')).toBeInTheDocument()
+    expect(screen.getByText('(3)')).toBeInTheDocument()
+  })
+
+  test('checks selected options', () => {
+    render(
+      <CheckboxFilterGroup
+        title='Brand'
+        options={options}
+        selected={['apple']}
+        onChange={() => {}}
+      />
+    )
+    const checkboxes = screen.getAllByRole('checkbox')
+    expect((checkboxes[0] as HTMLInputElement).checked).toBe(true)
+    expect((checkboxes[1] as HTMLInputElement).checked).toBe(false)
+  })
+})
+
+// ---------------------------------------------------------------------------
+// PriceRangeFilter
+// ---------------------------------------------------------------------------
+describe('PriceRangeFilter', () => {
+  test('renders min and max inputs', () => {
+    render(
+      <PriceRangeFilter
+        min='100'
+        max='500'
+        onMinChange={() => {}}
+        onMaxChange={() => {}}
+      />
+    )
+    expect(screen.getByPlaceholderText('Min')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Max')).toBeInTheDocument()
+  })
+
+  test('renders title', () => {
+    render(
+      <PriceRangeFilter
+        min=''
+        max=''
+        onMinChange={() => {}}
+        onMaxChange={() => {}}
+      />
+    )
+    expect(screen.getByText('Price Range')).toBeInTheDocument()
+  })
+
+  test('shows current values', () => {
+    render(
+      <PriceRangeFilter
+        min='100'
+        max='500'
+        onMinChange={() => {}}
+        onMaxChange={() => {}}
+      />
+    )
+    const minInput = screen.getByPlaceholderText('Min') as HTMLInputElement
+    const maxInput = screen.getByPlaceholderText('Max') as HTMLInputElement
+    expect(minInput.value).toBe('100')
+    expect(maxInput.value).toBe('500')
   })
 })

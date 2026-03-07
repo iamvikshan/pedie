@@ -82,3 +82,36 @@ describe('Design System Tokens', () => {
     expect(violations).toEqual([])
   })
 })
+
+describe('Phase 3: Dead Code Elimination', () => {
+  test('footerNewsletterForm is not imported anywhere', () => {
+    const allFiles = walkFiles(join(ROOT, 'src')).filter(f =>
+      /\.(tsx?|jsx?)$/.test(f)
+    )
+    const violations: string[] = []
+    for (const file of allFiles) {
+      const content = readFileSync(file, 'utf-8')
+      if (
+        content.includes('footerNewsletterForm') ||
+        content.includes('FooterNewsletterForm')
+      ) {
+        violations.push(file.replace(ROOT + '/', ''))
+      }
+    }
+    expect(violations).toEqual([])
+  })
+
+  test('no component file contains inline Google SVG (except googleIcon.tsx)', () => {
+    // Build the search string dynamically to avoid the test itself matching grep checks
+    const googleSvgSnippet = ['M22', '.56 12', '.25'].join('')
+    const violations: string[] = []
+    for (const file of componentFiles()) {
+      if (file.endsWith('googleIcon.tsx')) continue
+      const content = readFileSync(file, 'utf-8')
+      if (content.includes(googleSvgSnippet)) {
+        violations.push(file.replace(ROOT + '/', ''))
+      }
+    }
+    expect(violations).toEqual([])
+  })
+})

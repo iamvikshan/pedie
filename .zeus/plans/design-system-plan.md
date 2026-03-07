@@ -25,27 +25,8 @@ TL;DR: Audit-driven centralization of the Pedie design system -- fix broken toke
 2. **[x] Phase 2: Create Shared UI Primitives**
    - **Changes from plan:** Used `Omit<..., 'size'>` on Input/Select to resolve HTML size attribute conflict. Added DOM attribute passthrough to Badge/Alert/Spinner/EmptyState after review. 52 tests total (vs ~30 planned).
 
-3. **[ ] Phase 3: Eliminate Duplicates**
-   - **Objective:** Remove dead code and merge duplicate components to reduce surface area.
-   - **Files/Functions:**
-     - Delete `src/components/layout/footerNewsletterForm.tsx` (confirmed dead code)
-     - Merge `src/components/skeletons/productFamilyCardSkeleton.tsx` into a re-export of `productCardSkeleton.tsx`
-     - Extract `src/components/ui/googleIcon.tsx` from duplicated inline SVG in signinForm + signupForm
-     - Consolidate `src/components/ui/stepIndicator.tsx` from checkout/checkoutSteps + orders/statusTimeline
-     - Merge `src/components/search/filterSidebar.tsx` filter logic with `src/components/catalog/filterSidebar.tsx`
-   - **Tests to Write:**
-     - Source analysis test: verify `footerNewsletterForm` is not imported anywhere
-     - Component test for GoogleIcon
-     - Component test for StepIndicator with completed/active/upcoming states
-   - **Quality Gates:** bun run f -> bun lint -> bunx tsc --noEmit -> bun test
-   - **Steps:**
-     1. Write failing tests for new shared components
-     2. Delete dead code (footerNewsletterForm)
-     3. Merge identical skeletons
-     4. Extract GoogleIcon, update signinForm + signupForm
-     5. Create StepIndicator, refactor checkoutSteps + statusTimeline
-     6. Consolidate filter sidebar logic
-     7. Run quality gates
+3. **[x] Phase 3: Eliminate Duplicates**
+   - **Changes from plan:** Filter sidebar consolidation scoped to extracting shared sub-components (CheckboxFilterGroup, PriceRangeFilter) rather than full merge -- full adoption deferred to Phase 4. Google SVG test uses dynamically-built string to avoid false grep matches.
 
 4. **[ ] Phase 4: Adopt Primitives + Fix Deviations**
    - **Objective:** Replace all inline patterns with shared primitives across all 90+ components. Fix hardcoded colors, normalize border-radius, replace inline SVGs with react-icons/tb.

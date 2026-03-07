@@ -1,6 +1,7 @@
 'use client'
 
 import type { ProductFamily } from '@app-types/product'
+import { EmptyState } from '@components/ui/emptyState'
 import { ProductFamilyCard } from '@components/ui/productFamilyCard'
 import { TbSearch } from 'react-icons/tb'
 
@@ -11,19 +12,11 @@ interface ProductFamilyGridProps {
 export function ProductFamilyGrid({ families }: ProductFamilyGridProps) {
   if (families.length === 0) {
     return (
-      <div className='flex flex-col items-center justify-center py-16 px-4 text-center bg-pedie-card rounded-xl border border-pedie-border'>
-        <TbSearch
-          className='w-16 h-16 text-pedie-text-muted mb-4'
-          aria-hidden='true'
-        />
-        <h3 className='text-xl font-semibold text-pedie-text mb-2'>
-          No products found
-        </h3>
-        <p className='text-pedie-text-muted max-w-md'>
-          We couldn&apos;t find any products matching your current filters. Try
-          adjusting or clearing some filters to see more results.
-        </p>
-      </div>
+      <EmptyState
+        icon={TbSearch}
+        title='No products found'
+        description="We couldn't find any products matching your current filters. Try adjusting or clearing some filters to see more results."
+      />
     )
   }
 
