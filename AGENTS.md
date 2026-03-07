@@ -1,53 +1,68 @@
-# AGENTS.md — Pedie Storefront
+# Pedie agent instructions
 
-## Environment
+- Follow the active phase plan when one is provided. Treat files under `.zeus/plans` as the scope boundary unless the task explicitly expands it.
+- Prefer little code that does more. Reach for mature packages instead of reinventing common solutions.
+- Keep modules cohesive, reusable, and easy to share without creating needless file sprawl.
+- Breaking changes are acceptable in this repo. Remove dead code instead of adding backward-compatibility or deprecation layers.
 
-- **Stage**: Development — breaking changes are welcome. No backward compatibility required; dead code will be removed.
-- **Runtime**: Bun ≥ 1.3 — **NEVER** use `node`, `npm`, or `npx`. Always use `bun` / `bunx`.
-- **Framework**: Next.js 16 (App Router, Turbopack)
-- **Language**: TypeScript 5.9 (strict)
-- **Styling**: Tailwind CSS 4.2 with `@theme` tokens in `src/app/globals.css`
-- **DB**: Supabase (SSR + RLS). Schema changes via Supabase MCP migrations.
-
-## Tooling
-
-```yaml
 tooling:
-  pm: bun
-  install: bun install
-  dev: bun dev
-  build: bun run build
-  check: bun check # eslint + tsc --noEmit (runs BOTH — never run lint/typecheck separately)
-  format: bun run f # prettier on git-changed files only (fast); use `bun f:all` for full repo
-  test: bun test # bun's built-in test runner
-  seed: bun seed # scripts/seed.ts
-  syncsheets: bun syncsheets # scripts/sheets.ts — Google Sheets ↔ DB sync
-  crawl: bun crawl # scripts/crawlers/index.ts
-```
+pm: bun
+format: bun run f
+lint: bun lint
+typecheck: bunx tsc --noEmit
+test: bun test
+build: bun run build
+fileNaming: camelCase (files/modules/components) | PascalCase (component exports) | tests under tests/
+iconLib: react-icons/tb
 
-## Quality Gate Workflow
+plan directory: .zeus/plans
 
-Run these in order after every change:
+## Stack
 
-1. **Format changed files**: `bun run f`
-2. **Lint + Typecheck**: `bun check`
-3. **Tests**: `bun test`
+- Bun
+- Next.js App Router (`src/app`)
+- TypeScript
+- Tailwind CSS
+- Framer Motion
+- `react-icons/tb`
+- Supabase SSR + RLS
+- Google Sheets sync
 
-Do **not** run `bun f:all` (formats entire repo — slow and noisy). Use `bun run f` instead. That script only formats files with uncommitted changes via `git diff`.
+## Workflow rules
 
-## Conventions
+- Use the canonical commands from the `tooling` block above.
+- Do not run `bun f:all`. Use `bun run f` instead because it formats only changed files.
+- Prefer `bun check` when you want the repo's combined lint + typecheck pass.
+- Use `bun run build` for production validation when a task requires a build check.
+- Update `docs/DESIGN.md` and `docs/product-architecture.md` when architecture, UI patterns, or major data-flow assumptions change.
 
-- **Testing pattern**: Two approaches depending on what's being tested:
-  - **DOM tests** (preferred for UI components): Use `@testing-library/react` with `happy-dom` (preloaded via `bunfig.toml`). Render components with `render()`, query with `screen.getByRole/getByText`, assert with jest-dom matchers (`toBeInTheDocument`, `toHaveAttribute`). Shared mocks in `tests/utils.tsx`.
-  - **Source-analysis** (for config, CSS, imports, page structure): Read source files with `readFileSync` and assert on string patterns. Use when testing non-rendering concerns (file imports, Tailwind classes, metadata).
-  - **Logic/Mock** (for data fetching, API routes, utilities): Test business logic with mocked dependencies via `mock.module()`. No DOM needed.
-  - Test runner: `bun test`. DOM globals (window, document) are always available via happy-dom preload.
-- **DB schema changes**: Always apply via Supabase MCP migrations. After any schema change, verify the sync system still works (`bun syncsheets`).
-- **Docs**: Keep `docs/DESIGN.md` and `docs/product-architecture.md` up to date when changes affect architecture or UI patterns.
-- **Path aliases**: `@components/*`, `@data/*`, `@app-types/*`, `@helpers`, `@lib/*`, `@/config` — defined in `tsconfig.json`.
-- **Design tokens**: Use `pedie-*` tokens from `globals.css`. Key tokens: `pedie-green`, `pedie-bg`, `pedie-card`, `pedie-surface`, `pedie-border`, `pedie-text`, `pedie-text-muted`. Note: `pedie-muted` does NOT exist.
-- **Breaking changes**: Welcome. This is a dev environment. Do not add backward-compat shims or deprecation layers — remove dead code directly.
+## Naming, structure, and types
 
-## Plan Directory
+- File, module, and component filenames use camelCase. Component exports use PascalCase.
+- Keep tests under `tests/`.
+- Shared and app-wide types always live in `types/` and are imported through `@app-types/*`, not scattered through `src/`.
+- Database types must be regenerated from Supabase after schema changes.
+- Route code lives in the Next.js App Router under `src/app`, including route groups such as `(store)`, `(auth)`, `(admin)`, and `(account)`.
 
-All agent plans go in `plans/`.
+## Path aliases
+
+- `@/*` -> `src/*`
+- `@components/*` -> `src/components/*`
+- `@data/*` -> `src/lib/data/*`
+- `@app-types/*` -> `types/*`
+- `@helpers` -> `src/helpers`
+- `@helpers/*` -> `src/helpers/*`
+- `@lib/*` -> `src/lib/*`
+- `@/config` resolves to `src/config` through the general `@/*` alias
+
+## Data, schema, and sync safety
+
+- Supabase is the source of truth for schema work. Schema changes must go through Supabase MCP and a checked-in SQL migration in `supabase/migrations/`.
+- Preserve SSR and RLS assumptions when changing auth, data access, or database-facing code.
+- If the database is seeded, fields are added, or DB-related code changes, the Google Sheets sync must still hold. Verify with `bun syncsheets` when the change touches that flow.
+
+## Testing conventions
+
+- DOM tests use Testing Library with happy-dom and shared mocks/utilities from `tests/utils.tsx`.
+- Source-analysis tests are appropriate for config, CSS, imports, and page structure.
+- Logic and mock-heavy tests should use `mock.module()` for business logic plus API/data code.
