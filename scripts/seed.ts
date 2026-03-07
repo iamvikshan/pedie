@@ -14,7 +14,7 @@ const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
 
 if (!supabaseUrl || !serviceRoleKey) {
   console.error(
-    '❌ Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env'
+    'Missing NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY in .env'
   )
   process.exit(1)
 }
@@ -30,6 +30,7 @@ interface CategorySeed {
   name: string
   slug: string
   description?: string
+  icon?: string
   sort_order: number
   image_url?: string
   parent_slug?: string
@@ -41,12 +42,14 @@ const categories: CategorySeed[] = [
     name: 'Electronics',
     slug: 'electronics',
     description: 'All electronic devices and accessories',
+    icon: 'TbDevices',
     sort_order: 0,
   },
   // Top-level (children of Electronics)
   {
     name: 'Smartphones',
     slug: 'smartphones',
+    icon: 'TbDeviceMobile',
     sort_order: 1,
     image_url: '/images/categories/smartphones.svg',
     parent_slug: 'electronics',
@@ -54,6 +57,7 @@ const categories: CategorySeed[] = [
   {
     name: 'Laptops',
     slug: 'laptops',
+    icon: 'TbDeviceLaptop',
     sort_order: 2,
     image_url: '/images/categories/laptops.svg',
     parent_slug: 'electronics',
@@ -61,6 +65,7 @@ const categories: CategorySeed[] = [
   {
     name: 'Tablets',
     slug: 'tablets',
+    icon: 'TbDeviceTablet',
     sort_order: 3,
     image_url: '/images/categories/tablets.svg',
     parent_slug: 'electronics',
@@ -68,6 +73,7 @@ const categories: CategorySeed[] = [
   {
     name: 'Wearables',
     slug: 'wearables',
+    icon: 'TbDeviceWatch',
     sort_order: 4,
     image_url: '/images/categories/wearables.svg',
     parent_slug: 'electronics',
@@ -75,6 +81,7 @@ const categories: CategorySeed[] = [
   {
     name: 'Accessories',
     slug: 'accessories',
+    icon: 'TbPlug',
     sort_order: 5,
     image_url: '/images/categories/accessories.svg',
     parent_slug: 'electronics',
@@ -83,6 +90,7 @@ const categories: CategorySeed[] = [
     name: 'Audio',
     slug: 'audio',
     description: 'Audio equipment and accessories',
+    icon: 'TbHeadphones',
     sort_order: 6,
     parent_slug: 'electronics',
   },
@@ -91,6 +99,7 @@ const categories: CategorySeed[] = [
     name: 'Desktop Computers',
     slug: 'desktop-computers',
     description: 'Desktop PCs and all-in-ones',
+    icon: 'TbDeviceDesktop',
     sort_order: 7,
     parent_slug: 'electronics',
   },
@@ -98,6 +107,7 @@ const categories: CategorySeed[] = [
     name: 'Portable Power Banks',
     slug: 'portable-power-banks',
     description: 'Portable battery packs and power stations',
+    icon: 'TbBattery',
     sort_order: 8,
     parent_slug: 'electronics',
   },
@@ -105,6 +115,7 @@ const categories: CategorySeed[] = [
     name: 'Cameras',
     slug: 'cameras',
     description: 'Digital cameras and action cameras',
+    icon: 'TbCamera',
     sort_order: 9,
     parent_slug: 'electronics',
   },
@@ -112,6 +123,7 @@ const categories: CategorySeed[] = [
     name: 'Gaming',
     slug: 'gaming',
     description: 'Gaming consoles, handhelds, and gaming accessories',
+    icon: 'TbDeviceGamepad2',
     sort_order: 10,
     image_url: '/images/categories/gaming.svg',
     parent_slug: 'electronics',
@@ -120,6 +132,7 @@ const categories: CategorySeed[] = [
     name: 'Camera Accessories',
     slug: 'camera-accessories',
     description: 'Lenses, tripods, and camera gear',
+    icon: 'TbCameraPlus',
     sort_order: 11,
     parent_slug: 'electronics',
   },
@@ -127,6 +140,7 @@ const categories: CategorySeed[] = [
     name: 'VR Headsets',
     slug: 'vr-headsets',
     description: 'Virtual reality headsets',
+    icon: 'TbDeviceVisionPro',
     sort_order: 12,
     parent_slug: 'electronics',
   },
@@ -305,15 +319,89 @@ const categories: CategorySeed[] = [
 ]
 
 // ---------------------------------------------------------------------------
+// Brands
+// ---------------------------------------------------------------------------
+interface BrandSeed {
+  name: string
+  slug: string
+  logo_url?: string
+  website_url?: string
+  sort_order: number
+}
+
+const brands: BrandSeed[] = [
+  {
+    name: 'Apple',
+    slug: 'apple',
+    website_url: 'https://apple.com',
+    sort_order: 0,
+  },
+  {
+    name: 'Samsung',
+    slug: 'samsung',
+    website_url: 'https://samsung.com',
+    sort_order: 1,
+  },
+  {
+    name: 'Google',
+    slug: 'google',
+    website_url: 'https://store.google.com',
+    sort_order: 2,
+  },
+  {
+    name: 'Lenovo',
+    slug: 'lenovo',
+    website_url: 'https://lenovo.com',
+    sort_order: 3,
+  },
+  {
+    name: 'Nintendo',
+    slug: 'nintendo',
+    website_url: 'https://nintendo.com',
+    sort_order: 4,
+  },
+  {
+    name: 'Sony',
+    slug: 'sony',
+    website_url: 'https://sony.com',
+    sort_order: 5,
+  },
+  {
+    name: 'Valve',
+    slug: 'valve',
+    website_url: 'https://store.steampowered.com',
+    sort_order: 6,
+  },
+  {
+    name: 'Microsoft',
+    slug: 'microsoft',
+    website_url: 'https://xbox.com',
+    sort_order: 7,
+  },
+  { name: 'JBL', slug: 'jbl', website_url: 'https://jbl.com', sort_order: 8 },
+  {
+    name: 'GoPro',
+    slug: 'gopro',
+    website_url: 'https://gopro.com',
+    sort_order: 9,
+  },
+  {
+    name: 'Canon',
+    slug: 'canon',
+    website_url: 'https://canon.com',
+    sort_order: 10,
+  },
+]
+
+// ---------------------------------------------------------------------------
 // Products
 // ---------------------------------------------------------------------------
 interface ProductSeed {
-  brand: string
-  model: string
+  brand_slug: string
+  name: string
   slug: string
   category_slug: string
   description: string
-  original_price_kes: number
   key_features: string[]
   specs: Record<string, string>
   images?: string[]
@@ -322,13 +410,12 @@ interface ProductSeed {
 const products: ProductSeed[] = [
   // Smartphones
   {
-    brand: 'Apple',
-    model: 'iPhone 16 Pro Max',
+    brand_slug: 'apple',
+    name: 'iPhone 16 Pro Max',
     slug: 'apple-iphone-16-pro-max',
     category_slug: 'smartphones',
     description:
       'Latest flagship with A18 Pro chip, 48MP camera system, and titanium design.',
-    original_price_kes: 250000,
     images: [
       'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/apple-iphone-16-pro-max.svg',
     ],
@@ -347,13 +434,12 @@ const products: ProductSeed[] = [
     },
   },
   {
-    brand: 'Apple',
-    model: 'iPhone 15 Pro',
+    brand_slug: 'apple',
+    name: 'iPhone 15 Pro',
     slug: 'apple-iphone-15-pro',
     category_slug: 'smartphones',
     description:
       'Pro-level performance with A17 Pro chip and advanced camera system.',
-    original_price_kes: 195000,
     images: [
       'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/apple-iphone-15-pro.svg',
     ],
@@ -372,13 +458,12 @@ const products: ProductSeed[] = [
     },
   },
   {
-    brand: 'Apple',
-    model: 'iPhone 14',
+    brand_slug: 'apple',
+    name: 'iPhone 14',
     slug: 'apple-iphone-14',
     category_slug: 'smartphones',
     description:
       'Reliable everyday iPhone with A15 Bionic and excellent camera.',
-    original_price_kes: 130000,
     images: [
       'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/apple-iphone-14.svg',
     ],
@@ -396,13 +481,12 @@ const products: ProductSeed[] = [
     },
   },
   {
-    brand: 'Apple',
-    model: 'iPhone 13',
+    brand_slug: 'apple',
+    name: 'iPhone 13',
     slug: 'apple-iphone-13',
     category_slug: 'smartphones',
     description:
       'Great value with A15 Bionic chip, dual cameras, and all-day battery.',
-    original_price_kes: 95000,
     images: [
       'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/apple-iphone-13.svg',
     ],
@@ -420,13 +504,12 @@ const products: ProductSeed[] = [
     },
   },
   {
-    brand: 'Samsung',
-    model: 'Galaxy S24 Ultra',
+    brand_slug: 'samsung',
+    name: 'Galaxy S24 Ultra',
     slug: 'samsung-galaxy-s24-ultra',
     category_slug: 'smartphones',
     description:
       'Samsung flagship with Galaxy AI, S Pen, and 200MP camera system.',
-    original_price_kes: 220000,
     images: [
       'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/samsung-galaxy-s24-ultra.svg',
     ],
@@ -445,13 +528,12 @@ const products: ProductSeed[] = [
     },
   },
   {
-    brand: 'Samsung',
-    model: 'Galaxy S23',
+    brand_slug: 'samsung',
+    name: 'Galaxy S23',
     slug: 'samsung-galaxy-s23',
     category_slug: 'smartphones',
     description:
       'Compact flagship with Snapdragon 8 Gen 2, 50MP camera, and all-day battery.',
-    original_price_kes: 130000,
     images: [
       'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/samsung-galaxy-s23.svg',
     ],
@@ -469,12 +551,11 @@ const products: ProductSeed[] = [
     },
   },
   {
-    brand: 'Samsung',
-    model: 'Galaxy S22',
+    brand_slug: 'samsung',
+    name: 'Galaxy S22',
     slug: 'samsung-galaxy-s22',
     category_slug: 'smartphones',
     description: 'Previous gen flagship at excellent value.',
-    original_price_kes: 95000,
     images: [
       'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/samsung-galaxy-s22.svg',
     ],
@@ -492,12 +573,11 @@ const products: ProductSeed[] = [
     },
   },
   {
-    brand: 'Google',
-    model: 'Pixel 8 Pro',
+    brand_slug: 'google',
+    name: 'Pixel 8 Pro',
     slug: 'google-pixel-8-pro',
     category_slug: 'smartphones',
     description: 'Google AI-powered phone with best-in-class camera.',
-    original_price_kes: 155000,
     images: [
       'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/google-pixel-8-pro.svg',
     ],
@@ -516,12 +596,11 @@ const products: ProductSeed[] = [
     },
   },
   {
-    brand: 'Google',
-    model: 'Pixel 7a',
+    brand_slug: 'google',
+    name: 'Pixel 7a',
     slug: 'google-pixel-7a',
     category_slug: 'smartphones',
     description: 'Affordable Pixel experience with flagship camera features.',
-    original_price_kes: 65000,
     images: [
       'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/google-pixel-7a.svg',
     ],
@@ -535,13 +614,12 @@ const products: ProductSeed[] = [
   },
   // Laptops
   {
-    brand: 'Apple',
-    model: 'MacBook Air M2',
+    brand_slug: 'apple',
+    name: 'MacBook Air M2',
     slug: 'apple-macbook-air-m2',
     category_slug: 'laptops',
     description:
       'Ultra-thin and light laptop with M2 chip for all-day productivity.',
-    original_price_kes: 180000,
     images: [
       'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/apple-macbook-air-m2.svg',
     ],
@@ -560,13 +638,12 @@ const products: ProductSeed[] = [
     },
   },
   {
-    brand: 'Apple',
-    model: 'MacBook Pro 14" M3 Pro',
+    brand_slug: 'apple',
+    name: 'MacBook Pro 14" M3 Pro',
     slug: 'apple-macbook-pro-14-m3-pro',
     category_slug: 'laptops',
     description:
       'Professional-grade laptop with M3 Pro chip for demanding workflows.',
-    original_price_kes: 320000,
     images: [
       'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/apple-macbook-pro-14-m3-pro.svg',
     ],
@@ -585,13 +662,12 @@ const products: ProductSeed[] = [
     },
   },
   {
-    brand: 'Lenovo',
-    model: 'ThinkPad X1 Carbon Gen 11',
+    brand_slug: 'lenovo',
+    name: 'ThinkPad X1 Carbon Gen 11',
     slug: 'lenovo-thinkpad-x1-carbon-gen-11',
     category_slug: 'laptops',
     description:
       'Business ultrabook with Intel 13th Gen and legendary ThinkPad keyboard.',
-    original_price_kes: 250000,
     images: [
       'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/lenovo-thinkpad-x1-carbon-gen-11.svg',
     ],
@@ -610,13 +686,12 @@ const products: ProductSeed[] = [
   },
   // Tablets
   {
-    brand: 'Apple',
-    model: 'iPad Air M2',
+    brand_slug: 'apple',
+    name: 'iPad Air M2',
     slug: 'apple-ipad-air-m2',
     category_slug: 'tablets',
     description:
       'Versatile tablet with M2 chip, Apple Pencil Pro support, and stunning display.',
-    original_price_kes: 110000,
     images: [
       'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/apple-ipad-air-m2.svg',
     ],
@@ -635,13 +710,12 @@ const products: ProductSeed[] = [
     },
   },
   {
-    brand: 'Apple',
-    model: 'iPad 10th Gen',
+    brand_slug: 'apple',
+    name: 'iPad 10th Gen',
     slug: 'apple-ipad-10th-gen',
     category_slug: 'tablets',
     description:
       'Affordable iPad with A14 Bionic and modern all-screen design.',
-    original_price_kes: 60000,
     images: [
       'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/apple-ipad-10th-gen.svg',
     ],
@@ -660,13 +734,12 @@ const products: ProductSeed[] = [
     },
   },
   {
-    brand: 'Samsung',
-    model: 'Galaxy Tab S9',
+    brand_slug: 'samsung',
+    name: 'Galaxy Tab S9',
     slug: 'samsung-galaxy-tab-s9',
     category_slug: 'tablets',
     description:
       'Premium Android tablet with S Pen and stunning AMOLED display.',
-    original_price_kes: 115000,
     images: [
       'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/samsung-galaxy-tab-s9.svg',
     ],
@@ -685,13 +758,12 @@ const products: ProductSeed[] = [
   },
   // Wearables
   {
-    brand: 'Apple',
-    model: 'Apple Watch Series 9',
+    brand_slug: 'apple',
+    name: 'Apple Watch Series 9',
     slug: 'apple-watch-series-9',
     category_slug: 'wearables',
     description:
       'Smartwatch with S9 SiP, Double Tap gesture, and health monitoring.',
-    original_price_kes: 65000,
     images: [
       'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/apple-watch-series-9.svg',
     ],
@@ -710,13 +782,12 @@ const products: ProductSeed[] = [
     },
   },
   {
-    brand: 'Samsung',
-    model: 'Galaxy Watch 6',
+    brand_slug: 'samsung',
+    name: 'Galaxy Watch 6',
     slug: 'samsung-galaxy-watch-6',
     category_slug: 'wearables',
     description:
       'Wear OS smartwatch with BIA sensor and comprehensive health tracking.',
-    original_price_kes: 45000,
     images: [
       'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/samsung-galaxy-watch-6.svg',
     ],
@@ -736,13 +807,12 @@ const products: ProductSeed[] = [
   },
   // Accessories
   {
-    brand: 'Apple',
-    model: 'AirPods Pro 2',
+    brand_slug: 'apple',
+    name: 'AirPods Pro 2',
     slug: 'apple-airpods-pro-2',
     category_slug: 'accessories',
     description:
       'Premium earbuds with adaptive noise cancellation and USB-C case.',
-    original_price_kes: 40000,
     images: [
       'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/apple-airpods-pro-2.svg',
     ],
@@ -760,13 +830,12 @@ const products: ProductSeed[] = [
     },
   },
   {
-    brand: 'Samsung',
-    model: 'Galaxy Buds3 Pro',
+    brand_slug: 'samsung',
+    name: 'Galaxy Buds3 Pro',
     slug: 'samsung-galaxy-buds3-pro',
     category_slug: 'accessories',
     description:
       'Premium earbuds with Galaxy AI-enhanced audio and blade design.',
-    original_price_kes: 32000,
     images: [
       'https://opygpszamajcdujoslob.supabase.co/storage/v1/object/public/product-images/samsung-galaxy-buds3-pro.svg',
     ],
@@ -786,13 +855,12 @@ const products: ProductSeed[] = [
   },
   // Gaming
   {
-    brand: 'Nintendo',
-    model: 'Switch OLED',
+    brand_slug: 'nintendo',
+    name: 'Switch OLED',
     slug: 'nintendo-switch-oled',
     category_slug: 'gaming',
     description:
       'Hybrid gaming console with vibrant 7-inch OLED screen and versatile play modes.',
-    original_price_kes: 55000,
     key_features: [
       '7" OLED screen',
       'Tabletop/TV/Handheld modes',
@@ -808,13 +876,12 @@ const products: ProductSeed[] = [
     },
   },
   {
-    brand: 'Sony',
-    model: 'PlayStation 5 Slim',
+    brand_slug: 'sony',
+    name: 'PlayStation 5 Slim',
     slug: 'sony-playstation-5-slim',
     category_slug: 'gaming',
     description:
       'Compact PS5 with 1TB SSD, 4K gaming, and DualSense controller.',
-    original_price_kes: 85000,
     key_features: [
       'Custom AMD Zen 2 CPU',
       '4K/120fps gaming',
@@ -830,13 +897,12 @@ const products: ProductSeed[] = [
     },
   },
   {
-    brand: 'Valve',
-    model: 'Steam Deck OLED',
+    brand_slug: 'valve',
+    name: 'Steam Deck OLED',
     slug: 'valve-steam-deck-oled',
     category_slug: 'gaming',
     description:
       'Handheld PC gaming device with gorgeous HDR OLED display and full Steam library access.',
-    original_price_kes: 75000,
     key_features: [
       '7.4" HDR OLED',
       'AMD APU (Zen 2 + RDNA 2)',
@@ -852,13 +918,12 @@ const products: ProductSeed[] = [
     },
   },
   {
-    brand: 'Microsoft',
-    model: 'Xbox Series X',
+    brand_slug: 'microsoft',
+    name: 'Xbox Series X',
     slug: 'microsoft-xbox-series-x',
     category_slug: 'gaming',
     description:
       'Most powerful Xbox with 4K gaming, Quick Resume, and Game Pass support.',
-    original_price_kes: 80000,
     key_features: [
       '12 TFLOPS GPU',
       '4K/120fps',
@@ -875,13 +940,12 @@ const products: ProductSeed[] = [
   },
   // Audio
   {
-    brand: 'Sony',
-    model: 'WH-1000XM5',
+    brand_slug: 'sony',
+    name: 'WH-1000XM5',
     slug: 'sony-wh-1000xm5',
     category_slug: 'audio',
     description:
       'Industry-leading noise cancellation headphones with exceptional sound quality.',
-    original_price_kes: 55000,
     key_features: [
       'Best-in-class ANC',
       '30hr battery',
@@ -897,13 +961,12 @@ const products: ProductSeed[] = [
     },
   },
   {
-    brand: 'JBL',
-    model: 'Flip 6',
+    brand_slug: 'jbl',
+    name: 'Flip 6',
     slug: 'jbl-flip-6',
     category_slug: 'audio',
     description:
       'Portable Bluetooth speaker with bold sound, IP67 waterproof rating, and 12-hour battery.',
-    original_price_kes: 18000,
     key_features: [
       'IP67 waterproof/dustproof',
       '12hr battery',
@@ -919,13 +982,12 @@ const products: ProductSeed[] = [
     },
   },
   {
-    brand: 'Apple',
-    model: 'AirPods Max',
+    brand_slug: 'apple',
+    name: 'AirPods Max',
     slug: 'apple-airpods-max',
     category_slug: 'audio',
     description:
       'Premium over-ear headphones with Apple H1 chip, ANC, and Spatial Audio.',
-    original_price_kes: 90000,
     key_features: [
       'Apple H1 chip',
       'Active Noise Cancellation',
@@ -942,13 +1004,12 @@ const products: ProductSeed[] = [
   },
   // Cameras
   {
-    brand: 'GoPro',
-    model: 'HERO12 Black',
+    brand_slug: 'gopro',
+    name: 'HERO12 Black',
     slug: 'gopro-hero12-black',
     category_slug: 'cameras',
     description:
       'Ultimate action camera with 5.3K video, HyperSmooth 6.0, and 10-bit color.',
-    original_price_kes: 65000,
     key_features: [
       '5.3K60 video',
       'HyperSmooth 6.0',
@@ -964,13 +1025,12 @@ const products: ProductSeed[] = [
     },
   },
   {
-    brand: 'Canon',
-    model: 'EOS R50',
+    brand_slug: 'canon',
+    name: 'EOS R50',
     slug: 'canon-eos-r50',
     category_slug: 'cameras',
     description:
       'Compact mirrorless camera ideal for content creators with 4K video and eye-tracking AF.',
-    original_price_kes: 110000,
     key_features: [
       '24.2MP APS-C sensor',
       '4K 30fps video',
@@ -997,13 +1057,15 @@ interface ListingSeed {
   condition: 'acceptable' | 'good' | 'excellent' | 'premium'
   battery_health: number
   price_kes: number
-  original_price_usd: number
+  cost_kes?: number
+  sale_price_kes?: number
   source: string
   listing_type?: 'standard' | 'affiliate'
-  status?: 'available' | 'onsale'
-  final_price_kes?: number
   ram?: string
   source_url?: string
+  notes?: string[]
+  includes?: string[]
+  warranty_months?: number
 }
 
 const listings: ListingSeed[] = [
@@ -1015,10 +1077,9 @@ const listings: ListingSeed[] = [
     condition: 'excellent',
     battery_health: 97,
     price_kes: 195000,
-    original_price_usd: 1099,
+    cost_kes: 164301,
+    sale_price_kes: 169000,
     source: 'swappa',
-    status: 'onsale',
-    final_price_kes: 169000,
   },
   {
     product_slug: 'apple-iphone-16-pro-max',
@@ -1027,7 +1088,7 @@ const listings: ListingSeed[] = [
     condition: 'premium',
     battery_health: 100,
     price_kes: 225000,
-    original_price_usd: 1299,
+    cost_kes: 194201,
     source: 'backmarket',
   },
   // iPhone 15 Pro
@@ -1038,10 +1099,9 @@ const listings: ListingSeed[] = [
     condition: 'good',
     battery_health: 90,
     price_kes: 135000,
-    original_price_usd: 899,
+    cost_kes: 134401,
+    sale_price_kes: 115000,
     source: 'swappa',
-    status: 'onsale',
-    final_price_kes: 115000,
   },
   {
     product_slug: 'apple-iphone-15-pro',
@@ -1050,7 +1110,7 @@ const listings: ListingSeed[] = [
     condition: 'excellent',
     battery_health: 94,
     price_kes: 145000,
-    original_price_usd: 799,
+    cost_kes: 119451,
     source: 'backmarket',
   },
   // iPhone 14
@@ -1061,9 +1121,9 @@ const listings: ListingSeed[] = [
     condition: 'good',
     battery_health: 88,
     price_kes: 82000,
-    original_price_usd: 599,
+    cost_kes: 89551,
+    sale_price_kes: 74000,
     source: 'backmarket',
-    final_price_kes: 74000,
   },
   {
     product_slug: 'apple-iphone-14',
@@ -1072,7 +1132,7 @@ const listings: ListingSeed[] = [
     condition: 'acceptable',
     battery_health: 82,
     price_kes: 75000,
-    original_price_usd: 699,
+    cost_kes: 104501,
     source: 'swappa',
   },
   // iPhone 13
@@ -1083,9 +1143,9 @@ const listings: ListingSeed[] = [
     condition: 'good',
     battery_health: 85,
     price_kes: 58000,
-    original_price_usd: 429,
+    cost_kes: 64136,
+    sale_price_kes: 52000,
     source: 'backmarket',
-    final_price_kes: 52000,
   },
   {
     product_slug: 'apple-iphone-13',
@@ -1094,7 +1154,7 @@ const listings: ListingSeed[] = [
     condition: 'excellent',
     battery_health: 92,
     price_kes: 68000,
-    original_price_usd: 529,
+    cost_kes: 79086,
     source: 'swappa',
   },
   // Galaxy S24 Ultra
@@ -1105,9 +1165,9 @@ const listings: ListingSeed[] = [
     condition: 'excellent',
     battery_health: 96,
     price_kes: 168000,
-    original_price_usd: 1099,
+    cost_kes: 164301,
+    sale_price_kes: 149000,
     source: 'swappa',
-    final_price_kes: 149000,
   },
   {
     product_slug: 'samsung-galaxy-s24-ultra',
@@ -1116,7 +1176,7 @@ const listings: ListingSeed[] = [
     condition: 'premium',
     battery_health: 100,
     price_kes: 198000,
-    original_price_usd: 1299,
+    cost_kes: 194201,
     source: 'backmarket',
   },
   // Galaxy S23
@@ -1127,7 +1187,7 @@ const listings: ListingSeed[] = [
     condition: 'good',
     battery_health: 89,
     price_kes: 78000,
-    original_price_usd: 599,
+    cost_kes: 89551,
     source: 'backmarket',
   },
   // Galaxy S22
@@ -1138,7 +1198,7 @@ const listings: ListingSeed[] = [
     condition: 'acceptable',
     battery_health: 82,
     price_kes: 52000,
-    original_price_usd: 399,
+    cost_kes: 59651,
     source: 'swappa',
   },
   // Pixel 8 Pro
@@ -1149,7 +1209,7 @@ const listings: ListingSeed[] = [
     condition: 'excellent',
     battery_health: 95,
     price_kes: 105000,
-    original_price_usd: 749,
+    cost_kes: 111976,
     source: 'swappa',
   },
   {
@@ -1159,7 +1219,7 @@ const listings: ListingSeed[] = [
     condition: 'good',
     battery_health: 90,
     price_kes: 98000,
-    original_price_usd: 849,
+    cost_kes: 126926,
     source: 'backmarket',
   },
   // Pixel 7a
@@ -1170,7 +1230,7 @@ const listings: ListingSeed[] = [
     condition: 'good',
     battery_health: 91,
     price_kes: 38000,
-    original_price_usd: 349,
+    cost_kes: 52176,
     source: 'swappa',
   },
   // MacBook Air M2
@@ -1181,7 +1241,7 @@ const listings: ListingSeed[] = [
     condition: 'excellent',
     battery_health: 94,
     price_kes: 125000,
-    original_price_usd: 899,
+    cost_kes: 134401,
     source: 'backmarket',
     ram: '8GB',
   },
@@ -1192,7 +1252,7 @@ const listings: ListingSeed[] = [
     condition: 'good',
     battery_health: 88,
     price_kes: 138000,
-    original_price_usd: 1099,
+    cost_kes: 164301,
     source: 'swappa',
     ram: '8GB',
   },
@@ -1204,7 +1264,7 @@ const listings: ListingSeed[] = [
     condition: 'premium',
     battery_health: 99,
     price_kes: 275000,
-    original_price_usd: 1799,
+    cost_kes: 268951,
     source: 'backmarket',
     ram: '18GB',
   },
@@ -1216,7 +1276,7 @@ const listings: ListingSeed[] = [
     condition: 'good',
     battery_health: 87,
     price_kes: 165000,
-    original_price_usd: 1399,
+    cost_kes: 209151,
     source: 'backmarket',
     ram: '16GB',
   },
@@ -1228,7 +1288,7 @@ const listings: ListingSeed[] = [
     condition: 'excellent',
     battery_health: 95,
     price_kes: 78000,
-    original_price_usd: 599,
+    cost_kes: 89551,
     source: 'swappa',
   },
   {
@@ -1238,7 +1298,7 @@ const listings: ListingSeed[] = [
     condition: 'good',
     battery_health: 90,
     price_kes: 85000,
-    original_price_usd: 699,
+    cost_kes: 104501,
     source: 'backmarket',
   },
   // iPad 10th Gen
@@ -1249,7 +1309,7 @@ const listings: ListingSeed[] = [
     condition: 'good',
     battery_health: 88,
     price_kes: 38000,
-    original_price_usd: 349,
+    cost_kes: 52176,
     source: 'swappa',
   },
   // Galaxy Tab S9
@@ -1260,7 +1320,7 @@ const listings: ListingSeed[] = [
     condition: 'excellent',
     battery_health: 96,
     price_kes: 82000,
-    original_price_usd: 649,
+    cost_kes: 97026,
     source: 'backmarket',
   },
   // Apple Watch Series 9
@@ -1271,7 +1331,7 @@ const listings: ListingSeed[] = [
     condition: 'excellent',
     battery_health: 97,
     price_kes: 45000,
-    original_price_usd: 329,
+    cost_kes: 49186,
     source: 'swappa',
   },
   // Galaxy Watch 6
@@ -1282,7 +1342,7 @@ const listings: ListingSeed[] = [
     condition: 'good',
     battery_health: 92,
     price_kes: 28000,
-    original_price_usd: 249,
+    cost_kes: 37226,
     source: 'backmarket',
   },
   // AirPods Pro 2
@@ -1293,7 +1353,7 @@ const listings: ListingSeed[] = [
     condition: 'excellent',
     battery_health: 98,
     price_kes: 28000,
-    original_price_usd: 199,
+    cost_kes: 29751,
     source: 'backmarket',
   },
   {
@@ -1303,7 +1363,7 @@ const listings: ListingSeed[] = [
     condition: 'good',
     battery_health: 90,
     price_kes: 22000,
-    original_price_usd: 199,
+    cost_kes: 29751,
     source: 'swappa',
   },
   // Galaxy Buds3 Pro
@@ -1314,7 +1374,7 @@ const listings: ListingSeed[] = [
     condition: 'premium',
     battery_health: 100,
     price_kes: 25000,
-    original_price_usd: 179,
+    cost_kes: 26761,
     source: 'backmarket',
   },
   // Samsung Galaxy S24 Ultra - Affiliate listing
@@ -1325,11 +1385,10 @@ const listings: ListingSeed[] = [
     condition: 'premium',
     battery_health: 100,
     price_kes: 185000,
-    original_price_usd: 1199,
+    cost_kes: 179251,
     source: 'samsung.com',
     source_url: 'https://samsung.com/galaxy-s24-ultra',
     listing_type: 'affiliate',
-    final_price_kes: 185000,
   },
   // Nintendo Switch OLED
   {
@@ -1339,10 +1398,9 @@ const listings: ListingSeed[] = [
     condition: 'excellent',
     battery_health: 95,
     price_kes: 38000,
-    original_price_usd: 299,
+    cost_kes: 44701,
+    sale_price_kes: 33000,
     source: 'swappa',
-    status: 'onsale',
-    final_price_kes: 33000,
   },
   {
     product_slug: 'nintendo-switch-oled',
@@ -1351,7 +1409,7 @@ const listings: ListingSeed[] = [
     condition: 'good',
     battery_health: 88,
     price_kes: 32000,
-    original_price_usd: 299,
+    cost_kes: 44701,
     source: 'backmarket',
   },
   // PlayStation 5 Slim
@@ -1362,10 +1420,9 @@ const listings: ListingSeed[] = [
     condition: 'excellent',
     battery_health: 100,
     price_kes: 62000,
-    original_price_usd: 449,
+    cost_kes: 67126,
+    sale_price_kes: 55000,
     source: 'backmarket',
-    status: 'onsale',
-    final_price_kes: 55000,
   },
   {
     product_slug: 'sony-playstation-5-slim',
@@ -1374,7 +1431,7 @@ const listings: ListingSeed[] = [
     condition: 'good',
     battery_health: 100,
     price_kes: 58000,
-    original_price_usd: 449,
+    cost_kes: 67126,
     source: 'swappa',
   },
   // Steam Deck OLED
@@ -1385,7 +1442,7 @@ const listings: ListingSeed[] = [
     condition: 'excellent',
     battery_health: 96,
     price_kes: 55000,
-    original_price_usd: 449,
+    cost_kes: 67126,
     source: 'swappa',
   },
   {
@@ -1395,9 +1452,9 @@ const listings: ListingSeed[] = [
     condition: 'premium',
     battery_health: 100,
     price_kes: 72000,
-    original_price_usd: 549,
+    cost_kes: 82076,
+    sale_price_kes: 65000,
     source: 'backmarket',
-    final_price_kes: 65000,
   },
   // Xbox Series X
   {
@@ -1407,7 +1464,7 @@ const listings: ListingSeed[] = [
     condition: 'excellent',
     battery_health: 100,
     price_kes: 58000,
-    original_price_usd: 449,
+    cost_kes: 67126,
     source: 'backmarket',
   },
   // Sony WH-1000XM5
@@ -1418,10 +1475,9 @@ const listings: ListingSeed[] = [
     condition: 'excellent',
     battery_health: 98,
     price_kes: 38000,
-    original_price_usd: 299,
+    cost_kes: 44701,
+    sale_price_kes: 32000,
     source: 'swappa',
-    status: 'onsale',
-    final_price_kes: 32000,
   },
   {
     product_slug: 'sony-wh-1000xm5',
@@ -1430,7 +1486,7 @@ const listings: ListingSeed[] = [
     condition: 'good',
     battery_health: 92,
     price_kes: 34000,
-    original_price_usd: 299,
+    cost_kes: 44701,
     source: 'backmarket',
   },
   // JBL Flip 6
@@ -1441,7 +1497,7 @@ const listings: ListingSeed[] = [
     condition: 'excellent',
     battery_health: 97,
     price_kes: 12000,
-    original_price_usd: 99,
+    cost_kes: 14801,
     source: 'swappa',
   },
   {
@@ -1451,10 +1507,9 @@ const listings: ListingSeed[] = [
     condition: 'good',
     battery_health: 90,
     price_kes: 10000,
-    original_price_usd: 99,
+    cost_kes: 14801,
+    sale_price_kes: 8500,
     source: 'backmarket',
-    status: 'onsale',
-    final_price_kes: 8500,
   },
   // AirPods Max
   {
@@ -1464,7 +1519,7 @@ const listings: ListingSeed[] = [
     condition: 'excellent',
     battery_health: 95,
     price_kes: 62000,
-    original_price_usd: 449,
+    cost_kes: 67126,
     source: 'backmarket',
   },
   {
@@ -1474,9 +1529,9 @@ const listings: ListingSeed[] = [
     condition: 'good',
     battery_health: 88,
     price_kes: 55000,
-    original_price_usd: 449,
+    cost_kes: 67126,
+    sale_price_kes: 48000,
     source: 'swappa',
-    final_price_kes: 48000,
   },
   // GoPro HERO12 Black
   {
@@ -1486,7 +1541,7 @@ const listings: ListingSeed[] = [
     condition: 'excellent',
     battery_health: 96,
     price_kes: 45000,
-    original_price_usd: 349,
+    cost_kes: 52176,
     source: 'swappa',
   },
   {
@@ -1496,10 +1551,9 @@ const listings: ListingSeed[] = [
     condition: 'good',
     battery_health: 90,
     price_kes: 40000,
-    original_price_usd: 349,
+    cost_kes: 52176,
+    sale_price_kes: 35000,
     source: 'backmarket',
-    status: 'onsale',
-    final_price_kes: 35000,
   },
   // Canon EOS R50
   {
@@ -1509,36 +1563,49 @@ const listings: ListingSeed[] = [
     condition: 'excellent',
     battery_health: 98,
     price_kes: 82000,
-    original_price_usd: 599,
+    cost_kes: 89551,
     source: 'backmarket',
   },
 ]
 
 // ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-let listingCounter = 1000
-
-function generateListingId(): string {
-  listingCounter++
-  return `PD-${String(listingCounter).padStart(5, '0')}`
-}
-
-// ---------------------------------------------------------------------------
 // Seed execution
 // ---------------------------------------------------------------------------
 async function seed() {
-  console.log('🌱 Starting seed...\n')
+  console.log('Starting seed...\n')
 
-  // 1. Insert categories (two passes: roots first, then children)
-  console.log('📁 Inserting categories...')
+  // 1. Insert brands
+  console.log('Inserting brands...')
+  const brandRows = brands.map(b => ({
+    name: b.name,
+    slug: b.slug,
+    logo_url: b.logo_url ?? null,
+    website_url: b.website_url ?? null,
+    sort_order: b.sort_order,
+  }))
 
-  // First pass: insert categories without parents (root nodes + those whose parent_slug is undefined)
+  const { data: brandData, error: brandError } = await supabase
+    .from('brands')
+    .upsert(brandRows, { onConflict: 'slug' })
+    .select('id, slug')
+
+  if (brandError) {
+    console.error('Brands error:', brandError.message)
+    process.exit(1)
+  }
+
+  const brandMap = new Map(brandData.map(b => [b.slug, b.id]))
+  console.log(`  ${brandMap.size} brands inserted`)
+
+  // 2. Insert categories (two passes: roots first, then children)
+  console.log('Inserting categories...')
+
   const rootCategories = categories.filter(c => !c.parent_slug)
   const rootRows = rootCategories.map(c => ({
     name: c.name,
     slug: c.slug,
     description: c.description ?? null,
+    icon: c.icon ?? null,
     sort_order: c.sort_order,
     image_url: c.image_url ?? null,
     parent_id: null,
@@ -1550,14 +1617,12 @@ async function seed() {
     .select('id, slug')
 
   if (rootError) {
-    console.error('❌ Root categories error:', rootError.message)
+    console.error('Root categories error:', rootError.message)
     process.exit(1)
   }
 
   const categoryMap = new Map(rootData.map(c => [c.slug, c.id]))
 
-  // Second pass: insert child categories (resolve parent_slug to parent_id)
-  // Repeat until all are inserted (handles multi-level nesting)
   let remaining = categories.filter(c => c.parent_slug)
   let insertedInPass = true
 
@@ -1571,6 +1636,7 @@ async function seed() {
         name: c.name,
         slug: c.slug,
         description: c.description ?? null,
+        icon: c.icon ?? null,
         sort_order: c.sort_order,
         image_url: c.image_url ?? null,
         parent_id: categoryMap.get(c.parent_slug!) ?? null,
@@ -1582,7 +1648,7 @@ async function seed() {
         .select('id, slug')
 
       if (childError) {
-        console.error('❌ Child categories error:', childError.message)
+        console.error('Child categories error:', childError.message)
         process.exit(1)
       }
 
@@ -1597,27 +1663,31 @@ async function seed() {
 
   if (remaining.length > 0) {
     console.error(
-      '❌ Could not resolve parent for categories:',
+      'Could not resolve parent for categories:',
       remaining.map(c => c.slug)
     )
     process.exit(1)
   }
 
-  console.log(`   ✅ ${categoryMap.size} categories inserted`)
+  console.log(`  ${categoryMap.size} categories inserted`)
 
-  // 2. Insert products
-  console.log('📦 Inserting products...')
-  const productRows = products.map(p => ({
-    brand: p.brand,
-    model: p.model,
-    slug: p.slug,
-    category_id: categoryMap.get(p.category_slug) ?? null,
-    description: p.description,
-    original_price_kes: p.original_price_kes,
-    key_features: p.key_features,
-    specs: p.specs,
-    images: p.images ?? null,
-  }))
+  // 3. Insert products
+  console.log('Inserting products...')
+  const productRows = products.map(p => {
+    const brandId = brandMap.get(p.brand_slug)
+    if (!brandId) {
+      throw new Error(`Brand not found for slug: ${p.brand_slug}`)
+    }
+    return {
+      brand_id: brandId,
+      name: p.name,
+      slug: p.slug,
+      description: p.description,
+      key_features: p.key_features,
+      specs: p.specs,
+      images: p.images ?? [],
+    }
+  })
 
   const { data: prodData, error: prodError } = await supabase
     .from('products')
@@ -1625,67 +1695,100 @@ async function seed() {
     .select('id, slug')
 
   if (prodError) {
-    console.error('❌ Products error:', prodError.message)
+    console.error('Products error:', prodError.message)
     process.exit(1)
   }
-  console.log(`   ✅ ${prodData.length} products inserted`)
+  console.log(`  ${prodData.length} products inserted`)
 
   const productMap = new Map(prodData.map(p => [p.slug, p.id]))
 
-  // 3. Insert listings
-  console.log('🏷️  Inserting listings...')
+  // 4. Insert product_categories
+  console.log('Inserting product categories...')
+  const productCategoryRows = products
+    .map(p => {
+      const productId = productMap.get(p.slug)
+      const categoryId = categoryMap.get(p.category_slug)
+      if (!productId || !categoryId) return null
+      return {
+        product_id: productId,
+        category_id: categoryId,
+        is_primary: true,
+      }
+    })
+    .filter((row): row is NonNullable<typeof row> => row !== null)
+
+  const { error: pcError } = await supabase
+    .from('product_categories')
+    .upsert(productCategoryRows, { onConflict: 'product_id,category_id' })
+
+  if (pcError) {
+    console.error('Product categories error:', pcError.message)
+    process.exit(1)
+  }
+  console.log(`  ${productCategoryRows.length} product categories inserted`)
+
+  // 5. Insert listings (clear existing first for idempotency)
+  console.log('Inserting listings...')
+  await supabase
+    .from('listings')
+    .delete()
+    .neq('id', '00000000-0000-0000-0000-000000000000')
+  await supabase.from('sku_sequences').delete().neq('prefix', '')
   const listingRows = listings.map(l => {
     const productId = productMap.get(l.product_slug)
     if (!productId) {
       throw new Error(`Product not found for slug: ${l.product_slug}`)
     }
     return {
-      listing_id: generateListingId(),
       product_id: productId,
       storage: l.storage,
       color: l.color,
       condition: l.condition,
       battery_health: l.battery_health,
       price_kes: l.price_kes,
-      final_price_kes: l.final_price_kes ?? l.price_kes,
+      sale_price_kes: l.sale_price_kes ?? null,
+      cost_kes: l.cost_kes ?? null,
       listing_type: l.listing_type ?? 'standard',
-      original_price_usd: l.original_price_usd,
-      landed_cost_kes: Math.round(l.original_price_usd * 130 * 1.15),
       source: l.source,
       source_url: l.source_url ?? null,
       ram: l.ram ?? null,
-      status: (l.status ?? 'available') as 'available' | 'onsale',
+      status: 'active' as const,
       is_featured: l.condition === 'premium' || l.condition === 'excellent',
+      notes: l.notes ?? [],
+      includes: l.includes ?? [],
+      warranty_months: l.warranty_months ?? null,
     }
   })
 
   const { data: listData, error: listError } = await supabase
     .from('listings')
-    .upsert(listingRows, { onConflict: 'listing_id' })
+    .insert(listingRows)
     .select('id')
 
   if (listError) {
-    console.error('❌ Listings error:', listError.message)
+    console.error('Listings error:', listError.message)
     process.exit(1)
   }
-  console.log(`   ✅ ${listData.length} listings inserted`)
+  console.log(`  ${listData.length} listings inserted`)
 
-  // 4. Insert newsletter subscriber
-  console.log('📧 Inserting sample newsletter subscriber...')
+  // 6. Insert newsletter subscriber
+  console.log('Inserting sample newsletter subscriber...')
   const { error: newsError } = await supabase
     .from('newsletter_subscribers')
     .upsert([{ email: 'demo@pedie.tech' }], { onConflict: 'email' })
 
   if (newsError) {
-    console.error('❌ Newsletter error:', newsError.message)
+    console.error('Newsletter error:', newsError.message)
   } else {
-    console.log('   ✅ 1 newsletter subscriber inserted')
+    console.log('  1 newsletter subscriber inserted')
   }
 
-  console.log('\n🎉 Seed complete!')
-  console.log(`   Categories: ${categoryMap.size}`)
-  console.log(`   Products:   ${prodData.length}`)
-  console.log(`   Listings:   ${listData.length}`)
+  console.log('\nSeed complete!')
+  console.log(`  Brands:              ${brandMap.size}`)
+  console.log(`  Categories:          ${categoryMap.size}`)
+  console.log(`  Products:            ${prodData.length}`)
+  console.log(`  Product categories:  ${productCategoryRows.length}`)
+  console.log(`  Listings:            ${listData.length}`)
 }
 
 seed().catch(err => {

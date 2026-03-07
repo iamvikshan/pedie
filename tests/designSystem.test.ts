@@ -32,6 +32,11 @@ describe('Design System Tokens', () => {
 
   // Split CSS into @theme (light) and .dark sections for structural validation
   const darkBlockStart = css.indexOf('.dark {')
+  if (darkBlockStart === -1) {
+    throw new Error(
+      'globals.css is missing a ".dark {" block — dark-mode tokens cannot be validated'
+    )
+  }
   const themeBlock = css.slice(0, darkBlockStart)
   const darkBlock = css.slice(darkBlockStart)
 

@@ -61,7 +61,8 @@ Modified (60+ files across all phases):
 - Tests at completion: 1278 (up from 1264 at start of Phase 5, 1178 at project start)
 - All tests passing: Yes
 
-**Recommended Next Steps:**
+`**Recommended Next Steps:**
 - Adopt CheckboxFilterGroup/PriceRangeFilter in catalog/filterSidebar and search/filterSidebar
 - Add Button primitive to remaining styled links (cartSummary checkout link, trustBanner CTA) if they convert from Link to button
 - Consider a dedicated color token for star ratings if pedie-warning feels semantically wrong for stars
+`

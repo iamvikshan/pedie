@@ -1,0 +1,74 @@
+"In the Pedie database glossary, what is the term for a specific buyable unit of an item with a unique SKU and condition?",Listing
+What is the difference between a 'Product' and a 'Listing' in this architecture?,"A Product is the general concept (e.g., iPhone 15), while a Listing is a specific unit for sale (e.g., a specific black iPhone 15)."
+The runtime aggregation of one product plus all its associated listings is referred to as a _____.,ProductFamily
+"In the context of refurbished electronics at Pedie, what is the typical quantity for any single listing?",1
+"Under the `condition_grade` enum, which value represents an item that is factory sealed?",new
+How does the `premium` condition grade differ from the `excellent` grade?,"Premium is like-new with no visible wear, while excellent has minimal wear."
+Which `listing_status` is used for items that are currently held for a pending order?,reserved
+What is the purpose of the `draft` status in the `listing_status` enum?,It indicates the item is being prepared and is not yet visible to customers.
+A listing that links out to an external partner site and cannot be added to the Pedie cart is categorized as which `listing_type`?,affiliate
+Which `listing_type` is used for deposit-based sales with an estimated delivery date?,preorder
+What distinguishes a `flash_sale` from a standard `deal` in the `promotion_type` enum?,A flash sale requires a discount and includes an urgency badge and timer.
+True or False: A `featured` promotion type requires a price discount.,False
+"In the `brands` table, what is the purpose of the `slug` column?",It provides a URL-safe version of the brand name.
+The `categories` table uses a _____ structure where each category has exactly one parent or is a root.,Single-parent tree
+"Which specific column in the `categories` table is used to store the name of a React icon (e.g., 'TbDeviceMobile')?",icon
+What database technique is used in the `get_category_descendants` function to resolve the category tree?,Recursive CTE (Common Table Expression)
+"In the `products` table, what does the `is_active` boolean column represent?",A soft-delete mechanism to hide the product from the storefront.
+Why is the `fts` (Full-Text Search) column in the `products` table maintained by a trigger instead of being a generated column?,Because it must reference the brand name from the separate `brands` table.
+"In the `product_categories` table, what is the purpose of the `is_primary` column?",It identifies the canonical category used for breadcrumbs and primary navigation.
+What type of relationship does the `product_categories` table facilitate between products and categories?,Many-to-many
+"In the `listings` table, which column stores category-specific data like screen size or processor type?",attributes (jsonb)
+How is the effective user-facing price computed if a `sale_price_kes` is present on a listing?,"Using `COALESCE(sale_price_kes, price_kes)`"
+What does the `cost_kes` column in the `listings` table represent?,"The amount Pedie paid for the item (landed cost), which is never shown to users."
+Which segment of the SKU `SWP-APL-IP15P-EXC-001` represents the source of the item?,SWP
+"In the SKU format, what does the code `ACC` stand for in the condition segment?",acceptable
+Which source code is used in a SKU to indicate direct acquisition by Pedie?,PED
+What is the CHECK constraint relationship between `discount_pct` and `discount_amount_kes` in the `promotions` table?,They are mutually exclusive (one must be null if the other is set).
+When is a promotion considered 'active' by the system?,When `is_active` is true AND the current time is between `starts_at` and `ends_at`.
+"In the `profiles` table, which column links the profile to the Supabase internal `auth.users` table?",id
+What is the regular expression requirement for a `username` in the `profiles` table regarding underscores?,No consecutive underscores and no leading or trailing underscores.
+How does the system handle a login attempt that uses a username instead of an email?,It calls the RPC `resolve_username` to find the associated email before performing authentication.
+Why is the `resolve_username` function defined as `SECURITY DEFINER`?,To allow it to perform auth checks without exposing the user's email to the client.
+"In the `orders` table, why are `product_name` and `variant_summary` stored as text instead of just linking to the `listings` ID?",To provide a permanent snapshot of the item details at the time of purchase.
+"Which table is used to track the origin (e.g., Google Sheets row ID) of listings and products?",sync_metadata
+What is the purpose of the `sync_log` table?,"It provides an audit trail for sync operations, including status and errors."
+What is the core function of the `is_admin()` database function in the RLS strategy?,It serves as the single source of truth for checking if the current user has an 'admin' role.
+"Under the RLS strategy, what is the implementation for 'Public read' on the `products` table?",`USING (is_active = true)`
+"In the Google Sheets sync pipeline, how are `Brands` and `Categories` uniquely identified to ensure idempotency?",By their slug.
+"According to the migration notes, what happened to the `listings.carrier` column from the old schema?",It was removed as it is not relevant for the Kenyan market.
+The `wishlist` table enforces uniqueness on which combination of columns?,"`(user_id, product_id)`"
+Which table stores competitor pricing data for future price comparison features?,price_comparisons
+"In the SKU format, the segment `SEQ` refers to a _____.",Sequential number (3+ digits)
+What is the purpose of the `attributes` JSONB column in the `listings` table?,"To store category-specific fields like screen size, processor, or battery health."
+Which trigger is responsible for creating a `profiles` row whenever a new user signs up via `auth.users`?,handle_new_user
+"In the `promotions` table, what happens if both `discount_pct` and `discount_amount_kes` are null?",The item is featured (as a deal or staff pick) without a price change.
+How is the `brands` list ordered in the storefront filters?,By the `sort_order` integer column.
+What is the maximum length for a username in the Pedie system?,20 characters
+Why was `products.original_price_kes` removed from the `products` table in the new schema?,"Because pricing belongs on individual listings, not the product concept."
+"In the `order_items` table, what does `unit_price_kes` record?",The price of the item at the exact time of purchase.
+Which column in the `sync_metadata` table specifically holds the original Google Sheets row data for debugging?,raw_data (jsonb)
+What is the default role assigned to a new user in the `profiles` table?,customer
+"In the `categories` table, what does a `null` value for `parent_id` signify?",The category is a root category.
+The `listing_status` enum value _____ is used for items purchased by a customer.,sold
+Which table contains the `verified_purchase` flag for user-submitted content?,reviews
+The regex for usernames requires that they must start with a _____.,letter
+Which table was dropped because it was a 'dead table' with no rows and no PK?,products_backup
+"In the SKU code for source, what does `JUM` represent?",Jumia
+Which index was added to the `listings` table to handle frequent filtering by item quality?,`listings(condition)`
+What is the purpose of the `idx_products_fts` GIN index?,"To enable fast full-text searching across brand name, product name, and description."
+"In the sync rules, which unique constraint is used to upsert products?","`(brand_id, name)`"
+Which enum type includes the values 'mpesa' and 'paypal'?,payment_method
+What column was renamed to `cost_kes` to simplify the schema?,landed_cost_kes
+"In the `newsletter_subscribers` table, what is the RLS policy for the Public role?",Public INSERT only.
+Which specific promotion type displays a 'Staff Pick' badge on the homepage?,featured
+The `listing_type` value _____ is used for referral-based CTA buttons on WhatsApp.,referral
+True or False: User data such as profiles and orders are synced via Google Sheets.,False
+"In the `profiles` table, which column is used to store structured shipping information?",address (jsonb)
+What is the function of the `update_updated_at()` trigger?,It automatically sets the `updated_at` column to the current timestamp on row updates.
+"In the `orders` table, the column `balance_due_kes` is primarily relevant for which `listing_type`?",preorder
+"What index was removed because it was replaced by the compound index `(status, listing_type)`?",`idx_listings_affiliate`
+"In the `categories` table, what does `is_active = false` achieve?",It hides the category from the navigation menu.
+Which table records the sum of item prices in an order before shipping fees?,subtotal_kes (in the `orders` table)
+"In the glossary, the term for all products and listings collectively (though not a DB entity) is _____.",Catalog
+Which enum value in `condition_grade` denotes an item that is not fully functional and sold for repair?,for_parts
