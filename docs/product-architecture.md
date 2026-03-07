@@ -78,7 +78,7 @@ Cart validation (`src/lib/cart/validation.ts`) blocks `affiliate` and `referral`
 | --------- | ------------------------------------------------------ |
 | Data type | `ProductFamily`                                        |
 | Links to  | `/products/{product.slug}`                             |
-| Shows     | Representative listing's price, condition, storage/RAM |
+| Shows     | Representative listing's price, condition, model name  |
 | Used by   | CustomerFavorites, CategoryShowcase, ProductFamilyGrid |
 
 ### ProductCard
@@ -87,18 +87,63 @@ Cart validation (`src/lib/cart/validation.ts`) blocks `affiliate` and `referral`
 | --------- | ---------------------------------------------------------------- |
 | Data type | `ListingWithProduct`                                             |
 | Links to  | `/listings/{listing.listing_id}` (or external URL for affiliate) |
-| Shows     | Individual listing's price, condition, storage/RAM, type badges  |
+| Shows     | Individual listing's price, condition, type badges, model name   |
 | Used by   | HotDeals, ProductGrid, SimilarListings, DealsPage                |
 
 ### Pricing Display (3-Tier)
 
 Both cards use `getPricingTier()` from `@helpers/pricing`:
 
-| Tier           | Trigger                                    | Visual                                                               |
-| -------------- | ------------------------------------------ | -------------------------------------------------------------------- |
-| **Sale**       | `final < original` AND `status = 'onsale'` | `TbFlame` "Flash Sale" badge, red bold price, strikethrough original |
-| **Discounted** | `final < original` AND `status ≠ 'onsale'` | Accent price + small discount % pill, strikethrough                  |
-| **Normal**     | `final >= original`                        | Single accent price, no discount display                             |
+| Tier           | Trigger                                     | Visual                                                               |
+| -------------- | ------------------------------------------- | -------------------------------------------------------------------- |
+| **Sale**       | `final < original` AND `status = 'onsale'`  | `TbFlame` "Flash Sale" badge, red bold price, strikethrough original |
+| **Discounted** | `final < original` AND `status != 'onsale'` | Accent price + small discount % pill, strikethrough                  |
+| **Normal**     | `final >= original`                         | Single accent price, no discount display                             |
+
+**Card dimensions (Phase 6c):**
+
+- Specs section (storage/RAM) removed from both card types for uniform height
+- Images use `object-contain` to preserve aspect ratio (no cropping/stretching)
+- Price section uses `min-h-[60px]` for consistent card height across pricing tiers
+- All badges retained: Flash Sale, Partner, Referral, ConditionBadge
+
+---
+
+## Category Hierarchy
+
+### Structure
+
+Categories use a parent/child hierarchy with `parent_id` FK:
+
+```
+Electronics (root, hidden from nav)
+  +-- Smartphones
+  +-- Laptops
+  +-- Tablets
+  +-- Accessories
+  +-- Wearables
+  +-- Audio
+  |     +-- Earphones
+  |     +-- Headphones
+  |     +-- Speakers
+  +-- Gaming
+```
+
+"Electronics" is a root category that is **not** shown in navigation — its direct children are the top-level nav items. The `getTopLevelCategories()` function returns only direct children of Electronics.
+
+### Descendant ID Resolution
+
+`getCategoryAndDescendantIds(categoryId)` in `src/lib/data/categories.ts` performs a BFS traversal to collect a parent category and all its descendants. This is used by:
+
+- `getProductFamiliesByCategory()` — fetch products in a category + all subcategories
+- `getListings()` — filter listings by category tree (`.in()` operator, not `.eq()`)
+- `getDealsListings()` — category-filtered deals
+
+The `.in()` fix (replacing `.eq()`) resolved a bug where collection pages for parent categories (e.g., Audio) showed no products because they only checked the parent ID, not descendants.
+
+### Category Tree Building
+
+`getCategoryTree()` builds a `CategoryWithChildren[]` tree used by the mega-menu and sidebar. It groups categories by `parent_id` and recursively constructs the hierarchy.
 
 ---
 
@@ -258,6 +303,9 @@ Product (brand + model)
 | ------------------------- | --------- | -------------------------------------- |
 | `ProductFamilyCard`       | Server    | No interactivity, just links           |
 | `ProductCard`             | Server    | No interactivity, just links           |
+| `MegaMenu`                | Client    | Hover state, mouse leave detection     |
+| `SidebarPanel`            | Client    | Open/close state, portal, scroll lock  |
+| `FooterAccordion`         | Client    | Toggle state, viewport-aware ARIA      |
 | `CustomerFavorites`       | Client    | Tab switching, scroll state            |
 | `HotDeals`                | Client    | Countdown timer, auto-scroll, hover    |
 | `CategoryShowcase`        | Server    | Async data fetching, no client state   |

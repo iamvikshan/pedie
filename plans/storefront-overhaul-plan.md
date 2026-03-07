@@ -346,7 +346,7 @@ Comprehensive overhaul: carousel/brands bugs → category hierarchy with M2M →
      5. Overhaul footer: visible on desktop, collapsed on mobile, fix border/contrast
      6. Run quality gates: `bun run f && bun check && bun test`
 
-7. **[ ] Phase 7: Docs Update**
+7. **[x] Phase 7: Docs Update**
    - **Objective:** Update DESIGN.md and product-architecture.md to capture all changes from Phases 1-6, including the DOM testing transition
    - **Files/Functions to Modify/Create:**
      - `docs/DESIGN.md` — Add: mega-menu pattern, breadcrumbs pattern, SidebarPanel pattern, header stacked-actions pattern, responsive breakpoint strategy (lg: 1024px), new page routes (/shop, /repairs, /trade-in), DOM testing setup (happy-dom + RTL)

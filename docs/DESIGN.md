@@ -23,10 +23,26 @@ Design language reference for [pedie.tech](https://pedie.tech) — a refurbished
 ## Quality Gate
 
 ```bash
-bun f           # prettier --write .
-bun check       # eslint + tsc --noEmit
-bun test        # bun test (source-analysis pattern, NO jsdom)
+bun run f       # prettier on git-changed files only
+bun check       # eslint + tsc --noEmit (runs BOTH)
+bun test        # bun test (happy-dom + @testing-library/react)
 ```
+
+## Testing Setup
+
+| Layer    | Technology                       | Purpose                                           |
+| -------- | -------------------------------- | ------------------------------------------------- |
+| Runner   | `bun test`                       | Built-in test runner                              |
+| DOM      | `happy-dom`                      | Lightweight browser globals (window, document)    |
+| Query    | `@testing-library/react`         | `render()`, `screen`, `getByRole`, etc.           |
+| Matchers | `@testing-library/jest-dom`      | `toBeInTheDocument`, `toHaveAttribute`, etc.      |
+| Preload  | `bunfig.toml` → `tests/setup.ts` | Registers happy-dom globals before all test files |
+
+**Testing patterns:**
+
+- **DOM tests** (preferred for UI): Render components with `render()`, query with `screen.getByRole/getByText`, assert with jest-dom matchers. Shared mocks in `tests/utils.tsx`.
+- **Source-analysis** (for config, CSS, imports): Read source with `readFileSync` and assert on string patterns.
+- **Logic/Mock** (for data fetching, utilities): `mock.module()` with no DOM needed.
 
 ---
 
@@ -109,11 +125,20 @@ Defined in `src/app/globals.css`:
 
 Cards use `getPricingTier(finalPriceKes, priceKes, status)` from `@helpers/pricing`:
 
-| Tier           | Trigger                                    | Visual                                         |
-| -------------- | ------------------------------------------ | ---------------------------------------------- |
-| **Sale**       | `final < original` AND `status = 'onsale'` | Red discount pill, crossed-out price, bold red |
-| **Discounted** | `final < original` AND `status ≠ 'onsale'` | Inline strikethrough + small % pill            |
-| **Normal**     | `final >= original`                        | Single price, no discount display              |
+| Tier           | Trigger                                     | Visual                                         |
+| -------------- | ------------------------------------------- | ---------------------------------------------- |
+| **Sale**       | `final < original` AND `status = 'onsale'`  | Red discount pill, crossed-out price, bold red |
+| **Discounted** | `final < original` AND `status != 'onsale'` | Inline strikethrough + small % pill            |
+| **Normal**     | `final >= original`                         | Single price, no discount display              |
+
+**Card design (Phase 6c):**
+
+- No specs section (storage/RAM removed from cards for uniform height)
+- Images use `object-contain` (preserves aspect ratio, no cropping)
+- Image aspect ratio: `aspect-[3/4]` (portrait)
+- Price section: `min-h-[60px]` for consistent card height across tiers
+- Badges retained: Flash Sale (`TbFlame`), Partner (`TbExternalLink`), Referral (`TbBrandWhatsapp`), ConditionBadge
+- Card radius: `rounded-lg` (8px)
 
 ### Condition Badge
 
@@ -123,6 +148,72 @@ Icon-only with tooltip, uses `ConditionGrade`:
 - `excellent` → `TbDiamond` (green)
 - `good` → `TbThumbUp` (blue)
 - `acceptable` → `TbCircleCheck` (amber)
+
+### Mega-Menu
+
+File: `src/components/layout/megaMenu.tsx` (client component)
+
+Full-width Reebelo-style dropdown panel that appears on category hover in the header. Uses glassmorphism (`bg-pedie-glass backdrop-blur-xl`) with a `grid-cols-2 md:grid-cols-4` subcategory layout inside `pedie-container`.
+
+- Receives `CategoryWithChildren[]` and `activeCategory` slug
+- Displays direct children of the hovered parent category
+- Closes on mouse leave or outside click
+- Constrained inside `pedie-container` for consistent page width
+
+### Breadcrumbs
+
+File: `src/components/ui/breadcrumbs.tsx` (server component)
+
+Rooted at `Shop` instead of `Home` — the logo handles home navigation. Uses `TbChevronRight` separators.
+
+```
+Shop > Category > Product Name
+```
+
+- Root segment always links to `/shop`
+- Last segment is plain text (current page)
+- Wrapped in `<nav aria-label='Breadcrumb'>` for accessibility
+
+### SidebarPanel
+
+File: `src/components/layout/sidebarPanel.tsx` (client component)
+
+Unified mobile/desktop sidebar used for navigation. Features:
+
+- Category list with images from `CATEGORY_IMAGES` map
+- Quick links section (New Arrivals, Best Sellers, Deals, Repairs, Trade-In)
+- User account links (profile, orders, wishlist)
+- Theme toggle integrated
+- Framer Motion `AnimatePresence` for slide-in/out
+- Portal-rendered (`createPortal`) to avoid z-index issues
+- Scroll-locked when open
+
+### FooterAccordion
+
+File: `src/components/layout/footerAccordion.tsx` (client component)
+
+Button-based accordion replacing `<details>/<summary>` for footer link groups. Uses `useSyncExternalStore` to sync with viewport media query — desktop always expanded, mobile collapsed by default.
+
+- `aria-expanded` reflects true state per viewport
+- `aria-hidden` + `inert` on collapsed panels (prevents keyboard focus on hidden links)
+- CSS `max-height` transition for smooth animation
+- Chevron rotation indicator on mobile, hidden on desktop
+
+### Header Stacked Actions
+
+File: `src/components/layout/header.tsx` (client component)
+
+Sticky glass header with `glass-depth` class. Action icons stacked horizontally:
+
+- `ThemeToggle` (sun/moon)
+- `UserMenu` (profile dropdown)
+- `CartButton` (drawer trigger with item count badge)
+
+### Popular Categories
+
+File: `src/components/home/popularCategories.tsx` (server component)
+
+Circular category thumbnails in a responsive grid (`grid-cols-4 md:grid-cols-5 lg:grid-cols-7`). Fixed circle dimensions (`h-20 w-20 md:h-24 md:w-24`, `rounded-full`). Shows all top-level categories from DB with images from `CATEGORY_IMAGES` map.
 
 ### Glassmorphism
 
@@ -200,6 +291,33 @@ Tailwind defaults, mobile-first:
 - `lg:` → 1024px (desktop)
 - `xl:` → 1280px (large desktop)
 
+### Container Strategy
+
+The `.pedie-container` utility class (defined in `globals.css`) provides Reebelo-style responsive containment:
+
+| Breakpoint     | Behavior                      |
+| -------------- | ----------------------------- |
+| Mobile         | 20px horizontal padding       |
+| `sm:` (640px)  | 32px horizontal padding       |
+| `lg:` (1024px) | `max-width: 1024px`, centered |
+| `xl:` (1280px) | `max-width: 1280px`, centered |
+
+Applied globally to all page sections. Exception: Hero banner remains full-bleed.
+
+### Page Routes
+
+| Route                 | File                                          | Purpose                                      |
+| --------------------- | --------------------------------------------- | -------------------------------------------- |
+| `/`                   | `src/app/page.tsx`                            | Homepage                                     |
+| `/shop`               | `src/app/(store)/shop/page.tsx`               | Browse all — category filter + listings grid |
+| `/repairs`            | `src/app/(store)/repairs/page.tsx`            | Repair services page                         |
+| `/trade-in`           | `src/app/(store)/trade-in/page.tsx`           | Trade-in program page                        |
+| `/deals`              | `src/app/(store)/deals/page.tsx`              | Discounted listings                          |
+| `/search`             | `src/app/(store)/search/page.tsx`             | Full-text search                             |
+| `/products/[slug]`    | `src/app/(store)/products/[slug]/page.tsx`    | Product family detail                        |
+| `/listings/[id]`      | `src/app/(store)/listings/[id]/page.tsx`      | Single listing detail                        |
+| `/collections/[slug]` | `src/app/(store)/collections/[slug]/page.tsx` | Category collection                          |
+
 ---
 
 ## Animation Principles
@@ -219,3 +337,6 @@ Tailwind defaults, mobile-first:
 - Focus management: return focus to trigger on close
 - Semantic HTML: `nav`, `main`, `section`, `footer`
 - Hidden elements: use `tabIndex={-1}` and `aria-hidden` when visually hidden
+- Footer accordion: `inert` + `aria-hidden` on collapsed panels (prevents keyboard focus on hidden links)
+- Breadcrumbs: `<nav aria-label='Breadcrumb'>` with semantic `<ol>/<li>`
+- SidebarPanel: scroll lock + focus trap when open, portal-rendered
