@@ -158,7 +158,7 @@ export function Header({
             {/* Deals */}
             <Link
               href='/deals'
-              className='flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-amber-500 hover:text-amber-400 transition-colors'
+              className='flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-pedie-warning hover:opacity-80 transition-colors'
             >
               <TbFlame className='h-5 w-5' />
               Deals

@@ -1,6 +1,9 @@
 'use client'
 
+import { Alert } from '@components/ui/alert'
 import { Button } from '@components/ui/button'
+import { Input } from '@components/ui/input'
+import { Spinner } from '@components/ui/spinner'
 import { formatPhoneForDaraja } from '@lib/payments/mpesa'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
@@ -106,6 +109,9 @@ export function MpesaPayment({
     }
   }, [phone, amount, orderId, onSuccess, onError])
 
+  const messageVariant =
+    status === 'success' ? 'success' : status === 'failed' ? 'error' : 'info'
+
   return (
     <div className='space-y-4'>
       <div>
@@ -115,53 +121,26 @@ export function MpesaPayment({
         >
           M-Pesa Phone Number
         </label>
-        <input
+        <Input
           id='mpesa-phone'
           type='tel'
           placeholder='+254 7XX XXX XXX'
           value={phone}
           onChange={e => setPhone(e.target.value)}
           disabled={status !== 'idle' && status !== 'failed'}
-          className='w-full rounded-lg border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text focus:border-pedie-green focus:outline-none focus:ring-1 focus:ring-pedie-green disabled:opacity-50'
         />
       </div>
 
       {message && (
-        <div
-          className={`rounded-lg p-3 text-sm ${
-            status === 'success'
-              ? 'bg-green-500/10 text-green-400'
-              : status === 'failed'
-                ? 'bg-red-500/10 text-red-400'
-                : 'bg-pedie-green/10 text-pedie-green'
-          }`}
-        >
+        <Alert variant={messageVariant}>
           {status === 'polling' && (
             <div className='flex items-center gap-2'>
-              <svg
-                className='h-4 w-4 animate-spin'
-                viewBox='0 0 24 24'
-                fill='none'
-              >
-                <circle
-                  className='opacity-25'
-                  cx='12'
-                  cy='12'
-                  r='10'
-                  stroke='currentColor'
-                  strokeWidth='4'
-                />
-                <path
-                  className='opacity-75'
-                  fill='currentColor'
-                  d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z'
-                />
-              </svg>
+              <Spinner aria-hidden='true' size='sm' />
               {message}
             </div>
           )}
           {status !== 'polling' && message}
-        </div>
+        </Alert>
       )}
 
       <Button

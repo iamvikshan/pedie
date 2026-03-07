@@ -28,7 +28,7 @@ export function CartSummary() {
         {hasPreorderItems && (
           <>
             <div className='border-t border-pedie-border pt-3'>
-              <div className='flex justify-between text-yellow-400'>
+              <div className='flex justify-between text-pedie-warning'>
                 <span>Deposit Due Now</span>
                 <span>{formatKes(depositTotal)}</span>
               </div>

@@ -1,7 +1,9 @@
 'use client'
 
+import { Alert } from '@components/ui/alert'
 import { Button } from '@components/ui/button'
 import { GoogleIcon } from '@components/ui/googleIcon'
+import { Input } from '@components/ui/input'
 import { createClient } from '@lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -61,7 +63,7 @@ export function SignInForm({ redirectTo }: SignInFormProps) {
       {/* Google Sign In */}
       <button
         onClick={handleGoogleSignIn}
-        className='flex w-full items-center justify-center gap-3 rounded-lg border border-pedie-border bg-white px-4 py-3 text-sm font-medium text-gray-900 hover:bg-gray-50 transition-colors'
+        className='flex w-full items-center justify-center gap-3 rounded-lg border border-pedie-border bg-white px-4 py-3 text-sm font-medium text-pedie-dark hover:bg-pedie-card-hover transition-colors'
       >
         <GoogleIcon />
         Continue with Google
@@ -82,14 +84,14 @@ export function SignInForm({ redirectTo }: SignInFormProps) {
           >
             Email
           </label>
-          <input
+          <Input
             id='email'
             type='email'
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
-            className='w-full rounded-lg border border-pedie-border bg-pedie-card px-4 py-2.5 text-pedie-text placeholder:text-pedie-text-muted focus:border-pedie-green focus:outline-none focus:ring-1 focus:ring-pedie-green'
             placeholder='you@example.com'
+            size='lg'
           />
         </div>
         <div>
@@ -99,19 +101,19 @@ export function SignInForm({ redirectTo }: SignInFormProps) {
           >
             Password
           </label>
-          <input
+          <Input
             id='password'
             type='password'
             value={password}
             onChange={e => setPassword(e.target.value)}
             required
             minLength={6}
-            className='w-full rounded-lg border border-pedie-border bg-pedie-card px-4 py-2.5 text-pedie-text placeholder:text-pedie-text-muted focus:border-pedie-green focus:outline-none focus:ring-1 focus:ring-pedie-green'
             placeholder='••••••••'
+            size='lg'
           />
         </div>
 
-        {error && <p className='text-sm text-red-400'>{error}</p>}
+        {error && <Alert variant='error'>{error}</Alert>}
 
         <Button
           type='submit'

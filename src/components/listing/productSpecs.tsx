@@ -22,7 +22,9 @@ export function ProductSpecs({ specs }: ProductSpecsProps) {
             {Object.entries(specs).map(([key, value], index) => (
               <tr
                 key={key}
-                className={index % 2 === 0 ? 'bg-pedie-card' : 'bg-pedie-dark'}
+                className={
+                  index % 2 === 0 ? 'bg-pedie-card' : 'bg-pedie-sunken'
+                }
               >
                 <td className='px-4 py-3 font-medium text-pedie-text-muted capitalize whitespace-nowrap'>
                   {key.replace(/_/g, ' ')}

@@ -2,8 +2,10 @@
 
 import type { AvailableFilters, ListingFilters } from '@app-types/filters'
 import { Button } from '@components/ui/button'
+import { Input } from '@components/ui/input'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useState } from 'react'
+import { TbChevronRight, TbFilter, TbX } from 'react-icons/tb'
 
 interface FilterSidebarProps {
   availableFilters: AvailableFilters
@@ -83,23 +85,16 @@ function FilterSidebarInner({
       {/* Mobile toggle button */}
       <div className='lg:hidden mb-4'>
         <Button
+          type='button'
           variant='secondary'
           className='w-full flex items-center justify-center gap-2'
           onClick={() => setIsOpen(!isOpen)}
         >
-          <svg
-            className='w-5 h-5'
-            fill='none'
-            stroke='currentColor'
-            viewBox='0 0 24 24'
-          >
-            <path
-              strokeLinecap='round'
-              strokeLinejoin='round'
-              strokeWidth={2}
-              d='M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z'
-            />
-          </svg>
+          {isOpen ? (
+            <TbX className='h-5 w-5' aria-hidden='true' />
+          ) : (
+            <TbFilter className='h-5 w-5' aria-hidden='true' />
+          )}
           {isOpen ? 'Hide Filters' : 'Show Filters'}
         </Button>
       </div>
@@ -138,7 +133,7 @@ function FilterSidebarInner({
                     type='checkbox'
                     checked={(currentFilters.category || []).includes(cat.slug)}
                     onChange={() => handleCategoryChange(cat.slug)}
-                    className='w-4 h-4 rounded border-pedie-border bg-pedie-dark text-pedie-accent focus:ring-pedie-accent'
+                    className='w-4 h-4 rounded border-pedie-border bg-pedie-sunken text-pedie-accent focus:ring-pedie-accent'
                   />
                   <span className='text-pedie-text-muted'>{cat.name}</span>
                   <span className='ml-auto text-xs text-pedie-text-muted'>
@@ -168,7 +163,7 @@ function FilterSidebarInner({
                     onChange={() =>
                       handleCheckboxChange('condition', condition)
                     }
-                    className='w-4 h-4 rounded border-pedie-border bg-pedie-dark text-pedie-accent focus:ring-pedie-accent'
+                    className='w-4 h-4 rounded border-pedie-border bg-pedie-sunken text-pedie-accent focus:ring-pedie-accent'
                   />
                   <span className='text-pedie-text-muted capitalize'>
                     {condition}
@@ -193,7 +188,7 @@ function FilterSidebarInner({
                     type='checkbox'
                     checked={(currentFilters.brand || []).includes(brand)}
                     onChange={() => handleCheckboxChange('brand', brand)}
-                    className='w-4 h-4 rounded border-pedie-border bg-pedie-dark text-pedie-accent focus:ring-pedie-accent'
+                    className='w-4 h-4 rounded border-pedie-border bg-pedie-sunken text-pedie-accent focus:ring-pedie-accent'
                   />
                   <span className='text-pedie-text-muted'>{brand}</span>
                 </label>
@@ -216,7 +211,7 @@ function FilterSidebarInner({
                     type='checkbox'
                     checked={(currentFilters.storage || []).includes(storage)}
                     onChange={() => handleCheckboxChange('storage', storage)}
-                    className='w-4 h-4 rounded border-pedie-border bg-pedie-dark text-pedie-accent focus:ring-pedie-accent'
+                    className='w-4 h-4 rounded border-pedie-border bg-pedie-sunken text-pedie-accent focus:ring-pedie-accent'
                   />
                   <span className='text-pedie-text-muted'>{storage}</span>
                 </label>
@@ -239,7 +234,7 @@ function FilterSidebarInner({
                     type='checkbox'
                     checked={(currentFilters.color || []).includes(color)}
                     onChange={() => handleCheckboxChange('color', color)}
-                    className='w-4 h-4 rounded border-pedie-border bg-pedie-dark text-pedie-accent focus:ring-pedie-accent'
+                    className='w-4 h-4 rounded border-pedie-border bg-pedie-sunken text-pedie-accent focus:ring-pedie-accent'
                   />
                   <span className='text-pedie-text-muted'>{color}</span>
                 </label>
@@ -257,22 +252,20 @@ function FilterSidebarInner({
             onSubmit={handlePriceChange}
             className='flex items-center gap-2'
           >
-            <input
+            <Input
               type='number'
               name='priceMin'
               placeholder='Min'
               min='0'
               defaultValue={currentFilters.priceMin}
-              className='w-full px-3 py-2 bg-pedie-dark border border-pedie-border rounded-md text-pedie-text focus:outline-none focus:border-pedie-accent'
             />
             <span className='text-pedie-text-muted'>-</span>
-            <input
+            <Input
               type='number'
               name='priceMax'
               placeholder='Max'
               min='0'
               defaultValue={currentFilters.priceMax}
-              className='w-full px-3 py-2 bg-pedie-dark border border-pedie-border rounded-md text-pedie-text focus:outline-none focus:border-pedie-accent'
             />
             <Button
               type='submit'
@@ -281,19 +274,7 @@ function FilterSidebarInner({
               className='px-2'
               aria-label='Apply price filter'
             >
-              <svg
-                className='w-4 h-4'
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M9 5l7 7-7 7'
-                />
-              </svg>
+              <TbChevronRight className='h-4 w-4' aria-hidden='true' />
             </Button>
           </form>
         </div>

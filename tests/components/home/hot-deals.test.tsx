@@ -119,8 +119,8 @@ describe('HotDeals', () => {
     expect(SOURCE).toContain('snap-x')
   })
 
-  test('timer card has dark background', () => {
-    expect(SOURCE).toContain('bg-pedie-dark')
+  test('timer card uses semantic sunken background', () => {
+    expect(SOURCE).toContain('bg-pedie-sunken')
   })
 
   test('uses amber/gold accent', () => {

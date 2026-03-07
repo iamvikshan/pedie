@@ -15,6 +15,7 @@
     "f:check": "prettier --check .",
     "check": "bun lint && tsc --noEmit",
     "test": "bun test",
+    "clean": "rm -rf .next",
     "seed": "bun scripts/seed.ts",
     "syncsheets": "bun scripts/sheets.ts",
     "crawl": "bun scripts/crawlers/index.ts",

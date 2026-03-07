@@ -10,7 +10,7 @@ export function HotDealsSkeleton() {
 
       <div className='rounded-lg overflow-hidden border border-pedie-border bg-pedie-card'>
         <div className='grid grid-cols-1 md:grid-cols-6 h-[400px]'>
-          <div className='md:col-span-1 bg-pedie-dark p-6 flex flex-col items-center justify-center border-r border-pedie-border gap-4 h-full animate-pulse'>
+          <div className='md:col-span-1 bg-pedie-sunken p-6 flex flex-col items-center justify-center border-r border-pedie-border gap-4 h-full animate-pulse'>
             <div className='w-10 h-10 rounded-full bg-pedie-border/20' />
             <div className='h-7 w-24 rounded bg-pedie-border/20' />
             <div className='h-10 w-full rounded bg-pedie-border/20' />

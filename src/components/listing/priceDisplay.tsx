@@ -1,3 +1,4 @@
+import { Badge } from '@components/ui/badge'
 import { calculateDeposit, calculateDiscount, formatKes } from '@helpers'
 
 interface PriceDisplayProps {
@@ -25,15 +26,15 @@ export function PriceDisplay({
             <span className='text-lg text-pedie-text-muted line-through'>
               {formatKes(originalPriceKes)}
             </span>
-            <span className='rounded bg-pedie-discount px-2 py-0.5 text-xs font-semibold text-white'>
+            <Badge variant='discount' className='font-semibold'>
               -{discount}%
-            </span>
+            </Badge>
           </>
         )}
       </div>
 
       {isPreorder && (
-        <div className='mt-3 rounded-md bg-pedie-dark p-3 border border-pedie-border'>
+        <div className='mt-3 rounded-md bg-pedie-sunken p-3 border border-pedie-border'>
           <p className='text-sm text-pedie-text'>
             <span className='font-medium'>Preorder Deposit:</span>{' '}
             <span className='text-pedie-green font-semibold'>

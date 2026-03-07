@@ -43,7 +43,7 @@ export function ConditionBadge({
     return (
       <span
         title={label}
-        className={`glass backdrop-blur-sm rounded-full p-1.5 inline-flex items-center ${styleMap[condition] ?? 'text-gray-500'} ${className}`}
+        className={`glass backdrop-blur-sm rounded-full p-1.5 inline-flex items-center ${styleMap[condition] ?? 'text-pedie-text-muted'} ${className}`}
       >
         <Icon className='w-5 h-5' aria-hidden='true' />
         <span className='sr-only'>{label}</span>
@@ -54,7 +54,7 @@ export function ConditionBadge({
   return (
     <span
       title={label}
-      className={`inline-flex items-center ${styleMap[condition] ?? 'text-gray-500'} ${className}`}
+      className={`inline-flex items-center ${styleMap[condition] ?? 'text-pedie-text-muted'} ${className}`}
     >
       <Icon className='w-5 h-5' aria-hidden='true' />
       <span className='sr-only'>{label}</span>

@@ -1,4 +1,5 @@
 import type { ListingWithProduct } from '@app-types/product'
+import { Badge } from '@components/ui/badge'
 import { calculateDiscount, formatKes, getPricingTier } from '@helpers'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -76,28 +77,36 @@ export function ProductCard({ listing }: ProductCardProps) {
         {/* Top-left badges */}
         <div className='absolute top-2 left-2 flex flex-col gap-2'>
           {isAffiliate && (
-            <span
+            <Badge
+              variant='default'
+              size='lg'
               title='Sold by an external partner'
-              className='glass bg-pedie-surface/80 backdrop-blur-sm text-pedie-text text-xs font-bold px-2.5 py-1 rounded-full inline-flex items-center gap-1'
+              className='glass gap-1 bg-pedie-surface/80 backdrop-blur-sm font-bold'
             >
               <TbExternalLink className='w-3.5 h-3.5' aria-hidden='true' />
               Partner
-            </span>
+            </Badge>
           )}
           {isReferral && (
-            <span
+            <Badge
+              variant='green'
+              size='lg'
               title='Ask about this product on WhatsApp'
-              className='glass bg-green-600/20 backdrop-blur-sm text-green-600 text-xs font-bold px-2.5 py-1 rounded-full inline-flex items-center gap-1'
+              className='glass gap-1 bg-pedie-green/20 backdrop-blur-sm font-bold'
             >
               <TbBrandWhatsapp className='w-3.5 h-3.5' aria-hidden='true' />
               Referral
-            </span>
+            </Badge>
           )}
           {isSale ? (
-            <span className='glass bg-pedie-discount/20 backdrop-blur-sm text-pedie-discount text-xs font-bold px-2.5 py-1 rounded-full inline-flex items-center gap-1'>
+            <Badge
+              variant='discount'
+              size='lg'
+              className='glass gap-1 bg-pedie-discount/20 backdrop-blur-sm font-bold'
+            >
               <TbFlame className='w-3.5 h-3.5' aria-hidden='true' />
               Flash Sale
-            </span>
+            </Badge>
           ) : (
             !isAffiliate &&
             !isReferral && (
@@ -130,9 +139,12 @@ export function ProductCard({ listing }: ProductCardProps) {
                 <span className='text-base font-bold text-pedie-discount'>
                   {formatKes(listing.final_price_kes)}
                 </span>
-                <span className='glass text-pedie-discount text-xs font-bold px-2 py-0.5 rounded-full backdrop-blur-sm'>
+                <Badge
+                  variant='discount'
+                  className='glass bg-pedie-discount/20 backdrop-blur-sm font-bold'
+                >
                   -{discount}%
-                </span>
+                </Badge>
               </div>
               <span className='text-sm text-pedie-text-muted line-through'>
                 {formatKes(listing.price_kes)}
@@ -144,9 +156,12 @@ export function ProductCard({ listing }: ProductCardProps) {
                 <span className='text-base font-bold text-pedie-accent'>
                   {formatKes(listing.final_price_kes)}
                 </span>
-                <span className='glass text-pedie-discount text-xs font-bold px-2 py-0.5 rounded-full backdrop-blur-sm'>
+                <Badge
+                  variant='discount'
+                  className='glass bg-pedie-discount/20 backdrop-blur-sm font-bold'
+                >
                   -{discount}%
-                </span>
+                </Badge>
               </div>
               <span className='text-sm text-pedie-text-muted line-through'>
                 {formatKes(listing.price_kes)}

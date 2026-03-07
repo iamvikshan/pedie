@@ -9,7 +9,7 @@ interface CustomerReviewsProps {
 function StarIcon({ filled }: { filled: boolean }) {
   return (
     <svg
-      className={`h-5 w-5 ${filled ? 'text-amber-400' : 'text-gray-500'}`}
+      className={`h-5 w-5 ${filled ? 'text-pedie-warning' : 'text-pedie-text-muted'}`}
       fill={filled ? 'currentColor' : 'none'}
       stroke='currentColor'
       viewBox='0 0 24 24'
@@ -49,9 +49,9 @@ function ReviewHistogram({ stats }: { stats: ReviewStats }) {
             <span className='w-8 text-sm text-pedie-text-muted text-right'>
               {star} ★
             </span>
-            <div className='flex-1 h-3 rounded-full bg-pedie-dark overflow-hidden'>
+            <div className='flex-1 h-3 rounded-full bg-pedie-sunken overflow-hidden'>
               <div
-                className='h-full rounded-full bg-amber-400'
+                className='h-full rounded-full bg-pedie-warning'
                 style={{ width: `${width}%` }}
               />
             </div>

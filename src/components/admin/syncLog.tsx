@@ -1,3 +1,5 @@
+import { Badge } from '@components/ui/badge'
+
 interface SyncLogEntry {
   id: string
   triggered_by: string
@@ -12,10 +14,13 @@ interface SyncLogProps {
   logs: SyncLogEntry[]
 }
 
-const statusColors: Record<string, string> = {
-  success: 'bg-green-100 text-green-800',
-  partial: 'bg-yellow-100 text-yellow-800',
-  error: 'bg-red-100 text-red-800',
+const statusVariants: Record<
+  string,
+  'success' | 'warning' | 'error' | 'default'
+> = {
+  success: 'success',
+  partial: 'warning',
+  error: 'error',
 }
 
 function formatDuration(startedAt: string, completedAt: string | null): string {
@@ -85,11 +90,13 @@ export function SyncLog({ logs }: SyncLogProps) {
                 {log.triggered_by.slice(0, 8)}…
               </td>
               <td className='px-4 py-3'>
-                <span
-                  className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium capitalize ${statusColors[log.status] ?? 'bg-gray-100 text-gray-800'}`}
+                <Badge
+                  variant={statusVariants[log.status] ?? 'default'}
+                  size='sm'
+                  className='capitalize'
                 >
                   {log.status}
-                </span>
+                </Badge>
               </td>
               <td className='px-4 py-3 text-pedie-text'>
                 {log.rows_synced ?? 0}

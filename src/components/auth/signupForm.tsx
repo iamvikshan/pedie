@@ -1,7 +1,9 @@
 'use client'
 
+import { Alert } from '@components/ui/alert'
 import { Button } from '@components/ui/button'
 import { GoogleIcon } from '@components/ui/googleIcon'
+import { Input } from '@components/ui/input'
 import { createClient } from '@lib/supabase/client'
 import { useState } from 'react'
 
@@ -70,7 +72,10 @@ export function SignUpForm({ redirectTo }: SignUpFormProps) {
 
   if (success) {
     return (
-      <div className='rounded-lg border border-pedie-green/30 bg-pedie-green/10 p-6 text-center'>
+      <Alert
+        variant='success'
+        className='border border-pedie-green/30 p-6 text-center'
+      >
         <h2 className='text-lg font-semibold text-pedie-text'>
           Check your email
         </h2>
@@ -79,7 +84,7 @@ export function SignUpForm({ redirectTo }: SignUpFormProps) {
           <strong className='text-pedie-text'>{email}</strong>. Click the link
           to activate your account.
         </p>
-      </div>
+      </Alert>
     )
   }
 
@@ -89,7 +94,7 @@ export function SignUpForm({ redirectTo }: SignUpFormProps) {
       <button
         onClick={handleGoogleSignIn}
         disabled={loading}
-        className={`flex w-full items-center justify-center gap-3 rounded-lg border border-pedie-border bg-white px-4 py-3 text-sm font-medium text-gray-900 transition-colors ${loading ? 'cursor-not-allowed opacity-50' : 'hover:bg-gray-50'}`}
+        className={`flex w-full items-center justify-center gap-3 rounded-lg border border-pedie-border bg-white px-4 py-3 text-sm font-medium text-pedie-dark transition-colors ${loading ? 'cursor-not-allowed opacity-50' : 'hover:bg-pedie-card-hover'}`}
       >
         <GoogleIcon />
         Continue with Google
@@ -110,14 +115,14 @@ export function SignUpForm({ redirectTo }: SignUpFormProps) {
           >
             Full Name
           </label>
-          <input
+          <Input
             id='fullName'
             type='text'
             value={fullName}
             onChange={e => setFullName(e.target.value)}
             required
-            className='w-full rounded-lg border border-pedie-border bg-pedie-card px-4 py-2.5 text-pedie-text placeholder:text-pedie-text-muted focus:border-pedie-green focus:outline-none focus:ring-1 focus:ring-pedie-green'
             placeholder='John Doe'
+            size='lg'
           />
         </div>
         <div>
@@ -127,14 +132,14 @@ export function SignUpForm({ redirectTo }: SignUpFormProps) {
           >
             Email
           </label>
-          <input
+          <Input
             id='email'
             type='email'
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
-            className='w-full rounded-lg border border-pedie-border bg-pedie-card px-4 py-2.5 text-pedie-text placeholder:text-pedie-text-muted focus:border-pedie-green focus:outline-none focus:ring-1 focus:ring-pedie-green'
             placeholder='you@example.com'
+            size='lg'
           />
         </div>
         <div>
@@ -144,19 +149,19 @@ export function SignUpForm({ redirectTo }: SignUpFormProps) {
           >
             Password
           </label>
-          <input
+          <Input
             id='password'
             type='password'
             value={password}
             onChange={e => setPassword(e.target.value)}
             required
             minLength={6}
-            className='w-full rounded-lg border border-pedie-border bg-pedie-card px-4 py-2.5 text-pedie-text placeholder:text-pedie-text-muted focus:border-pedie-green focus:outline-none focus:ring-1 focus:ring-pedie-green'
             placeholder='Min. 6 characters'
+            size='lg'
           />
         </div>
 
-        {error && <p className='text-sm text-red-400'>{error}</p>}
+        {error && <Alert variant='error'>{error}</Alert>}
 
         <Button
           type='submit'

@@ -1,6 +1,8 @@
 'use client'
 
+import { Alert } from '@components/ui/alert'
 import { Button } from '@components/ui/button'
+import { Input } from '@components/ui/input'
 import { createClient } from '@lib/supabase/client'
 import { useState } from 'react'
 
@@ -76,22 +78,9 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
     }
   }
 
-  const inputClass =
-    'w-full rounded-lg border border-pedie-border bg-pedie-dark px-3 py-2 text-sm text-pedie-text placeholder:text-pedie-text-muted focus:border-pedie-green focus:outline-none'
-
   return (
     <form onSubmit={handleSubmit} className='space-y-4'>
-      {message && (
-        <div
-          className={`rounded-lg p-3 text-sm ${
-            message.type === 'success'
-              ? 'bg-green-500/10 text-green-400'
-              : 'bg-red-500/10 text-red-400'
-          }`}
-        >
-          {message.text}
-        </div>
-      )}
+      {message && <Alert variant={message.type}>{message.text}</Alert>}
 
       <div>
         <label
@@ -100,12 +89,12 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
         >
           Full Name
         </label>
-        <input
+        <Input
           id='fullName'
           type='text'
           value={fullName}
           onChange={e => setFullName(e.target.value)}
-          className={inputClass}
+          className='bg-pedie-surface'
           placeholder='Your full name'
         />
       </div>
@@ -117,12 +106,12 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
         >
           Phone
         </label>
-        <input
+        <Input
           id='phone'
           type='tel'
           value={phone}
           onChange={e => setPhone(e.target.value)}
-          className={inputClass}
+          className='bg-pedie-surface'
           placeholder='+254...'
         />
       </div>
@@ -137,12 +126,12 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
         >
           Street
         </label>
-        <input
+        <Input
           id='street'
           type='text'
           value={street}
           onChange={e => setStreet(e.target.value)}
-          className={inputClass}
+          className='bg-pedie-surface'
           placeholder='Street address'
         />
       </div>
@@ -155,12 +144,12 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
           >
             City
           </label>
-          <input
+          <Input
             id='city'
             type='text'
             value={city}
             onChange={e => setCity(e.target.value)}
-            className={inputClass}
+            className='bg-pedie-surface'
             placeholder='City'
           />
         </div>
@@ -171,12 +160,12 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
           >
             County
           </label>
-          <input
+          <Input
             id='county'
             type='text'
             value={county}
             onChange={e => setCounty(e.target.value)}
-            className={inputClass}
+            className='bg-pedie-surface'
             placeholder='County'
           />
         </div>
@@ -190,12 +179,12 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
           >
             Postal Code
           </label>
-          <input
+          <Input
             id='postalCode'
             type='text'
             value={postalCode}
             onChange={e => setPostalCode(e.target.value)}
-            className={inputClass}
+            className='bg-pedie-surface'
             placeholder='Postal code (optional)'
           />
         </div>
@@ -206,12 +195,12 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
           >
             Country
           </label>
-          <input
+          <Input
             id='country'
             type='text'
             value={country}
             onChange={e => setCountry(e.target.value)}
-            className={inputClass}
+            className='bg-pedie-surface'
             placeholder='Country'
           />
         </div>

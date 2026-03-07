@@ -1,5 +1,8 @@
 'use client'
 
+import { Alert } from '@components/ui/alert'
+import { Input } from '@components/ui/input'
+import { Select } from '@components/ui/select'
 import { productSlug } from '@utils/slug'
 import { useState } from 'react'
 
@@ -104,11 +107,7 @@ export function ProductForm({
 
   return (
     <form onSubmit={handleSubmit} className='space-y-6'>
-      {error && (
-        <div className='rounded border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700'>
-          {error}
-        </div>
-      )}
+      {error && <Alert variant='error'>{error}</Alert>}
       {/* Brand */}
       <div>
         <label
@@ -117,14 +116,13 @@ export function ProductForm({
         >
           Brand *
         </label>
-        <input
+        <Input
           id='brand'
           name='brand'
           type='text'
           value={formData.brand}
           onChange={handleChange}
           required
-          className='w-full rounded border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text'
         />
       </div>
 
@@ -136,14 +134,13 @@ export function ProductForm({
         >
           Model *
         </label>
-        <input
+        <Input
           id='model'
           name='model'
           type='text'
           value={formData.model}
           onChange={handleChange}
           required
-          className='w-full rounded border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text'
         />
       </div>
 
@@ -155,14 +152,14 @@ export function ProductForm({
         >
           Slug *
         </label>
-        <input
+        <Input
           id='slug'
           name='slug'
           type='text'
           value={formData.slug}
           onChange={handleChange}
           required
-          className='w-full rounded border border-pedie-border bg-pedie-card px-3 py-2 font-mono text-sm text-pedie-text'
+          className='font-mono'
         />
       </div>
 
@@ -174,12 +171,11 @@ export function ProductForm({
         >
           Category
         </label>
-        <select
+        <Select
           id='category_id'
           name='category_id'
           value={formData.category_id}
           onChange={handleChange}
-          className='w-full rounded border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text'
         >
           <option value=''>No category</option>
           {categories.map(c => (
@@ -187,7 +183,7 @@ export function ProductForm({
               {c.name}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
 
       {/* Description */}
@@ -204,7 +200,7 @@ export function ProductForm({
           value={formData.description}
           onChange={handleChange}
           rows={4}
-          className='w-full rounded border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text'
+          className='w-full rounded-lg border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text'
         />
       </div>
 
@@ -215,12 +211,12 @@ export function ProductForm({
         </label>
         {keyFeatures.map((feature, index) => (
           <div key={index} className='mb-2 flex gap-2'>
-            <input
+            <Input
               type='text'
               value={feature}
               onChange={e => handleFeatureChange(index, e.target.value)}
               placeholder='e.g. A16 Bionic chip'
-              className='flex-1 rounded border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text'
+              className='flex-1'
             />
             {keyFeatures.length > 1 && (
               <button
@@ -250,13 +246,12 @@ export function ProductForm({
         >
           Original Price (KES)
         </label>
-        <input
+        <Input
           id='original_price_kes'
           name='original_price_kes'
           type='number'
           value={formData.original_price_kes}
           onChange={handleChange}
-          className='w-full rounded border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text'
         />
       </div>
 
@@ -264,7 +259,7 @@ export function ProductForm({
       <button
         type='submit'
         disabled={loading}
-        className='rounded bg-pedie-green px-6 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50'
+        className='rounded-lg bg-pedie-green px-6 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50'
       >
         {loading
           ? 'Saving...'

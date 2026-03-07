@@ -28,40 +28,8 @@ TL;DR: Audit-driven centralization of the Pedie design system -- fix broken toke
 3. **[x] Phase 3: Eliminate Duplicates**
    - **Changes from plan:** Filter sidebar consolidation scoped to extracting shared sub-components (CheckboxFilterGroup, PriceRangeFilter) rather than full merge -- full adoption deferred to Phase 4. Google SVG test uses dynamically-built string to avoid false grep matches.
 
-4. **[ ] Phase 4: Adopt Primitives + Fix Deviations**
-   - **Objective:** Replace all inline patterns with shared primitives across all 90+ components. Fix hardcoded colors, normalize border-radius, replace inline SVGs with react-icons/tb.
-   - **Files/Functions:**
-     - All 6+ files with inline button patterns -> use `<Button>` (addToCart, referralCta, heroBanner, trustBanner, sustainabilitySection, cartSummary)
-     - All 7+ files with inline input classes -> use `<Input>` (shippingForm, mpesaPayment, signinForm, signupForm, newsletterSignup x2, filterSidebar)
-     - All 8+ files with inline select classes -> use `<Select>` (sortDropdown, admin forms)
-     - All inline badge patterns -> use `<Badge>` (productCard, admin status badges, marginIndicator, syncLog)
-     - All 6+ inline feedback patterns -> use `<Alert>` (profileForm, mpesaPayment, syncStatus, orderStatusUpdater, listingForm, productForm)
-     - Both empty states -> use `<EmptyState>` (productGrid, productFamilyGrid)
-     - 13 inline SVGs -> react-icons/tb replacements
-     - Admin sidebar emojis -> react-icons/tb icons
-     - Admin buttons -> use `<Button>` component
-     - Hardcoded colors -> design tokens (referralCta, productCard, conditionBadge, customerReviews, etc.)
-     - `bg-pedie-dark` surface uses -> `bg-pedie-surface` or `bg-pedie-sunken`
-     - Glass utility inconsistency -> standardize `.glass` usage in megaMenu, userMenu
-   - **Tests to Write:**
-     - Source analysis test: verify no inline SVG checkmarks/chevrons remain
-     - Source analysis test: verify no `bg-green-600`, `text-gray-500` (raw Tailwind colors) in storefront components
-     - Source analysis test: verify no emoji icons in admin sidebar
-   - **Quality Gates:** bun run f -> bun lint -> bunx tsc --noEmit -> bun test
-   - **Steps:**
-     1. Write failing source analysis tests
-     2. Replace inline buttons with Button component
-     3. Replace inline inputs with Input component
-     4. Replace inline selects with Select component
-     5. Replace inline badges with Badge component
-     6. Replace inline alerts with Alert component
-     7. Replace inline empty states with EmptyState component
-     8. Replace 13 inline SVGs with react-icons/tb
-     9. Replace admin emoji icons with react-icons/tb
-     10. Fix hardcoded colors -> design tokens
-     11. Normalize border-radius (admin forms rounded -> rounded-lg)
-     12. Standardize glass utility usage
-     13. Run quality gates
+4. **[x] Phase 4: Adopt Primitives + Fix Deviations**
+   - **Changes from plan:** Scope expanded to 45 files (vs 25 planned) -- storefront color fixes, wishlist page cleanup, and additional bg-pedie-dark eliminations were pulled in to satisfy comprehensive guard tests. EmptyState adoption was completed in Phase 3. OrderStatusUpdater message typing made explicit instead of string-includes. Glass guard made symmetric for megaMenu/userMenu. DataTable already used rounded-lg (no change needed).
 
 5. **[ ] Phase 5: Centralize Animations + Accessibility**
    - **Objective:** Create shared motion presets, unify Framer Motion usage, and fix all identified accessibility gaps.

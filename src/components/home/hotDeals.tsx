@@ -74,9 +74,9 @@ export function HotDeals({ listings }: HotDealsProps) {
 
         <div className='rounded-lg overflow-hidden border border-pedie-border bg-pedie-card'>
           <div className='grid grid-cols-1 md:grid-cols-6'>
-            <div className='md:col-span-1 bg-pedie-dark p-6 flex flex-col items-center justify-center border-r border-pedie-border gap-4 h-full'>
+            <div className='md:col-span-1 bg-pedie-sunken p-6 flex flex-col items-center justify-center border-r border-pedie-border gap-4 h-full'>
               <TbFlame
-                className='w-10 h-10 text-amber-400'
+                className='w-10 h-10 text-pedie-warning'
                 aria-hidden='true'
               />
               <h3 className='text-xl font-bold text-white text-center leading-tight'>
@@ -84,20 +84,20 @@ export function HotDeals({ listings }: HotDealsProps) {
               </h3>
 
               <div className='flex items-center gap-1.5'>
-                <div className='bg-black/40 border border-amber-400/20 rounded px-2 py-1.5 text-center min-w-[36px]'>
-                  <span className='text-lg font-mono font-bold text-amber-400 leading-none'>
+                <div className='bg-black/40 border border-pedie-warning/20 rounded px-2 py-1.5 text-center min-w-[36px]'>
+                  <span className='text-lg font-mono font-bold text-pedie-warning leading-none'>
                     {timeLeft.hours.toString().padStart(2, '0')}
                   </span>
                 </div>
-                <span className='text-amber-400/50 font-bold'>:</span>
-                <div className='bg-black/40 border border-amber-400/20 rounded px-2 py-1.5 text-center min-w-[36px]'>
-                  <span className='text-lg font-mono font-bold text-amber-400 leading-none'>
+                <span className='text-pedie-warning/50 font-bold'>:</span>
+                <div className='bg-black/40 border border-pedie-warning/20 rounded px-2 py-1.5 text-center min-w-[36px]'>
+                  <span className='text-lg font-mono font-bold text-pedie-warning leading-none'>
                     {timeLeft.minutes.toString().padStart(2, '0')}
                   </span>
                 </div>
-                <span className='text-amber-400/50 font-bold'>:</span>
-                <div className='bg-black/40 border border-amber-400/20 rounded px-2 py-1.5 text-center min-w-[36px]'>
-                  <span className='text-lg font-mono font-bold text-amber-400 leading-none'>
+                <span className='text-pedie-warning/50 font-bold'>:</span>
+                <div className='bg-black/40 border border-pedie-warning/20 rounded px-2 py-1.5 text-center min-w-[36px]'>
+                  <span className='text-lg font-mono font-bold text-pedie-warning leading-none'>
                     {timeLeft.seconds.toString().padStart(2, '0')}
                   </span>
                 </div>
@@ -105,7 +105,7 @@ export function HotDeals({ listings }: HotDealsProps) {
 
               <Link
                 href='/deals'
-                className='bg-amber-400 text-pedie-dark font-bold rounded-lg px-6 py-2 transition-colors hover:bg-amber-300 text-sm mt-2 w-full text-center'
+                className='bg-pedie-warning text-pedie-dark font-bold rounded-lg px-6 py-2 transition-colors hover:opacity-90 text-sm mt-2 w-full text-center'
               >
                 Shop all Deals
               </Link>

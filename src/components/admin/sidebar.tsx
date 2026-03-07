@@ -3,18 +3,33 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
+import type { IconType } from 'react-icons'
+import {
+  TbCategory,
+  TbCoins,
+  TbLayoutDashboard,
+  TbMail,
+  TbMenu2,
+  TbPackage,
+  TbRefresh,
+  TbShoppingCart,
+  TbStar,
+  TbTags,
+  TbUsers,
+  TbX,
+} from 'react-icons/tb'
 
-const navItems = [
-  { href: '/admin', label: 'Dashboard', icon: '📊' },
-  { href: '/admin/products', label: 'Products', icon: '📦' },
-  { href: '/admin/listings', label: 'Listings', icon: '🏷️' },
-  { href: '/admin/orders', label: 'Orders', icon: '🛒' },
-  { href: '/admin/customers', label: 'Customers', icon: '👥' },
-  { href: '/admin/categories', label: 'Categories', icon: '📁' },
-  { href: '/admin/reviews', label: 'Reviews', icon: '⭐' },
-  { href: '/admin/newsletter', label: 'Newsletter', icon: '📧' },
-  { href: '/admin/sync', label: 'Sync', icon: '🔄' },
-  { href: '/admin/prices', label: 'Prices', icon: '💰' },
+const navItems: { href: string; label: string; icon: IconType }[] = [
+  { href: '/admin', label: 'Dashboard', icon: TbLayoutDashboard },
+  { href: '/admin/products', label: 'Products', icon: TbPackage },
+  { href: '/admin/listings', label: 'Listings', icon: TbTags },
+  { href: '/admin/orders', label: 'Orders', icon: TbShoppingCart },
+  { href: '/admin/customers', label: 'Customers', icon: TbUsers },
+  { href: '/admin/categories', label: 'Categories', icon: TbCategory },
+  { href: '/admin/reviews', label: 'Reviews', icon: TbStar },
+  { href: '/admin/newsletter', label: 'Newsletter', icon: TbMail },
+  { href: '/admin/sync', label: 'Sync', icon: TbRefresh },
+  { href: '/admin/prices', label: 'Prices', icon: TbCoins },
 ]
 
 export function AdminSidebar() {
@@ -37,7 +52,11 @@ export function AdminSidebar() {
         aria-expanded={mobileOpen}
         aria-controls='admin-sidebar'
       >
-        <span className='text-xl'>{mobileOpen ? '✕' : '☰'}</span>
+        {mobileOpen ? (
+          <TbX className='size-5' />
+        ) : (
+          <TbMenu2 className='size-5' />
+        )}
       </button>
 
       {/* Mobile overlay nav */}
@@ -58,7 +77,7 @@ export function AdminSidebar() {
                   : 'text-pedie-text hover:bg-pedie-card-hover'
               }`}
             >
-              <span aria-hidden='true'>{item.icon}</span>
+              <item.icon className='size-5 shrink-0' aria-hidden='true' />
               <span>{item.label}</span>
             </Link>
           ))}
@@ -79,7 +98,7 @@ export function AdminSidebar() {
                   : 'text-pedie-text hover:bg-pedie-card-hover'
               }`}
             >
-              <span aria-hidden='true'>{item.icon}</span>
+              <item.icon className='size-5 shrink-0' aria-hidden='true' />
               <span>{item.label}</span>
             </Link>
           ))}

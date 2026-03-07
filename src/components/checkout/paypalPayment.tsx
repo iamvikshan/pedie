@@ -177,8 +177,8 @@ export function PaypalPayment({
         <div
           className={`rounded-lg p-3 text-sm ${
             status === 'failed'
-              ? 'bg-red-500/10 text-red-400'
-              : 'bg-blue-500/10 text-blue-400'
+              ? 'bg-pedie-error-bg text-pedie-error'
+              : 'bg-pedie-info-bg text-pedie-info'
           }`}
         >
           {(status === 'creating' || status === 'redirecting') && (

@@ -1,5 +1,7 @@
 'use client'
 
+import { Input } from '@components/ui/input'
+import { Select } from '@components/ui/select'
 import { slugify } from '@utils/slug'
 import { useState } from 'react'
 
@@ -82,14 +84,13 @@ export function CategoryForm({
         >
           Name *
         </label>
-        <input
+        <Input
           id='name'
           name='name'
           type='text'
           value={formData.name}
           onChange={handleChange}
           required
-          className='w-full rounded border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text'
         />
       </div>
 
@@ -101,14 +102,14 @@ export function CategoryForm({
         >
           Slug *
         </label>
-        <input
+        <Input
           id='slug'
           name='slug'
           type='text'
           value={formData.slug}
           onChange={handleChange}
           required
-          className='w-full rounded border border-pedie-border bg-pedie-card px-3 py-2 font-mono text-sm text-pedie-text'
+          className='font-mono'
         />
       </div>
 
@@ -120,12 +121,11 @@ export function CategoryForm({
         >
           Parent Category
         </label>
-        <select
+        <Select
           id='parent_id'
           name='parent_id'
           value={formData.parent_id}
           onChange={handleChange}
-          className='w-full rounded border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text'
         >
           <option value=''>None (top level)</option>
           {parentOptions.map(c => (
@@ -133,7 +133,7 @@ export function CategoryForm({
               {c.name}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
 
       {/* Image URL */}
@@ -144,14 +144,13 @@ export function CategoryForm({
         >
           Image URL
         </label>
-        <input
+        <Input
           id='image_url'
           name='image_url'
           type='text'
           value={formData.image_url}
           onChange={handleChange}
           placeholder='https://...'
-          className='w-full rounded border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text'
         />
       </div>
 
@@ -163,13 +162,12 @@ export function CategoryForm({
         >
           Sort Order
         </label>
-        <input
+        <Input
           id='sort_order'
           name='sort_order'
           type='number'
           value={formData.sort_order}
           onChange={handleChange}
-          className='w-full rounded border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text'
         />
       </div>
 
@@ -177,7 +175,7 @@ export function CategoryForm({
       <button
         type='submit'
         disabled={loading}
-        className='rounded bg-pedie-green px-6 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50'
+        className='rounded-lg bg-pedie-green px-6 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50'
       >
         {loading
           ? 'Saving...'

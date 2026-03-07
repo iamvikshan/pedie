@@ -1,3 +1,5 @@
+import { TbCheck } from 'react-icons/tb'
+
 interface ProductDescriptionProps {
   description: string | null
   keyFeatures: string[] | null
@@ -30,20 +32,10 @@ export function ProductDescription({
         <ul className='space-y-2'>
           {keyFeatures.map((feature, index) => (
             <li key={index} className='flex items-start gap-2 text-pedie-text'>
-              <svg
-                className='h-5 w-5 flex-shrink-0 text-pedie-green mt-0.5'
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'
+              <TbCheck
+                className='mt-0.5 h-5 w-5 flex-shrink-0 text-pedie-green'
                 aria-hidden='true'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M5 13l4 4L19 7'
-                />
-              </svg>
+              />
               <span>{feature}</span>
             </li>
           ))}

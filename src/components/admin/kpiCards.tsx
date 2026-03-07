@@ -1,39 +1,52 @@
 import { formatKes } from '@helpers'
 import type { AdminDashboardStats } from '@data/admin'
+import type { IconType } from 'react-icons'
+import {
+  TbClockHour4,
+  TbCoins,
+  TbPackage,
+  TbTags,
+  TbUsers,
+} from 'react-icons/tb'
 
 interface KpiCardsProps {
   stats: AdminDashboardStats
 }
 
-const kpiConfig = [
+const kpiConfig: {
+  key: keyof AdminDashboardStats
+  label: string
+  icon: IconType
+  format: (v: number) => string
+}[] = [
   {
-    key: 'totalRevenue' as const,
+    key: 'totalRevenue',
     label: 'Total Revenue',
-    icon: '💰',
+    icon: TbCoins,
     format: (v: number) => formatKes(v),
   },
   {
-    key: 'ordersToday' as const,
+    key: 'ordersToday',
     label: 'Orders Today',
-    icon: '📦',
+    icon: TbPackage,
     format: (v: number) => v.toString(),
   },
   {
-    key: 'pendingOrders' as const,
+    key: 'pendingOrders',
     label: 'Pending Orders',
-    icon: '⏳',
+    icon: TbClockHour4,
     format: (v: number) => v.toString(),
   },
   {
-    key: 'activeListings' as const,
+    key: 'activeListings',
     label: 'Active Listings',
-    icon: '🏷️',
+    icon: TbTags,
     format: (v: number) => v.toString(),
   },
   {
-    key: 'totalCustomers' as const,
+    key: 'totalCustomers',
     label: 'Total Customers',
-    icon: '👥',
+    icon: TbUsers,
     format: (v: number) => v.toString(),
   },
 ]
@@ -47,7 +60,10 @@ export function KpiCards({ stats }: KpiCardsProps) {
           className='rounded-lg border border-pedie-border bg-pedie-card p-4'
         >
           <div className='flex items-center gap-2'>
-            <span className='text-2xl'>{kpi.icon}</span>
+            <kpi.icon
+              className='size-6 text-pedie-text-muted'
+              aria-hidden='true'
+            />
             <span className='text-sm text-pedie-text-muted'>{kpi.label}</span>
           </div>
           <p className='mt-2 text-2xl font-bold text-pedie-text'>

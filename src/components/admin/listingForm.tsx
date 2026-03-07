@@ -1,5 +1,8 @@
 'use client'
 
+import { Alert } from '@components/ui/alert'
+import { Input } from '@components/ui/input'
+import { Select } from '@components/ui/select'
 import { generateListingId } from '@helpers'
 import { useState } from 'react'
 
@@ -112,11 +115,7 @@ export function ListingForm({
 
   return (
     <form onSubmit={handleSubmit} className='space-y-6'>
-      {error && (
-        <div className='rounded border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700'>
-          {error}
-        </div>
-      )}
+      {error && <Alert variant='error'>{error}</Alert>}
       {/* Product Select */}
       <div>
         <label
@@ -125,13 +124,12 @@ export function ListingForm({
         >
           Product *
         </label>
-        <select
+        <Select
           id='product_id'
           name='product_id'
           value={formData.product_id}
           onChange={handleChange}
           required
-          className='w-full rounded border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text'
         >
           <option value=''>Select a product</option>
           {products.map(p => (
@@ -139,7 +137,7 @@ export function ListingForm({
               {p.brand} {p.model}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
 
       {/* Listing ID */}
@@ -150,14 +148,13 @@ export function ListingForm({
         >
           Listing ID *
         </label>
-        <input
+        <Input
           id='listing_id'
           name='listing_id'
           type='text'
           value={formData.listing_id}
           onChange={handleChange}
           required
-          className='w-full rounded border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text'
         />
       </div>
 
@@ -170,14 +167,13 @@ export function ListingForm({
           >
             Storage
           </label>
-          <input
+          <Input
             id='storage'
             name='storage'
             type='text'
             value={formData.storage}
             onChange={handleChange}
             placeholder='e.g. 256GB'
-            className='w-full rounded border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text'
           />
         </div>
         <div>
@@ -187,13 +183,12 @@ export function ListingForm({
           >
             Color
           </label>
-          <input
+          <Input
             id='color'
             name='color'
             type='text'
             value={formData.color}
             onChange={handleChange}
-            className='w-full rounded border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text'
           />
         </div>
       </div>
@@ -206,14 +201,13 @@ export function ListingForm({
         >
           Carrier
         </label>
-        <input
+        <Input
           id='carrier'
           name='carrier'
           type='text'
           value={formData.carrier}
           onChange={handleChange}
           placeholder='e.g. Unlocked'
-          className='w-full rounded border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text'
         />
       </div>
 
@@ -225,20 +219,20 @@ export function ListingForm({
         >
           Condition *
         </label>
-        <select
+        <Select
           id='condition'
           name='condition'
           value={formData.condition}
           onChange={handleChange}
           required
-          className='w-full rounded border border-pedie-border bg-pedie-card px-3 py-2 text-sm capitalize text-pedie-text'
+          className='capitalize'
         >
           {CONDITIONS.map(c => (
             <option key={c} value={c}>
               {c}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
 
       {/* Battery Health */}
@@ -249,7 +243,7 @@ export function ListingForm({
         >
           Battery Health (%)
         </label>
-        <input
+        <Input
           id='battery_health'
           name='battery_health'
           type='number'
@@ -257,7 +251,6 @@ export function ListingForm({
           max={100}
           value={formData.battery_health}
           onChange={handleChange}
-          className='w-full rounded border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text'
         />
       </div>
 
@@ -269,7 +262,7 @@ export function ListingForm({
         >
           Price (KES) *
         </label>
-        <input
+        <Input
           id='price_kes'
           name='price_kes'
           type='number'
@@ -277,7 +270,6 @@ export function ListingForm({
           value={formData.price_kes}
           onChange={handleChange}
           required
-          className='w-full rounded border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text'
         />
       </div>
 
@@ -290,13 +282,12 @@ export function ListingForm({
           >
             Original Price (USD)
           </label>
-          <input
+          <Input
             id='original_price_usd'
             name='original_price_usd'
             type='number'
             value={formData.original_price_usd}
             onChange={handleChange}
-            className='w-full rounded border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text'
           />
         </div>
         <div>
@@ -306,13 +297,12 @@ export function ListingForm({
           >
             Landed Cost (KES)
           </label>
-          <input
+          <Input
             id='landed_cost_kes'
             name='landed_cost_kes'
             type='number'
             value={formData.landed_cost_kes}
             onChange={handleChange}
-            className='w-full rounded border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text'
           />
         </div>
       </div>
@@ -325,19 +315,19 @@ export function ListingForm({
         >
           Status
         </label>
-        <select
+        <Select
           id='status'
           name='status'
           value={formData.status}
           onChange={handleChange}
-          className='w-full rounded border border-pedie-border bg-pedie-card px-3 py-2 text-sm capitalize text-pedie-text'
+          className='capitalize'
         >
           {STATUSES.map(s => (
             <option key={s} value={s}>
               {s}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
 
       {/* Listing Type */}
@@ -348,19 +338,19 @@ export function ListingForm({
         >
           Listing Type
         </label>
-        <select
+        <Select
           id='listing_type'
           name='listing_type'
           value={formData.listing_type}
           onChange={handleChange}
-          className='w-full rounded border border-pedie-border bg-pedie-card px-3 py-2 text-sm capitalize text-pedie-text'
+          className='capitalize'
         >
           {LISTING_TYPES.map(t => (
             <option key={t} value={t}>
               {t}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
 
       {/* Checkboxes */}
@@ -390,7 +380,7 @@ export function ListingForm({
           value={formData.notes}
           onChange={handleChange}
           rows={3}
-          className='w-full rounded border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text'
+          className='w-full rounded-lg border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text'
         />
       </div>
 
@@ -398,7 +388,7 @@ export function ListingForm({
       <button
         type='submit'
         disabled={loading}
-        className='rounded bg-pedie-green px-6 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50'
+        className='rounded-lg bg-pedie-green px-6 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50'
       >
         {loading
           ? 'Saving...'

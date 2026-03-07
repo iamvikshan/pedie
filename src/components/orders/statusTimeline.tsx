@@ -29,8 +29,8 @@ export function OrderStatusTimeline({ status }: OrderStatusTimelineProps) {
 
   if (isCancelled) {
     return (
-      <div className='mb-6 rounded-lg border border-red-500/30 bg-red-500/10 p-4'>
-        <p className='text-sm font-medium text-red-400'>Order Cancelled</p>
+      <div className='mb-6 rounded-lg border border-pedie-error/30 bg-pedie-error-bg p-4'>
+        <p className='text-sm font-medium text-pedie-error'>Order Cancelled</p>
       </div>
     )
   }
@@ -40,7 +40,9 @@ export function OrderStatusTimeline({ status }: OrderStatusTimelineProps) {
       <h3 className='mb-4 font-medium text-pedie-text'>
         Order Status
         {isUnknown && (
-          <span className='ml-2 text-sm text-yellow-400'>(Unknown Status)</span>
+          <span className='ml-2 text-sm text-pedie-warning'>
+            (Unknown Status)
+          </span>
         )}
       </h3>
       <StepIndicator steps={ORDER_STEPS} currentIndex={currentIndex} />

@@ -97,7 +97,7 @@ export function UserMenu({ userName, avatarUrl, isAdmin }: UserMenuProps) {
       </button>
 
       {isOpen && (
-        <div className='absolute right-0 mt-2 w-56 rounded-lg border border-pedie-glass-border bg-pedie-glass py-1 shadow-lg backdrop-blur-xl z-50'>
+        <div className='absolute right-0 z-50 mt-2 w-56 rounded-lg glass py-1 shadow-lg'>
           <div className='px-4 py-2 border-b border-pedie-border'>
             <p className='text-sm font-medium text-pedie-text truncate'>
               {userName || 'User'}

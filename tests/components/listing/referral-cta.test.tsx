@@ -59,7 +59,7 @@ describe('ReferralCta', () => {
     expect(src).toContain('WhatsApp')
   })
 
-  test('uses green-600 background (WhatsApp brand color)', () => {
-    expect(src).toContain('bg-green-600')
+  test('uses pedie-green background (WhatsApp brand color)', () => {
+    expect(src).toContain('bg-pedie-green')
   })
 })

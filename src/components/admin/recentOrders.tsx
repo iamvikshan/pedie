@@ -1,3 +1,4 @@
+import { Badge } from '@components/ui/badge'
 import { formatKes } from '@helpers'
 import { formatAdminDate } from '@utils/format'
 import Link from 'next/link'
@@ -6,13 +7,16 @@ interface RecentOrdersProps {
   orders: Record<string, unknown>[]
 }
 
-const statusColors: Record<string, string> = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  confirmed: 'bg-blue-100 text-blue-800',
-  processing: 'bg-indigo-100 text-indigo-800',
-  shipped: 'bg-purple-100 text-purple-800',
-  delivered: 'bg-green-100 text-green-800',
-  cancelled: 'bg-red-100 text-red-800',
+const statusVariants: Record<
+  string,
+  'success' | 'error' | 'warning' | 'info' | 'default'
+> = {
+  pending: 'warning',
+  confirmed: 'info',
+  processing: 'info',
+  shipped: 'info',
+  delivered: 'success',
+  cancelled: 'error',
 }
 
 export function RecentOrders({ orders }: RecentOrdersProps) {
@@ -69,11 +73,12 @@ export function RecentOrders({ orders }: RecentOrdersProps) {
                     </td>
                     <td className='py-2 text-pedie-text'>{customerName}</td>
                     <td className='py-2'>
-                      <span
-                        className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${statusColors[status] ?? 'bg-gray-100 text-gray-800'}`}
+                      <Badge
+                        variant={statusVariants[status] ?? 'default'}
+                        size='sm'
                       >
                         {status}
-                      </span>
+                      </Badge>
                     </td>
                     <td className='py-2 text-pedie-text'>{formatKes(total)}</td>
                     <td className='py-2 text-pedie-text-muted'>{date}</td>

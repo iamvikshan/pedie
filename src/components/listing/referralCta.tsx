@@ -24,7 +24,7 @@ export function ReferralCta({ listing }: ReferralCtaProps) {
       href={url}
       target='_blank'
       rel='noopener noreferrer'
-      className='inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pedie-accent bg-green-600 text-white hover:bg-green-700 h-11 px-8 text-lg w-full'
+      className='inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pedie-accent bg-pedie-green text-white hover:bg-pedie-green-dark h-11 px-8 text-lg w-full'
       aria-label={`Ask about ${brand} ${model} on WhatsApp`}
     >
       <TbBrandWhatsapp className='w-5 h-5' aria-hidden='true' />

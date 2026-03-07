@@ -33,7 +33,7 @@ plan directory: .zeus/plans
 ## Workflow rules
 
 - Use the canonical commands from the `tooling` block above.
-- Do not run `bun f:all`. Use `bun run f` instead because it formats only changed files.
+- Do not run `bun f:all`. Use `bun run f` instead because it formats only changed files. If there are formatting errors, after fixing them, do not run `bun f`, instead, run formatting on only the files with errors.
 - Prefer `bun check` when you want the repo's combined lint + typecheck pass.
 - Use `bun run build` for production validation when a task requires a build check.
 - Update `docs/DESIGN.md` and `docs/product-architecture.md` when architecture, UI patterns, or major data-flow assumptions change.

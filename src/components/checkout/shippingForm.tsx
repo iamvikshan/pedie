@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from '@components/ui/button'
+import { Input } from '@components/ui/input'
 import { useState } from 'react'
 
 export interface ShippingData {
@@ -86,15 +87,14 @@ export function ShippingForm({ onSubmit, initialData }: ShippingFormProps) {
         >
           Full Name *
         </label>
-        <input
+        <Input
           id='fullName'
           type='text'
           value={form.fullName}
           onChange={e => updateField('fullName', e.target.value)}
-          className='w-full rounded-lg border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text focus:border-pedie-green focus:outline-none focus:ring-1 focus:ring-pedie-green'
         />
         {errors.fullName && (
-          <p className='mt-1 text-sm text-red-500'>{errors.fullName}</p>
+          <p className='mt-1 text-sm text-pedie-error'>{errors.fullName}</p>
         )}
       </div>
 
@@ -105,16 +105,15 @@ export function ShippingForm({ onSubmit, initialData }: ShippingFormProps) {
         >
           Phone Number *
         </label>
-        <input
+        <Input
           id='phone'
           type='tel'
           placeholder='+254 7XX XXX XXX'
           value={form.phone}
           onChange={e => updateField('phone', e.target.value)}
-          className='w-full rounded-lg border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text focus:border-pedie-green focus:outline-none focus:ring-1 focus:ring-pedie-green'
         />
         {errors.phone && (
-          <p className='mt-1 text-sm text-red-500'>{errors.phone}</p>
+          <p className='mt-1 text-sm text-pedie-error'>{errors.phone}</p>
         )}
       </div>
 
@@ -125,15 +124,14 @@ export function ShippingForm({ onSubmit, initialData }: ShippingFormProps) {
         >
           Street Address *
         </label>
-        <input
+        <Input
           id='address'
           type='text'
           value={form.address}
           onChange={e => updateField('address', e.target.value)}
-          className='w-full rounded-lg border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text focus:border-pedie-green focus:outline-none focus:ring-1 focus:ring-pedie-green'
         />
         {errors.address && (
-          <p className='mt-1 text-sm text-red-500'>{errors.address}</p>
+          <p className='mt-1 text-sm text-pedie-error'>{errors.address}</p>
         )}
       </div>
 
@@ -145,15 +143,14 @@ export function ShippingForm({ onSubmit, initialData }: ShippingFormProps) {
           >
             City *
           </label>
-          <input
+          <Input
             id='city'
             type='text'
             value={form.city}
             onChange={e => updateField('city', e.target.value)}
-            className='w-full rounded-lg border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text focus:border-pedie-green focus:outline-none focus:ring-1 focus:ring-pedie-green'
           />
           {errors.city && (
-            <p className='mt-1 text-sm text-red-500'>{errors.city}</p>
+            <p className='mt-1 text-sm text-pedie-error'>{errors.city}</p>
           )}
         </div>
         <div>
@@ -163,12 +160,11 @@ export function ShippingForm({ onSubmit, initialData }: ShippingFormProps) {
           >
             County
           </label>
-          <input
+          <Input
             id='county'
             type='text'
             value={form.county}
             onChange={e => updateField('county', e.target.value)}
-            className='w-full rounded-lg border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text focus:border-pedie-green focus:outline-none focus:ring-1 focus:ring-pedie-green'
           />
         </div>
       </div>
@@ -180,12 +176,11 @@ export function ShippingForm({ onSubmit, initialData }: ShippingFormProps) {
         >
           Postal Code
         </label>
-        <input
+        <Input
           id='postalCode'
           type='text'
           value={form.postalCode}
           onChange={e => updateField('postalCode', e.target.value)}
-          className='w-full rounded-lg border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text focus:border-pedie-green focus:outline-none focus:ring-1 focus:ring-pedie-green'
         />
       </div>
 

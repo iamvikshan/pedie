@@ -11,7 +11,7 @@ export function CollectionBanner({
   listingCount,
 }: CollectionBannerProps) {
   return (
-    <div className='relative w-full bg-pedie-dark overflow-hidden rounded-xl mb-8 border border-pedie-border'>
+    <div className='relative w-full bg-pedie-sunken overflow-hidden rounded-xl mb-8 border border-pedie-border'>
       <div className='absolute inset-0 bg-gradient-to-r from-pedie-dark via-pedie-dark/80 to-transparent z-10' />
 
       {category.image_url && (

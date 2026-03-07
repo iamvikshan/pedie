@@ -1,5 +1,7 @@
 'use client'
 
+import { Alert } from '@components/ui/alert'
+import { Select } from '@components/ui/select'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 
@@ -24,7 +26,10 @@ export function OrderStatusUpdater({
   const router = useRouter()
   const [status, setStatus] = useState(currentStatus)
   const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState<string | null>(null)
+  const [message, setMessage] = useState<{
+    text: string
+    type: 'success' | 'error'
+  } | null>(null)
 
   async function handleSubmit() {
     if (status === currentStatus) return
@@ -49,12 +54,14 @@ export function OrderStatusUpdater({
         throw new Error(data.error ?? 'Failed to update status')
       }
 
-      setMessage('Status updated successfully')
+      setMessage({ text: 'Status updated successfully', type: 'success' })
       router.refresh()
     } catch (error) {
-      setMessage(
-        error instanceof Error ? error.message : 'Failed to update status'
-      )
+      setMessage({
+        text:
+          error instanceof Error ? error.message : 'Failed to update status',
+        type: 'error',
+      })
     } finally {
       setLoading(false)
     }
@@ -64,11 +71,11 @@ export function OrderStatusUpdater({
     <div className='rounded-lg border border-pedie-border bg-pedie-card p-4'>
       <h3 className='mb-3 font-medium text-pedie-text'>Update Status</h3>
       <div className='flex items-center gap-3'>
-        <select
+        <Select
           value={status}
           onChange={e => setStatus(e.target.value)}
           disabled={loading}
-          className='rounded border border-pedie-border bg-pedie-bg px-3 py-2 text-sm text-pedie-text'
+          className='w-auto bg-pedie-bg'
           aria-label='Order status'
         >
           {ORDER_STATUSES.map(s => (
@@ -76,22 +83,20 @@ export function OrderStatusUpdater({
               {s.charAt(0).toUpperCase() + s.slice(1)}
             </option>
           ))}
-        </select>
+        </Select>
         <button
           type='button'
           onClick={handleSubmit}
           disabled={loading || status === currentStatus}
-          className='rounded bg-pedie-green px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50'
+          className='rounded-lg bg-pedie-green px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50'
         >
           {loading ? 'Updating…' : 'Update'}
         </button>
       </div>
       {message && (
-        <p
-          className={`mt-2 text-sm ${message.includes('success') ? 'text-green-600' : 'text-red-600'}`}
-        >
-          {message}
-        </p>
+        <Alert variant={message.type} className='mt-2'>
+          {message.text}
+        </Alert>
       )}
     </div>
   )

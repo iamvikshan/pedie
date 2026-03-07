@@ -5,6 +5,7 @@ import { useWishlistContext } from '@components/wishlist/wishlistProvider'
 import { formatKes } from '@helpers'
 import Image from 'next/image'
 import Link from 'next/link'
+import { TbPhoto } from 'react-icons/tb'
 import { useEffect, useState, useTransition } from 'react'
 
 interface WishlistItem {
@@ -140,7 +141,7 @@ export default function WishlistPage() {
                 className='flex gap-4 rounded-lg border border-pedie-border bg-pedie-card p-4'
               >
                 {/* Product Image */}
-                <div className='relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-pedie-dark'>
+                <div className='relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-pedie-sunken'>
                   {imageUrl ? (
                     <Image
                       src={imageUrl}
@@ -151,20 +152,7 @@ export default function WishlistPage() {
                     />
                   ) : (
                     <div className='flex h-full w-full items-center justify-center text-pedie-text-muted'>
-                      <svg
-                        className='h-8 w-8'
-                        fill='none'
-                        stroke='currentColor'
-                        viewBox='0 0 24 24'
-                        aria-hidden='true'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          strokeWidth={2}
-                          d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
-                        />
-                      </svg>
+                      <TbPhoto className='h-8 w-8' aria-hidden='true' />
                     </div>
                   )}
                 </div>
@@ -183,7 +171,7 @@ export default function WishlistPage() {
                   <button
                     type='button'
                     onClick={() => handleRemove(item.product_id)}
-                    className='mt-2 self-start text-xs text-red-400 hover:text-red-300 transition-colors'
+                    className='mt-2 self-start text-xs text-pedie-error hover:opacity-80 transition-colors'
                   >
                     Remove
                   </button>

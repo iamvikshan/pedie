@@ -23,6 +23,10 @@ function componentFiles(): string[] {
   return walkFiles(COMPONENTS_DIR).filter(f => /\.(tsx?|jsx?)$/.test(f))
 }
 
+function readComponent(relativePath: string): string {
+  return readFileSync(join(COMPONENTS_DIR, relativePath), 'utf-8')
+}
+
 describe('Design System Tokens', () => {
   const css = readFileSync(GLOBALS_CSS, 'utf-8')
 
@@ -113,5 +117,157 @@ describe('Phase 3: Dead Code Elimination', () => {
       }
     }
     expect(violations).toEqual([])
+  })
+})
+
+describe('Phase 4: Primitive Adoption', () => {
+  // Unicode emoji ranges for detection
+  const emojiPattern =
+    /[\u{1F300}-\u{1F9FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{FE00}-\u{FE0F}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}\u{200D}\u{20E3}\u{E0020}-\u{E007F}]/u
+
+  test('no emoji icons in admin sidebar', () => {
+    const sidebarPath = join(COMPONENTS_DIR, 'admin/sidebar.tsx')
+    const content = readFileSync(sidebarPath, 'utf-8')
+    const lines = content.split('\n')
+    const violations: string[] = []
+    for (const line of lines) {
+      if (emojiPattern.test(line)) {
+        violations.push(line.trim())
+      }
+    }
+    expect(violations).toEqual([])
+  })
+
+  test('no emoji icons in admin kpiCards', () => {
+    const kpiPath = join(COMPONENTS_DIR, 'admin/kpiCards.tsx')
+    const content = readFileSync(kpiPath, 'utf-8')
+    const lines = content.split('\n')
+    const violations: string[] = []
+    for (const line of lines) {
+      if (emojiPattern.test(line)) {
+        violations.push(line.trim())
+      }
+    }
+    expect(violations).toEqual([])
+  })
+
+  test('no hardcoded Tailwind colors in storefront components', () => {
+    const rawColorPattern =
+      /(?:bg|text|border)-(?:green|red|blue|gray|yellow|orange|purple|pink|indigo|emerald|teal|cyan|amber|lime|violet|fuchsia|rose|slate|zinc|neutral|stone)-\d{2,3}/g
+    const violations: string[] = []
+    for (const file of componentFiles()) {
+      // Exclude ui/ and admin/ directories
+      const rel = file.replace(COMPONENTS_DIR + '/', '')
+      if (rel.startsWith('ui/') || rel.startsWith('admin/')) continue
+      const content = readFileSync(file, 'utf-8')
+      const matches = content.match(rawColorPattern)
+      if (matches) {
+        violations.push(
+          `${file.replace(ROOT + '/', '')}: ${matches.join(', ')}`
+        )
+      }
+    }
+    expect(violations).toEqual([])
+  })
+
+  test('targeted form components adopt Input, Alert, Select, and Spinner primitives', () => {
+    expect(readComponent('auth/signinForm.tsx')).toContain(
+      '@components/ui/input'
+    )
+    expect(readComponent('auth/signinForm.tsx')).toContain(
+      '@components/ui/alert'
+    )
+
+    expect(readComponent('auth/signupForm.tsx')).toContain(
+      '@components/ui/input'
+    )
+    expect(readComponent('auth/signupForm.tsx')).toContain(
+      '@components/ui/alert'
+    )
+
+    expect(readComponent('checkout/shippingForm.tsx')).toContain(
+      '@components/ui/input'
+    )
+
+    expect(readComponent('checkout/mpesaPayment.tsx')).toContain(
+      '@components/ui/input'
+    )
+    expect(readComponent('checkout/mpesaPayment.tsx')).toContain(
+      '@components/ui/alert'
+    )
+    expect(readComponent('checkout/mpesaPayment.tsx')).toContain(
+      '@components/ui/spinner'
+    )
+
+    expect(readComponent('home/newsletterSignup.tsx')).toContain(
+      '@components/ui/input'
+    )
+
+    expect(readComponent('account/profileForm.tsx')).toContain(
+      '@components/ui/input'
+    )
+    expect(readComponent('account/profileForm.tsx')).toContain(
+      '@components/ui/alert'
+    )
+
+    expect(readComponent('catalog/sortDropdown.tsx')).toContain(
+      '@components/ui/select'
+    )
+  })
+
+  test('targeted badge components adopt the Badge primitive', () => {
+    expect(readComponent('ui/productCard.tsx')).toContain(
+      '@components/ui/badge'
+    )
+    expect(readComponent('catalog/activeFilters.tsx')).toContain(
+      '@components/ui/badge'
+    )
+    expect(readComponent('listing/priceDisplay.tsx')).toContain(
+      '@components/ui/badge'
+    )
+  })
+
+  test('no source files use bg-pedie-dark', () => {
+    const allAppFiles = walkFiles(join(ROOT, 'src/app')).filter(f =>
+      /\.(tsx?|jsx?)$/.test(f)
+    )
+    const filesToCheck = [...componentFiles(), ...allAppFiles]
+    // deduplicate
+    const unique = [...new Set(filesToCheck)]
+
+    const violations = unique.filter(file =>
+      readFileSync(file, 'utf-8').includes('bg-pedie-dark')
+    )
+
+    expect(violations.map(f => f.replace(ROOT + '/', ''))).toEqual([])
+  })
+
+  test('targeted inline SVG icon files use react-icons/tb instead', () => {
+    const files = [
+      'catalog/activeFilters.tsx',
+      'catalog/filterSidebar.tsx',
+      'catalog/sortDropdown.tsx',
+      'listing/productDescription.tsx',
+      'cart/cartItem.tsx',
+      'listing/shippingInfo.tsx',
+    ]
+
+    const violations = files.filter(file =>
+      readComponent(file).includes('<svg')
+    )
+
+    expect(violations).toEqual([])
+  })
+
+  test('glass overlays use the shared glass utility in mega menu and user menu', () => {
+    const megaMenu = readComponent('layout/megaMenu.tsx')
+    const userMenu = readComponent('auth/userMenu.tsx')
+
+    expect(megaMenu).toContain('glass')
+    expect(userMenu).toContain('glass')
+    expect(megaMenu).not.toContain('bg-pedie-glass')
+    expect(megaMenu).not.toContain('backdrop-blur-xl')
+    expect(userMenu).not.toContain('bg-pedie-glass')
+    expect(userMenu).not.toContain('backdrop-blur-xl')
   })
 })

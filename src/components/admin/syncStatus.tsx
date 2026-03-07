@@ -1,5 +1,6 @@
 'use client'
 
+import { Alert } from '@components/ui/alert'
 import { useState } from 'react'
 
 export function SyncStatus() {
@@ -70,16 +71,12 @@ export function SyncStatus() {
       {result && (
         <div className='mt-4'>
           {result.error ? (
-            <div className='rounded bg-red-50 p-3 text-sm text-red-700'>
-              {result.error}
-            </div>
+            <Alert variant='error'>{result.error}</Alert>
           ) : result.report ? (
-            <div className='rounded bg-green-50 p-3 text-sm text-green-700'>
-              <p>
-                Sync completed: {result.report.created} created,{' '}
-                {result.report.updated} updated, {result.report.errors} errors
-              </p>
-            </div>
+            <Alert variant='success'>
+              Sync completed: {result.report.created} created,{' '}
+              {result.report.updated} updated, {result.report.errors} errors
+            </Alert>
           ) : null}
         </div>
       )}

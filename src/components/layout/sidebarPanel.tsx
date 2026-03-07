@@ -45,13 +45,13 @@ const QUICK_LINKS = [
     name: 'Trade In',
     href: '/trade-in',
     icon: TbArrowsExchange,
-    iconClass: 'text-blue-400',
+    iconClass: 'text-pedie-info',
   },
   {
     name: 'Repairs',
     href: '/repairs',
     icon: TbTool,
-    iconClass: 'text-amber-400',
+    iconClass: 'text-pedie-warning',
   },
 ] as const
 
@@ -171,7 +171,7 @@ export function SidebarPanel({
                 onClick={onClose}
                 className='flex items-center gap-3 rounded-lg bg-pedie-green/10 px-4 py-3 text-sm font-medium text-pedie-green transition-colors hover:bg-pedie-green/20'
               >
-                <TbFlame className='h-5 w-5 text-amber-400' />
+                <TbFlame className='h-5 w-5 text-pedie-warning' />
                 <div>
                   <span className='font-semibold'>Hot Deals</span>
                   <span className='ml-2 text-xs text-pedie-text-muted'>

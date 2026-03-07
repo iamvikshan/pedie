@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from '@components/ui/button'
+import { Input } from '@components/ui/input'
 import { useState } from 'react'
 
 export function NewsletterSignup() {
@@ -38,7 +39,7 @@ export function NewsletterSignup() {
 
   return (
     <section className='py-16 w-full pedie-container'>
-      <div className='max-w-2xl mx-auto text-center bg-pedie-dark p-8 md:p-12 rounded-2xl border border-pedie-border'>
+      <div className='max-w-2xl mx-auto text-center bg-pedie-sunken p-8 md:p-12 rounded-2xl border border-pedie-border'>
         <h2 className='text-2xl md:text-3xl font-bold text-pedie-text mb-4'>
           Stay Updated
         </h2>
@@ -51,14 +52,15 @@ export function NewsletterSignup() {
           onSubmit={handleSubmit}
           className='flex flex-col sm:flex-row gap-3 max-w-md mx-auto'
         >
-          <input
+          <Input
             type='email'
             value={email}
             onChange={e => setEmail(e.target.value)}
             placeholder='Enter your email address'
             required
-            className='flex-1 rounded-md border border-pedie-border bg-pedie-card px-4 py-3 text-pedie-text placeholder:text-pedie-text-muted focus:border-pedie-green focus:outline-none'
+            className='flex-1'
             disabled={status === 'loading' || status === 'success'}
+            size='lg'
           />
           <Button
             type='submit'

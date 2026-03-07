@@ -21,7 +21,7 @@ export function PaymentSelector({ selected, onSelect }: PaymentSelectorProps) {
             : 'border-pedie-border bg-pedie-card hover:border-pedie-text-muted'
         }`}
       >
-        <div className='flex h-10 w-10 items-center justify-center rounded-full bg-green-600 text-white text-sm font-bold'>
+        <div className='flex h-10 w-10 items-center justify-center rounded-full bg-pedie-success text-white text-sm font-bold'>
           M
         </div>
         <div>
@@ -54,7 +54,7 @@ export function PaymentSelector({ selected, onSelect }: PaymentSelectorProps) {
             : 'border-pedie-border bg-pedie-card hover:border-pedie-text-muted'
         }`}
       >
-        <div className='flex h-10 w-10 items-center justify-center rounded-full bg-blue-600 text-white text-sm font-bold'>
+        <div className='flex h-10 w-10 items-center justify-center rounded-full bg-pedie-info text-white text-sm font-bold'>
           P
         </div>
         <div>

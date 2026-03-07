@@ -129,8 +129,8 @@ describe('Admin Prices', () => {
           competitorPriceKes: 50000,
         })
       )
-      // Should have green indicator (competitive advantage)
-      expect(html).toContain('green')
+      // Should have success indicator (competitive advantage)
+      expect(html).toContain('success')
     })
 
     test('shows red when competitor is cheaper', () => {
@@ -140,8 +140,8 @@ describe('Admin Prices', () => {
           competitorPriceKes: 40000,
         })
       )
-      // Should have red indicator (needs attention)
-      expect(html).toContain('red')
+      // Should have error indicator (needs attention)
+      expect(html).toContain('error')
     })
 
     test('shows yellow when prices are close (within 5%)', () => {
@@ -151,8 +151,8 @@ describe('Admin Prices', () => {
           competitorPriceKes: 46000,
         })
       )
-      // Within 5% — should show yellow
-      expect(html).toContain('yellow')
+      // Within 5% -- should show warning
+      expect(html).toContain('warning')
     })
 
     test('shows percentage difference', () => {
