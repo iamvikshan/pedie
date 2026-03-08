@@ -25,57 +25,64 @@ describe('cleanNumericString', () => {
 
 describe('parseSheetRow', () => {
   const headers = [
-    'listing_id',
     'brand',
     'model',
     'category',
     'condition_grade',
-    'price_usd',
     'price_kes',
-    'original_price_kes',
+    'sale_price_kes',
+    'ram',
     'warranty_months',
     'notes',
     'source',
-    'source_listing_id',
+    'source_id',
     'source_url',
     'status',
+    'images',
+    'listing_type',
+    'includes',
+    'admin_notes',
   ]
 
   test('maps columns correctly', () => {
     const row = [
-      'PD-ABC12',
       'Apple',
       'iPhone 13',
       'smartphones',
       'excellent',
-      '350',
       '45500',
-      '55000',
+      '40000',
+      '4GB',
       '3',
       'Minor scratch on back',
       'Swappa',
       'SWP-123',
       'https://swappa.com/listing/123',
-      'available',
+      'active',
+      '',
+      'standard',
+      'charger, case',
+      'Good unit',
     ]
 
     const result = parseSheetRow(row, headers)
 
     expect(result).not.toBeNull()
-    expect(result!.listing_id).toBe('PD-ABC12')
     expect(result!.brand).toBe('Apple')
     expect(result!.model).toBe('iPhone 13')
     expect(result!.category).toBe('smartphones')
     expect(result!.condition_grade).toBe('excellent')
-    expect(result!.price_usd).toBe('350')
     expect(result!.price_kes).toBe('45500')
-    expect(result!.original_price_kes).toBe('55000')
+    expect(result!.sale_price_kes).toBe('40000')
+    expect(result!.ram).toBe('4GB')
     expect(result!.warranty_months).toBe('3')
     expect(result!.notes).toBe('Minor scratch on back')
     expect(result!.source).toBe('Swappa')
-    expect(result!.source_listing_id).toBe('SWP-123')
+    expect(result!.source_id).toBe('SWP-123')
     expect(result!.source_url).toBe('https://swappa.com/listing/123')
-    expect(result!.status).toBe('available')
+    expect(result!.status).toBe('active')
+    expect(result!.includes).toBe('charger, case')
+    expect(result!.admin_notes).toBe('Good unit')
   })
 
   test('returns null for empty row', () => {
@@ -84,39 +91,54 @@ describe('parseSheetRow', () => {
   })
 
   test('returns null for row missing required fields', () => {
-    const row = ['', '', '', '', '', '', '', '', '', '', '', '', '', '']
+    const row = [
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+    ]
     const result = parseSheetRow(row, headers)
     expect(result).toBeNull()
   })
 
   test('handles missing optional fields gracefully', () => {
-    const row = ['', 'Samsung', 'Galaxy S21', 'smartphones']
+    const row = ['Samsung', 'Galaxy S21', 'smartphones']
     const result = parseSheetRow(row, headers)
 
     expect(result).not.toBeNull()
-    expect(result!.listing_id).toBeUndefined()
     expect(result!.brand).toBe('Samsung')
     expect(result!.model).toBe('Galaxy S21')
-    expect(result!.condition_grade).toBe('good') // default
-    expect(result!.price_usd).toBeUndefined()
+    expect(result!.condition_grade).toBe('good')
     expect(result!.source).toBeUndefined()
   })
 
   test('defaults condition_grade to good', () => {
-    const row = ['', 'Apple', 'iPhone 14', 'smartphones', '']
+    const row = ['Apple', 'iPhone 14', 'smartphones', '']
     const result = parseSheetRow(row, headers)
 
     expect(result!.condition_grade).toBe('good')
   })
 
-  test('handles source_listing_id for crawler imports', () => {
+  test('handles source fields (source, source_id, source_url)', () => {
     const row = [
-      '',
       'Apple',
       'iPhone 12',
       'smartphones',
       'good',
-      '250',
+      '',
       '',
       '',
       '',
@@ -130,12 +152,12 @@ describe('parseSheetRow', () => {
     const result = parseSheetRow(row, headers)
 
     expect(result!.source).toBe('BackMarket')
-    expect(result!.source_listing_id).toBe('BM-456')
+    expect(result!.source_id).toBe('BM-456')
     expect(result!.source_url).toBe('https://backmarket.com/product/456')
   })
 
   test('trims whitespace from values', () => {
-    const row = ['', '  Apple  ', '  iPhone 13  ', '  smartphones  ']
+    const row = ['  Apple  ', '  iPhone 13  ', '  smartphones  ']
     const result = parseSheetRow(row, headers)
 
     expect(result!.brand).toBe('Apple')
@@ -144,87 +166,83 @@ describe('parseSheetRow', () => {
   })
 
   test('cleans currency-formatted price_kes', () => {
-    const row = [
-      '',
-      'Apple',
-      'iPhone 13',
-      'smartphones',
-      'good',
-      '',
-      'KES 45,500',
-    ]
+    const row = ['Apple', 'iPhone 13', 'smartphones', 'good', 'KES 45,500']
     const result = parseSheetRow(row, headers)
 
     expect(result!.price_kes).toBe('45500')
   })
 
-  test('cleans comma-separated price_usd', () => {
-    const row = ['', 'Apple', 'iPhone 13', 'smartphones', 'good', '$1,350']
+  test('cleans sale_price_kes with formatting', () => {
+    const row = [
+      'Apple',
+      'iPhone 13',
+      'smartphones',
+      'good',
+      '45500',
+      'KES 40,000',
+    ]
     const result = parseSheetRow(row, headers)
 
-    expect(result!.price_usd).toBe('1350')
+    expect(result!.sale_price_kes).toBe('40000')
   })
 })
 
-describe('crawler field validation', () => {
+describe('source field parsing', () => {
   const headers = [
-    'listing_id',
     'brand',
     'model',
     'category',
     'condition_grade',
-    'price_usd',
     'price_kes',
-    'original_price_kes',
+    'sale_price_kes',
+    'ram',
     'warranty_months',
     'notes',
     'source',
-    'source_listing_id',
+    'source_id',
     'source_url',
     'status',
   ]
 
-  const crawlerSources = ['Swappa', 'Reebelo', 'BackMarket']
+  const knownSources = ['Swappa', 'Reebelo', 'BackMarket']
 
-  for (const source of crawlerSources) {
-    test(`${source} row without source_listing_id is missing required field`, () => {
+  for (const source of knownSources) {
+    test(`${source} row without source_id parses with undefined source_id`, () => {
       const row = [
-        '',
         'Apple',
         'iPhone 12',
         'smartphones',
         'good',
-        '250',
+        '32500',
         '',
         '',
         '',
         '',
         source,
-        '', // missing source_listing_id
+        '',
         'https://example.com/listing/123',
         '',
       ]
       const parsed = parseSheetRow(row, headers)
       expect(parsed).not.toBeNull()
       expect(parsed!.source).toBe(source)
-      expect(parsed!.source_listing_id).toBeUndefined()
+      expect(parsed!.source_id).toBeUndefined()
     })
 
-    test(`${source} row without source_url is missing required field`, () => {
+    test(`${source} row without source_url parses with undefined source_url`, () => {
       const row = [
-        '',
         'Apple',
         'iPhone 12',
         'smartphones',
         'good',
-        '250',
+        '32500',
         '',
         '',
         '',
         '',
         source,
         'SRC-123',
-        '', // missing source_url
+        '',
         '',
       ]
       const parsed = parseSheetRow(row, headers)
@@ -233,14 +251,13 @@ describe('crawler field validation', () => {
       expect(parsed!.source_url).toBeUndefined()
     })
 
-    test(`${source} row with both source_listing_id and source_url is valid`, () => {
+    test(`${source} row with both source_id and source_url parses correctly`, () => {
       const row = [
-        '',
         'Apple',
         'iPhone 12',
         'smartphones',
         'good',
-        '250',
+        '32500',
         '',
         '',
         '',
@@ -253,7 +270,7 @@ describe('crawler field validation', () => {
       const parsed = parseSheetRow(row, headers)
       expect(parsed).not.toBeNull()
       expect(parsed!.source).toBe(source)
-      expect(parsed!.source_listing_id).toBe('SRC-123')
+      expect(parsed!.source_id).toBe('SRC-123')
       expect(parsed!.source_url).toBe('https://example.com/listing/123')
     })
   }
@@ -261,18 +278,17 @@ describe('crawler field validation', () => {
 
 describe('images column support', () => {
   const headersWithImages = [
-    'listing_id',
     'brand',
     'model',
     'category',
     'condition_grade',
-    'price_usd',
     'price_kes',
-    'original_price_kes',
+    'sale_price_kes',
+    'ram',
     'warranty_months',
     'notes',
     'source',
-    'source_listing_id',
+    'source_id',
     'source_url',
     'status',
     'images',
@@ -280,20 +296,19 @@ describe('images column support', () => {
 
   test('should parse images column from sheet row', () => {
     const row = [
-      '',
       'Apple',
       'iPhone 15',
       'smartphones',
       'premium',
-      '500',
       '65000',
-      '75000',
+      '',
+      '',
       '6',
       '',
       '',
       '',
       '',
-      'available',
+      'active',
       'https://store.example.com/img1.jpg,https://store.example.com/img2.jpg',
     ]
 
@@ -306,12 +321,11 @@ describe('images column support', () => {
 
   test('should handle empty images gracefully', () => {
     const row = [
-      '',
       'Samsung',
       'Galaxy S23',
       'smartphones',
       'good',
-      '400',
+      '',
       '',
       '',
       '',
@@ -330,83 +344,55 @@ describe('images column support', () => {
 })
 
 describe('listing_type column support', () => {
-  const headersWithSale = [
-    'listing_id',
+  const headersWithType = [
     'brand',
     'model',
     'category',
     'condition_grade',
-    'price_usd',
     'price_kes',
-    'original_price_kes',
+    'sale_price_kes',
+    'ram',
     'warranty_months',
     'notes',
     'source',
-    'source_listing_id',
+    'source_id',
     'source_url',
     'status',
     'images',
     'listing_type',
   ]
 
-  test("should parse listing_type as 'sale'", () => {
-    const row = [
-      'PD-01003',
-      'Apple',
-      'iPhone 15 Pro',
-      'smartphones',
-      'good',
-      '899',
-      '135000',
-      '195000',
-      '',
-      '',
-      'swappa',
-      '',
-      '',
-      'available',
-      '',
-      'sale',
-    ]
-
-    const result = parseSheetRow(row, headersWithSale)
-    expect(result).not.toBeNull()
-    expect(result!.listing_type).toBe('sale')
-  })
-
   test("should parse listing_type as 'standard'", () => {
     const row = [
-      'PD-01001',
       'Apple',
       'iPhone 16 Pro Max',
       'smartphones',
       'excellent',
-      '1099',
       '195000',
-      '250000',
       '',
       '',
       '',
       '',
       '',
-      'available',
+      '',
+      '',
+      'active',
       '',
       'standard',
     ]
 
-    const result = parseSheetRow(row, headersWithSale)
+    const result = parseSheetRow(row, headersWithType)
     expect(result).not.toBeNull()
     expect(result!.listing_type).toBe('standard')
   })
 
   test('should handle missing listing_type gracefully', () => {
     const row = [
-      '',
       'Samsung',
       'Galaxy S24',
       'smartphones',
       'excellent',
-      '800',
+      '120000',
       '',
       '',
       '',
@@ -418,19 +404,18 @@ describe('listing_type column support', () => {
       '',
     ]
 
-    const result = parseSheetRow(row, headersWithSale)
+    const result = parseSheetRow(row, headersWithType)
     expect(result).not.toBeNull()
     expect(result!.listing_type).toBeUndefined()
   })
 
   test('should handle empty listing_type as undefined', () => {
     const row = [
-      '',
       'Google',
       'Pixel 8',
       'smartphones',
       'good',
-      '500',
+      '65000',
       '',
       '',
       '',
@@ -443,165 +428,89 @@ describe('listing_type column support', () => {
       '',
     ]
 
-    const result = parseSheetRow(row, headersWithSale)
+    const result = parseSheetRow(row, headersWithType)
     expect(result).not.toBeNull()
     expect(result!.listing_type).toBeUndefined()
   })
 
   test("should parse listing_type as 'affiliate'", () => {
     const row = [
-      'PD-01010',
       'Samsung',
       'Galaxy S24 Ultra',
       'smartphones',
       'premium',
-      '1199',
       '185000',
-      '220000',
+      '',
+      '',
       '',
       '',
       'samsung.com',
       '',
       'https://samsung.com/galaxy-s24-ultra',
-      'available',
+      'active',
       '',
       'affiliate',
     ]
 
-    const result = parseSheetRow(row, headersWithSale)
+    const result = parseSheetRow(row, headersWithType)
     expect(result).not.toBeNull()
     expect(result!.listing_type).toBe('affiliate')
   })
 })
 
-describe('final_price_kes column support', () => {
-  const headersWithFinalPrice = [
-    'listing_id',
-    'brand',
-    'model',
-    'category',
-    'condition_grade',
-    'price_usd',
-    'price_kes',
-    'original_price_kes',
-    'warranty_months',
-    'notes',
-    'source',
-    'source_listing_id',
-    'source_url',
-    'status',
-    'images',
-    'listing_type',
-    'final_price_kes',
-  ]
-
-  test('should parse final_price_kes as numeric string', () => {
-    const row = [
-      'PD-01001',
-      'Apple',
-      'iPhone 16 Pro Max',
-      'smartphones',
-      'excellent',
-      '1099',
-      '195000',
-      '250000',
-      '',
-      '',
-      '',
-      '',
-      '',
-      'available',
-      '',
-      'sale',
-      '120000',
-    ]
-
-    const result = parseSheetRow(row, headersWithFinalPrice)
-    expect(result).not.toBeNull()
-    expect(result!.final_price_kes).toBe('120000')
+describe('sync source analysis', () => {
+  test('uses brand_id FK instead of brand string column', () => {
+    expect(src).toContain('brand_id')
+    expect(src).not.toContain(".eq('brand', brand)")
   })
 
-  test('should parse final_price_kes with formatting', () => {
-    const row = [
-      'PD-01002',
-      'Apple',
-      'iPhone 15 Pro',
-      'smartphones',
-      'good',
-      '899',
-      '135000',
-      '195000',
-      '',
-      '',
-      '',
-      '',
-      '',
-      'available',
-      '',
-      'standard',
-      'KES 135,000',
-    ]
-
-    const result = parseSheetRow(row, headersWithFinalPrice)
-    expect(result).not.toBeNull()
-    expect(result!.final_price_kes).toBe('135000')
+  test('uses source_id instead of source_listing_id', () => {
+    expect(src).toContain('source_id')
+    expect(src).not.toContain('source_listing_id')
   })
 
-  test('should handle missing final_price_kes gracefully', () => {
-    const row = [
-      '',
-      'Samsung',
-      'Galaxy S24',
-      'smartphones',
-      'excellent',
-      '800',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-    ]
-
-    const result = parseSheetRow(row, headersWithFinalPrice)
-    expect(result).not.toBeNull()
-    expect(result!.final_price_kes).toBeUndefined()
+  test('uses active status instead of available', () => {
+    expect(src).not.toContain("'available'")
+    expect(src).toContain("'active'")
   })
 
-  test('should handle empty final_price_kes as undefined', () => {
-    const row = [
-      '',
-      'Google',
-      'Pixel 8',
-      'smartphones',
-      'good',
-      '500',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-      '',
-    ]
-
-    const result = parseSheetRow(row, headersWithFinalPrice)
-    expect(result).not.toBeNull()
-    expect(result!.final_price_kes).toBeUndefined()
+  test('uses archived status instead of unlisted', () => {
+    expect(src).not.toContain("'unlisted'")
+    expect(src).toContain("'archived'")
   })
-})
 
-describe('sync source: final_price_kes fallback', () => {
-  test('final_price_kes falls back to priceKes when parsed value is not a finite number', () => {
-    expect(src).toContain('Number.isFinite(parsed_final)')
-    expect(src).toContain('priceKes')
+  test('does not reference listing_id text column', () => {
+    expect(src).not.toContain(".eq('listing_id',")
+    expect(src).not.toContain(".select('listing_id')")
+  })
+
+  test('does not reference original_price_usd', () => {
+    expect(src).not.toContain('original_price_usd')
+  })
+
+  test('does not reference final_price_kes', () => {
+    expect(src).not.toContain('final_price_kes')
+  })
+
+  test('includes sale_price_kes support', () => {
+    expect(src).toContain('sale_price_kes')
+  })
+
+  test('uses product_categories junction table', () => {
+    expect(src).toContain('product_categories')
+  })
+
+  test('includes sku in SHEET_HEADERS', () => {
+    expect(src).toContain("'sku'")
+  })
+
+  test('includes multi-tab export functions', () => {
+    expect(src).toContain('syncBrandsToSheet')
+    expect(src).toContain('syncCategoriesToSheet')
+    expect(src).toContain('syncPromotionsToSheet')
+  })
+
+  test('ExportReport supports tabs', () => {
+    expect(src).toContain('tabs?')
   })
 })

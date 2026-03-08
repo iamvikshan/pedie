@@ -48,7 +48,7 @@ iconLib: react-icons/tb
 
 ## Naming, Structure & Types
 
-- File/module/component filenames: `camelCase`. Exported classes/types: `PascalCase`. Runtime/exported variables: `camelCase`. Constants (.env & config.ts): `UPPER_SNAKE_CASE`. NOTE: inconsistencies exist, fix on encounter.
+- File/module/component filenames: `camelCase`. Exported classes/types: `PascalCase`. Runtime/exported variables: `camelCase`. Constants (.env & config.ts): `UPPER_SNAKE_CASE`. MANDATORY: inconsistencies exist, fix on encounter.
 - Tests live under `tests/`.
 - Shared types live in `types/` and are imported via `@app-types/*` only — never scattered through `src/`.
 - Route code lives under `src/app` using App Router conventions including route groups `(store)`, `(auth)`, `(admin)`, `(account)`.

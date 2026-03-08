@@ -1,6 +1,11 @@
-## Phase 2 Complete: Data Access Layer Rewrite
+## Phase 2 Complete: Data Layer Rewrite (Integration Pending)
 
 Rewrote all data access layer queries, types, and helpers for the new database schema. 48 files modified across queries, types, helpers, tests. All public storefront queries now correctly filter `status = 'active'` (security fix). Brand filtering is consistent (slug-based) with pre-resolved product IDs for count queries. Admin notes field correctly normalized to `string[]` before DB insert. Deleted `deals.ts` -- promotion listing logic inlined in `listings.ts`.
+
+**Remaining items (deferred to Phase 5):**
+- `bun check` type errors: all in frontend consumer files not yet rewritten (Phase 5 scope)
+- Storefront consumer propagation: shop page, filterSidebar, searchBar, productDetailClient
+- Remove `getPricingTier()` / `PricingTier` type (cards handle display directly)
 
 **Details:**
 - `src/lib/data/products.ts` -- Rewrote all product family queries. Replaced `category` column FK with `product_categories` junction table + `getCategoryAndDescendantIds()`. Uses `brand:brands(*)` join select pattern. All 7 public query functions filter `.eq('status', 'active')`. Removed `getDealListings()` (moved to listings.ts as `getPromotionListings()`).
@@ -28,7 +33,7 @@ Rewrote all data access layer queries, types, and helpers for the new database s
 - Pricing tiers: `getPricingTier()` returns `'sale' | 'regular' | 'premium'` -- will be removed entirely in Phase 5 (cards handle display logic directly).
 - `bun check` skipped as quality gate: remaining type errors are all in Phase 5 consumer files.
 - Storefront consumer propagation deferred to Phase 5.
-- Fixed `const` -> `let` for productIds in search.ts (was causing test runner hang).
+- `let productIds` in search.ts: variable is reassigned by brand filter logic, `const` was incorrect and caused Bun test runner to hang.
 
 **Files created/changed:**
 - src/lib/data/products.ts
@@ -93,7 +98,7 @@ Rewrote all data access layer queries, types, and helpers for the new database s
 **Tests created/changed:**
 - 46 test files updated/created across tests/lib/data/, tests/data/, tests/app/api/
 
-**Review Status:** APPROVED
+**Review Status:** APPROVED (data layer scope; frontend integration deferred to Phase 5)
 
 **Git Commit Message:**
 ```

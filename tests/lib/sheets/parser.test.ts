@@ -3,18 +3,17 @@ import { parseSheetRow } from '@lib/sheets/parser'
 
 describe('parseSheetRow images support', () => {
   const headers = [
-    'listing_id',
     'brand',
     'model',
     'category',
     'condition_grade',
-    'price_usd',
     'price_kes',
-    'original_price_kes',
+    'sale_price_kes',
+    'ram',
     'warranty_months',
     'notes',
     'source',
-    'source_listing_id',
+    'source_id',
     'source_url',
     'status',
     'images',
@@ -22,20 +21,19 @@ describe('parseSheetRow images support', () => {
 
   test('should include images in parsed row', () => {
     const row = [
-      'PD-IMG01',
       'Apple',
       'iPhone 14',
       'smartphones',
       'excellent',
-      '400',
       '52000',
-      '60000',
+      '',
+      '',
       '6',
       '',
       'Manual',
       '',
       '',
-      'available',
+      'active',
       'https://storage.example.com/a.jpg,https://storage.example.com/b.jpg',
     ]
 
@@ -49,12 +47,10 @@ describe('parseSheetRow images support', () => {
 
   test('should return undefined images when column is empty', () => {
     const row = [
-      '',
       'Samsung',
       'Galaxy S22',
       'smartphones',
       'good',
-      '300',
       '',
       '',
       '',
@@ -63,7 +59,8 @@ describe('parseSheetRow images support', () => {
       '',
       '',
       '',
-      '', // empty images
+      '',
+      '',
     ]
 
     const result = parseSheetRow(row, headers)

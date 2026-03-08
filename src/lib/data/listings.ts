@@ -105,9 +105,7 @@ export async function getFilteredListings(
       .select('id')
       .in('brand_id', brandIds)
 
-    const brandProductIds = new Set(
-      (brandProducts ?? []).map(p => p.id)
-    )
+    const brandProductIds = new Set((brandProducts ?? []).map(p => p.id))
 
     if (productIds) {
       productIds = productIds.filter(id => brandProductIds.has(id))
@@ -414,25 +412,146 @@ function computeDiscount(listing: ListingWithProduct): number {
   return Math.min(100, Math.max(0, pct))
 }
 
+export function applyPromotionDiscount(
+  listing: ListingWithProduct,
+  promotion: { discount_pct: number | null; discount_amount_kes: number | null }
+): ListingWithProduct {
+  let effectivePrice: number | null = null
+
+  if (
+    promotion.discount_pct != null &&
+    promotion.discount_pct > 0 &&
+    promotion.discount_pct <= 100
+  ) {
+    effectivePrice = Math.round(
+      listing.price_kes * (1 - promotion.discount_pct / 100)
+    )
+  } else if (
+    promotion.discount_amount_kes != null &&
+    promotion.discount_amount_kes > 0
+  ) {
+    effectivePrice = Math.max(
+      0,
+      listing.price_kes - promotion.discount_amount_kes
+    )
+  }
+
+  if (effectivePrice == null) return listing
+
+  // Only apply if promotion gives a better price than existing sale_price_kes
+  if (
+    listing.sale_price_kes != null &&
+    listing.sale_price_kes <= effectivePrice
+  ) {
+    return listing
+  }
+
+  return { ...listing, sale_price_kes: effectivePrice }
+}
+
+export async function getActivePromotions() {
+  const supabase = await createClient()
+  const now = new Date().toISOString()
+
+  const { data, error } = await supabase
+    .from('promotions')
+    .select('*, listing:listings(*), product:products(*)')
+    .eq('is_active', true)
+    .lte('starts_at', now)
+    .gt('ends_at', now)
+
+  if (error) {
+    console.error('Error fetching active promotions:', error)
+    return []
+  }
+
+  return data ?? []
+}
+
 /**
  * Fetch active listings with a valid sale_price_kes, sorted by discount percentage.
+ * Also merges listings targeted by active promotions from the promotions table.
  */
 async function fetchPromotionListings(): Promise<ListingWithProduct[]> {
   const supabase = await createClient()
-  const { data, error } = await supabase
+
+  // 1. Listings with direct sale_price_kes
+  const { data: saleListings, error: saleError } = await supabase
     .from('listings')
     .select(LISTING_SELECT)
     .eq('status', 'active')
     .not('sale_price_kes', 'is', null)
 
-  if (error) {
-    console.error('Error fetching promotion listings:', error)
-    return []
+  if (saleError) {
+    console.error('Error fetching promotion listings:', saleError)
   }
 
-  const listings = data as unknown as ListingWithProduct[]
+  const listingsMap = new Map<string, ListingWithProduct>()
+  for (const l of (saleListings ?? []) as unknown as ListingWithProduct[]) {
+    listingsMap.set(l.id, l)
+  }
 
-  return listings
+  // 2. Get active promotions
+  const now = new Date().toISOString()
+  const { data: promotions, error: promoError } = await supabase
+    .from('promotions')
+    .select('listing_id, product_id, discount_pct, discount_amount_kes')
+    .eq('is_active', true)
+    .lte('starts_at', now)
+    .gt('ends_at', now)
+
+  if (promoError) {
+    console.error('Error fetching promotions:', promoError)
+  }
+
+  if (promotions && promotions.length > 0) {
+    // Promotion-targeted listings
+    const promoListingIds = promotions
+      .filter(p => p.listing_id != null)
+      .map(p => p.listing_id!)
+
+    if (promoListingIds.length > 0) {
+      const { data: promoListings } = await supabase
+        .from('listings')
+        .select(LISTING_SELECT)
+        .in('id', promoListingIds)
+        .eq('status', 'active')
+
+      for (const l of (promoListings ??
+        []) as unknown as ListingWithProduct[]) {
+        const promo = promotions.find(p => p.listing_id === l.id)
+        if (promo) {
+          const updated = applyPromotionDiscount(l, promo)
+          listingsMap.set(updated.id, updated)
+        }
+      }
+    }
+
+    // Promotion-targeted products (apply to all active listings of that product)
+    const promoProductIds = promotions
+      .filter(p => p.product_id != null)
+      .map(p => p.product_id!)
+
+    if (promoProductIds.length > 0) {
+      const { data: productListings } = await supabase
+        .from('listings')
+        .select(LISTING_SELECT)
+        .in('product_id', promoProductIds)
+        .eq('status', 'active')
+
+      for (const l of (productListings ??
+        []) as unknown as ListingWithProduct[]) {
+        const promo = promotions.find(p => p.product_id === l.product_id)
+        if (promo) {
+          const base = listingsMap.get(l.id) ?? l
+          const updated = applyPromotionDiscount(base, promo)
+          listingsMap.set(updated.id, updated)
+        }
+      }
+    }
+  }
+
+  return [...listingsMap.values()]
     .map(l => ({ listing: l, discount: computeDiscount(l) }))
     .filter(({ discount }) => discount > 0)
     .sort((a, b) => b.discount - a.discount)
@@ -442,9 +561,7 @@ async function fetchPromotionListings(): Promise<ListingWithProduct[]> {
 /**
  * Get up to 20 hot promotion listings sorted by discount percentage.
  */
-export async function getHotPromotionListings(): Promise<
-  ListingWithProduct[]
-> {
+export async function getHotPromotionListings(): Promise<ListingWithProduct[]> {
   const listings = await fetchPromotionListings()
   return listings.slice(0, 20)
 }

@@ -1,5 +1,4 @@
 import type { Database } from '@app-types/database'
-import { usdToKes } from '@helpers'
 import { parseSheetRow } from '@lib/sheets/parser'
 import { createAdminClient } from '@lib/supabase/admin'
 import type { SupabaseClient } from '@supabase/supabase-js'
@@ -28,6 +27,7 @@ export interface ExportReport {
   skipped: number
   errors: number
   details: string[]
+  tabs?: Record<string, { rows: number; errors: number }>
 }
 
 export function getGoogleSheetsClient(): sheets_v4.Sheets {
@@ -66,25 +66,97 @@ export async function fetchSheetData(
   return (response.data.values as string[][]) || []
 }
 
+function toSlug(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/(^-|-$)/g, '')
+}
+
 export async function findOrCreateProduct(
   supabase: SupabaseClient<Database>,
-  brand: string,
+  brandName: string,
   model: string,
   categorySlug: string
 ): Promise<string> {
-  // Find existing product
-  const { data: existing } = await supabase
-    .from('products')
+  // Look up or create brand
+  const brandSlug = toSlug(brandName)
+  const { data: existingBrand } = await supabase
+    .from('brands')
     .select('id')
-    .eq('brand', brand)
-    .eq('model', model)
+    .eq('slug', brandSlug)
     .limit(1)
     .maybeSingle()
 
-  if (existing) return existing.id
+  let brandId: string
+  if (existingBrand) {
+    brandId = existingBrand.id
+  } else {
+    const { data: newBrand, error: brandError } = await supabase
+      .from('brands')
+      .insert({ name: brandName, slug: brandSlug })
+      .select('id')
+      .single()
 
-  // Look up the category by slug in the hierarchy.
-  // If it doesn't exist, create it under the Electronics root.
+    if (brandError || !newBrand) {
+      throw new Error(`Failed to create brand: ${brandError?.message}`)
+    }
+    brandId = newBrand.id
+  }
+
+  // Find existing product by brand_id + name (UNIQUE constraint)
+  const { data: existing } = await supabase
+    .from('products')
+    .select('id')
+    .eq('brand_id', brandId)
+    .eq('name', model)
+    .limit(1)
+    .maybeSingle()
+
+  if (existing) {
+    // Ensure product_categories junction row exists for existing products
+    const { data: catData } = await supabase
+      .from('categories')
+      .select('id')
+      .eq('slug', categorySlug)
+      .limit(1)
+      .maybeSingle()
+
+    if (catData) {
+      // Check if product already has a primary category
+      const { data: existingPrimary } = await supabase
+        .from('product_categories')
+        .select('category_id')
+        .eq('product_id', existing.id)
+        .eq('is_primary', true)
+        .limit(1)
+        .maybeSingle()
+
+      const shouldBePrimary =
+        !existingPrimary || existingPrimary.category_id === catData.id
+
+      const { error: junctionError } = await supabase
+        .from('product_categories')
+        .upsert(
+          {
+            product_id: existing.id,
+            category_id: catData.id,
+            is_primary: shouldBePrimary,
+          },
+          { onConflict: 'product_id,category_id' }
+        )
+
+      if (junctionError) {
+        throw new Error(
+          `Failed to ensure product_categories for product ${existing.id}: ${junctionError.message}`
+        )
+      }
+    }
+
+    return existing.id
+  }
+
+  // Look up the category by slug
   const { data: category } = await supabase
     .from('categories')
     .select('id')
@@ -133,22 +205,18 @@ export async function findOrCreateProduct(
   }
 
   // Generate slug from brand + model
-  const slug = `${brand}-${model}`
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '')
+  const slug = toSlug(`${brandName}-${model}`)
 
-  // Upsert product to handle race conditions on concurrent inserts
+  // Insert product
   const { data: newProduct, error: prodError } = await supabase
     .from('products')
     .upsert(
       {
-        brand,
-        model,
+        brand_id: brandId,
+        name: model,
         slug,
-        category_id: categoryId,
       },
-      { onConflict: 'brand,model' }
+      { onConflict: 'brand_id,name' }
     )
     .select('id')
     .single()
@@ -156,6 +224,16 @@ export async function findOrCreateProduct(
   if (prodError || !newProduct) {
     throw new Error(`Failed to create product: ${prodError?.message}`)
   }
+
+  // Link product to category via product_categories junction table
+  await supabase.from('product_categories').upsert(
+    {
+      product_id: newProduct.id,
+      category_id: categoryId,
+      is_primary: true,
+    },
+    { onConflict: 'product_id,category_id' }
+  )
 
   return newProduct.id
 }
@@ -195,24 +273,6 @@ export async function syncFromSheets(): Promise<SyncReport> {
         continue
       }
 
-      // Validate crawler source fields
-      const crawlerSources = ['Swappa', 'Reebelo', 'BackMarket']
-      if (parsed.source && crawlerSources.includes(parsed.source)) {
-        if (!parsed.source_listing_id || !parsed.source_url) {
-          const missing = [
-            !parsed.source_listing_id && 'source_listing_id',
-            !parsed.source_url && 'source_url',
-          ]
-            .filter(Boolean)
-            .join(', ')
-          report.errors++
-          report.details.push(
-            `Row ${i + 1}: Skipped (source=${parsed.source} requires ${missing})`
-          )
-          continue
-        }
-      }
-
       const productId = await findOrCreateProduct(
         supabase,
         parsed.brand,
@@ -220,11 +280,7 @@ export async function syncFromSheets(): Promise<SyncReport> {
         parsed.category.toLowerCase().replace(/\s+/g, '-')
       )
 
-      const priceKes = parsed.price_kes
-        ? parseInt(parsed.price_kes, 10)
-        : parsed.price_usd
-          ? usdToKes(parseFloat(parsed.price_usd))
-          : 0
+      const priceKes = parsed.price_kes ? parseInt(parsed.price_kes, 10) : 0
 
       if (priceKes === 0 || Number.isNaN(priceKes)) {
         report.details.push(`Row ${i + 1}: Skipped (invalid or missing price)`)
@@ -232,30 +288,13 @@ export async function syncFromSheets(): Promise<SyncReport> {
         continue
       }
 
-      // Update product-level original price if provided
-      if (parsed.original_price_kes) {
-        const parsedPrice = parseInt(parsed.original_price_kes, 10)
-        if (!Number.isNaN(parsedPrice)) {
-          const { error: priceError } = await supabase
-            .from('products')
-            .update({ original_price_kes: parsedPrice })
-            .eq('id', productId)
-
-          if (priceError) {
-            report.details.push(
-              `Row ${i + 1}: Failed to update product original_price_kes (${productId}) - ${priceError.message}`
-            )
-          }
-        }
-      }
-
       const listingData = {
         product_id: productId,
         condition:
           parsed.condition_grade as Database['public']['Enums']['condition_grade'],
         price_kes: priceKes,
-        original_price_usd: parsed.price_usd
-          ? parseFloat(parsed.price_usd)
+        sale_price_kes: parsed.sale_price_kes
+          ? parseInt(parsed.sale_price_kes, 10) || null
           : null,
         images: parsed.images
           ? parsed.images
@@ -263,9 +302,9 @@ export async function syncFromSheets(): Promise<SyncReport> {
               .map(url => url.trim())
               .filter(Boolean)
           : null,
-        notes: parsed.notes || null,
+        notes: parsed.notes ? [parsed.notes] : null,
         source: parsed.source || null,
-        source_listing_id: parsed.source_listing_id || null,
+        source_id: parsed.source_id || null,
         source_url: parsed.source_url || null,
         listing_type:
           (parsed.listing_type as
@@ -273,41 +312,35 @@ export async function syncFromSheets(): Promise<SyncReport> {
             | 'preorder'
             | 'affiliate'
             | 'referral') || 'standard',
-        final_price_kes: (() => {
-          const parsed_final = parsed.final_price_kes
-            ? parseInt(parsed.final_price_kes, 10)
-            : NaN
-          return Number.isFinite(parsed_final) ? parsed_final : priceKes
-        })(),
         status:
           (parsed.status as Database['public']['Enums']['listing_status']) ||
-          'available',
+          'active',
+        ram: parsed.ram || null,
+        warranty_months: parsed.warranty_months
+          ? parseInt(parsed.warranty_months, 10) || null
+          : null,
+        includes: parsed.includes
+          ? parsed.includes
+              .split(',')
+              .map(s => s.trim())
+              .filter(Boolean)
+          : null,
+        admin_notes: parsed.admin_notes || null,
       }
 
-      // Check if listing exists by source combo or listing_id
+      // Check if listing exists by source_id + source combo
       let existingListingId: string | null = null
 
-      if (parsed.source_listing_id && parsed.source) {
+      if (parsed.source_id && parsed.source) {
         const { data: existing } = await supabase
           .from('listings')
-          .select('listing_id')
-          .eq('source_listing_id', parsed.source_listing_id)
+          .select('id')
+          .eq('source_id', parsed.source_id)
           .eq('source', parsed.source)
           .limit(1)
           .maybeSingle()
 
-        if (existing) existingListingId = existing.listing_id
-      }
-
-      if (!existingListingId && parsed.listing_id) {
-        const { data: existing } = await supabase
-          .from('listings')
-          .select('listing_id')
-          .eq('listing_id', parsed.listing_id)
-          .limit(1)
-          .maybeSingle()
-
-        if (existing) existingListingId = existing.listing_id
+        if (existing) existingListingId = existing.id
       }
 
       if (existingListingId) {
@@ -315,7 +348,7 @@ export async function syncFromSheets(): Promise<SyncReport> {
         const { error } = await supabase
           .from('listings')
           .update(listingData)
-          .eq('listing_id', existingListingId)
+          .eq('id', existingListingId)
 
         if (error) {
           report.errors++
@@ -325,7 +358,7 @@ export async function syncFromSheets(): Promise<SyncReport> {
           report.details.push(`Row ${i + 1}: Updated ${existingListingId}`)
         }
       } else {
-        // Create new listing — SKU is generated by the database
+        // Create new listing -- SKU is generated by the database
         const { error } = await supabase.from('listings').insert(listingData)
 
         if (error) {
@@ -344,66 +377,58 @@ export async function syncFromSheets(): Promise<SyncReport> {
     }
   }
 
-  // ── Deletion detection ──────────────────────────────────────────
+  // -- Deletion detection --
   // Collect source combos that were successfully synced from the sheet
   const syncedSourceKeys = new Set<string>()
-  const syncedListingIds = new Set<string>()
 
   for (let i = 1; i < rows.length; i++) {
     const parsed = parseSheetRow(rows[i], headers)
     if (!parsed) continue
 
-    if (parsed.source_listing_id && parsed.source) {
-      syncedSourceKeys.add(`${parsed.source}::${parsed.source_listing_id}`)
-    }
-    if (parsed.listing_id) {
-      syncedListingIds.add(parsed.listing_id)
+    if (parsed.source_id && parsed.source) {
+      syncedSourceKeys.add(`${parsed.source}::${parsed.source_id}`)
     }
   }
 
   // Find DB listings with sources that weren't in the sheet
-  // Always run deletion pass — an empty sheet means all sourced listings should be removed
   {
     const { data: allSourced } = await supabase
       .from('listings')
-      .select('listing_id, source, source_listing_id')
+      .select('id, source, source_id')
       .not('source', 'is', null)
-      .not('source_listing_id', 'is', null)
+      .not('source_id', 'is', null)
 
     if (allSourced) {
       for (const listing of allSourced) {
-        const key = `${listing.source}::${listing.source_listing_id}`
-        if (
-          !syncedSourceKeys.has(key) &&
-          !syncedListingIds.has(listing.listing_id)
-        ) {
-          // Try hard-delete first; fall back to unlisted if FK prevents it
+        const key = `${listing.source}::${listing.source_id}`
+        if (!syncedSourceKeys.has(key)) {
+          // Try hard-delete first; fall back to archived if FK prevents it
           const { error: deleteError } = await supabase
             .from('listings')
             .delete()
-            .eq('listing_id', listing.listing_id)
+            .eq('id', listing.id)
 
           if (deleteError) {
             const { error: updateError } = await supabase
               .from('listings')
-              .update({ status: 'unlisted' as never })
-              .eq('listing_id', listing.listing_id)
+              .update({ status: 'archived' as never })
+              .eq('id', listing.id)
 
             if (updateError) {
               report.errors++
               report.details.push(
-                `Delete ${listing.listing_id}: soft-delete failed - ${updateError.message}`
+                `Delete ${listing.id}: soft-delete failed - ${updateError.message}`
               )
             } else {
               report.deleted++
               report.details.push(
-                `Delete ${listing.listing_id}: soft-deleted (set unlisted)`
+                `Delete ${listing.id}: soft-deleted (set archived)`
               )
             }
           } else {
             report.deleted++
             report.details.push(
-              `Delete ${listing.listing_id}: hard-deleted (removed from sheet)`
+              `Delete ${listing.id}: hard-deleted (removed from sheet)`
             )
           }
         }
@@ -415,29 +440,179 @@ export async function syncFromSheets(): Promise<SyncReport> {
 }
 
 const SHEET_HEADERS = [
-  'listing_id',
+  'sku',
   'brand',
   'model',
   'category',
   'condition_grade',
-  'price_usd',
   'price_kes',
-  'original_price_kes',
+  'sale_price_kes',
+  'ram',
+  'warranty_months',
   'notes',
   'source',
-  'source_listing_id',
+  'source_id',
   'source_url',
   'status',
   'images',
   'listing_type',
-  'final_price_kes',
+  'includes',
+  'admin_notes',
 ]
+
+async function syncBrandsToSheet(
+  sheetsClient: sheets_v4.Sheets,
+  spreadsheetId: string,
+  supabase: SupabaseClient<Database>
+): Promise<{ rows: number; errors: number }> {
+  const { data: brands, error } = await supabase
+    .from('brands')
+    .select('name, slug, logo_url, website_url, is_active, sort_order')
+    .order('sort_order')
+
+  if (error || !brands) return { rows: 0, errors: 1 }
+
+  const headers = [
+    'name',
+    'slug',
+    'logo_url',
+    'website_url',
+    'is_active',
+    'sort_order',
+  ]
+  const rows: string[][] = [
+    headers,
+    ...brands.map(b => [
+      b.name,
+      b.slug,
+      b.logo_url || '',
+      b.website_url || '',
+      String(b.is_active),
+      String(b.sort_order),
+    ]),
+  ]
+
+  await sheetsClient.spreadsheets.values.update({
+    spreadsheetId,
+    range: 'brands',
+    valueInputOption: 'RAW',
+    requestBody: { values: rows },
+  })
+
+  return { rows: brands.length, errors: 0 }
+}
+
+async function syncCategoriesToSheet(
+  sheetsClient: sheets_v4.Sheets,
+  spreadsheetId: string,
+  supabase: SupabaseClient<Database>
+): Promise<{ rows: number; errors: number }> {
+  const { data: categories, error } = await supabase
+    .from('categories')
+    .select(
+      'name, slug, description, image_url, icon, parent_id, is_active, sort_order'
+    )
+    .order('sort_order')
+
+  if (error || !categories) return { rows: 0, errors: 1 }
+
+  const headers = [
+    'name',
+    'slug',
+    'description',
+    'image_url',
+    'icon',
+    'parent_id',
+    'is_active',
+    'sort_order',
+  ]
+  const rows: string[][] = [
+    headers,
+    ...categories.map(c => [
+      c.name,
+      c.slug,
+      c.description || '',
+      c.image_url || '',
+      c.icon || '',
+      c.parent_id || '',
+      String(c.is_active),
+      String(c.sort_order),
+    ]),
+  ]
+
+  await sheetsClient.spreadsheets.values.update({
+    spreadsheetId,
+    range: 'categories',
+    valueInputOption: 'RAW',
+    requestBody: { values: rows },
+  })
+
+  return { rows: categories.length, errors: 0 }
+}
+
+async function syncPromotionsToSheet(
+  sheetsClient: sheets_v4.Sheets,
+  spreadsheetId: string,
+  supabase: SupabaseClient<Database>
+): Promise<{ rows: number; errors: number }> {
+  const { data: promotions, error } = await supabase
+    .from('promotions')
+    .select(
+      'name, type, listing_id, product_id, discount_pct, discount_amount_kes, starts_at, ends_at, is_active, sort_order'
+    )
+    .order('sort_order')
+
+  if (error || !promotions) return { rows: 0, errors: 1 }
+
+  const headers = [
+    'name',
+    'type',
+    'listing_id',
+    'product_id',
+    'discount_pct',
+    'discount_amount_kes',
+    'starts_at',
+    'ends_at',
+    'is_active',
+    'sort_order',
+  ]
+  const rows: string[][] = [
+    headers,
+    ...promotions.map(p => [
+      p.name,
+      p.type,
+      p.listing_id || '',
+      p.product_id || '',
+      p.discount_pct?.toString() || '',
+      p.discount_amount_kes?.toString() || '',
+      p.starts_at,
+      p.ends_at,
+      String(p.is_active),
+      String(p.sort_order),
+    ]),
+  ]
+
+  await sheetsClient.spreadsheets.values.update({
+    spreadsheetId,
+    range: 'promotions',
+    valueInputOption: 'RAW',
+    requestBody: { values: rows },
+  })
+
+  return { rows: promotions.length, errors: 0 }
+}
 
 export async function syncToSheets(
   options: ExportOptions = {}
 ): Promise<ExportReport> {
   const mode = options.mode ?? 'additive'
-  const report: ExportReport = { rows: 0, skipped: 0, errors: 0, details: [] }
+  const report: ExportReport = {
+    rows: 0,
+    skipped: 0,
+    errors: 0,
+    details: [],
+    tabs: {},
+  }
 
   const spreadsheetId = process.env.GS_SPREADSHEET_ID
   if (!spreadsheetId) {
@@ -448,10 +623,8 @@ export async function syncToSheets(
 
   const { data: listings, error } = await supabase
     .from('listings')
-    .select(
-      '*, products:product_id(brand, model, slug, original_price_kes, categories:category_id(slug))'
-    )
-    .order('listing_id')
+    .select('*, products:product_id(name, slug, brand:brands(name, slug))')
+    .order('created_at')
 
   if (error) {
     throw new Error(`Failed to fetch listings: ${error.message}`)
@@ -459,139 +632,187 @@ export async function syncToSheets(
 
   if (!listings || listings.length === 0) {
     report.details.push('No listings found in database')
-    return report
   }
 
-  type ListingRow = (typeof listings)[number]
+  type ListingRow = NonNullable<typeof listings>[number]
 
   const sheetsClient = getGoogleSheetsClient()
 
-  // In additive mode, read existing sheet to find which listing IDs are already present
-  const existingIds = new Set<string>()
-  if (mode === 'additive') {
-    const existingRows = await fetchSheetData(
-      sheetsClient,
-      spreadsheetId,
-      SHEETS_TAB_NAME
-    )
-    if (existingRows.length > 1) {
-      const headers = existingRows[0]
-      const idIndex = headers.indexOf('listing_id')
-      if (idIndex < 0) {
-        report.errors++
-        report.details.push(
-          'Additive sync aborted: existing sheet has rows but no listing_id header — refusing to overwrite'
-        )
-        return report
-      }
-      for (let i = 1; i < existingRows.length; i++) {
-        const id = existingRows[i][idIndex]?.trim()
-        if (id) existingIds.add(id)
-      }
-    }
-  }
-
-  /** Convert a listing row to a string array matching SHEET_HEADERS */
-  function toRow(listing: ListingRow): string[] {
-    const product = listing.products as unknown as {
-      brand: string
-      model: string
-      original_price_kes: number | null
-      categories: { slug: string } | null
-    } | null
-
-    return [
-      listing.listing_id || '',
-      product?.brand || '',
-      product?.model || '',
-      product?.categories?.slug || '',
-      (listing.condition as string) || '',
-      listing.original_price_usd?.toString() || '',
-      listing.price_kes?.toString() || '',
-      product?.original_price_kes?.toString() || '',
-      listing.notes || '',
-      listing.source || '',
-      listing.source_listing_id || '',
-      listing.source_url || '',
-      (listing.status as string) || '',
-      Array.isArray(listing.images) ? listing.images.join(',') : '',
-      (listing.listing_type as string) || 'standard',
-      listing.final_price_kes?.toString() || '',
-    ]
-  }
-
-  if (mode === 'full') {
-    // Full overwrite — replace entire sheet
-    const sheetRows: string[][] = [SHEET_HEADERS]
-
-    for (const listing of listings) {
-      try {
-        sheetRows.push(toRow(listing))
-        report.rows++
-      } catch (err) {
-        report.errors++
-        report.details.push(
-          `Listing ${listing.listing_id}: Error - ${err instanceof Error ? err.message : String(err)}`
-        )
-      }
-    }
-
-    await sheetsClient.spreadsheets.values.update({
-      spreadsheetId,
-      range: SHEETS_TAB_NAME,
-      valueInputOption: 'RAW',
-      requestBody: { values: sheetRows },
-    })
-
-    report.details.push(`Full sync: wrote ${report.rows} rows to sheet`)
-  } else {
-    // Additive — only append listings not already in the sheet
-    const newRows: string[][] = []
-
-    for (const listing of listings) {
-      try {
-        if (existingIds.has(listing.listing_id)) {
-          report.skipped++
-          continue
-        }
-        newRows.push(toRow(listing))
-        report.rows++
-      } catch (err) {
-        report.errors++
-        report.details.push(
-          `Listing ${listing.listing_id}: Error - ${err instanceof Error ? err.message : String(err)}`
-        )
-      }
-    }
-
-    if (newRows.length === 0) {
-      report.details.push(
-        `Additive sync: no new listings to append (${report.skipped} already in sheet)`
+  // Skip listing export if no listings exist
+  if (listings && listings.length > 0) {
+    // In additive mode, read existing sheet to find which SKUs are already present
+    const existingSkus = new Set<string>()
+    if (mode === 'additive') {
+      const existingRows = await fetchSheetData(
+        sheetsClient,
+        spreadsheetId,
+        SHEETS_TAB_NAME
       )
-      return report
+      if (existingRows.length > 1) {
+        const headers = existingRows[0]
+        const skuIndex = headers.indexOf('sku')
+        if (skuIndex < 0) {
+          report.errors++
+          report.details.push(
+            'Additive sync aborted: existing sheet has rows but no sku header -- refusing to overwrite'
+          )
+          return report
+        }
+        for (let i = 1; i < existingRows.length; i++) {
+          const sku = existingRows[i][skuIndex]?.trim()
+          if (sku) existingSkus.add(sku)
+        }
+      }
     }
 
-    // If sheet is empty, write headers first then data
-    if (existingIds.size === 0) {
+    // Get categories for each product via junction table
+    const productIds = [
+      ...new Set(listings.map(l => l.product_id).filter(Boolean)),
+    ]
+    const { data: junctionData } = await supabase
+      .from('product_categories')
+      .select('product_id, category:categories(slug)')
+      .in('product_id', productIds)
+      .eq('is_primary', true)
+
+    const productCategoryMap = new Map<string, string>()
+    for (const row of (junctionData ?? []) as unknown as Array<{
+      product_id: string
+      category: { slug: string } | null
+    }>) {
+      if (row.category?.slug) {
+        productCategoryMap.set(row.product_id, row.category.slug)
+      }
+    }
+
+    /** Convert a listing row to a string array matching SHEET_HEADERS */
+    function toRow(listing: ListingRow): string[] {
+      const product = listing.products as unknown as {
+        name: string
+        slug: string
+        brand: { name: string; slug: string } | null
+      } | null
+
+      return [
+        listing.sku || '',
+        product?.brand?.name || '',
+        product?.name || '',
+        productCategoryMap.get(listing.product_id) || '',
+        (listing.condition as string) || '',
+        listing.price_kes?.toString() || '',
+        listing.sale_price_kes?.toString() || '',
+        listing.ram || '',
+        listing.warranty_months?.toString() || '',
+        Array.isArray(listing.notes) ? listing.notes.join(', ') : '',
+        listing.source || '',
+        listing.source_id || '',
+        listing.source_url || '',
+        (listing.status as string) || '',
+        Array.isArray(listing.images) ? listing.images.join(',') : '',
+        (listing.listing_type as string) || 'standard',
+        Array.isArray(listing.includes) ? listing.includes.join(',') : '',
+        listing.admin_notes || '',
+      ]
+    }
+
+    if (mode === 'full') {
+      // Full overwrite -- replace entire sheet
+      const sheetRows: string[][] = [SHEET_HEADERS]
+
+      for (const listing of listings) {
+        try {
+          sheetRows.push(toRow(listing))
+          report.rows++
+        } catch (err) {
+          report.errors++
+          report.details.push(
+            `Listing ${listing.sku}: Error - ${err instanceof Error ? err.message : String(err)}`
+          )
+        }
+      }
+
       await sheetsClient.spreadsheets.values.update({
         spreadsheetId,
         range: SHEETS_TAB_NAME,
         valueInputOption: 'RAW',
-        requestBody: { values: [SHEET_HEADERS, ...newRows] },
+        requestBody: { values: sheetRows },
       })
-    } else {
-      await sheetsClient.spreadsheets.values.append({
-        spreadsheetId,
-        range: SHEETS_TAB_NAME,
-        valueInputOption: 'RAW',
-        requestBody: { values: newRows },
-      })
-    }
 
-    report.details.push(
-      `Additive sync: appended ${report.rows} new rows (${report.skipped} already in sheet)`
-    )
-  }
+      report.details.push(`Full sync: wrote ${report.rows} rows to sheet`)
+    } else {
+      // Additive -- only append listings not already in the sheet
+      const newRows: string[][] = []
+
+      for (const listing of listings) {
+        try {
+          if (existingSkus.has(listing.sku)) {
+            report.skipped++
+            continue
+          }
+          newRows.push(toRow(listing))
+          report.rows++
+        } catch (err) {
+          report.errors++
+          report.details.push(
+            `Listing ${listing.sku}: Error - ${err instanceof Error ? err.message : String(err)}`
+          )
+        }
+      }
+
+      if (newRows.length === 0) {
+        report.details.push(
+          `Additive sync: no new listings to append (${report.skipped} already in sheet)`
+        )
+      }
+
+      if (newRows.length > 0) {
+        // If sheet is empty, write headers first then data
+        if (existingSkus.size === 0) {
+          await sheetsClient.spreadsheets.values.update({
+            spreadsheetId,
+            range: SHEETS_TAB_NAME,
+            valueInputOption: 'RAW',
+            requestBody: { values: [SHEET_HEADERS, ...newRows] },
+          })
+        } else {
+          await sheetsClient.spreadsheets.values.append({
+            spreadsheetId,
+            range: SHEETS_TAB_NAME,
+            valueInputOption: 'RAW',
+            requestBody: { values: newRows },
+          })
+        }
+      }
+
+      if (newRows.length > 0) {
+        report.details.push(
+          `Additive sync: appended ${report.rows} new rows (${report.skipped} already in sheet)`
+        )
+      }
+    }
+  } // end if (listings && listings.length > 0)
+
+  // Sync additional tabs
+  const brandsResult = await syncBrandsToSheet(
+    sheetsClient,
+    spreadsheetId,
+    supabase
+  )
+  report.tabs!.brands = brandsResult
+
+  const categoriesResult = await syncCategoriesToSheet(
+    sheetsClient,
+    spreadsheetId,
+    supabase
+  )
+  report.tabs!.categories = categoriesResult
+
+  const promotionsResult = await syncPromotionsToSheet(
+    sheetsClient,
+    spreadsheetId,
+    supabase
+  )
+  report.tabs!.promotions = promotionsResult
 
   return report
 }
