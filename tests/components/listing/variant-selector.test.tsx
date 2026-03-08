@@ -43,7 +43,7 @@ describe('Variant Selector Component', () => {
     expect(source).toContain("'storage'")
     expect(source).toContain("'color'")
     expect(source).toContain("'condition'")
-    expect(source).toContain("'carrier'")
+    expect(source).not.toContain("'carrier'")
   })
 
   it('Source analysis: onSelect is optional (disabled mode works without handler)', () => {

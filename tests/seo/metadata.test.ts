@@ -9,50 +9,51 @@ import {
 
 const mockListing: ListingWithProduct = {
   id: '1',
-  listing_id: 'PD-ABC12',
+  sku: 'PD-ABC12',
   product_id: 'p1',
   storage: '256GB',
   color: 'Black',
-  carrier: null,
   condition: 'excellent' as const,
   battery_health: 92,
   price_kes: 58000,
-  final_price_kes: 58000,
-  original_price_usd: 500,
-  landed_cost_kes: 52000,
+  sale_price_kes: null,
+  cost_kes: 52000,
   source: 'reebelo',
-  source_listing_id: null,
+  source_id: null,
   source_url: null,
   images: ['https://example.com/img1.jpg'],
   is_featured: true,
   listing_type: 'standard' as const,
   ram: null,
-  status: 'available' as const,
-  sheets_row_id: null,
+  warranty_months: null,
+  attributes: null,
+  includes: null,
+  admin_notes: null,
+  quantity: 1,
+  status: 'active' as const,
   notes: null,
   created_at: '2025-01-01T00:00:00Z',
   updated_at: '2025-01-01T00:00:00Z',
   product: {
     id: 'p1',
-    brand: 'Apple',
-    model: 'iPhone 13 Pro',
+    name: 'iPhone 13 Pro',
     slug: 'apple-iphone-13-pro',
-    category_id: 'c1',
+    brand_id: 'b1',
     description: 'A great phone',
     specs: null,
     key_features: ['A15 Bionic', 'ProMotion'],
     images: ['https://example.com/product1.jpg'],
-    original_price_kes: 75000,
+    is_active: true,
     created_at: '2025-01-01T00:00:00Z',
     updated_at: '2025-01-01T00:00:00Z',
     fts: null,
-    category: {
-      id: 'c1',
-      name: 'Smartphones',
-      slug: 'smartphones',
-      description: 'All smartphones',
-      image_url: null,
-      parent_id: null,
+    brand: {
+      id: 'b1',
+      name: 'Apple',
+      slug: 'apple',
+      logo_url: null,
+      website_url: null,
+      is_active: true,
       sort_order: 1,
       created_at: '2025-01-01T00:00:00Z',
       updated_at: '2025-01-01T00:00:00Z',
@@ -98,6 +99,8 @@ describe('structured data edge cases', () => {
       slug: 'empty',
       description: null,
       image_url: null,
+      icon: null,
+      is_active: true,
       parent_id: null,
       sort_order: 1,
       created_at: '2025-01-01T00:00:00Z',
@@ -122,9 +125,9 @@ describe('structured data edge cases', () => {
     expect(result.offers.itemCondition).toBe('https://schema.org/UsedCondition')
   })
 
-  test('productJsonLd offers url includes listing_id', () => {
+  test('productJsonLd offers url includes listing id', () => {
     const result = productJsonLd(mockListing)
-    expect(result.offers.url).toBe('https://pedie.tech/listings/PD-ABC12')
+    expect(result.offers.url).toBe('https://pedie.tech/listings/1')
   })
 
   test('collectionJsonLd serializes to valid JSON', () => {
@@ -134,6 +137,8 @@ describe('structured data edge cases', () => {
       slug: 'smartphones',
       description: 'All smartphones',
       image_url: null,
+      icon: null,
+      is_active: true,
       parent_id: null,
       sort_order: 1,
       created_at: '2025-01-01T00:00:00Z',

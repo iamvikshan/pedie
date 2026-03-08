@@ -336,7 +336,6 @@ describe('Listings Data Functions', () => {
       expect(filters.conditions).toBeArray()
       expect(filters.storages).toBeArray()
       expect(filters.colors).toBeArray()
-      expect(filters.carriers).toBeArray()
       expect(filters.brands).toBeArray()
       expect(filters.priceRange).toBeDefined()
       expect(typeof filters.priceRange.min).toBe('number')
@@ -371,7 +370,7 @@ describe('Listings Data Functions', () => {
     test('getFilteredListings uses getCategoryAndDescendantIds for category filtering', () => {
       expect(listingsSrc).toContain('getCategoryAndDescendantIds')
       expect(listingsSrc).toContain('.in(')
-      expect(listingsSrc).toContain("'product.category_id', descendantIds")
+      expect(listingsSrc).toContain("'category_id', descendantIds")
     })
 
     test('getFilteredListings skips category filter when categorySlug is null', () => {

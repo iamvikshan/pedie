@@ -1,4 +1,3 @@
-import { generateListingId } from '@helpers'
 import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
 import { createListing, getAdminListings } from '@data/admin'
@@ -67,28 +66,56 @@ export async function POST(request: Request) {
       )
     }
 
-    // Auto-generate listing_id if not provided
-    const listing_id = body.listing_id || generateListingId()
-
     const allowed = {
-      listing_id,
       product_id: body.product_id,
       storage: body.storage,
       color: body.color,
-      carrier: body.carrier,
       condition: body.condition,
       battery_health: body.battery_health,
       price_kes: body.price_kes,
-      original_price_usd: body.original_price_usd,
-      landed_cost_kes: body.landed_cost_kes,
+      sale_price_kes: body.sale_price_kes,
+      cost_kes: body.cost_kes,
       images: body.images,
       is_featured: body.is_featured,
       status: body.status,
       source: body.source,
       source_url: body.source_url,
-      source_listing_id: body.source_listing_id,
-      sheets_row_id: body.sheets_row_id,
+      warranty_months: body.warranty_months,
+      attributes: body.attributes,
+      includes: body.includes,
+      admin_notes: body.admin_notes,
+      quantity: body.quantity,
       notes: body.notes,
+    }
+
+    // Convert notes from scalar string to string[] for DB
+    if (typeof allowed.notes === 'string' && allowed.notes.trim()) {
+      allowed.notes = allowed.notes
+        .split('\n')
+        .map((n: string) => n.trim())
+        .filter(Boolean)
+    } else if (!Array.isArray(allowed.notes)) {
+      allowed.notes = null
+    }
+
+    // Validate non-negative prices
+    if (
+      allowed.sale_price_kes != null &&
+      (typeof allowed.sale_price_kes !== 'number' || allowed.sale_price_kes < 0)
+    ) {
+      return NextResponse.json(
+        { error: 'sale_price_kes must be a non-negative number' },
+        { status: 400 }
+      )
+    }
+    if (
+      allowed.cost_kes != null &&
+      (typeof allowed.cost_kes !== 'number' || allowed.cost_kes < 0)
+    ) {
+      return NextResponse.json(
+        { error: 'cost_kes must be a non-negative number' },
+        { status: 400 }
+      )
     }
 
     const listing = await createListing(allowed)

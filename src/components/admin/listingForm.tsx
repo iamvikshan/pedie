@@ -4,29 +4,25 @@ import { Alert } from '@components/ui/alert'
 import { Button } from '@components/ui/button'
 import { Input } from '@components/ui/input'
 import { Select } from '@components/ui/select'
-import { generateListingId } from '@helpers'
 import { useState } from 'react'
 
 interface Product {
   id: string
-  brand: string
-  model: string
+  name: string
+  brand_id: string
 }
 
 interface ListingData {
   id?: string
-  listing_id?: string
   product_id?: string
   storage?: string | null
   color?: string | null
-  carrier?: string | null
   condition?: string
   battery_health?: number | null
   price_kes?: number
-  original_price_usd?: number | null
-  landed_cost_kes?: number | null
+  sale_price_kes?: number | null
+  cost_kes?: number | null
   status?: string
-  listing_type?: string
   is_featured?: boolean
   notes?: string | null
   images?: string[] | null
@@ -38,9 +34,15 @@ interface ListingFormProps {
   onSubmit: (data: Record<string, unknown>) => Promise<void>
 }
 
-const CONDITIONS = ['acceptable', 'good', 'excellent', 'premium']
-const STATUSES = ['available', 'reserved', 'sold', 'onsale']
-const LISTING_TYPES = ['standard', 'preorder', 'affiliate', 'referral']
+const CONDITIONS = [
+  'acceptable',
+  'good',
+  'excellent',
+  'premium',
+  'new',
+  'for_parts',
+]
+const STATUSES = ['active', 'reserved', 'sold']
 
 export function ListingForm({
   initialData,
@@ -51,17 +53,14 @@ export function ListingForm({
   const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     product_id: initialData?.product_id ?? '',
-    listing_id: initialData?.listing_id ?? generateListingId(),
     storage: initialData?.storage ?? '',
     color: initialData?.color ?? '',
-    carrier: initialData?.carrier ?? '',
     condition: initialData?.condition ?? 'good',
     battery_health: initialData?.battery_health ?? '',
     price_kes: initialData?.price_kes ?? '',
-    original_price_usd: initialData?.original_price_usd ?? '',
-    landed_cost_kes: initialData?.landed_cost_kes ?? '',
-    status: initialData?.status ?? 'available',
-    listing_type: initialData?.listing_type ?? 'standard',
+    sale_price_kes: initialData?.sale_price_kes ?? '',
+    cost_kes: initialData?.cost_kes ?? '',
+    status: initialData?.status ?? 'active',
     is_featured: initialData?.is_featured ?? false,
     notes: initialData?.notes ?? '',
   })
@@ -95,14 +94,11 @@ export function ListingForm({
           formData.battery_health !== ''
             ? Number(formData.battery_health)
             : null,
-        original_price_usd:
-          formData.original_price_usd !== ''
-            ? Number(formData.original_price_usd)
+        sale_price_kes:
+          formData.sale_price_kes !== ''
+            ? Number(formData.sale_price_kes)
             : null,
-        landed_cost_kes:
-          formData.landed_cost_kes !== ''
-            ? Number(formData.landed_cost_kes)
-            : null,
+        cost_kes: formData.cost_kes !== '' ? Number(formData.cost_kes) : null,
       }
       await onSubmit(data)
     } catch (err) {
@@ -135,28 +131,10 @@ export function ListingForm({
           <option value=''>Select a product</option>
           {products.map(p => (
             <option key={p.id} value={p.id}>
-              {p.brand} {p.model}
+              {p.name}
             </option>
           ))}
         </Select>
-      </div>
-
-      {/* Listing ID */}
-      <div>
-        <label
-          htmlFor='listing_id'
-          className='mb-1 block text-sm font-medium text-pedie-text'
-        >
-          Listing ID *
-        </label>
-        <Input
-          id='listing_id'
-          name='listing_id'
-          type='text'
-          value={formData.listing_id}
-          onChange={handleChange}
-          required
-        />
       </div>
 
       {/* Storage & Color row */}
@@ -192,24 +170,6 @@ export function ListingForm({
             onChange={handleChange}
           />
         </div>
-      </div>
-
-      {/* Carrier */}
-      <div>
-        <label
-          htmlFor='carrier'
-          className='mb-1 block text-sm font-medium text-pedie-text'
-        >
-          Carrier
-        </label>
-        <Input
-          id='carrier'
-          name='carrier'
-          type='text'
-          value={formData.carrier}
-          onChange={handleChange}
-          placeholder='e.g. Unlocked'
-        />
       </div>
 
       {/* Condition */}
@@ -274,35 +234,35 @@ export function ListingForm({
         />
       </div>
 
-      {/* Original Price USD & Landed Cost */}
+      {/* Sale Price & Cost */}
       <div className='grid grid-cols-2 gap-4'>
         <div>
           <label
-            htmlFor='original_price_usd'
+            htmlFor='sale_price_kes'
             className='mb-1 block text-sm font-medium text-pedie-text'
           >
-            Original Price (USD)
+            Sale Price (KES)
           </label>
           <Input
-            id='original_price_usd'
-            name='original_price_usd'
+            id='sale_price_kes'
+            name='sale_price_kes'
             type='number'
-            value={formData.original_price_usd}
+            value={formData.sale_price_kes}
             onChange={handleChange}
           />
         </div>
         <div>
           <label
-            htmlFor='landed_cost_kes'
+            htmlFor='cost_kes'
             className='mb-1 block text-sm font-medium text-pedie-text'
           >
-            Landed Cost (KES)
+            Cost (KES)
           </label>
           <Input
-            id='landed_cost_kes'
-            name='landed_cost_kes'
+            id='cost_kes'
+            name='cost_kes'
             type='number'
-            value={formData.landed_cost_kes}
+            value={formData.cost_kes}
             onChange={handleChange}
           />
         </div>
@@ -326,29 +286,6 @@ export function ListingForm({
           {STATUSES.map(s => (
             <option key={s} value={s}>
               {s}
-            </option>
-          ))}
-        </Select>
-      </div>
-
-      {/* Listing Type */}
-      <div>
-        <label
-          htmlFor='listing_type'
-          className='mb-1 block text-sm font-medium text-pedie-text'
-        >
-          Listing Type
-        </label>
-        <Select
-          id='listing_type'
-          name='listing_type'
-          value={formData.listing_type}
-          onChange={handleChange}
-          className='capitalize'
-        >
-          {LISTING_TYPES.map(t => (
-            <option key={t} value={t}>
-              {t}
             </option>
           ))}
         </Select>

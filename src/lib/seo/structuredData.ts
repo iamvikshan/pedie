@@ -16,29 +16,31 @@ export function productJsonLd(listing: ListingWithProduct) {
   return {
     '@context': 'https://schema.org' as const,
     '@type': 'Product' as const,
-    name: `${listing.product.brand} ${listing.product.model}`,
+    name: listing.product.name,
     description:
       listing.product.description ||
-      `${listing.product.brand} ${listing.product.model} - ${listing.condition} condition`,
+      `${listing.product.brand.name} ${listing.product.name} - ${listing.condition} condition`,
     image: listing.images?.[0] || listing.product.images?.[0] || undefined,
-    sku: listing.listing_id,
+    sku: listing.sku,
     brand: {
       '@type': 'Brand' as const,
-      name: listing.product.brand,
+      name: listing.product.brand.name,
     },
     offers: {
       '@type': 'Offer' as const,
-      url: `${SITE_URL}/listings/${listing.listing_id}`,
+      url: `${SITE_URL}/listings/${listing.id}`,
       priceCurrency: 'KES',
-      price: listing.price_kes,
+      price: listing.sale_price_kes ?? listing.price_kes,
       availability:
-        listing.status === 'available'
+        listing.status === 'active'
           ? 'https://schema.org/InStock'
           : 'https://schema.org/OutOfStock',
       itemCondition:
-        listing.condition === 'premium' || listing.condition === 'excellent'
-          ? 'https://schema.org/RefurbishedCondition'
-          : 'https://schema.org/UsedCondition',
+        listing.condition === 'new'
+          ? 'https://schema.org/NewCondition'
+          : listing.condition === 'premium' || listing.condition === 'excellent'
+            ? 'https://schema.org/RefurbishedCondition'
+            : 'https://schema.org/UsedCondition',
     },
   }
 }

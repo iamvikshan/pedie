@@ -43,16 +43,18 @@ mock.module('@lib/supabase/server', () => ({
             const mockData = [
               {
                 id: '1',
-                listing_id: 'L1',
+                sku: 'L1',
                 price_kes: 50000,
-                product: { original_price_kes: 60000 },
+                sale_price_kes: null,
+                product: { name: 'Phone A', brand: { name: 'Apple' } },
               },
               {
                 id: '2',
-                listing_id: 'L2',
+                sku: 'L2',
                 price_kes: 40000,
-                product: { original_price_kes: 80000 },
-              }, // 50% discount
+                sale_price_kes: null,
+                product: { name: 'Phone B', brand: { name: 'Samsung' } },
+              },
             ]
 
             const terminalMock = {
@@ -98,7 +100,6 @@ mock.module('@lib/supabase/server', () => ({
 }))
 
 import {
-  getDealListings,
   getFeaturedListings,
   getLatestListings,
   getListingsByCategory,
@@ -111,34 +112,24 @@ describe('Products Data Functions', () => {
     const listings = await getFeaturedListings()
     expect(Array.isArray(listings)).toBe(true)
     expect(listings.length).toBe(2)
-    expect(listings[0].listing_id).toBe('L1')
+    expect(listings[0].sku).toBe('L1')
   })
 
   test('getLatestListings returns listings', async () => {
     const listings = await getLatestListings()
     expect(Array.isArray(listings)).toBe(true)
     expect(listings.length).toBe(2)
-    expect(listings[0].listing_id).toBe('L1')
+    expect(listings[0].sku).toBe('L1')
   })
 
   test('getListingsByCategory returns listings', async () => {
     const listings = await getListingsByCategory('phones')
     expect(Array.isArray(listings)).toBe(true)
     expect(listings.length).toBe(2)
-    expect(listings[0].listing_id).toBe('L1')
+    expect(listings[0].sku).toBe('L1')
   })
 
-  test('getDealListings returns listings sorted by discount', async () => {
-    const listings = await getDealListings()
-    expect(Array.isArray(listings)).toBe(true)
-    expect(listings.length).toBe(2)
-    // L2 has 50% discount, L1 has ~16.6% discount, so L2 should be first
-    expect(listings[0].listing_id).toBe('L2')
-    expect(listings[1].listing_id).toBe('L1')
-  })
-
-  test('getRelatedListings uses non-sold/reserved filter', () => {
-    // getRelatedListings should use .not('status', 'in', '(sold,reserved)')
-    expect(SOURCE).toContain(".not('status', 'in', '(sold,reserved)')")
+  test('getRelatedListings uses active status filter', () => {
+    expect(SOURCE).toContain(".eq('status', 'active')")
   })
 })

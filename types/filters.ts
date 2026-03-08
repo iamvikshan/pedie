@@ -7,7 +7,6 @@ export interface ListingFilters {
   condition?: ConditionGrade[]
   storage?: string[]
   color?: string[]
-  carrier?: string[]
   brand?: string[]
   priceMin?: number
   priceMax?: number
@@ -31,7 +30,6 @@ export interface AvailableFilters {
   conditions: ConditionGrade[]
   storages: string[]
   colors: string[]
-  carriers: string[]
   brands: string[]
   priceRange: { min: number; max: number }
   categories: { name: string; slug: string; count: number }[]

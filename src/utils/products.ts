@@ -40,9 +40,10 @@ export function selectRepresentative(listings: Listing[]): Listing | null {
     l => (LISTING_TYPE_PRIORITY[l.listing_type] ?? 99) === bestPriority
   )
 
-  // Within winning tier, pick lowest final_price_kes
+  // Within winning tier, pick lowest effective price
+  const effectivePrice = (l: Listing) => l.sale_price_kes ?? l.price_kes
   return winningTier.reduce((best, current) =>
-    current.final_price_kes < best.final_price_kes ? current : best
+    effectivePrice(current) < effectivePrice(best) ? current : best
   )
 }
 
@@ -56,22 +57,25 @@ export function findBetterDeal(
 ): Listing | null {
   if (currentListing.listing_type !== 'standard') return null
 
+  const effectivePrice = (l: Listing) => l.sale_price_kes ?? l.price_kes
+  const currentPrice = effectivePrice(currentListing)
+
   const candidates = allListings.filter(
     l =>
-      l.listing_id !== currentListing.listing_id &&
+      l.id !== currentListing.id &&
       l.listing_type !== 'standard' &&
       l.status !== 'sold' &&
       l.status !== 'reserved' &&
       l.storage === currentListing.storage &&
       l.color === currentListing.color &&
       l.condition === currentListing.condition &&
-      l.final_price_kes < currentListing.final_price_kes
+      effectivePrice(l) < currentPrice
   )
 
   if (candidates.length === 0) return null
 
   // Return the cheapest candidate
   return candidates.reduce((best, current) =>
-    current.final_price_kes < best.final_price_kes ? current : best
+    effectivePrice(current) < effectivePrice(best) ? current : best
   )
 }

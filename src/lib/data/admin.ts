@@ -104,7 +104,7 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
   const { count: activeListings } = await supabase
     .from('listings')
     .select('*', { count: 'exact', head: true })
-    .eq('status', 'available')
+    .eq('status', 'active')
 
   // Total customers
   const { count: totalCustomers } = await supabase
@@ -219,7 +219,7 @@ export async function getAdminListings(
 
   let query = supabase
     .from('listings')
-    .select('*, product:products(brand, model)', { count: 'exact' })
+    .select('*, product:products(name, brand:brands(name))', { count: 'exact' })
     .order('created_at', { ascending: false })
 
   if (filters.status) {
@@ -230,10 +230,7 @@ export async function getAdminListings(
   }
   if (filters.search) {
     const sanitized = filters.search.replace(/[^a-zA-Z0-9\s@._-]/g, '')
-    query = query.ilike('listing_id', `%${sanitized}%`)
-  }
-  if (filters.categoryId) {
-    query = query.eq('product.category_id', filters.categoryId)
+    query = query.ilike('sku', `%${sanitized}%`)
   }
 
   query = query.range(from, to)
@@ -317,15 +314,12 @@ export async function getAdminProducts(
 
   let query = supabase
     .from('products')
-    .select('*, category:categories(name)', { count: 'exact' })
+    .select('*, brand:brands(name)', { count: 'exact' })
     .order('created_at', { ascending: false })
 
   if (filters.search) {
     const sanitized = filters.search.replace(/[^a-zA-Z0-9\s@._-]/g, '')
-    query = query.or(`brand.ilike.%${sanitized}%,model.ilike.%${sanitized}%`)
-  }
-  if (filters.categoryId) {
-    query = query.eq('category_id', filters.categoryId)
+    query = query.ilike('name', `%${sanitized}%`)
   }
 
   query = query.range(from, to)
@@ -507,7 +501,9 @@ export async function getAdminOrderDetail(id: string): Promise<{
 
   const { data: items } = await supabase
     .from('order_items')
-    .select('*, listing:listings(listing_id, product:products(brand, model))')
+    .select(
+      '*, listing:listings(sku, product:products(name, brand:brands(name)))'
+    )
     .eq('order_id', id)
 
   const { data: customer } = await supabase
@@ -588,7 +584,7 @@ export async function getAdminCustomerDetail(id: string): Promise<{
 
   const { data: wishlist } = await supabase
     .from('wishlist')
-    .select('*, product:products(brand, model)')
+    .select('*, product:products(name, brand:brands(name))')
     .eq('user_id', id)
 
   return {
@@ -631,9 +627,12 @@ export async function getAdminReviews(
 
   let query = supabase
     .from('reviews')
-    .select('*, product:products(brand, model), profile:profiles(full_name)', {
-      count: 'exact',
-    })
+    .select(
+      '*, product:products(name, brand:brands(name)), profile:profiles(full_name)',
+      {
+        count: 'exact',
+      }
+    )
     .order('created_at', { ascending: false })
 
   if (filters.rating) {
@@ -787,7 +786,7 @@ export async function getProductMinPrices(): Promise<Map<string, number>> {
   const { data, error } = await supabase
     .from('listings')
     .select('product_id, price_kes')
-    .eq('status', 'available')
+    .eq('status', 'active')
     .order('price_kes', { ascending: true })
 
   if (error || !data) {
@@ -811,7 +810,7 @@ export async function getPriceComparisons(
 
   let query = supabase
     .from('price_comparisons')
-    .select('*, product:products(brand, model)')
+    .select('*, product:products(name, brand:brands(name))')
     .order('crawled_at', { ascending: false })
 
   if (filters.productId) {

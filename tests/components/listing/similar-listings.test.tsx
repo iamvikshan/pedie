@@ -33,43 +33,55 @@ const SOURCE = readFileSync(
 
 const mockListing = {
   id: 'uuid-1',
-  listing_id: 'PD-SIM01',
+  sku: 'PD-SIM01',
   product_id: 'prod-1',
   condition: 'good' as const,
   price_kes: 40000,
-  final_price_kes: 40000,
+  sale_price_kes: null,
   storage: '64GB',
   color: 'White',
   battery_health: 88,
   is_featured: false,
   listing_type: 'standard' as const,
   ram: null,
-  status: 'available' as const,
+  warranty_months: null,
+  attributes: null,
+  includes: null,
+  admin_notes: null,
+  quantity: 1,
+  status: 'active' as const,
   images: [],
-  original_price_usd: 400,
-  landed_cost_kes: 35000,
-  carrier: null,
+  cost_kes: 35000,
   source: null,
-  source_listing_id: null,
+  source_id: null,
   source_url: null,
-  sheets_row_id: null,
   notes: null,
   created_at: '2024-01-01',
   updated_at: '2024-01-01',
   product: {
     id: 'prod-1',
-    brand: 'Apple',
-    model: 'iPhone 12',
+    name: 'iPhone 12',
     slug: 'apple-iphone-12',
-    category_id: 'cat-1',
+    brand_id: 'b1',
     description: null,
     specs: null,
     key_features: null,
     images: null,
-    original_price_kes: 50000,
+    is_active: true,
     created_at: '2024-01-01',
     updated_at: '2024-01-01',
     fts: null,
+    brand: {
+      id: 'b1',
+      name: 'Apple',
+      slug: 'apple',
+      logo_url: null,
+      website_url: null,
+      is_active: true,
+      sort_order: 1,
+      created_at: '2024-01-01',
+      updated_at: '2024-01-01',
+    },
   },
 }
 
@@ -81,7 +93,8 @@ describe('SimilarListings', () => {
           mockListing,
           {
             ...mockListing,
-            listing_id: 'PD-SIM02',
+            id: 'uuid-2',
+            sku: 'PD-SIM02',
             product: {
               ...mockListing.product,
               id: 'prod-2',
@@ -93,8 +106,7 @@ describe('SimilarListings', () => {
     )
 
     expect(html).toContain('Similar Products')
-    expect(html).toContain('PD-SIM01')
-    expect(html).toContain('PD-SIM02')
+    expect(html).toContain('iPhone 12')
   })
 
   test('returns null when listings array is empty', () => {

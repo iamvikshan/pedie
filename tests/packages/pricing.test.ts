@@ -75,31 +75,41 @@ describe('calculateDiscount', () => {
 })
 
 describe('getPricingTier', () => {
-  test("returns 'sale' when final < price and status = onsale", () => {
-    expect(getPricingTier(100000, 150000, 'onsale')).toBe('sale')
+  test("returns 'sale' when sale_price_kes is set and lower than price_kes", () => {
+    expect(getPricingTier({ price_kes: 150000, sale_price_kes: 100000 })).toBe(
+      'sale'
+    )
   })
 
-  test("returns 'discounted' when final < price but listing_type = standard", () => {
-    expect(getPricingTier(100000, 150000, 'standard')).toBe('discounted')
+  test("returns 'regular' when no sale and price < 100000", () => {
+    expect(getPricingTier({ price_kes: 50000 })).toBe('regular')
   })
 
-  test("returns 'normal' when final equals price", () => {
-    expect(getPricingTier(150000, 150000, 'onsale')).toBe('normal')
+  test("returns 'premium' when no sale and price >= 100000", () => {
+    expect(getPricingTier({ price_kes: 150000 })).toBe('premium')
   })
 
-  test("returns 'normal' when final exceeds price", () => {
-    expect(getPricingTier(160000, 150000, 'standard')).toBe('normal')
+  test("returns 'regular' when sale_price_kes is null", () => {
+    expect(getPricingTier({ price_kes: 50000, sale_price_kes: null })).toBe(
+      'regular'
+    )
   })
 
-  test("returns 'sale' for small discount with status = onsale", () => {
-    expect(getPricingTier(149000, 150000, 'onsale')).toBe('sale')
+  test("returns 'premium' when sale_price_kes equals price_kes (not a discount)", () => {
+    expect(getPricingTier({ price_kes: 150000, sale_price_kes: 150000 })).toBe(
+      'premium'
+    )
   })
 
-  test("returns 'discounted' when final < price and listing_type = affiliate", () => {
-    expect(getPricingTier(100000, 150000, 'affiliate')).toBe('discounted')
+  test("returns 'sale' for small discount with sale_price_kes", () => {
+    expect(getPricingTier({ price_kes: 150000, sale_price_kes: 149000 })).toBe(
+      'sale'
+    )
   })
 
-  test("returns 'normal' when final equals price and listing_type = affiliate", () => {
-    expect(getPricingTier(150000, 150000, 'affiliate')).toBe('normal')
+  test("returns 'regular' when sale_price_kes exceeds price_kes", () => {
+    expect(getPricingTier({ price_kes: 50000, sale_price_kes: 60000 })).toBe(
+      'regular'
+    )
   })
 })

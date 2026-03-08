@@ -35,21 +35,21 @@ describe('ProductFamilyCard Component', () => {
   })
 
   // Pure logic tests
-  test('sale tier: final < price AND status = onsale', () => {
-    const tier = getPricingTier(100000, 150000, 'onsale')
+  test('sale tier: sale_price_kes < price_kes', () => {
+    const tier = getPricingTier({ price_kes: 150000, sale_price_kes: 100000 })
     expect(tier).toBe('sale')
     const discount = calculateDiscount(150000, 100000)
     expect(discount).toBe(33)
   })
 
-  test('discounted tier: final < price AND status != onsale', () => {
-    const tier = getPricingTier(100000, 150000, 'available')
-    expect(tier).toBe('discounted')
+  test('regular tier: no sale and price < 100000', () => {
+    const tier = getPricingTier({ price_kes: 50000 })
+    expect(tier).toBe('regular')
   })
 
-  test('normal tier: final >= price', () => {
-    const tier = getPricingTier(150000, 150000, 'available')
-    expect(tier).toBe('normal')
+  test('premium tier: no sale and price >= 100000', () => {
+    const tier = getPricingTier({ price_kes: 150000 })
+    expect(tier).toBe('premium')
   })
 
   test('formats price in KES', () => {
@@ -63,9 +63,8 @@ describe('ProductFamilyCard Component', () => {
     expect(src).toContain('TbFlame')
   })
 
-  test('discounted tier shows line-through for original price', () => {
-    expect(src).toContain('line-through')
-    expect(src).toContain("tier === 'discounted'")
+  test('sale tier does not show discounted tier', () => {
+    expect(src).not.toContain("tier === 'discounted'")
   })
 
   test('normal tier shows single price', () => {
@@ -92,8 +91,8 @@ describe('ProductFamilyCard Component', () => {
     expect(src).toContain('representative.condition')
   })
 
-  test('model-only name, no brand in h3', () => {
-    expect(src).toContain('const productName = product.model')
+  test('name-only, no brand in h3', () => {
+    expect(src).toContain('const productName = product.name')
   })
 
   test('has aria-label for accessibility', () => {
@@ -160,26 +159,28 @@ describe('ProductFamilyCard Component', () => {
 describe('ProductFamilyCard DOM Rendering', () => {
   const mockListing: Listing = {
     id: '1',
-    listing_id: 'PD-12345',
+    sku: 'PD-12345',
     product_id: 'p1',
     storage: '256GB',
     color: 'Space Black',
-    carrier: 'Unlocked',
     condition: 'excellent',
     battery_health: 95,
     price_kes: 120000,
-    final_price_kes: 120000,
-    original_price_usd: 1000,
-    landed_cost_kes: 110000,
+    sale_price_kes: null,
+    cost_kes: 110000,
     source: 'eBay',
-    source_listing_id: 'ebay123',
+    source_id: 'ebay123',
     source_url: 'https://ebay.com',
     images: ['/listing-image.jpg'],
     is_featured: true,
     listing_type: 'standard',
     ram: null,
-    status: 'available',
-    sheets_row_id: 'row1',
+    warranty_months: null,
+    attributes: null,
+    includes: null,
+    admin_notes: null,
+    quantity: 1,
+    status: 'active',
     notes: null,
     created_at: '2023-01-01T00:00:00Z',
     updated_at: '2023-01-01T00:00:00Z',
@@ -188,15 +189,14 @@ describe('ProductFamilyCard DOM Rendering', () => {
   const mockFamily: ProductFamily = {
     product: {
       id: 'p1',
-      brand: 'Apple',
-      model: 'iPhone 14 Pro',
+      name: 'iPhone 14 Pro',
       slug: 'apple-iphone-14-pro',
-      category_id: 'cat1',
+      brand_id: 'b1',
       description: 'Great',
       specs: null,
       key_features: null,
       images: ['/product-image.jpg'],
-      original_price_kes: 150000,
+      is_active: true,
       created_at: '',
       updated_at: '',
       fts: null,
@@ -218,7 +218,7 @@ describe('ProductFamilyCard DOM Rendering', () => {
       await import('@components/ui/productFamilyCard')
     render(<ProductFamilyCard family={mockFamily} />)
     const link = screen.getByRole('link', {
-      name: /View Apple iPhone 14 Pro/i,
+      name: /View iPhone 14 Pro/i,
     })
     expect(link).toHaveAttribute('href', '/products/apple-iphone-14-pro')
   })
@@ -227,7 +227,7 @@ describe('ProductFamilyCard DOM Rendering', () => {
     const { ProductFamilyCard } =
       await import('@components/ui/productFamilyCard')
     render(<ProductFamilyCard family={mockFamily} />)
-    const formatted = formatKes(mockListing.final_price_kes)
+    const formatted = formatKes(mockListing.price_kes)
     expect(screen.getByText(formatted)).toBeInTheDocument()
   })
 })

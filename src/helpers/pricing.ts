@@ -30,20 +30,17 @@ export function calculateDiscount(original: number, current: number): number {
   return Math.max(0, Math.min(100, discount))
 }
 
-/**
- * Pricing tier for display logic.
- * - 'sale': final_price_kes < price_kes AND status = 'onsale' — full sale treatment (pill, hot deals, priority)
- * - 'discounted': final_price_kes < price_kes but status ≠ 'onsale' — show discount inline, no pill
- * - 'normal': final_price_kes >= price_kes — show final price only
- */
-export type PricingTier = 'sale' | 'discounted' | 'normal'
+export type PricingTier = 'sale' | 'regular' | 'premium'
 
-export function getPricingTier(
-  finalPriceKes: number,
-  priceKes: number,
-  status: string
-): PricingTier {
-  if (finalPriceKes < priceKes && status === 'onsale') return 'sale'
-  if (finalPriceKes < priceKes) return 'discounted'
-  return 'normal'
+export function getPricingTier(listing: {
+  price_kes: number
+  sale_price_kes?: number | null
+}): PricingTier {
+  if (
+    listing.sale_price_kes != null &&
+    listing.sale_price_kes < listing.price_kes
+  )
+    return 'sale'
+  if (listing.price_kes >= 100000) return 'premium'
+  return 'regular'
 }

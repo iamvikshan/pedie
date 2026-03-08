@@ -16,6 +16,8 @@ const DEFAULT_PAGINATION: PaginationParams = { page: 1, perPage: 20 }
  */
 const MAX_FTS_CANDIDATES = 100
 
+const LISTING_WITH_PRODUCT_SELECT = '*, product:products(*, brand:brands(*))'
+
 export async function searchListings(
   query: string,
   filters?: ListingFilters,
@@ -30,8 +32,6 @@ export async function searchListings(
     .from('products')
     .select('id')
     .textSearch('fts', query, { type: 'websearch' })
-    // TODO: If catalogue grows beyond MAX_FTS_CANDIDATES, revisit architecture
-    // (paginate FTS results or move join into a server-side RPC)
     .limit(MAX_FTS_CANDIDATES)
 
   if (searchError || !matchedProducts) {
@@ -45,7 +45,7 @@ export async function searchListings(
     }
   }
 
-  const productIds = (matchedProducts as unknown as Array<{ id: string }>).map(
+  let productIds = (matchedProducts as unknown as Array<{ id: string }>).map(
     p => p.id
   )
 
@@ -59,13 +59,52 @@ export async function searchListings(
     }
   }
 
-  // Step 2: Fetch listings for matched products
+  // Step 2: Resolve brand filter to product IDs if needed
+  if (filters?.brand && filters.brand.length > 0) {
+    const { data: brandData } = await supabase
+      .from('brands')
+      .select('id')
+      .in('slug', filters.brand)
+
+    const brandIds = (brandData ?? []).map(b => b.id)
+
+    if (brandIds.length === 0) {
+      return {
+        data: [],
+        total: 0,
+        page: pag.page,
+        perPage: pag.perPage,
+        totalPages: 0,
+      }
+    }
+
+    const { data: brandProducts } = await supabase
+      .from('products')
+      .select('id')
+      .in('brand_id', brandIds)
+
+    const brandProductIds = new Set(
+      (brandProducts ?? []).map(p => p.id)
+    )
+
+    productIds = productIds.filter(id => brandProductIds.has(id))
+
+    if (productIds.length === 0) {
+      return {
+        data: [],
+        total: 0,
+        page: pag.page,
+        perPage: pag.perPage,
+        totalPages: 0,
+      }
+    }
+  }
+
+  // Step 3: Fetch listings for matched products
   let listingQuery = supabase
     .from('listings')
-    .select(
-      '*, product:products(*, category:categories!products_category_id_fkey(*))'
-    )
-    .eq('status', 'available')
+    .select(LISTING_WITH_PRODUCT_SELECT)
+    .eq('status', 'active')
     .in('product_id', productIds)
 
   // Apply optional filters
@@ -77,12 +116,6 @@ export async function searchListings(
   }
   if (filters?.color && filters.color.length > 0) {
     listingQuery = listingQuery.in('color', filters.color)
-  }
-  if (filters?.carrier && filters.carrier.length > 0) {
-    listingQuery = listingQuery.in('carrier', filters.carrier)
-  }
-  if (filters?.brand && filters.brand.length > 0) {
-    listingQuery = listingQuery.in('product.brand', filters.brand)
   }
   if (filters?.priceMin !== undefined) {
     listingQuery = listingQuery.gte('price_kes', filters.priceMin)
@@ -115,8 +148,8 @@ export async function searchListings(
   // Count query
   let countQuery = supabase
     .from('listings')
-    .select('*', { count: 'exact', head: true } as never)
-    .eq('status', 'available')
+    .select('id', { count: 'exact', head: true } as never)
+    .eq('status', 'active')
     .in('product_id', productIds)
 
   if (filters?.condition && filters.condition.length > 0) {
@@ -127,12 +160,6 @@ export async function searchListings(
   }
   if (filters?.color && filters.color.length > 0) {
     countQuery = countQuery.in('color', filters.color)
-  }
-  if (filters?.carrier && filters.carrier.length > 0) {
-    countQuery = countQuery.in('carrier', filters.carrier)
-  }
-  if (filters?.brand && filters.brand.length > 0) {
-    countQuery = countQuery.in('product.brand', filters.brand)
   }
   if (filters?.priceMin !== undefined) {
     countQuery = countQuery.gte('price_kes', filters.priceMin)
@@ -150,12 +177,6 @@ export async function searchListings(
   }
   const safePerPage = Math.max(1, pag.perPage)
 
-  // Fall back to from + data.length when count query fails, so pagination stays usable.
-  // When a full page is returned, add 1 so consumers see a possible next page.
-  // TRADEOFF: This heuristic may produce a phantom "next" link when the true total
-  // is exactly a multiple of perPage (the extra page will be empty). This is a deliberate
-  // UX choice — showing an empty last page is preferable to hiding real results when the
-  // count query is unavailable. The flicker is expected and self-corrects on the next load.
   let total: number
   if (countError) {
     const dataLen = (data as unknown[])?.length ?? 0
@@ -175,10 +196,9 @@ export async function searchListings(
 
 // Types for suggestions
 export interface SearchSuggestion {
-  brand: string
-  model: string
+  name: string
   slug: string
-  category?: string
+  brandName?: string
   minPrice?: number
 }
 
@@ -191,27 +211,17 @@ export async function getSearchSuggestions(
 
   const { data, error } = await supabase
     .from('products')
-    .select(
-      'brand, model, slug, original_price_kes, categories:category_id(slug)'
-    )
+    .select('name, slug, brand:brands(name)')
     .textSearch('fts', query, { type: 'websearch' })
     .limit(limit)
 
   if (error || !data) return []
 
   return data.map(
-    (p: {
-      brand: string
-      model: string
-      slug: string
-      categories: { slug: string } | null
-      original_price_kes: number | null
-    }) => ({
-      brand: p.brand,
-      model: p.model,
+    (p: { name: string; slug: string; brand: { name: string } | null }) => ({
+      name: p.name,
       slug: p.slug,
-      category: p.categories?.slug ?? undefined,
-      minPrice: p.original_price_kes ?? undefined,
+      brandName: p.brand?.name ?? undefined,
     })
   )
 }
@@ -224,7 +234,6 @@ export async function getAvailableFilters(
     conditions: [],
     storages: [],
     colors: [],
-    carriers: [],
     brands: [],
     priceRange: { min: 0, max: 0 },
     categories: [],
@@ -245,9 +254,9 @@ export async function getAvailableFilters(
   const { data: listings } = await supabase
     .from('listings')
     .select(
-      'condition, storage, color, carrier, price_kes, product:products(brand)'
+      'condition, storage, color, price_kes, product:products(brand:brands(name, slug))'
     )
-    .eq('status', 'available')
+    .eq('status', 'active')
     .in('product_id', ids)
 
   if (!listings || listings.length === 0) return empty
@@ -255,7 +264,6 @@ export async function getAvailableFilters(
   const conditions = new Set<string>()
   const storages = new Set<string>()
   const colors = new Set<string>()
-  const carriers = new Set<string>()
   const brands = new Set<string>()
   let min = Infinity,
     max = 0
@@ -264,15 +272,13 @@ export async function getAvailableFilters(
     condition: string | null
     storage: string | null
     color: string | null
-    carrier: string | null
     price_kes: number | null
-    product: { brand: string } | null
+    product: { brand: { name: string; slug: string } | null } | null
   }>) {
     if (l.condition) conditions.add(l.condition)
     if (l.storage) storages.add(l.storage)
     if (l.color) colors.add(l.color)
-    if (l.carrier) carriers.add(l.carrier)
-    if (l.product?.brand) brands.add(l.product.brand)
+    if (l.product?.brand?.slug) brands.add(l.product.brand.slug)
     if (typeof l.price_kes === 'number') {
       min = Math.min(min, l.price_kes)
       max = Math.max(max, l.price_kes)
@@ -283,7 +289,6 @@ export async function getAvailableFilters(
     conditions: [...conditions] as ConditionGrade[],
     storages: [...storages],
     colors: [...colors],
-    carriers: [...carriers],
     brands: [...brands],
     priceRange: { min: min === Infinity ? 0 : min, max },
     categories: [],

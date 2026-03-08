@@ -1,73 +1,69 @@
-# Pedie agent instructions
+# Project Agent Instructions
 
 - Follow the active phase plan when one is provided. Treat files under `.zeus/plans` as the scope boundary unless the task explicitly expands it.
 - Prefer little code that does more. Reach for mature packages instead of reinventing common solutions.
 - Keep modules cohesive, reusable, and easy to share without creating needless file sprawl.
 - Breaking changes are acceptable in this repo. Remove dead code instead of adding backward-compatibility or deprecation layers.
 
+## Plan Directory
+
+`.zeus/plans`
+
+## Tooling
+
 ```yaml
-tooling:
 pm: bun
-format: bun run f
-lint: bun lint # to save time, this is substituted by `bun check` for a combined lint + typecheck pass
-typecheck: bunx tsc --noEmit # see `bun check` above
+format: bun run f # formats only changed files — NEVER use bun f:all
+lint: bun check # combined lint + typecheck pass via bun check
+typecheck: bun check # covered by lint above — run bunx tsc --noEmit for standalone check
 test: bun test
 build: bun run build
-fileNaming: camelCase (files/modules/components) | PascalCase (component exports/variables/constants) | UPPERCASE SNAKE_CASE (environment/config variables) | tests under tests/
+fileNaming: camelCase (file/module/component filenames) | PascalCase (exported classes/types) | camelCase (runtime/exported variables) | UPPER_SNAKE_CASE (.env & config.ts constants) | tests under tests/
 iconLib: react-icons/tb
-
-plan directory: .zeus/plans
 ```
 
 ## Stack
 
-- Bun
-- Next.js App Router (`src/app`)
+- Bun + Next.js 14+ App Router (`src/app`) — no Pages Router patterns
 - TypeScript
-- Tailwind CSS
-- Framer Motion
+- Tailwind CSS + Framer Motion
 - `react-icons/tb`
 - Supabase SSR + RLS
 - Google Sheets sync
 
-## Workflow rules
+## Workflow Rules
 
-- Use the canonical commands from the `tooling` block above.
-- Do not run `bun f:all`. Use `bun run f` instead because it formats only changed files. If there are formatting errors, after fixing them, do not run `bun f`, instead, run formatting on only the files with errors.
-- Prefer `bun check` when you want the repo's combined lint + typecheck pass.
+- Use canonical commands from the tooling block above.
+- Use `bun check` for combined lint + typecheck. Use `bunx tsc --noEmit` for a standalone typecheck only.
 - Use `bun run build` for production validation when a task requires a build check.
 - Update `docs/DESIGN.md` and `docs/product-architecture.md` when architecture, UI patterns, or major data-flow assumptions change.
-- temporary files and experiments can be placed in `.temp/`, but should be removed when the experiment is done or the temporary file is no longer needed. Do not add new long-term code to `.temp/`.
-- For database schema changes, update the Supabase schema through MCP and add a SQL migration to `supabase/migrations/`. Do not change the schema through code or in the Supabase UI without a migration, as that will break the source-of-truth and cause issues for other developers.
+- Temporary files and experiments go in `.temp/` and must be removed when done. Do not add long-term code to `.temp/`.
 
-## Naming, structure, and types
+## Database & Schema
 
-- File, module, and component filenames use camelCase. Component exports use PascalCase.
-- Keep tests under `tests/`.
-- Shared and app-wide types always live in `types/` and are imported through `@app-types/*`, not scattered through `src/`.
-- Database types must be regenerated from Supabase after schema changes.
-- Route code lives in the Next.js App Router under `src/app`, including route groups such as `(store)`, `(auth)`, `(admin)`, and `(account)`.
-- useful styles from reebelo.com are stored in `.temp/reebelo/styles`, for reference.
+- Supabase is the source of truth. All schema changes must go through Supabase MCP and include a tested SQL migration in `supabase/migrations/`. Never change schema through code or the Supabase UI without a migration.
+- After schema changes: regenerate database types with `bunx supabase gen types typescript --project-id "$SUPABASE_PROJECT_REF" --schema public > types/database.ts`, then update `/docs/database-architecture.md`, AND `db-tables` (gid=327299327) sheet in the Google Sheet specified by `GS_SPREADSHEET_ID` in `.env`.
+- After any change to database fields, seeding `bun seed` (scripts/seed.ts), or Google Sheets sync code: run `bun syncsheets` (scripts/sheets.ts) before marking the phase complete. Keep these scripts up-to-date with the current schema and sync requirements at all times.
+- Preserve SSR and RLS assumptions when changing auth, data access, or database-facing code.
 
-## Path aliases
+## Naming, Structure & Types
+
+- File/module/component filenames: `camelCase`. Exported classes/types: `PascalCase`. Runtime/exported variables: `camelCase`. Constants (.env & config.ts): `UPPER_SNAKE_CASE`. NOTE: inconsistencies exist, fix on encounter.
+- Tests live under `tests/`.
+- Shared types live in `types/` and are imported via `@app-types/*` only — never scattered through `src/`.
+- Route code lives under `src/app` using App Router conventions including route groups `(store)`, `(auth)`, `(admin)`, `(account)`.
+
+## Path Aliases
 
 - `@/*` -> `src/*`
 - `@components/*` -> `src/components/*`
 - `@data/*` -> `src/lib/data/*`
 - `@app-types/*` -> `types/*`
-- `@helpers` -> `src/helpers`
-- `@helpers/*` -> `src/helpers/*`
+- `@helpers` / `@helpers/*` -> `src/helpers` / `src/helpers/*`
 - `@lib/*` -> `src/lib/*`
-- `@/config` resolves to `src/config` through the general `@/*` alias
 
-## Data, schema, and sync safety
+## Testing Conventions
 
-- Supabase is the source of truth for schema work. Schema changes must go through Supabase MCP and a checked-in SQL migration in `supabase/migrations/`.
-- Preserve SSR and RLS assumptions when changing auth, data access, or database-facing code.
-- If the database is seeded, fields are added, or DB-related code changes, the Google Sheets sync must still hold. Verify with `bun syncsheets` when the change touches that flow.
-
-## Testing conventions
-
-- DOM tests use Testing Library with happy-dom and shared mocks/utilities from `tests/utils.tsx`.
-- Source-analysis tests are appropriate for config, CSS, imports, and page structure.
-- Logic and mock-heavy tests should use `mock.module()` for business logic plus API/data code.
+- DOM tests: Testing Library with happy-dom. Shared mocks/utilities from `tests/utils.tsx`.
+- Source-analysis tests: appropriate for config, CSS, imports, and page structure.
+- Logic and mock-heavy tests: use `mock.module()` for business logic plus API/data code.

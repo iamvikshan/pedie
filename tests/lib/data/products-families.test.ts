@@ -11,10 +11,10 @@ describe('getRelatedFamilies', () => {
     expect(typeof mod.getRelatedFamilies).toBe('function')
   })
 
-  test('source queries by category_id and excludes product', () => {
-    expect(src).toContain('category_id')
-    expect(src).toContain('excludeProductId')
-    expect(src).toContain('neq')
+  test('source queries by product categories junction and excludes product', () => {
+    expect(src).toContain('product_categories')
+    expect(src).toContain('productId')
+    expect(src).toContain('filter')
   })
 
   test('source groups into families using selectRepresentative', () => {
@@ -34,9 +34,9 @@ describe('getProductFamiliesByCategory', () => {
     expect(src).toContain(".eq('slug', categorySlug)")
   })
 
-  test('source filters out sold/reserved listings', () => {
+  test('source filters out non-active listings', () => {
     // Multiple occurrences of this pattern expected
-    expect(src).toContain("not('status', 'in', '(sold,reserved)')")
+    expect(src).toContain(".eq('status', 'active')")
   })
 })
 
@@ -51,12 +51,6 @@ describe('existing products exports preserved', () => {
     const mod = await import('@data/products')
     expect(mod.getLatestListings).toBeDefined()
     expect(typeof mod.getLatestListings).toBe('function')
-  })
-
-  test('getDealListings is exported', async () => {
-    const mod = await import('@data/products')
-    expect(mod.getDealListings).toBeDefined()
-    expect(typeof mod.getDealListings).toBe('function')
   })
 
   test('getListingsByCategory is exported', async () => {

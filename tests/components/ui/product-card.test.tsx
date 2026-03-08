@@ -13,49 +13,61 @@ const src = readFileSync(resolve('src/components/ui/productCard.tsx'), 'utf-8')
 describe('ProductCard Component', () => {
   const mockListing: ListingWithProduct = {
     id: '1',
-    listing_id: 'PD-12345',
+    sku: 'PD-12345',
     product_id: 'p1',
     storage: '256GB',
     color: 'Space Black',
-    carrier: 'Unlocked',
     condition: 'excellent',
     battery_health: 95,
     price_kes: 120000,
-    final_price_kes: 120000,
-    original_price_usd: 1000,
-    landed_cost_kes: 110000,
+    sale_price_kes: null,
+    cost_kes: 110000,
     source: 'eBay',
-    source_listing_id: 'ebay123',
+    source_id: 'ebay123',
     source_url: 'https://ebay.com',
     images: ['/listing-image.jpg'],
     is_featured: true,
     listing_type: 'standard' as const,
     ram: null,
-    status: 'available',
-    sheets_row_id: 'row1',
+    warranty_months: null,
+    attributes: null,
+    includes: null,
+    admin_notes: null,
+    quantity: 1,
+    status: 'active',
     notes: null,
     created_at: '2023-01-01T00:00:00Z',
     updated_at: '2023-01-01T00:00:00Z',
     product: {
       id: 'p1',
-      brand: 'Apple',
-      model: 'iPhone 14 Pro',
+      name: 'iPhone 14 Pro',
       slug: 'apple-iphone-14-pro',
-      category_id: 'cat1',
+      brand_id: 'b1',
       description: 'Great phone',
       specs: null,
       key_features: null,
       images: ['/product-image.jpg'],
-      original_price_kes: 150000,
+      is_active: true,
       created_at: '2023-01-01T00:00:00Z',
       updated_at: '2023-01-01T00:00:00Z',
       fts: null,
+      brand: {
+        id: 'b1',
+        name: 'Apple',
+        slug: 'apple',
+        logo_url: null,
+        website_url: null,
+        is_active: true,
+        sort_order: 1,
+        created_at: '2023-01-01T00:00:00Z',
+        updated_at: '2023-01-01T00:00:00Z',
+      },
     },
   }
 
   // Pure logic tests
-  test('tier 1 (sale): final < price AND status = onsale', () => {
-    const tier = getPricingTier(100000, 150000, 'onsale')
+  test('tier 1 (sale): sale_price_kes < price_kes', () => {
+    const tier = getPricingTier({ price_kes: 150000, sale_price_kes: 100000 })
     expect(tier).toBe('sale')
     const discount = calculateDiscount(150000, 100000)
     expect(discount).toBe(33)
@@ -109,9 +121,9 @@ describe('ProductCard Component', () => {
   })
 
   // NEW TESTS
-  test('model-only name, no brand', () => {
-    expect(src).toContain('const productName = product.model')
-    expect(src).not.toContain('${product.brand} ${product.model}')
+  test('name-only, no brand', () => {
+    expect(src).toContain('const productName = product.name')
+    expect(src).not.toContain('${product.brand} ${product.name}')
     expect(src).toContain('line-clamp-2')
   })
 
@@ -209,43 +221,55 @@ describe('ProductCard Component', () => {
 describe('ProductCard DOM Rendering', () => {
   const mockListing: ListingWithProduct = {
     id: '1',
-    listing_id: 'PD-12345',
+    sku: 'PD-12345',
     product_id: 'p1',
     storage: '256GB',
     color: 'Space Black',
-    carrier: 'Unlocked',
     condition: 'excellent',
     battery_health: 95,
     price_kes: 120000,
-    final_price_kes: 120000,
-    original_price_usd: 1000,
-    landed_cost_kes: 110000,
+    sale_price_kes: null,
+    cost_kes: 110000,
     source: 'eBay',
-    source_listing_id: 'ebay123',
+    source_id: 'ebay123',
     source_url: 'https://ebay.com',
     images: ['/listing-image.jpg'],
     is_featured: true,
     listing_type: 'standard' as const,
     ram: null,
-    status: 'available',
-    sheets_row_id: 'row1',
+    warranty_months: null,
+    attributes: null,
+    includes: null,
+    admin_notes: null,
+    quantity: 1,
+    status: 'active',
     notes: null,
     created_at: '2023-01-01T00:00:00Z',
     updated_at: '2023-01-01T00:00:00Z',
     product: {
       id: 'p1',
-      brand: 'Apple',
-      model: 'iPhone 14 Pro',
+      name: 'iPhone 14 Pro',
       slug: 'apple-iphone-14-pro',
-      category_id: 'cat1',
+      brand_id: 'b1',
       description: 'Great phone',
       specs: null,
       key_features: null,
       images: ['/product-image.jpg'],
-      original_price_kes: 150000,
+      is_active: true,
       created_at: '2023-01-01T00:00:00Z',
       updated_at: '2023-01-01T00:00:00Z',
       fts: null,
+      brand: {
+        id: 'b1',
+        name: 'Apple',
+        slug: 'apple',
+        logo_url: null,
+        website_url: null,
+        is_active: true,
+        sort_order: 1,
+        created_at: '2023-01-01T00:00:00Z',
+        updated_at: '2023-01-01T00:00:00Z',
+      },
     },
   }
 
@@ -258,7 +282,7 @@ describe('ProductCard DOM Rendering', () => {
   test('renders formatted price', async () => {
     const { ProductCard } = await import('@components/ui/productCard')
     render(<ProductCard listing={mockListing} />)
-    const formatted = formatKes(mockListing.final_price_kes)
+    const formatted = formatKes(mockListing.price_kes)
     expect(screen.getByText(formatted)).toBeInTheDocument()
   })
 
@@ -266,7 +290,7 @@ describe('ProductCard DOM Rendering', () => {
     const { ProductCard } = await import('@components/ui/productCard')
     render(<ProductCard listing={mockListing} />)
     const link = screen.getByRole('link', { name: /View iPhone 14 Pro/i })
-    expect(link).toHaveAttribute('href', '/listings/PD-12345')
+    expect(link).toHaveAttribute('href', '/listings/1')
   })
 
   test('returns null when product is missing', async () => {

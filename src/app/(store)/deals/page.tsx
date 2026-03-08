@@ -1,5 +1,5 @@
 import { ProductCard } from '@components/ui/productCard'
-import { getDealsListings } from '@data/deals'
+import { getPromotionListings } from '@data/listings'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 }
 
 export default async function DealsPage() {
-  const listings = await getDealsListings()
+  const listings = await getPromotionListings()
 
   return (
     <div className='w-full pedie-container py-8'>

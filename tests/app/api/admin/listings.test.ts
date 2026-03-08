@@ -178,7 +178,7 @@ describe('POST /api/admin/listings', () => {
     expect(mockCreateListing).toHaveBeenCalledTimes(1)
   })
 
-  test('auto-generates listing_id if not provided', async () => {
+  test('creates listing without requiring client-side listing_id', async () => {
     mockGetUser.mockResolvedValue(adminUser)
     mockIsUserAdmin.mockResolvedValue(true)
 
@@ -192,7 +192,9 @@ describe('POST /api/admin/listings', () => {
     expect(res.status).toBe(201)
 
     const callArg = (mockCreateListing.mock.calls[0] as any[])[0] as any
-    expect(callArg.listing_id).toMatch(/^PD-[A-Z0-9]{5}$/)
+    expect(callArg.product_id).toBe('prod-1')
+    expect(callArg.price_kes).toBe(50000)
+    expect(callArg.condition).toBe('good')
   })
 })
 

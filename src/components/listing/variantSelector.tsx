@@ -1,11 +1,18 @@
 'use client'
 
 import React from 'react'
-import { TbCrown, TbDiamond, TbThumbUp, TbCircleCheck } from 'react-icons/tb'
+import {
+  TbCrown,
+  TbDiamond,
+  TbThumbUp,
+  TbCircleCheck,
+  TbSparkles,
+  TbTool,
+} from 'react-icons/tb'
 import { formatKes } from '@helpers'
 import type { Listing, ConditionGrade } from '../../../types/product'
 
-type VariantDimension = 'storage' | 'color' | 'condition' | 'carrier'
+type VariantDimension = 'storage' | 'color' | 'condition'
 
 interface VariantSelectorProps {
   listings: Listing[]
@@ -40,7 +47,6 @@ export function findBestMatch(
     if (listing.color === current.color && dimension !== 'color') score++
     if (listing.condition === current.condition && dimension !== 'condition')
       score++
-    if (listing.carrier === current.carrier && dimension !== 'carrier') score++
 
     if (score > bestScore) {
       bestScore = score
@@ -52,21 +58,28 @@ export function findBestMatch(
 
   if (bestMatches.length === 1) return bestMatches[0]
 
-  return bestMatches.sort((a, b) => a.final_price_kes - b.final_price_kes)[0]
+  return bestMatches.sort(
+    (a, b) =>
+      (a.sale_price_kes ?? a.price_kes) - (b.sale_price_kes ?? b.price_kes)
+  )[0]
 }
 
 const CONDITION_ICONS: Record<ConditionGrade, React.ElementType> = {
+  new: TbSparkles,
   premium: TbCrown,
   excellent: TbDiamond,
   good: TbThumbUp,
   acceptable: TbCircleCheck,
+  for_parts: TbTool,
 }
 
 const CONDITION_COLORS: Record<ConditionGrade, string> = {
+  new: 'text-pedie-badge-new',
   premium: 'text-pedie-badge-premium',
   excellent: 'text-pedie-badge-excellent',
   good: 'text-pedie-badge-good',
   acceptable: 'text-pedie-badge-acceptable',
+  for_parts: 'text-pedie-badge-for-parts',
 }
 
 /** Map known color names to hex for visual swatches */
@@ -123,9 +136,6 @@ export default function VariantSelector({
   const conditions = Array.from(
     new Set(availableListings.map(l => l.condition).filter(Boolean))
   ) as ConditionGrade[]
-  const carriers = Array.from(
-    new Set(availableListings.map(l => l.carrier).filter(Boolean))
-  ) as string[]
 
   const handleSelect = (dimension: VariantDimension, value: string) => {
     if (disabled || !onSelect) return
@@ -253,7 +263,7 @@ export default function VariantSelector({
                 'condition',
                 condition
               )
-              conditionPrice = bestMatch.final_price_kes
+              conditionPrice = bestMatch.sale_price_kes ?? bestMatch.price_kes
             }
 
             return (
@@ -286,39 +296,6 @@ export default function VariantSelector({
           })}
         </div>
       </div>
-
-      {carriers.length > 1 && (
-        <div>
-          <h3 className='text-sm font-medium text-pedie-text-muted mb-2'>
-            Carrier
-          </h3>
-          <div
-            className='flex flex-wrap gap-2'
-            role='radiogroup'
-            aria-label='Carrier'
-          >
-            {carriers.map(carrier => {
-              const isSelected = selectedListing.carrier === carrier
-              return (
-                <button
-                  key={carrier}
-                  onClick={() => handleSelect('carrier', carrier)}
-                  disabled={disabled}
-                  aria-disabled={disabled}
-                  aria-pressed={isSelected}
-                  className={`px-4 py-2 rounded-full text-sm font-medium border glass transition-colors ${
-                    isSelected
-                      ? 'border-pedie-green bg-pedie-green/10 text-pedie-green'
-                      : 'border-pedie-border text-pedie-text hover:border-pedie-green/50'
-                  } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-                >
-                  {carrier}
-                </button>
-              )
-            })}
-          </div>
-        </div>
-      )}
     </div>
   )
 }

@@ -5,9 +5,9 @@ import type { ColumnDef } from '@tanstack/react-table'
 
 interface ListingRow {
   id: string
-  listing_id: string
+  sku: string
   product_id: string
-  product: { brand: string; model: string } | null
+  product: { name: string; brand: { name: string; slug: string } | null } | null
   condition: string
   price_kes: number
   status: string
@@ -37,10 +37,10 @@ export const listingColumns: ColumnDef<ListingRow, unknown>[] = [
     enableSorting: false,
   },
   {
-    accessorKey: 'listing_id',
-    header: 'Listing ID',
+    accessorKey: 'sku',
+    header: 'SKU',
     cell: ({ row }) => (
-      <span className='font-mono text-sm'>{row.getValue('listing_id')}</span>
+      <span className='font-mono text-sm'>{row.getValue('sku')}</span>
     ),
   },
   {
@@ -48,7 +48,9 @@ export const listingColumns: ColumnDef<ListingRow, unknown>[] = [
     header: 'Product',
     cell: ({ row }) => {
       const product = row.original.product
-      return product ? `${product.brand} ${product.model}` : '—'
+      return product
+        ? `${product.brand?.name ?? ''} ${product.name}`.trim()
+        : '--'
     },
   },
   {
@@ -57,10 +59,12 @@ export const listingColumns: ColumnDef<ListingRow, unknown>[] = [
     cell: ({ row }) => {
       const condition = row.getValue('condition') as string
       const colors: Record<string, string> = {
+        new: 'bg-emerald-100 text-emerald-800',
         premium: 'bg-green-100 text-green-800',
         excellent: 'bg-blue-100 text-blue-800',
         good: 'bg-yellow-100 text-yellow-800',
         acceptable: 'bg-gray-100 text-gray-800',
+        for_parts: 'bg-red-100 text-red-800',
       }
       return (
         <span
@@ -82,10 +86,9 @@ export const listingColumns: ColumnDef<ListingRow, unknown>[] = [
     cell: ({ row }) => {
       const status = row.getValue('status') as string
       const colors: Record<string, string> = {
-        available: 'bg-green-100 text-green-800',
+        active: 'bg-green-100 text-green-800',
         reserved: 'bg-yellow-100 text-yellow-800',
         sold: 'bg-red-100 text-red-800',
-        unlisted: 'bg-gray-100 text-gray-800',
       }
       return (
         <span

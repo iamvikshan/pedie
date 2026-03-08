@@ -6,6 +6,7 @@ export interface CreateOrderInput {
   userId: string
   items: Array<{
     listing_id: string
+    product_name: string
     unit_price_kes: number
     deposit_kes: number
   }>
@@ -48,6 +49,7 @@ export async function createOrder(input: CreateOrderInput) {
   const itemsToInsert = input.items.map(item => ({
     order_id: order.id,
     listing_id: item.listing_id,
+    product_name: item.product_name,
     unit_price_kes: item.unit_price_kes,
     deposit_kes: item.deposit_kes,
   }))

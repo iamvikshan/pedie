@@ -98,8 +98,8 @@ describe('sitemap', () => {
     mockEq.mockImplementation(() =>
       Promise.resolve({
         data: [
-          { listing_id: 'PD-ABC12', updated_at: '2025-06-01T00:00:00Z' },
-          { listing_id: 'PD-DEF34', updated_at: '2025-06-01T00:00:00Z' },
+          { id: 'PD-ABC12', updated_at: '2025-06-01T00:00:00Z' },
+          { id: 'PD-DEF34', updated_at: '2025-06-01T00:00:00Z' },
         ],
         error: null,
       })

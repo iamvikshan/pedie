@@ -9,8 +9,7 @@ import type { ConditionGrade, ListingWithProduct } from '@app-types/product'
 import { getCategoryAndDescendantIds } from '@data/categories'
 import { createClient } from '@lib/supabase/server'
 
-const LISTING_SELECT =
-  '*, product:products!inner(*, category:categories!products_category_id_fkey(*))'
+const LISTING_SELECT = '*, product:products!inner(*, brand:brands(*))'
 
 function emptyPaginatedResult<T>(
   pagination: PaginationParams
@@ -32,10 +31,9 @@ export async function getFilteredListings(
 ): Promise<PaginatedResult<ListingWithProduct>> {
   const supabase = await createClient()
 
-  let descendantIds: string[] | null = null
+  let productIds: string[] | null = null
 
   if (categorySlug) {
-    // Get category ID
     const { data: categoryData, error: categoryError } = await supabase
       .from('categories')
       .select('id')
@@ -50,7 +48,15 @@ export async function getFilteredListings(
       return emptyPaginatedResult(pagination)
     }
 
-    descendantIds = await getCategoryAndDescendantIds(categoryData.id)
+    const descendantIds = await getCategoryAndDescendantIds(categoryData.id)
+
+    // Get product IDs via junction table
+    const { data: junctionData } = await supabase
+      .from('product_categories')
+      .select('product_id')
+      .in('category_id', descendantIds)
+
+    productIds = (junctionData ?? []).map(j => j.product_id)
   }
 
   // Handle category sub-filter
@@ -64,27 +70,63 @@ export async function getFilteredListings(
       const allSubIds = await Promise.all(
         catData.map(c => getCategoryAndDescendantIds(c.id))
       )
-      const subIds = new Set(allSubIds.flat())
+      const subCatIds = new Set(allSubIds.flat())
 
-      if (descendantIds) {
-        descendantIds = descendantIds.filter(id => subIds.has(id))
+      const { data: subJunction } = await supabase
+        .from('product_categories')
+        .select('product_id')
+        .in('category_id', [...subCatIds])
+
+      const subProductIds = new Set((subJunction ?? []).map(j => j.product_id))
+
+      if (productIds) {
+        productIds = productIds.filter(id => subProductIds.has(id))
       } else {
-        descendantIds = [...subIds]
+        productIds = [...subProductIds]
       }
     } else {
-      // Invalid category slugs → no results
-      descendantIds = []
+      productIds = []
     }
+  }
+
+  // Resolve brand filter to product IDs (nested relation filters don't work on count queries)
+  if (filters.brand && filters.brand.length > 0) {
+    const { data: brandData } = await supabase
+      .from('brands')
+      .select('id')
+      .in('slug', filters.brand)
+
+    const brandIds = (brandData ?? []).map(b => b.id)
+
+    if (brandIds.length === 0) return emptyPaginatedResult(pagination)
+
+    const { data: brandProducts } = await supabase
+      .from('products')
+      .select('id')
+      .in('brand_id', brandIds)
+
+    const brandProductIds = new Set(
+      (brandProducts ?? []).map(p => p.id)
+    )
+
+    if (productIds) {
+      productIds = productIds.filter(id => brandProductIds.has(id))
+    } else {
+      productIds = [...brandProductIds]
+    }
+
+    if (productIds.length === 0) return emptyPaginatedResult(pagination)
   }
 
   // Build data query
   let query = supabase
     .from('listings')
     .select(LISTING_SELECT)
-    .eq('status', 'available')
+    .eq('status', 'active')
 
-  if (descendantIds) {
-    query = query.in('product.category_id', descendantIds)
+  if (productIds) {
+    if (productIds.length === 0) return emptyPaginatedResult(pagination)
+    query = query.in('product_id', productIds)
   }
 
   // Apply filters
@@ -96,12 +138,6 @@ export async function getFilteredListings(
   }
   if (filters.color && filters.color.length > 0) {
     query = query.in('color', filters.color)
-  }
-  if (filters.carrier && filters.carrier.length > 0) {
-    query = query.in('carrier', filters.carrier)
-  }
-  if (filters.brand && filters.brand.length > 0) {
-    query = query.in('product.brand', filters.brand)
   }
   if (filters.priceMin !== undefined) {
     query = query.gte('price_kes', filters.priceMin)
@@ -135,17 +171,17 @@ export async function getFilteredListings(
     return emptyPaginatedResult(pagination)
   }
 
-  // Count query — include product join so embedded filters (product.category_id, product.brand) resolve
+  // Count query
   let countQuery = supabase
     .from('listings')
-    .select('*, product:products!inner(id, category_id, brand)', {
+    .select('id', {
       count: 'exact',
       head: true,
     } as never)
-    .eq('status', 'available')
+    .eq('status', 'active')
 
-  if (descendantIds) {
-    countQuery = countQuery.in('product.category_id', descendantIds)
+  if (productIds) {
+    countQuery = countQuery.in('product_id', productIds)
   }
 
   if (filters.condition && filters.condition.length > 0) {
@@ -156,12 +192,6 @@ export async function getFilteredListings(
   }
   if (filters.color && filters.color.length > 0) {
     countQuery = countQuery.in('color', filters.color)
-  }
-  if (filters.carrier && filters.carrier.length > 0) {
-    countQuery = countQuery.in('carrier', filters.carrier)
-  }
-  if (filters.brand && filters.brand.length > 0) {
-    countQuery = countQuery.in('product.brand', filters.brand)
   }
   if (filters.priceMin !== undefined) {
     countQuery = countQuery.gte('price_kes', filters.priceMin)
@@ -189,10 +219,8 @@ export async function getListingById(
 
   const { data, error } = await supabase
     .from('listings')
-    .select(
-      '*, product:products(*, category:categories!products_category_id_fkey(*))'
-    )
-    .eq('listing_id', listingId)
+    .select(LISTING_SELECT)
+    .eq('id', listingId)
     .single()
 
   if (error || !data) {
@@ -212,12 +240,10 @@ export async function getSimilarListings(
 
   const { data, error } = await supabase
     .from('listings')
-    .select(
-      '*, product:products(*, category:categories!products_category_id_fkey(*))'
-    )
+    .select(LISTING_SELECT)
     .eq('product_id', productId)
-    .neq('listing_id', excludeListingId)
-    .eq('status', 'available')
+    .neq('id', excludeListingId)
+    .eq('status', 'active')
     .order('created_at', { ascending: false })
     .limit(limit)
 
@@ -236,7 +262,6 @@ export async function getAvailableFilters(
     conditions: [],
     storages: [],
     colors: [],
-    carriers: [],
     brands: [],
     priceRange: { min: 0, max: 0 },
     categories: [],
@@ -244,10 +269,9 @@ export async function getAvailableFilters(
 
   const supabase = await createClient()
 
-  let descendantIds: string[] | null = null
+  let productIds: string[] | null = null
 
   if (categorySlug) {
-    // Get category ID
     const { data: categoryData, error: categoryError } = await supabase
       .from('categories')
       .select('id')
@@ -262,19 +286,27 @@ export async function getAvailableFilters(
       return emptyFilters
     }
 
-    descendantIds = await getCategoryAndDescendantIds(categoryData.id)
+    const descendantIds = await getCategoryAndDescendantIds(categoryData.id)
+
+    const { data: junctionData } = await supabase
+      .from('product_categories')
+      .select('product_id')
+      .in('category_id', descendantIds)
+
+    productIds = (junctionData ?? []).map(j => j.product_id)
   }
 
   // Fetch listings to extract filter values
   let listingsQuery = supabase
     .from('listings')
     .select(
-      'storage, color, carrier, condition, price_kes, product:products!inner(brand, category_id, category:categories!products_category_id_fkey(name, slug))'
+      'storage, color, condition, price_kes, product:products!inner(brand:brands(name, slug))'
     )
-    .eq('status', 'available')
+    .eq('status', 'active')
 
-  if (descendantIds) {
-    listingsQuery = listingsQuery.in('product.category_id', descendantIds)
+  if (productIds) {
+    if (productIds.length === 0) return emptyFilters
+    listingsQuery = listingsQuery.in('product_id', productIds)
   }
 
   const { data: listings, error: listingsError } = await listingsQuery
@@ -287,13 +319,10 @@ export async function getAvailableFilters(
   const listingData = listings as unknown as Array<{
     storage: string | null
     color: string | null
-    carrier: string | null
     condition: ConditionGrade
     price_kes: number
     product: {
-      brand: string
-      category_id: string
-      category: { name: string; slug: string } | null
+      brand: { name: string; slug: string } | null
     } | null
   }>
 
@@ -306,13 +335,10 @@ export async function getAvailableFilters(
   const colors = [
     ...new Set(listingData.map(l => l.color).filter(Boolean)),
   ] as string[]
-  const carriers = [
-    ...new Set(listingData.map(l => l.carrier).filter(Boolean)),
-  ] as string[]
   const brands = [
     ...new Set(
       listingData
-        .map(l => l.product?.brand)
+        .map(l => l.product?.brand?.slug)
         .filter((b): b is string => b != null && b !== '')
     ),
   ]
@@ -321,13 +347,26 @@ export async function getAvailableFilters(
   const min = prices.length > 0 ? Math.min(...prices) : 0
   const max = prices.length > 0 ? Math.max(...prices) : 0
 
-  // Build category counts
+  // Build category counts from junction table
+  let categoryCountQuery = supabase
+    .from('product_categories')
+    .select('category_id, category:categories(name, slug)')
+
+  if (productIds) {
+    categoryCountQuery = categoryCountQuery.in('product_id', productIds)
+  }
+
+  const { data: catCountData } = await categoryCountQuery
+
   const categoryCounts = new Map<
     string,
     { name: string; slug: string; count: number }
   >()
-  for (const l of listingData) {
-    const cat = l.product?.category
+  for (const row of (catCountData ?? []) as unknown as Array<{
+    category_id: string
+    category: { name: string; slug: string } | null
+  }>) {
+    const cat = row.category
     if (cat?.slug) {
       const existing = categoryCounts.get(cat.slug)
       if (existing) {
@@ -341,6 +380,7 @@ export async function getAvailableFilters(
       }
     }
   }
+
   const categories = [...categoryCounts.values()].sort(
     (a, b) => b.count - a.count
   )
@@ -349,9 +389,72 @@ export async function getAvailableFilters(
     conditions,
     storages,
     colors,
-    carriers,
     brands,
     priceRange: { min, max },
     categories,
   }
+}
+
+/* ------------------------------------------------------------------ */
+/*  Promotion listings                                                */
+/* ------------------------------------------------------------------ */
+
+function computeDiscount(listing: ListingWithProduct): number {
+  if (
+    listing.sale_price_kes == null ||
+    !Number.isFinite(listing.price_kes) ||
+    !Number.isFinite(listing.sale_price_kes) ||
+    listing.price_kes <= 0 ||
+    listing.sale_price_kes < 0 ||
+    listing.sale_price_kes >= listing.price_kes
+  )
+    return 0
+  const pct =
+    ((listing.price_kes - listing.sale_price_kes) / listing.price_kes) * 100
+  return Math.min(100, Math.max(0, pct))
+}
+
+/**
+ * Fetch active listings with a valid sale_price_kes, sorted by discount percentage.
+ */
+async function fetchPromotionListings(): Promise<ListingWithProduct[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from('listings')
+    .select(LISTING_SELECT)
+    .eq('status', 'active')
+    .not('sale_price_kes', 'is', null)
+
+  if (error) {
+    console.error('Error fetching promotion listings:', error)
+    return []
+  }
+
+  const listings = data as unknown as ListingWithProduct[]
+
+  return listings
+    .map(l => ({ listing: l, discount: computeDiscount(l) }))
+    .filter(({ discount }) => discount > 0)
+    .sort((a, b) => b.discount - a.discount)
+    .map(({ listing }) => listing)
+}
+
+/**
+ * Get up to 20 hot promotion listings sorted by discount percentage.
+ */
+export async function getHotPromotionListings(): Promise<
+  ListingWithProduct[]
+> {
+  const listings = await fetchPromotionListings()
+  return listings.slice(0, 20)
+}
+
+/**
+ * Get all promotion listings. If limit provided, cap at that.
+ */
+export async function getPromotionListings(
+  limit?: number
+): Promise<ListingWithProduct[]> {
+  const listings = await fetchPromotionListings()
+  return limit !== undefined ? listings.slice(0, limit) : listings
 }

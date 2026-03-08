@@ -26,15 +26,12 @@ export function ProductCard({ listing }: ProductCardProps) {
   if (!listing.product) return null
 
   const { product } = listing
-  const productName = product.model // ONLY model
-  const tier = getPricingTier(
-    listing.final_price_kes,
-    listing.price_kes,
-    listing.status
-  )
+  const productName = product.name
+  const effectivePrice = listing.sale_price_kes ?? listing.price_kes
+  const tier = getPricingTier(listing)
   const discount =
-    tier !== 'normal'
-      ? calculateDiscount(listing.price_kes, listing.final_price_kes)
+    tier === 'sale'
+      ? calculateDiscount(listing.price_kes, listing.sale_price_kes!)
       : 0
   const imageUrl = listing.images?.[0] || product.images?.[0]
   const isAffiliate = listing.listing_type === 'affiliate' && listing.source_url
@@ -49,7 +46,7 @@ export function ProductCard({ listing }: ProductCardProps) {
         rel: 'noopener noreferrer',
       }
     : {
-        href: `/listings/${listing.listing_id}`,
+        href: `/listings/${listing.id}`,
       }
 
   return (
@@ -137,24 +134,7 @@ export function ProductCard({ listing }: ProductCardProps) {
             <div className='flex flex-col'>
               <div className='flex items-baseline gap-2 flex-wrap'>
                 <span className='text-base font-bold text-pedie-discount'>
-                  {formatKes(listing.final_price_kes)}
-                </span>
-                <Badge
-                  variant='discount'
-                  className='glass bg-pedie-discount/20 backdrop-blur-sm font-bold'
-                >
-                  -{discount}%
-                </Badge>
-              </div>
-              <span className='text-sm text-pedie-text-muted line-through'>
-                {formatKes(listing.price_kes)}
-              </span>
-            </div>
-          ) : tier === 'discounted' ? (
-            <div className='flex flex-col'>
-              <div className='flex items-baseline gap-2 flex-wrap'>
-                <span className='text-base font-bold text-pedie-accent'>
-                  {formatKes(listing.final_price_kes)}
+                  {formatKes(effectivePrice)}
                 </span>
                 <Badge
                   variant='discount'
@@ -170,7 +150,7 @@ export function ProductCard({ listing }: ProductCardProps) {
           ) : (
             <div className='flex flex-col'>
               <span className='text-base font-bold text-pedie-accent'>
-                {formatKes(listing.final_price_kes)}
+                {formatKes(effectivePrice)}
               </span>
             </div>
           )}

@@ -1,7 +1,7 @@
 import { HotDeals } from '@components/home/hotDeals'
-import { getHotDealsListings } from '@data/deals'
+import { getHotPromotionListings } from '@data/listings'
 
 export async function HotDealsServer() {
-  const listings = await getHotDealsListings()
+  const listings = await getHotPromotionListings()
   return <HotDeals listings={listings} />
 }

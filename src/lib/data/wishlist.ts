@@ -8,7 +8,7 @@ export async function getWishlistByUser(userId: string) {
   const { data, error } = await supabase
     .from('wishlist')
     .select(
-      'id, product_id, user_id, created_at, product:products(id, brand, model, images, original_price_kes)'
+      'id, product_id, user_id, created_at, product:products(id, name, brand_id, images, brand:brands(name, slug))'
     )
     .eq('user_id', userId)
     .order('created_at', { ascending: false })

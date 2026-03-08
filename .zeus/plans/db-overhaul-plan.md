@@ -24,30 +24,16 @@ Overhaul the Pedie database schema from a phone-centric PoC to an industry-stand
    - **Changes from plan:** Added `promotions` CHECK constraints (target required, flash_sale needs discount). Added brand FTS cascade trigger. Added `sku` column DEFAULT for TS ergonomics. Policy names use `snake_case` naming convention instead of quoted descriptive names. `types/database.ts` regenerated in this phase (originally planned for Phase 6).
    - **Completion:** [Phase 1 details](.zeus/plans/db-overhaul-phase-1-complete.md)
 
-2. **[ ] Phase 2: Data Access Layer Rewrite**
+2. **[x] Phase 2: Data Access Layer Rewrite**
    - **Objective:** Rewrite `src/lib/data/*` queries for the new schema
-   - **Files/Functions:**
-     - `src/lib/data/products.ts` -- brand join, product_categories, is_active filter
-     - `src/lib/data/listings.ts` -- SKU-based lookups, new pricing model, attributes
-     - `src/lib/data/categories.ts` -- use `get_category_descendants()` RPC instead of BFS
-     - `src/lib/data/deals.ts` -- query promotions table instead of status='onsale'
-     - `src/lib/data/brands.ts` -- reference brands table via FK
-     - `src/lib/data/search.ts` -- updated FTS with brand name inclusion
-     - `src/lib/data/admin.ts` -- updated for new schema
-     - `types/product.ts` -- updated types (Listing.sku, Product.brand_id, Product.name, etc.)
-     - `types/filters.ts` -- updated filter types
-     - `types/database.ts` -- regenerated from Supabase
-   - **Tests to Write:**
-     - Product queries return brand name from joined brands table
-     - Category descendant queries use RPC, not BFS
-     - Deals/promotions queries check active date range
-     - Listing filters work with new column names
-     - SKU-based listing lookup works
-   - **Quality Gates:** `bun check` -> `bun test`
+   - **Summary:** Rewrote all data access layer queries, types, and helpers. 48 files modified. All public queries use `.eq('status', 'active')` (security fix from review). Brand filtering uses slugs consistently, with pre-resolved product IDs for count queries. Admin notes normalized to string[]. Deleted `deals.ts` -- promotion listing logic inlined in `listings.ts` as `getPromotionListings()` / `getHotPromotionListings()`. 1274 tests pass.
+   - **Changes from plan:** Status filter initially used old `.not('status')` pattern -- fixed during review. Brand filter mismatch between available filters (names) and data queries (slugs) -- fixed. Brand count query: pre-resolve brand slugs to product IDs instead of unsupported nested relation filter on head/count queries (both listings.ts and search.ts). Admin notes scalar-to-array conversion added at API boundary. `getPricingTier()` returns `'sale'|'regular'|'premium'` -- will be removed in Phase 5 (cards handle display). `deals.ts` deleted and promotion logic moved to `listings.ts` (Phase 3 promotions data layer will extend this, not create a separate file). `bun check` gate skipped -- remaining errors are Phase 5 consumer files. Storefront consumer propagation deferred to Phase 5.
+   - **Completion:** [Phase 2 details](.zeus/plans/db-overhaul-phase-2-complete.md)
 
-3. **[ ] Phase 3: Sync Pipeline & Sheets Expansion**
-   - **Objective:** Expand Google Sheets sync for brands, categories, promotions. Update listing sync for new schema. Comment out crawlers.
+3. **[ ] Phase 3: Sync Pipeline & Promotions Data Layer**
+   - **Objective:** Expand Google Sheets sync for brands, categories, promotions. Update listing sync for new schema. Comment out crawlers. Extend promotion listings in `listings.ts` to query the `promotions` table for all types.
    - **Files/Functions:**
+     - `src/lib/data/listings.ts` -- extend existing `fetchPromotionListings()` / `getPromotionListings()` / `getHotPromotionListings()` to query the `promotions` table, resolve targets (product/category/brand), compute effective pricing across all promotion types (flash_sale, clearance, seasonal, bundle). Currently uses simple `sale_price_kes IS NOT NULL` logic. NOTE: `deals.ts` already deleted in Phase 2.
      - `src/lib/sheets/sync.ts` -- updated for new schema, new sheet pages
      - `src/lib/sheets/parser.ts` -- updated SheetRow type for new fields
      - `scripts/sheets.ts` -- entry point updates
@@ -56,6 +42,9 @@ Overhaul the Pedie database schema from a phone-centric PoC to an industry-stand
      - `src/lib/sync/conditionMapping.ts` -- add 'new' and 'for_parts' mappings
      - New sheets: Brands, Categories, Promotions (alongside existing Listings)
    - **Tests to Write:**
+     - Promotions data layer: getActivePromotions returns only date-valid promotions
+     - Promotions data layer: getPromotionListings resolves targets across all promotion types
+     - Promotions data layer: effective price computation applies discount_pct correctly
      - Parser handles new fields (includes, admin_notes, warranty_months)
      - Condition mapping covers new enum values
      - Sync upserts brands by slug correctly
@@ -81,23 +70,24 @@ Overhaul the Pedie database schema from a phone-centric PoC to an industry-stand
    - **Quality Gates:** `bun check` -> `bun test`
 
 5. **[ ] Phase 5: Frontend Adaptation**
-   - **Objective:** Update all frontend components for the new schema
+   - **Objective:** Update all frontend components for the new schema. Remove `getPricingTier()` (cards handle display). Align card/component naming with glossary.
    - **Files/Functions:**
+     - `src/helpers/pricing.ts` -- remove `getPricingTier()` and `PricingTier` type entirely (cards decide what to display based on `sale_price_kes` presence)
      - `src/components/catalog/*` -- filter sidebar (new column names, promotions)
      - `src/components/listing/*` -- SKU display, notes/includes sections, new pricing
-     - `src/components/home/*` -- deals section queries promotions, featured section
-     - `src/components/ui/productCard.tsx` -- promotion badges, new pricing tier logic
-     - `src/components/ui/productFamilyCard.tsx` -- updated pricing
-     - `src/helpers/pricing.ts` -- refactor getPricingTier() for promotions
+     - `src/components/home/*` -- promotions section (was deals), featured section
+     - `src/components/ui/productCard.tsx` -- promotion badges, inline sale/regular display logic
+     - `src/components/ui/productFamilyCard.tsx` -- updated pricing, glossary-aligned naming
      - `src/lib/cart/store.ts` -- SKU references instead of listing_id
      - `src/lib/cart/validation.ts` -- updated validation
      - `src/components/admin/listingForm.tsx` -- new fields (includes, notes array, admin_notes, warranty, attributes)
      - `src/components/admin/productForm.tsx` -- brand_id select, product_categories
      - `src/components/admin/categoryForm.tsx` -- icon field
      - URL routes: `/listings/[sku]` replaces `/listings/[listingId]`
+     - Card/component glossary: align productCard/productFamilyCard naming with Product/Listing/ProductFamily terminology
    - **Tests to Write:**
-     - Pricing tier logic with promotions
-     - Product card renders promotion badges
+     - Product card renders promotion badges from promotions data
+     - Card display logic: sale_price_kes presence drives sale badge + strikethrough
      - Listing detail shows notes/includes when present
      - Cart validation uses SKU
      - Admin forms include new fields

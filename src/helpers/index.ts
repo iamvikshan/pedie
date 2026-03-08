@@ -6,5 +6,4 @@
  * avoid pulling next/headers into client bundles.
  */
 
-export * from './listing'
 export * from './pricing'

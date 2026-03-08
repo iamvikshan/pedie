@@ -15,18 +15,13 @@ export function ProductFamilyCard({ family }: ProductFamilyCardProps) {
   const { product, representative } = family
   if (!product || !representative) return null
 
-  const productName = product.model
-  const tier = getPricingTier(
-    representative.final_price_kes,
-    representative.price_kes,
-    representative.status
-  )
+  const productName = product.name
+  const tier = getPricingTier(representative)
+  const effectivePrice =
+    representative.sale_price_kes ?? representative.price_kes
   const discount =
-    tier !== 'normal'
-      ? calculateDiscount(
-          representative.price_kes,
-          representative.final_price_kes
-        )
+    tier === 'sale'
+      ? calculateDiscount(representative.price_kes, effectivePrice)
       : 0
   const imageUrl = representative.images?.[0] || product.images?.[0]
   const isSale = tier === 'sale'
@@ -35,7 +30,7 @@ export function ProductFamilyCard({ family }: ProductFamilyCardProps) {
     <Link
       href={`/products/${product.slug}`}
       className='group flex flex-col glass rounded-lg shadow-sm overflow-hidden transition-colors duration-300 border border-pedie-border hover:border-pedie-green/30'
-      aria-label={`View ${product.brand} ${productName}`}
+      aria-label={`View ${productName}`}
     >
       {/* Image Section */}
       <div className='relative aspect-[3/4] bg-pedie-surface w-full overflow-hidden'>
@@ -90,21 +85,7 @@ export function ProductFamilyCard({ family }: ProductFamilyCardProps) {
             <div className='flex flex-col'>
               <div className='flex items-baseline gap-2 flex-wrap'>
                 <span className='text-base font-bold text-pedie-discount'>
-                  {formatKes(representative.final_price_kes)}
-                </span>
-                <span className='glass text-pedie-discount text-xs font-bold px-2 py-0.5 rounded-full backdrop-blur-sm'>
-                  -{discount}%
-                </span>
-              </div>
-              <span className='text-sm text-pedie-text-muted line-through'>
-                {formatKes(representative.price_kes)}
-              </span>
-            </div>
-          ) : tier === 'discounted' ? (
-            <div className='flex flex-col'>
-              <div className='flex items-baseline gap-2 flex-wrap'>
-                <span className='text-base font-bold text-pedie-accent'>
-                  {formatKes(representative.final_price_kes)}
+                  {formatKes(effectivePrice)}
                 </span>
                 <span className='glass text-pedie-discount text-xs font-bold px-2 py-0.5 rounded-full backdrop-blur-sm'>
                   -{discount}%
@@ -117,7 +98,7 @@ export function ProductFamilyCard({ family }: ProductFamilyCardProps) {
           ) : (
             <div className='flex flex-col'>
               <span className='text-base font-bold text-pedie-accent'>
-                {formatKes(representative.final_price_kes)}
+                {formatKes(effectivePrice)}
               </span>
             </div>
           )}

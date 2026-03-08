@@ -8,26 +8,28 @@ import {
 
 const makeListing = (overrides: Partial<Listing> = {}): Listing => ({
   id: 'uuid-1',
-  listing_id: 'PD-TEST1',
+  sku: 'PD-TEST1',
   product_id: 'prod-1',
   storage: '256GB',
   color: 'Black',
-  carrier: 'Unlocked',
   condition: 'excellent',
   battery_health: 95,
   price_kes: 60000,
-  final_price_kes: 60000,
-  original_price_usd: 500,
-  landed_cost_kes: 50000,
+  sale_price_kes: null,
+  cost_kes: 50000,
   source: 'swappa',
-  source_listing_id: null,
+  source_id: null,
   source_url: null,
   images: null,
   is_featured: false,
   listing_type: 'standard',
   ram: '8GB',
-  status: 'available',
-  sheets_row_id: null,
+  warranty_months: null,
+  attributes: null,
+  includes: null,
+  admin_notes: null,
+  quantity: 1,
+  status: 'active',
   notes: null,
   created_at: '2025-01-01T00:00:00Z',
   updated_at: '2025-01-01T00:00:00Z',
@@ -55,16 +57,16 @@ describe('selectRepresentative', () => {
 
   test('returns null when all listings are sold', () => {
     const listings = [
-      makeListing({ listing_id: 'PD-1', status: 'sold' }),
-      makeListing({ listing_id: 'PD-2', status: 'sold' }),
+      makeListing({ sku: 'PD-1', status: 'sold' }),
+      makeListing({ sku: 'PD-2', status: 'sold' }),
     ]
     expect(selectRepresentative(listings)).toBeNull()
   })
 
   test('returns null when all listings are reserved', () => {
     const listings = [
-      makeListing({ listing_id: 'PD-1', status: 'reserved' }),
-      makeListing({ listing_id: 'PD-2', status: 'reserved' }),
+      makeListing({ sku: 'PD-1', status: 'reserved' }),
+      makeListing({ sku: 'PD-2', status: 'reserved' }),
     ]
     expect(selectRepresentative(listings)).toBeNull()
   })
@@ -72,152 +74,152 @@ describe('selectRepresentative', () => {
   test('excludes reserved listings from selection', () => {
     const listings = [
       makeListing({
-        listing_id: 'PD-RESERVED',
+        sku: 'PD-RESERVED',
         listing_type: 'standard',
-        final_price_kes: 30000,
+        sale_price_kes: 30000,
         status: 'reserved',
       }),
       makeListing({
-        listing_id: 'PD-AVAILABLE',
+        sku: 'PD-AVAILABLE',
         listing_type: 'preorder',
-        final_price_kes: 50000,
-        status: 'available',
+        sale_price_kes: 50000,
+        status: 'active',
       }),
     ]
     const rep = selectRepresentative(listings)
     expect(rep).not.toBeNull()
-    expect(rep!.listing_id).toBe('PD-AVAILABLE')
+    expect(rep!.sku).toBe('PD-AVAILABLE')
   })
 
   test('standard always wins over preorder regardless of price', () => {
     const listings = [
       makeListing({
-        listing_id: 'PD-STD',
+        sku: 'PD-STD',
         listing_type: 'standard',
-        final_price_kes: 60000,
+        sale_price_kes: 60000,
       }),
       makeListing({
-        listing_id: 'PD-PRE',
+        sku: 'PD-PRE',
         listing_type: 'preorder',
-        final_price_kes: 55000,
+        sale_price_kes: 55000,
       }),
     ]
     const rep = selectRepresentative(listings)
     expect(rep).not.toBeNull()
-    expect(rep!.listing_id).toBe('PD-STD')
+    expect(rep!.sku).toBe('PD-STD')
   })
 
   test('standard always wins over affiliate regardless of price', () => {
     const listings = [
       makeListing({
-        listing_id: 'PD-AFF',
+        sku: 'PD-AFF',
         listing_type: 'affiliate',
-        final_price_kes: 40000,
+        sale_price_kes: 40000,
       }),
       makeListing({
-        listing_id: 'PD-STD',
+        sku: 'PD-STD',
         listing_type: 'standard',
-        final_price_kes: 60000,
+        sale_price_kes: 60000,
       }),
     ]
     const rep = selectRepresentative(listings)
     expect(rep).not.toBeNull()
-    expect(rep!.listing_id).toBe('PD-STD')
+    expect(rep!.sku).toBe('PD-STD')
   })
 
   test('standard always wins over referral regardless of price', () => {
     const listings = [
       makeListing({
-        listing_id: 'PD-REF',
+        sku: 'PD-REF',
         listing_type: 'referral',
-        final_price_kes: 30000,
+        sale_price_kes: 30000,
       }),
       makeListing({
-        listing_id: 'PD-STD',
+        sku: 'PD-STD',
         listing_type: 'standard',
-        final_price_kes: 60000,
+        sale_price_kes: 60000,
       }),
     ]
     const rep = selectRepresentative(listings)
     expect(rep).not.toBeNull()
-    expect(rep!.listing_id).toBe('PD-STD')
+    expect(rep!.sku).toBe('PD-STD')
   })
 
-  test('within same type tier, picks lowest final_price_kes', () => {
+  test('within same type tier, picks lowest effective price', () => {
     const listings = [
       makeListing({
-        listing_id: 'PD-STD1',
+        sku: 'PD-STD1',
         listing_type: 'standard',
-        final_price_kes: 70000,
+        sale_price_kes: 70000,
       }),
       makeListing({
-        listing_id: 'PD-STD2',
+        sku: 'PD-STD2',
         listing_type: 'standard',
-        final_price_kes: 55000,
+        sale_price_kes: 55000,
       }),
       makeListing({
-        listing_id: 'PD-STD3',
+        sku: 'PD-STD3',
         listing_type: 'standard',
-        final_price_kes: 65000,
+        sale_price_kes: 65000,
       }),
     ]
     const rep = selectRepresentative(listings)
     expect(rep).not.toBeNull()
-    expect(rep!.listing_id).toBe('PD-STD2')
+    expect(rep!.sku).toBe('PD-STD2')
   })
 
   test('preorder beats affiliate when no standard exists', () => {
     const listings = [
       makeListing({
-        listing_id: 'PD-AFF',
+        sku: 'PD-AFF',
         listing_type: 'affiliate',
-        final_price_kes: 40000,
+        sale_price_kes: 40000,
       }),
       makeListing({
-        listing_id: 'PD-PRE',
+        sku: 'PD-PRE',
         listing_type: 'preorder',
-        final_price_kes: 50000,
+        sale_price_kes: 50000,
       }),
     ]
     const rep = selectRepresentative(listings)
     expect(rep).not.toBeNull()
-    expect(rep!.listing_id).toBe('PD-PRE')
+    expect(rep!.sku).toBe('PD-PRE')
   })
 
   test('referral is lowest priority', () => {
     const listings = [
       makeListing({
-        listing_id: 'PD-REF',
+        sku: 'PD-REF',
         listing_type: 'referral',
-        final_price_kes: 30000,
+        sale_price_kes: 30000,
       }),
       makeListing({
-        listing_id: 'PD-AFF',
+        sku: 'PD-AFF',
         listing_type: 'affiliate',
-        final_price_kes: 50000,
+        sale_price_kes: 50000,
       }),
     ]
     const rep = selectRepresentative(listings)
     expect(rep).not.toBeNull()
-    expect(rep!.listing_id).toBe('PD-AFF')
+    expect(rep!.sku).toBe('PD-AFF')
   })
 
   test('unknown listing_type defaults to low priority', () => {
     const listings = [
       makeListing({
-        listing_id: 'PD-UNK',
+        sku: 'PD-UNK',
         listing_type: 'mystery' as Listing['listing_type'],
-        final_price_kes: 20000,
+        sale_price_kes: 20000,
       }),
       makeListing({
-        listing_id: 'PD-PRE',
+        sku: 'PD-PRE',
         listing_type: 'preorder',
-        final_price_kes: 50000,
+        sale_price_kes: 50000,
       }),
     ]
     const rep = selectRepresentative(listings)
     expect(rep).not.toBeNull()
-    expect(rep!.listing_id).toBe('PD-PRE')
+    expect(rep!.sku).toBe('PD-PRE')
   })
 })
 
@@ -226,97 +228,100 @@ describe('findBetterDeal', () => {
     const current = makeListing({ listing_type: 'preorder' })
     const all = [
       current,
-      makeListing({ listing_type: 'affiliate', final_price_kes: 40000 }),
+      makeListing({ listing_type: 'affiliate', sale_price_kes: 40000 }),
     ]
     expect(findBetterDeal(current, all)).toBeNull()
   })
 
   test('returns null when no matching spec variants exist', () => {
     const current = makeListing({
-      listing_id: 'PD-STD',
+      sku: 'PD-STD',
       listing_type: 'standard',
       storage: '256GB',
       color: 'Black',
       condition: 'excellent',
-      final_price_kes: 60000,
+      sale_price_kes: 60000,
     })
     const otherListing = makeListing({
-      listing_id: 'PD-AFF',
+      sku: 'PD-AFF',
       listing_type: 'affiliate',
       storage: '128GB', // different storage
       color: 'Black',
       condition: 'excellent',
-      final_price_kes: 40000,
+      sale_price_kes: 40000,
     })
     expect(findBetterDeal(current, [current, otherListing])).toBeNull()
   })
 
   test('returns the cheapest non-standard variant with same specs', () => {
     const current = makeListing({
-      listing_id: 'PD-STD',
+      id: 'id-std',
+      sku: 'PD-STD',
       listing_type: 'standard',
       storage: '256GB',
       color: 'Black',
       condition: 'excellent',
-      final_price_kes: 60000,
+      sale_price_kes: 60000,
     })
     const affiliate1 = makeListing({
-      listing_id: 'PD-AFF1',
+      id: 'id-aff1',
+      sku: 'PD-AFF1',
       listing_type: 'affiliate',
       storage: '256GB',
       color: 'Black',
       condition: 'excellent',
-      final_price_kes: 50000,
+      sale_price_kes: 50000,
     })
     const affiliate2 = makeListing({
-      listing_id: 'PD-AFF2',
+      id: 'id-aff2',
+      sku: 'PD-AFF2',
       listing_type: 'affiliate',
       storage: '256GB',
       color: 'Black',
       condition: 'excellent',
-      final_price_kes: 45000,
+      sale_price_kes: 45000,
     })
     const result = findBetterDeal(current, [current, affiliate1, affiliate2])
     expect(result).not.toBeNull()
-    expect(result!.listing_id).toBe('PD-AFF2')
+    expect(result!.sku).toBe('PD-AFF2')
   })
 
   test('returns null when non-standard variants are more expensive', () => {
     const current = makeListing({
-      listing_id: 'PD-STD',
+      sku: 'PD-STD',
       listing_type: 'standard',
       storage: '256GB',
       color: 'Black',
       condition: 'excellent',
-      final_price_kes: 40000,
+      sale_price_kes: 40000,
     })
     const affiliate = makeListing({
-      listing_id: 'PD-AFF',
+      sku: 'PD-AFF',
       listing_type: 'affiliate',
       storage: '256GB',
       color: 'Black',
       condition: 'excellent',
-      final_price_kes: 50000,
+      sale_price_kes: 50000,
     })
     expect(findBetterDeal(current, [current, affiliate])).toBeNull()
   })
 
   test('ignores sold listings in candidates', () => {
     const current = makeListing({
-      listing_id: 'PD-STD',
+      sku: 'PD-STD',
       listing_type: 'standard',
       storage: '256GB',
       color: 'Black',
       condition: 'excellent',
-      final_price_kes: 60000,
+      sale_price_kes: 60000,
     })
     const soldAffiliate = makeListing({
-      listing_id: 'PD-AFF',
+      sku: 'PD-AFF',
       listing_type: 'affiliate',
       storage: '256GB',
       color: 'Black',
       condition: 'excellent',
-      final_price_kes: 40000,
+      sale_price_kes: 40000,
       status: 'sold',
     })
     expect(findBetterDeal(current, [current, soldAffiliate])).toBeNull()
@@ -324,20 +329,20 @@ describe('findBetterDeal', () => {
 
   test('ignores reserved listings in candidates', () => {
     const current = makeListing({
-      listing_id: 'PD-STD',
+      sku: 'PD-STD',
       listing_type: 'standard',
       storage: '256GB',
       color: 'Black',
       condition: 'excellent',
-      final_price_kes: 60000,
+      sale_price_kes: 60000,
     })
     const reservedAffiliate = makeListing({
-      listing_id: 'PD-AFF',
+      sku: 'PD-AFF',
       listing_type: 'affiliate',
       storage: '256GB',
       color: 'Black',
       condition: 'excellent',
-      final_price_kes: 40000,
+      sale_price_kes: 40000,
       status: 'reserved',
     })
     expect(findBetterDeal(current, [current, reservedAffiliate])).toBeNull()
@@ -345,39 +350,43 @@ describe('findBetterDeal', () => {
 
   test('only matches same storage/color/condition', () => {
     const current = makeListing({
-      listing_id: 'PD-STD',
+      id: 'id-std',
+      sku: 'PD-STD',
       listing_type: 'standard',
       storage: '256GB',
       color: 'Black',
       condition: 'excellent',
-      final_price_kes: 60000,
+      sale_price_kes: 60000,
     })
     // Different color
     const diffColor = makeListing({
-      listing_id: 'PD-AFF1',
+      id: 'id-aff1',
+      sku: 'PD-AFF1',
       listing_type: 'affiliate',
       storage: '256GB',
       color: 'White',
       condition: 'excellent',
-      final_price_kes: 40000,
+      sale_price_kes: 40000,
     })
     // Different condition
     const diffCondition = makeListing({
-      listing_id: 'PD-AFF2',
+      id: 'id-aff2',
+      sku: 'PD-AFF2',
       listing_type: 'affiliate',
       storage: '256GB',
       color: 'Black',
       condition: 'good',
-      final_price_kes: 40000,
+      sale_price_kes: 40000,
     })
     // Matching specs - should be the only match
     const matching = makeListing({
-      listing_id: 'PD-AFF3',
+      id: 'id-aff3',
+      sku: 'PD-AFF3',
       listing_type: 'affiliate',
       storage: '256GB',
       color: 'Black',
       condition: 'excellent',
-      final_price_kes: 45000,
+      sale_price_kes: 45000,
     })
     const result = findBetterDeal(current, [
       current,
@@ -386,6 +395,6 @@ describe('findBetterDeal', () => {
       matching,
     ])
     expect(result).not.toBeNull()
-    expect(result!.listing_id).toBe('PD-AFF3')
+    expect(result!.sku).toBe('PD-AFF3')
   })
 })

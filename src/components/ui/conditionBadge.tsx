@@ -1,26 +1,39 @@
 import type { ConditionGrade } from '@app-types/product'
-import { TbCircleCheck, TbCrown, TbDiamond, TbThumbUp } from 'react-icons/tb'
+import {
+  TbCircleCheck,
+  TbCrown,
+  TbDiamond,
+  TbSparkles,
+  TbThumbUp,
+  TbTool,
+} from 'react-icons/tb'
 
 /** Icon-only condition badge with tooltip. */
 export const CONDITION_ICONS = {
+  new: 'TbSparkles',
   premium: 'TbCrown',
   excellent: 'TbDiamond',
   good: 'TbThumbUp',
   acceptable: 'TbCircleCheck',
+  for_parts: 'TbTool',
 } as const
 
 const iconMap = {
+  new: TbSparkles,
   premium: TbCrown,
   excellent: TbDiamond,
   good: TbThumbUp,
   acceptable: TbCircleCheck,
+  for_parts: TbTool,
 } as const
 
 const styleMap: Record<ConditionGrade, string> = {
+  new: 'text-pedie-badge-new',
   premium: 'text-pedie-badge-premium',
   excellent: 'text-pedie-badge-excellent',
   good: 'text-pedie-badge-good',
   acceptable: 'text-pedie-badge-acceptable',
+  for_parts: 'text-pedie-badge-for-parts',
 }
 
 export const CONDITION_BADGE_VARIANTS = ['default', 'circle'] as const
@@ -37,7 +50,10 @@ export function ConditionBadge({
   className = '',
 }: ConditionBadgeProps) {
   const Icon = iconMap[condition] ?? TbCircleCheck
-  const label = condition.charAt(0).toUpperCase() + condition.slice(1)
+  const label =
+    condition === 'for_parts'
+      ? 'For Parts'
+      : condition.charAt(0).toUpperCase() + condition.slice(1)
 
   if (variant === 'circle') {
     return (

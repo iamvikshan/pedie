@@ -4,7 +4,6 @@ import type {
   Product,
   ProductFamily,
 } from '@app-types/product'
-import { calculateDiscount } from '@helpers'
 import { getCategoryAndDescendantIds } from '@data/categories'
 import { createClient } from '@lib/supabase/server'
 import { selectRepresentative } from '@utils/products'
@@ -14,6 +13,10 @@ export {
   selectRepresentative,
   findBetterDeal,
 } from '@utils/products'
+
+const PRODUCT_SELECT = '*, brand:brands(*)'
+const LISTING_WITH_PRODUCT_SELECT =
+  '*, product:products!inner(*, brand:brands(*))'
 
 /**
  * Get a product family by product slug.
@@ -26,7 +29,7 @@ export async function getProductFamilyBySlug(
 
   const { data: product, error: productError } = await supabase
     .from('products')
-    .select('*, category:categories!products_category_id_fkey(*)')
+    .select(PRODUCT_SELECT)
     .eq('slug', slug)
     .single()
 
@@ -36,8 +39,8 @@ export async function getProductFamilyBySlug(
     .from('listings')
     .select('*')
     .eq('product_id', product.id)
-    .not('status', 'in', '(sold,reserved)')
-    .order('final_price_kes', { ascending: true })
+    .eq('status', 'active')
+    .order('price_kes', { ascending: true })
 
   if (listingsError) return null
 
@@ -67,13 +70,13 @@ export async function getProductFamilies(
   const [productsResult, listingsResult] = await Promise.all([
     supabase
       .from('products')
-      .select('*, category:categories!products_category_id_fkey(*)')
-      .order('brand', { ascending: true }),
+      .select(PRODUCT_SELECT)
+      .order('name', { ascending: true }),
     supabase
       .from('listings')
       .select('*')
-      .not('status', 'in', '(sold,reserved)')
-      .order('final_price_kes', { ascending: true }),
+      .eq('status', 'active')
+      .order('price_kes', { ascending: true }),
   ])
 
   if (productsResult.error || !productsResult.data) return []
@@ -106,22 +109,50 @@ export async function getProductFamilies(
 }
 
 /**
- * Get related product families in the same category (and subcategories), excluding a specific product.
+ * Get related product families that share a category via product_categories junction table.
  */
 export async function getRelatedFamilies(
-  categoryId: string,
-  excludeProductId: string,
+  productId: string,
   limit: number = 4
 ): Promise<ProductFamily[]> {
   const supabase = await createClient()
 
-  const categoryIds = await getCategoryAndDescendantIds(categoryId)
+  // Get categories for the given product
+  const { data: productCats } = await supabase
+    .from('product_categories')
+    .select('category_id')
+    .eq('product_id', productId)
+
+  if (!productCats || productCats.length === 0) return []
+
+  const categoryIds = productCats.map(pc => pc.category_id)
+
+  // Get all descendant category IDs
+  const allCatIds = await Promise.all(
+    categoryIds.map(id => getCategoryAndDescendantIds(id))
+  )
+  const expandedCatIds = [...new Set(allCatIds.flat())]
+
+  // Get related product IDs from junction table
+  const { data: relatedJunction } = await supabase
+    .from('product_categories')
+    .select('product_id')
+    .in('category_id', expandedCatIds)
+
+  const relatedProductIds = [
+    ...new Set(
+      (relatedJunction ?? [])
+        .map(j => j.product_id)
+        .filter(id => id !== productId)
+    ),
+  ]
+
+  if (relatedProductIds.length === 0) return []
 
   const { data: products, error: productsError } = await supabase
     .from('products')
-    .select('*, category:categories!products_category_id_fkey(*)')
-    .in('category_id', categoryIds)
-    .neq('id', excludeProductId)
+    .select(PRODUCT_SELECT)
+    .in('id', relatedProductIds)
 
   if (productsError || !products || products.length === 0) return []
 
@@ -131,8 +162,8 @@ export async function getRelatedFamilies(
     .from('listings')
     .select('*')
     .in('product_id', productIds)
-    .not('status', 'in', '(sold,reserved)')
-    .order('final_price_kes', { ascending: true })
+    .eq('status', 'active')
+    .order('price_kes', { ascending: true })
 
   if (listingsError || !listings) return []
 
@@ -162,26 +193,49 @@ export async function getRelatedFamilies(
 }
 
 /**
- * Get related individual listings in the same category, excluding a specific product.
- * Used for SimilarListings component which shows individual product cards.
+ * Get related individual listings that share a category, excluding a specific product.
  */
 export async function getRelatedListings(
-  categoryId: string,
-  excludeProductId: string,
+  productId: string,
   limit: number = 4
 ): Promise<ListingWithProduct[]> {
   const supabase = await createClient()
 
-  const categoryIds = await getCategoryAndDescendantIds(categoryId)
+  // Get categories for the given product
+  const { data: productCats } = await supabase
+    .from('product_categories')
+    .select('category_id')
+    .eq('product_id', productId)
+
+  if (!productCats || productCats.length === 0) return []
+
+  const categoryIds = productCats.map(pc => pc.category_id)
+  const allCatIds = await Promise.all(
+    categoryIds.map(id => getCategoryAndDescendantIds(id))
+  )
+  const expandedCatIds = [...new Set(allCatIds.flat())]
+
+  // Get related product IDs from junction table
+  const { data: relatedJunction } = await supabase
+    .from('product_categories')
+    .select('product_id')
+    .in('category_id', expandedCatIds)
+
+  const relatedProductIds = [
+    ...new Set(
+      (relatedJunction ?? [])
+        .map(j => j.product_id)
+        .filter(id => id !== productId)
+    ),
+  ]
+
+  if (relatedProductIds.length === 0) return []
 
   const { data, error } = await supabase
     .from('listings')
-    .select(
-      '*, product:products!inner(*, category:categories!products_category_id_fkey(*))'
-    )
-    .not('status', 'in', '(sold,reserved)')
-    .in('product.category_id', categoryIds)
-    .neq('product_id', excludeProductId)
+    .select(LISTING_WITH_PRODUCT_SELECT)
+    .eq('status', 'active')
+    .in('product_id', relatedProductIds)
     .order('created_at', { ascending: false })
     .limit(limit)
 
@@ -195,7 +249,7 @@ export async function getRelatedListings(
 
 /**
  * Get product families for a specific category by slug.
- * Includes products from all subcategories and from the product_categories junction table.
+ * Uses product_categories junction table.
  */
 export async function getProductFamiliesByCategory(
   categorySlug: string,
@@ -219,35 +273,18 @@ export async function getProductFamiliesByCategory(
     .select('product_id')
     .in('category_id', categoryIds)
 
-  const junctionProductIds = (junctionData ?? []).map(j => j.product_id)
+  const junctionProductIds = [
+    ...new Set((junctionData ?? []).map(j => j.product_id)),
+  ]
 
-  // Query products by direct category_id
-  const { data: directProducts, error: directError } = await supabase
+  if (junctionProductIds.length === 0) return []
+
+  const { data: products, error: productsError } = await supabase
     .from('products')
-    .select('*, category:categories!products_category_id_fkey(*)')
-    .in('category_id', categoryIds)
+    .select(PRODUCT_SELECT)
+    .in('id', junctionProductIds)
 
-  if (directError) return []
-
-  // Query products from junction table (if any)
-  let junctionProducts: typeof directProducts = []
-  if (junctionProductIds.length > 0) {
-    const { data: jp } = await supabase
-      .from('products')
-      .select('*, category:categories!products_category_id_fkey(*)')
-      .in('id', junctionProductIds)
-
-    junctionProducts = jp ?? []
-  }
-
-  // Merge and deduplicate
-  const productMap = new Map<string, (typeof directProducts)[number]>()
-  for (const p of [...(directProducts ?? []), ...junctionProducts]) {
-    productMap.set(p.id, p)
-  }
-  const products = [...productMap.values()]
-
-  if (products.length === 0) return []
+  if (productsError || !products || products.length === 0) return []
 
   const productIds = products.map(p => p.id)
 
@@ -255,8 +292,8 @@ export async function getProductFamiliesByCategory(
     .from('listings')
     .select('*')
     .in('product_id', productIds)
-    .not('status', 'in', '(sold,reserved)')
-    .order('final_price_kes', { ascending: true })
+    .eq('status', 'active')
+    .order('price_kes', { ascending: true })
 
   if (listingsError || !listings) return []
 
@@ -295,11 +332,9 @@ export async function getFeaturedListings(
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('listings')
-    .select(
-      '*, product:products(*, category:categories!products_category_id_fkey(*))'
-    )
+    .select(LISTING_WITH_PRODUCT_SELECT)
     .eq('is_featured', true)
-    .eq('status', 'available')
+    .eq('status', 'active')
     .order('created_at', { ascending: false })
     .limit(limit)
 
@@ -317,10 +352,8 @@ export async function getLatestListings(
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('listings')
-    .select(
-      '*, product:products(*, category:categories!products_category_id_fkey(*))'
-    )
-    .eq('status', 'available')
+    .select(LISTING_WITH_PRODUCT_SELECT)
+    .eq('status', 'active')
     .order('created_at', { ascending: false })
     .limit(limit)
 
@@ -338,7 +371,6 @@ export async function getListingsByCategory(
 ): Promise<ListingWithProduct[]> {
   const supabase = await createClient()
 
-  // Get category and all descendant IDs
   const { data: categoryData, error: categoryError } = await supabase
     .from('categories')
     .select('id')
@@ -355,13 +387,21 @@ export async function getListingsByCategory(
 
   const categoryIds = await getCategoryAndDescendantIds(categoryData.id)
 
+  // Get product IDs from junction table
+  const { data: junctionData } = await supabase
+    .from('product_categories')
+    .select('product_id')
+    .in('category_id', categoryIds)
+
+  const productIds = [...new Set((junctionData ?? []).map(j => j.product_id))]
+
+  if (productIds.length === 0) return []
+
   const { data, error } = await supabase
     .from('listings')
-    .select(
-      '*, product:products!inner(*, category:categories!products_category_id_fkey(*))'
-    )
-    .eq('status', 'available')
-    .in('product.category_id', categoryIds)
+    .select(LISTING_WITH_PRODUCT_SELECT)
+    .eq('status', 'active')
+    .in('product_id', productIds)
     .order('created_at', { ascending: false })
     .limit(limit)
 
@@ -374,44 +414,4 @@ export async function getListingsByCategory(
   }
 
   return data as unknown as ListingWithProduct[]
-}
-
-export async function getDealListings(
-  limit: number = 10
-): Promise<ListingWithProduct[]> {
-  const supabase = await createClient()
-  const { data, error } = await supabase
-    .from('listings')
-    .select(
-      '*, product:products!inner(*, category:categories!products_category_id_fkey(*))'
-    )
-    .eq('status', 'available')
-    .limit(limit * 3)
-
-  if (error) {
-    console.error('Error fetching deal listings:', error)
-    return []
-  }
-
-  const listings = data as unknown as ListingWithProduct[]
-
-  // Calculate discount and sort
-  const deals = listings
-    .map(listing => {
-      const discount = calculateDiscount(
-        listing.product.original_price_kes,
-        listing.price_kes
-      )
-      return { ...listing, _discount: discount }
-    })
-    .filter(listing => listing._discount > 0)
-    .sort((a, b) => b._discount - a._discount)
-    .slice(0, limit)
-    .map(listing => {
-      const { _discount, ...rest } = listing
-      void _discount // Ignore unused variable warning
-      return rest as unknown as ListingWithProduct
-    })
-
-  return deals
 }
