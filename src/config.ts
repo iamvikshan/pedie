@@ -20,7 +20,13 @@ export const LISTING_ID_PREFIX = 'PD'
 export const DEFAULT_COLLECTION_HREF = '/collections'
 
 // ── Google Sheets sync ────────────────────────────────────────────
-export const SHEETS_TAB_NAME = 'inv'
+export const SHEETS_TAB = {
+  listings: 'Listings',
+  brands: 'Brands',
+  categories: 'Categories',
+  products: 'Products',
+  promotions: 'Promotions',
+} as const
 
 // ── Site metadata (non-secret) ────────────────────────────────────
 export const SITE_NAME = 'Pedie'

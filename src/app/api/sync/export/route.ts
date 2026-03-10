@@ -13,7 +13,7 @@ export async function POST(request: Request) {
 
     const url = new URL(request.url)
     const mode = url.searchParams.get('mode') === 'full' ? 'full' : 'additive'
-    const options: ExportOptions = { mode }
+    const options: ExportOptions = { mode, source: 'system' }
 
     const report = await syncToSheets(options)
 

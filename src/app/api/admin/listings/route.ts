@@ -119,6 +119,14 @@ export async function POST(request: Request) {
     }
 
     const listing = await createListing(allowed)
+
+    // Fire-and-forget: sync to sheets
+    import('@lib/sheets/sync')
+      .then(({ syncToSheets }) =>
+        syncToSheets({ mode: 'additive', source: 'admin' })
+      )
+      .catch(err => console.error('Post-mutation sheets sync failed:', err))
+
     return NextResponse.json(listing, { status: 201 })
   } catch (error) {
     console.error('Failed to create listing:', error)

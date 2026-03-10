@@ -3,10 +3,12 @@ import { parseSheetRow } from '@lib/sheets/parser'
 import { createAdminClient } from '@lib/supabase/admin'
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { google, type sheets_v4 } from 'googleapis'
-import { SHEETS_TAB_NAME } from '@/config'
+import { SHEETS_TAB } from '@/config'
 
 export type { SheetRow } from '@lib/sheets/parser'
 export { parseSheetRow } from '@lib/sheets/parser'
+
+export type SyncSource = 'admin' | 'sheets' | 'system'
 
 export interface SyncReport {
   created: number
@@ -20,6 +22,7 @@ export interface ExportOptions {
   /** 'additive' (default) only appends rows missing from the sheet.
    *  'full' overwrites the entire sheet (use for initial seed). */
   mode?: 'additive' | 'full'
+  source?: SyncSource
 }
 
 export interface ExportReport {
@@ -226,19 +229,240 @@ export async function findOrCreateProduct(
   }
 
   // Link product to category via product_categories junction table
-  await supabase.from('product_categories').upsert(
-    {
-      product_id: newProduct.id,
-      category_id: categoryId,
-      is_primary: true,
-    },
-    { onConflict: 'product_id,category_id' }
-  )
+  const { error: junctionError } = await supabase
+    .from('product_categories')
+    .upsert(
+      {
+        product_id: newProduct.id,
+        category_id: categoryId,
+        is_primary: true,
+      },
+      { onConflict: 'product_id,category_id' }
+    )
+
+  if (junctionError) {
+    throw new Error(
+      `Failed to link product ${newProduct.id} to category ${categoryId}: ${junctionError.message}`
+    )
+  }
 
   return newProduct.id
 }
 
-export async function syncFromSheets(): Promise<SyncReport> {
+async function syncBrandsFromSheet(
+  sheetsClient: sheets_v4.Sheets,
+  spreadsheetId: string,
+  supabase: SupabaseClient<Database>
+): Promise<{ created: number; updated: number; errors: number }> {
+  try {
+    const rows = await fetchSheetData(
+      sheetsClient,
+      spreadsheetId,
+      SHEETS_TAB.brands
+    )
+    if (rows.length < 2) return { created: 0, updated: 0, errors: 0 }
+
+    const headers = rows[0].map(h => h.toLowerCase().trim())
+    let created = 0
+    let updated = 0
+    let errors = 0
+
+    for (let i = 1; i < rows.length; i++) {
+      const data: Record<string, string> = {}
+      headers.forEach((h, idx) => {
+        data[h] = rows[i][idx]?.trim() || ''
+      })
+
+      if (!data.name || !data.slug) {
+        errors++
+        continue
+      }
+
+      const { data: existing } = await supabase
+        .from('brands')
+        .select('id')
+        .eq('slug', data.slug)
+        .limit(1)
+        .maybeSingle()
+
+      const brandPayload = {
+        name: data.name,
+        slug: data.slug,
+        logo_url: data.logo_url || null,
+        website_url: data.website_url || null,
+        is_active: data.is_active !== 'false',
+        sort_order: data.sort_order ? parseInt(data.sort_order, 10) || 0 : 0,
+      }
+
+      if (existing) {
+        const { error } = await supabase
+          .from('brands')
+          .update(brandPayload)
+          .eq('id', existing.id)
+        if (error) errors++
+        else updated++
+      } else {
+        const { error } = await supabase.from('brands').insert(brandPayload)
+        if (error) errors++
+        else created++
+      }
+    }
+
+    return { created, updated, errors }
+  } catch {
+    return { created: 0, updated: 0, errors: 0 }
+  }
+}
+
+async function syncCategoriesFromSheet(
+  sheetsClient: sheets_v4.Sheets,
+  spreadsheetId: string,
+  supabase: SupabaseClient<Database>
+): Promise<{ created: number; updated: number; errors: number }> {
+  try {
+    const rows = await fetchSheetData(
+      sheetsClient,
+      spreadsheetId,
+      SHEETS_TAB.categories
+    )
+    if (rows.length < 2) return { created: 0, updated: 0, errors: 0 }
+
+    const headers = rows[0].map(h => h.toLowerCase().trim())
+    let created = 0
+    let updated = 0
+    let errors = 0
+
+    for (let i = 1; i < rows.length; i++) {
+      const data: Record<string, string> = {}
+      headers.forEach((h, idx) => {
+        data[h] = rows[i][idx]?.trim() || ''
+      })
+
+      if (!data.name || !data.slug) {
+        errors++
+        continue
+      }
+
+      const { data: existing } = await supabase
+        .from('categories')
+        .select('id')
+        .eq('slug', data.slug)
+        .limit(1)
+        .maybeSingle()
+
+      const categoryPayload = {
+        name: data.name,
+        slug: data.slug,
+        description: data.description || null,
+        image_url: data.image_url || null,
+        icon: data.icon || null,
+        parent_id: data.parent_id || null,
+        is_active: data.is_active !== 'false',
+        sort_order: data.sort_order ? parseInt(data.sort_order, 10) || 0 : 0,
+      }
+
+      if (existing) {
+        const { error } = await supabase
+          .from('categories')
+          .update(categoryPayload)
+          .eq('id', existing.id)
+        if (error) errors++
+        else updated++
+      } else {
+        const { error } = await supabase
+          .from('categories')
+          .insert(categoryPayload)
+        if (error) errors++
+        else created++
+      }
+    }
+
+    return { created, updated, errors }
+  } catch {
+    return { created: 0, updated: 0, errors: 0 }
+  }
+}
+
+async function syncPromotionsFromSheet(
+  sheetsClient: sheets_v4.Sheets,
+  spreadsheetId: string,
+  supabase: SupabaseClient<Database>
+): Promise<{ created: number; updated: number; errors: number }> {
+  try {
+    const rows = await fetchSheetData(
+      sheetsClient,
+      spreadsheetId,
+      SHEETS_TAB.promotions
+    )
+    if (rows.length < 2) return { created: 0, updated: 0, errors: 0 }
+
+    const headers = rows[0].map(h => h.toLowerCase().trim())
+    let created = 0
+    let updated = 0
+    let errors = 0
+
+    for (let i = 1; i < rows.length; i++) {
+      const data: Record<string, string> = {}
+      headers.forEach((h, idx) => {
+        data[h] = rows[i][idx]?.trim() || ''
+      })
+
+      if (!data.name || !data.type) {
+        errors++
+        continue
+      }
+
+      // Upsert by name+type combo
+      const { data: existing } = await supabase
+        .from('promotions')
+        .select('id')
+        .eq('name', data.name)
+        .eq('type', data.type as Database['public']['Enums']['promotion_type'])
+        .limit(1)
+        .maybeSingle()
+
+      const promoPayload = {
+        name: data.name,
+        type: data.type as Database['public']['Enums']['promotion_type'],
+        listing_id: data.listing_id || null,
+        product_id: data.product_id || null,
+        discount_pct: data.discount_pct
+          ? parseFloat(data.discount_pct) || null
+          : null,
+        discount_amount_kes: data.discount_amount_kes
+          ? parseInt(data.discount_amount_kes, 10) || null
+          : null,
+        starts_at: data.starts_at || new Date().toISOString(),
+        ends_at:
+          data.ends_at ||
+          new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        is_active: data.is_active !== 'false',
+        sort_order: data.sort_order ? parseInt(data.sort_order, 10) || 0 : 0,
+      }
+
+      if (existing) {
+        const { error } = await supabase
+          .from('promotions')
+          .update(promoPayload)
+          .eq('id', existing.id)
+        if (error) errors++
+        else updated++
+      } else {
+        const { error } = await supabase.from('promotions').insert(promoPayload)
+        if (error) errors++
+        else created++
+      }
+    }
+
+    return { created, updated, errors }
+  } catch {
+    return { created: 0, updated: 0, errors: 0 }
+  }
+}
+
+export async function syncFromSheets(
+  source: SyncSource = 'sheets'
+): Promise<SyncReport> {
   const report: SyncReport = {
     created: 0,
     updated: 0,
@@ -248,14 +472,46 @@ export async function syncFromSheets(): Promise<SyncReport> {
   }
 
   const spreadsheetId = process.env.GS_SPREADSHEET_ID
-  const sheetName = SHEETS_TAB_NAME
 
   if (!spreadsheetId) {
     throw new Error('Missing GS_SPREADSHEET_ID env var')
   }
 
   const sheetsClient = getGoogleSheetsClient()
-  const rows = await fetchSheetData(sheetsClient, spreadsheetId, sheetName)
+  const supabase = createAdminClient()
+
+  // Sync reference tabs first (order matters: brands -> categories -> listings)
+  const brandsImport = await syncBrandsFromSheet(
+    sheetsClient,
+    spreadsheetId,
+    supabase
+  )
+  const categoriesImport = await syncCategoriesFromSheet(
+    sheetsClient,
+    spreadsheetId,
+    supabase
+  )
+  const promotionsImport = await syncPromotionsFromSheet(
+    sheetsClient,
+    spreadsheetId,
+    supabase
+  )
+
+  report.details.push(
+    `Brands: ${brandsImport.created} created, ${brandsImport.updated} updated`
+  )
+  report.details.push(
+    `Categories: ${categoriesImport.created} created, ${categoriesImport.updated} updated`
+  )
+  report.details.push(
+    `Promotions: ${promotionsImport.created} created, ${promotionsImport.updated} updated`
+  )
+
+  const rows = await fetchSheetData(
+    sheetsClient,
+    spreadsheetId,
+    SHEETS_TAB.listings
+  )
 
   if (rows.length < 2) {
     report.details.push('No data rows found in sheet')
@@ -263,7 +519,6 @@ export async function syncFromSheets(): Promise<SyncReport> {
   }
 
   const headers = rows[0]
-  const supabase = createAdminClient()
 
   for (let i = 1; i < rows.length; i++) {
     try {
@@ -356,10 +611,19 @@ export async function syncFromSheets(): Promise<SyncReport> {
         } else {
           report.updated++
           report.details.push(`Row ${i + 1}: Updated ${existingListingId}`)
+          await supabase.from('sync_metadata').insert({
+            listing_id: existingListingId,
+            source,
+            last_synced_at: new Date().toISOString(),
+          })
         }
       } else {
         // Create new listing -- SKU is generated by the database
-        const { error } = await supabase.from('listings').insert(listingData)
+        const { data: inserted, error } = await supabase
+          .from('listings')
+          .insert(listingData)
+          .select('id')
+          .single()
 
         if (error) {
           report.errors++
@@ -367,6 +631,13 @@ export async function syncFromSheets(): Promise<SyncReport> {
         } else {
           report.created++
           report.details.push(`Row ${i + 1}: Created new listing`)
+          if (inserted) {
+            await supabase.from('sync_metadata').insert({
+              listing_id: inserted.id,
+              source,
+              last_synced_at: new Date().toISOString(),
+            })
+          }
         }
       }
     } catch (err) {
@@ -440,24 +711,24 @@ export async function syncFromSheets(): Promise<SyncReport> {
 }
 
 const SHEET_HEADERS = [
-  'sku',
-  'brand',
-  'model',
-  'category',
-  'condition_grade',
-  'price_kes',
-  'sale_price_kes',
-  'ram',
-  'warranty_months',
-  'notes',
-  'source',
-  'source_id',
-  'source_url',
-  'status',
-  'images',
-  'listing_type',
-  'includes',
-  'admin_notes',
+  'SKU',
+  'Brand',
+  'Model',
+  'Category',
+  'Condition Grade',
+  'Price (KES)',
+  'Sale Price (KES)',
+  'RAM',
+  'Warranty (Months)',
+  'Notes',
+  'Source',
+  'Source ID',
+  'Source URL',
+  'Status',
+  'Images',
+  'Listing Type',
+  'Includes',
+  'Admin Notes',
 ]
 
 async function syncBrandsToSheet(
@@ -492,12 +763,19 @@ async function syncBrandsToSheet(
     ]),
   ]
 
-  await sheetsClient.spreadsheets.values.update({
-    spreadsheetId,
-    range: 'brands',
-    valueInputOption: 'RAW',
-    requestBody: { values: rows },
-  })
+  try {
+    await sheetsClient.spreadsheets.values.update({
+      spreadsheetId,
+      range: SHEETS_TAB.brands,
+      valueInputOption: 'RAW',
+      requestBody: { values: rows },
+    })
+  } catch (err) {
+    console.error(
+      `Failed to sync brands to sheet: ${err instanceof Error ? err.message : err}`
+    )
+    return { rows: 0, errors: 1 }
+  }
 
   return { rows: brands.length, errors: 0 }
 }
@@ -540,12 +818,19 @@ async function syncCategoriesToSheet(
     ]),
   ]
 
-  await sheetsClient.spreadsheets.values.update({
-    spreadsheetId,
-    range: 'categories',
-    valueInputOption: 'RAW',
-    requestBody: { values: rows },
-  })
+  try {
+    await sheetsClient.spreadsheets.values.update({
+      spreadsheetId,
+      range: SHEETS_TAB.categories,
+      valueInputOption: 'RAW',
+      requestBody: { values: rows },
+    })
+  } catch (err) {
+    console.error(
+      `Failed to sync categories to sheet: ${err instanceof Error ? err.message : err}`
+    )
+    return { rows: 0, errors: 1 }
+  }
 
   return { rows: categories.length, errors: 0 }
 }
@@ -592,12 +877,19 @@ async function syncPromotionsToSheet(
     ]),
   ]
 
-  await sheetsClient.spreadsheets.values.update({
-    spreadsheetId,
-    range: 'promotions',
-    valueInputOption: 'RAW',
-    requestBody: { values: rows },
-  })
+  try {
+    await sheetsClient.spreadsheets.values.update({
+      spreadsheetId,
+      range: SHEETS_TAB.promotions,
+      valueInputOption: 'RAW',
+      requestBody: { values: rows },
+    })
+  } catch (err) {
+    console.error(
+      `Failed to sync promotions to sheet: ${err instanceof Error ? err.message : err}`
+    )
+    return { rows: 0, errors: 1 }
+  }
 
   return { rows: promotions.length, errors: 0 }
 }
@@ -646,11 +938,13 @@ export async function syncToSheets(
       const existingRows = await fetchSheetData(
         sheetsClient,
         spreadsheetId,
-        SHEETS_TAB_NAME
+        SHEETS_TAB.listings
       )
       if (existingRows.length > 1) {
         const headers = existingRows[0]
-        const skuIndex = headers.indexOf('sku')
+        const skuIndex = headers.findIndex(
+          h => h.toLowerCase().trim() === 'sku'
+        )
         if (skuIndex < 0) {
           report.errors++
           report.details.push(
@@ -733,7 +1027,7 @@ export async function syncToSheets(
 
       await sheetsClient.spreadsheets.values.update({
         spreadsheetId,
-        range: SHEETS_TAB_NAME,
+        range: SHEETS_TAB.listings,
         valueInputOption: 'RAW',
         requestBody: { values: sheetRows },
       })
@@ -770,14 +1064,14 @@ export async function syncToSheets(
         if (existingSkus.size === 0) {
           await sheetsClient.spreadsheets.values.update({
             spreadsheetId,
-            range: SHEETS_TAB_NAME,
+            range: SHEETS_TAB.listings,
             valueInputOption: 'RAW',
             requestBody: { values: [SHEET_HEADERS, ...newRows] },
           })
         } else {
           await sheetsClient.spreadsheets.values.append({
             spreadsheetId,
-            range: SHEETS_TAB_NAME,
+            range: SHEETS_TAB.listings,
             valueInputOption: 'RAW',
             requestBody: { values: newRows },
           })

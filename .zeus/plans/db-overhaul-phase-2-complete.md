@@ -3,7 +3,7 @@
 Rewrote all data access layer queries, types, and helpers for the new database schema. 48 files modified across queries, types, helpers, tests. All public storefront queries now correctly filter `status = 'active'` (security fix). Brand filtering is consistent (slug-based) with pre-resolved product IDs for count queries. Admin notes field correctly normalized to `string[]` before DB insert. Deleted `deals.ts` -- promotion listing logic inlined in `listings.ts`.
 
 **Remaining items (deferred to Phase 5):**
-- `bun check` type errors: all in frontend consumer files not yet rewritten (Phase 5 scope)
+- `bun check` type errors: these are TypeScript type-check failures in frontend consumer files (e.g. `src/app/(store)/*`) that reference old schema columns (`listing_id`, `model`, `category`, `final_price_kes`). They do not block test execution because `bun test` compiles and runs tests independently -- the failing frontend files are not imported by any test. Type checking (`bun check`) is intentionally deferred as a quality gate to Phase 5, where these consumer files will be rewritten.
 - Storefront consumer propagation: shop page, filterSidebar, searchBar, productDetailClient
 - Remove `getPricingTier()` / `PricingTier` type (cards handle display directly)
 

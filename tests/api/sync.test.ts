@@ -12,6 +12,9 @@ const mockSyncFromSheets = mock(() =>
 
 mock.module('@lib/sheets/sync', () => ({
   syncFromSheets: mockSyncFromSheets,
+  syncToSheets: mock(() =>
+    Promise.resolve({ rows: 0, skipped: 0, errors: 0, details: [], tabs: {} })
+  ),
 }))
 
 // Import route handler after mocking

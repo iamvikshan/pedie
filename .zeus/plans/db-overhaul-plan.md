@@ -61,6 +61,35 @@ Overhaul the Pedie database schema from a phone-centric PoC to an industry-stand
      - Sync listing data uses correct column names (source_id, status=active, no final_price_kes)
    - **Quality Gates:** `bun test`
 
+3.5. **[x] Phase 3.5: Sync Engine Hardening**
+   - **Objective:** Replace single `SHEETS_TAB_NAME` with per-table `SHEETS_TAB` config, add human-readable sheet headers, implement bidirectional multi-tab sync with loop prevention, update Apps Script template. Delete crawler dead code (conditionMapping, crawler tests, workflow).
+   - **Files/Functions:**
+     - `src/config.ts` -- replace `SHEETS_TAB_NAME = 'inv'` with `SHEETS_TAB = { listings, brands, categories, products, promotions }` using human-friendly names
+     - `src/lib/sheets/parser.ts` -- update header mapping for human-readable names (e.g. "Price (KES)" -> `price_kes`, "Listing Type" -> `listing_type`)
+     - `src/lib/sheets/sync.ts`:
+       - Use `SHEETS_TAB.*` constants throughout (replace hardcoded 'brands', 'categories', 'promotions' range strings)
+       - Add human-readable `SHEET_HEADERS` mapping (display name <-> field name)
+       - Add `syncBrandsFromSheet()`, `syncCategoriesFromSheet()`, `syncProductsFromSheet()`, `syncPromotionsFromSheet()` import functions
+       - Add loop-prevention: check `sync_metadata.last_synced_at` vs `updated_at`, accept `source` flag ('admin' | 'sheets' | 'system') to skip same-source re-sync
+       - `syncFromSheets()` reads all tabs, not just listings
+       - `syncToSheets()` uses `SHEETS_TAB` constants
+     - `src/app/api/sync/route.ts` -- pass `source: 'sheets'` to sync functions
+     - `src/app/api/sync/export/route.ts` -- pass `source: 'system'` to export
+     - `src/app/api/admin/sync/route.ts` -- accept direction param ('pull' | 'push' | 'both'), pass `source: 'admin'`
+     - Admin listing mutation APIs -- trigger `syncToSheets({ mode: 'additive' })` after create/update
+     - `scripts/sheets.ts` -- use `SHEETS_TAB` constants
+     - `scripts/sheetsToSupabase.gs` -- update to reference new tab names, pass source flag
+     - Delete: `src/lib/sync/conditionMapping.ts`, `tests/lib/sync/`, `tests/scripts/crawlers/`, `.github/workflows/crawler.yml`, `crawl` script from package.json
+   - **Tests to Write:**
+     - SHEETS_TAB constant covers all synced tables
+     - Human-readable header round-trip (export headers -> import parsing)
+     - Loop prevention: sync skips rows where `updated_at <= last_synced_at`
+     - Source flag filtering: 'sheets' source skips sheets->DB re-sync
+     - Multi-tab import parses brands/categories/promotions tabs
+     - Admin sync route accepts direction parameter
+   - **Quality Gates:** `bun run f` -> `bun test`
+   - **Changes from plan:** Loop prevention is architectural (import/export are separate endpoints) rather than timestamp-based filtering. Admin fire-and-forget sync uses additive mode (append-only); full update-by-SKU semantics deferred to Phase 5. See [db-overhaul-phase-3.5-complete.md](.zeus/plans/db-overhaul-phase-3.5-complete.md).
+
 4. **[ ] Phase 4: Auth & User Management**
    - **Objective:** Username login support, signup form update (remove full_name), admin user management page
    - **Files/Functions:**
@@ -99,12 +128,14 @@ Overhaul the Pedie database schema from a phone-centric PoC to an industry-stand
      - Storefront consumer propagation: shop page, filterSidebar, searchBar, productDetailClient
      - URL routes: `/listings/[sku]` replaces `/listings/[listingId]`
      - Card/component glossary: align productCard/productFamilyCard naming with Product/Listing/ProductFamily terminology
+     - **Admin sync UI:** expand sync dashboard with direction buttons ("Pull from Sheets" / "Push to Sheets"), show per-tab sync status, last sync timestamps
    - **Tests to Write:**
      - Product card renders promotion badges from promotions data
      - Card display logic: sale_price_kes presence drives sale badge + strikethrough
      - Listing detail shows notes/includes when present
      - Cart validation uses SKU
      - Admin forms include new fields
+     - Admin sync dashboard renders direction buttons and per-tab status
    - **Quality Gates:** `bun run f` -> `bun check` -> `bun test`
 
 6. **[ ] Phase 6: Types, Tests & Documentation**

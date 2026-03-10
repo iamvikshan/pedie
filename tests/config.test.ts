@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { SITE_NAME, URLS } from '@/config'
+import { SITE_NAME, URLS, SHEETS_TAB } from '@/config'
 
 describe('Config', () => {
   test('SITE_NAME is Pedie', () => {
@@ -13,5 +13,18 @@ describe('Config', () => {
     expect(URLS.social.instagram).toContain('iamvikshan')
     expect(URLS.social.github).toContain('iamvikshan')
     expect(URLS.social.tiktok).toContain('iamvikshan')
+  })
+
+  test('SHEETS_TAB has all required keys', () => {
+    expect(SHEETS_TAB.listings).toBe('Listings')
+    expect(SHEETS_TAB.brands).toBe('Brands')
+    expect(SHEETS_TAB.categories).toBe('Categories')
+    expect(SHEETS_TAB.products).toBe('Products')
+    expect(SHEETS_TAB.promotions).toBe('Promotions')
+  })
+
+  test('SHEETS_TAB_NAME is no longer exported', async () => {
+    const config = await import('@/config')
+    expect('SHEETS_TAB_NAME' in config).toBe(false)
   })
 })

@@ -15,7 +15,7 @@
  *      SITE_URL             → https://pedie.tech  (no trailing slash)
  *      REVALIDATION_SECRET  → same secret as your REVALIDATION_SECRET env var
  *      SYNC_API_KEY         → same key as your SYNC_API_KEY env var
- *      SHEET_TAB_NAME       → inventory tab name (default: inv)
+ *      SHEET_TAB_NAME       → inventory tab name (default: Listings)
  * 5. Save and run `testRevalidation()` once to authorize the script.
  * 6. Add a trigger: Triggers (clock icon) → Add Trigger →
  *      Function:   onSheetEdit
@@ -43,7 +43,7 @@ function getConfig() {
     siteUrl: props.getProperty('SITE_URL') || '',
     revalidationSecret: props.getProperty('REVALIDATION_SECRET') || '',
     syncApiKey: props.getProperty('SYNC_API_KEY') || '',
-    sheetTabName: props.getProperty('SHEET_TAB_NAME') || 'inv',
+    sheetTabName: props.getProperty('SHEET_TAB_NAME') || 'Listings',
   }
 }
 

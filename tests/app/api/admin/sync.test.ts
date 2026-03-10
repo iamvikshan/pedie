@@ -54,9 +54,13 @@ mock.module('@data/admin', () => ({
 const mockSyncFromSheets = mock<any>(() =>
   Promise.resolve({ created: 5, updated: 2, errors: 0, details: [] })
 )
+const mockSyncToSheets = mock<any>(() =>
+  Promise.resolve({ rows: 3, skipped: 0, errors: 0, details: [], tabs: {} })
+)
 
 mock.module('@lib/sheets/sync', () => ({
   syncFromSheets: mockSyncFromSheets,
+  syncToSheets: mockSyncToSheets,
 }))
 
 // Import AFTER mocking
@@ -117,6 +121,7 @@ describe('POST /api/admin/sync', () => {
     mockGetUser.mockReset()
     mockIsUserAdmin.mockReset()
     mockSyncFromSheets.mockReset()
+    mockSyncToSheets.mockReset()
     mockLogSyncResult.mockReset()
     mockSyncFromSheets.mockResolvedValue({
       created: 5,
@@ -124,36 +129,82 @@ describe('POST /api/admin/sync', () => {
       errors: 0,
       details: [],
     })
+    mockSyncToSheets.mockResolvedValue({
+      rows: 3,
+      skipped: 0,
+      errors: 0,
+      details: [],
+      tabs: {},
+    })
     mockLogSyncResult.mockResolvedValue({ id: 'log-1', status: 'success' })
   })
 
+  const makeRequest = (body?: Record<string, unknown>) =>
+    new Request('http://localhost/api/admin/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: body ? JSON.stringify(body) : undefined,
+    })
+
   test('returns 401 when not authenticated', async () => {
     mockGetUser.mockResolvedValue(null)
-    const res = await POST()
+    const res = await POST(makeRequest())
     expect(res.status).toBe(401)
   })
 
   test('returns 403 when not admin', async () => {
     mockGetUser.mockResolvedValue({ id: 'user-1' })
     mockIsUserAdmin.mockResolvedValue(false)
-    const res = await POST()
+    const res = await POST(makeRequest())
     expect(res.status).toBe(403)
   })
 
-  test('triggers sync and returns result', async () => {
+  test('triggers pull sync by default and returns result', async () => {
     mockGetUser.mockResolvedValue(adminUser)
     mockIsUserAdmin.mockResolvedValue(true)
 
-    const res = await POST()
+    const res = await POST(makeRequest())
     expect(res.status).toBe(200)
 
     const data = await res.json()
     expect(data.success).toBe(true)
+    expect(data.direction).toBe('pull')
     expect(data.report.created).toBe(5)
     expect(data.report.updated).toBe(2)
 
     expect(mockSyncFromSheets).toHaveBeenCalledTimes(1)
+    expect(mockSyncFromSheets).toHaveBeenCalledWith('admin')
+    expect(mockSyncToSheets).not.toHaveBeenCalled()
     expect(mockLogSyncResult).toHaveBeenCalledTimes(1)
+  })
+
+  test('triggers push sync when direction=push', async () => {
+    mockGetUser.mockResolvedValue(adminUser)
+    mockIsUserAdmin.mockResolvedValue(true)
+
+    const res = await POST(makeRequest({ direction: 'push' }))
+    expect(res.status).toBe(200)
+
+    const data = await res.json()
+    expect(data.direction).toBe('push')
+    expect(data.exportReport).toBeDefined()
+
+    expect(mockSyncFromSheets).not.toHaveBeenCalled()
+    expect(mockSyncToSheets).toHaveBeenCalledTimes(1)
+  })
+
+  test('triggers both when direction=both', async () => {
+    mockGetUser.mockResolvedValue(adminUser)
+    mockIsUserAdmin.mockResolvedValue(true)
+
+    const res = await POST(makeRequest({ direction: 'both' }))
+    expect(res.status).toBe(200)
+
+    const data = await res.json()
+    expect(data.direction).toBe('both')
+
+    expect(mockSyncFromSheets).toHaveBeenCalledTimes(1)
+    expect(mockSyncToSheets).toHaveBeenCalledTimes(1)
   })
 
   test('logs error on sync failure', async () => {
@@ -161,7 +212,7 @@ describe('POST /api/admin/sync', () => {
     mockIsUserAdmin.mockResolvedValue(true)
     mockSyncFromSheets.mockRejectedValue(new Error('Sheets API error'))
 
-    const res = await POST()
+    const res = await POST(makeRequest())
     expect(res.status).toBe(500)
 
     const data = await res.json()

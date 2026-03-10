@@ -54,6 +54,14 @@ export async function PUT(
     }
 
     const listing = await updateListing(id, filtered)
+
+    // Fire-and-forget: sync to sheets
+    import('@lib/sheets/sync')
+      .then(({ syncToSheets }) =>
+        syncToSheets({ mode: 'additive', source: 'admin' })
+      )
+      .catch(err => console.error('Post-mutation sheets sync failed:', err))
+
     return NextResponse.json(listing)
   } catch (error) {
     console.error('Failed to update listing:', error)

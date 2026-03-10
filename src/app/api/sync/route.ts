@@ -10,7 +10,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const report = await syncFromSheets()
+    const report = await syncFromSheets('sheets')
 
     return NextResponse.json({
       success: true,

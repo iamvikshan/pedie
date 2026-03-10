@@ -18,6 +18,36 @@ export interface SheetRow {
   admin_notes?: string
 }
 
+export const HEADER_MAP: Record<string, string> = {
+  sku: 'sku',
+  brand: 'brand',
+  model: 'model',
+  category: 'category',
+  'condition grade': 'condition_grade',
+  'price (kes)': 'price_kes',
+  'sale price (kes)': 'sale_price_kes',
+  ram: 'ram',
+  'warranty (months)': 'warranty_months',
+  notes: 'notes',
+  source: 'source',
+  'source id': 'source_id',
+  'source url': 'source_url',
+  status: 'status',
+  images: 'images',
+  'listing type': 'listing_type',
+  includes: 'includes',
+  'admin notes': 'admin_notes',
+  // Backward compat: also accept snake_case headers
+  condition_grade: 'condition_grade',
+  price_kes: 'price_kes',
+  sale_price_kes: 'sale_price_kes',
+  warranty_months: 'warranty_months',
+  source_id: 'source_id',
+  source_url: 'source_url',
+  listing_type: 'listing_type',
+  admin_notes: 'admin_notes',
+}
+
 export function cleanNumericString(value: string): string {
   if (value == null) return ''
   if (typeof value !== 'string') value = String(value)
@@ -48,7 +78,9 @@ export function parseSheetRow(
 
   const data: Record<string, string> = {}
   headers.forEach((header, index) => {
-    const key = header.toLowerCase().trim().replace(/\s+/g, '_')
+    const key =
+      HEADER_MAP[header.toLowerCase().trim()] ??
+      header.toLowerCase().trim().replace(/\s+/g, '_')
     data[key] = row[index]?.trim() || ''
   })
 

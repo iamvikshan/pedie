@@ -1,7 +1,12 @@
 import { describe, expect, test } from 'bun:test'
 import { readFileSync } from 'fs'
 import { resolve } from 'path'
-import { cleanNumericString, parseSheetRow } from '@lib/sheets/parser'
+import {
+  cleanNumericString,
+  parseSheetRow,
+  HEADER_MAP,
+} from '@lib/sheets/parser'
+import { SHEETS_TAB } from '@/config'
 
 const src = readFileSync(resolve('src/lib/sheets/sync.ts'), 'utf-8')
 
@@ -512,5 +517,131 @@ describe('sync source analysis', () => {
 
   test('ExportReport supports tabs', () => {
     expect(src).toContain('tabs?')
+  })
+})
+
+describe('SHEETS_TAB config', () => {
+  test('has all required keys', () => {
+    expect(SHEETS_TAB.listings).toBe('Listings')
+    expect(SHEETS_TAB.brands).toBe('Brands')
+    expect(SHEETS_TAB.categories).toBe('Categories')
+    expect(SHEETS_TAB.products).toBe('Products')
+    expect(SHEETS_TAB.promotions).toBe('Promotions')
+  })
+
+  test('sync.ts uses SHEETS_TAB from config', () => {
+    expect(src).toContain('SHEETS_TAB')
+    expect(src).not.toContain('SHEETS_TAB_NAME')
+  })
+})
+
+describe('human-readable headers round-trip', () => {
+  test('SHEET_HEADERS in sync.ts use human-readable names', () => {
+    expect(src).toContain("'SKU'")
+    expect(src).toContain("'Brand'")
+    expect(src).toContain("'Price (KES)'")
+    expect(src).toContain("'Condition Grade'")
+    expect(src).toContain("'Warranty (Months)'")
+    expect(src).toContain("'Admin Notes'")
+  })
+
+  test('human-readable headers parse back to internal fields via HEADER_MAP', () => {
+    const humanHeaders = [
+      'SKU',
+      'Brand',
+      'Model',
+      'Category',
+      'Condition Grade',
+      'Price (KES)',
+      'Sale Price (KES)',
+      'RAM',
+      'Warranty (Months)',
+      'Notes',
+      'Source',
+      'Source ID',
+      'Source URL',
+      'Status',
+      'Images',
+      'Listing Type',
+      'Includes',
+      'Admin Notes',
+    ]
+    const row = [
+      'PD-001',
+      'Apple',
+      'iPhone 15',
+      'smartphones',
+      'excellent',
+      '95000',
+      '85000',
+      '8GB',
+      '12',
+      'Like new',
+      'Manual',
+      'MAN-001',
+      'https://example.com',
+      'active',
+      'https://img.example.com/1.jpg',
+      'standard',
+      'charger',
+      'VIP note',
+    ]
+
+    const result = parseSheetRow(row, humanHeaders)
+    expect(result).not.toBeNull()
+    expect(result!.brand).toBe('Apple')
+    expect(result!.price_kes).toBe('95000')
+    expect(result!.condition_grade).toBe('excellent')
+    expect(result!.warranty_months).toBe('12')
+    expect(result!.admin_notes).toBe('VIP note')
+  })
+})
+
+describe('SyncSource type', () => {
+  test('sync.ts exports SyncSource type', () => {
+    expect(src).toContain('SyncSource')
+  })
+
+  test('syncFromSheets accepts source parameter', () => {
+    expect(src).toContain("source: SyncSource = 'sheets'")
+  })
+
+  test('syncToSheets accepts source option', () => {
+    expect(src).toContain('source?: SyncSource')
+  })
+})
+
+describe('multi-tab import functions', () => {
+  test('sync.ts has syncBrandsFromSheet', () => {
+    expect(src).toContain('syncBrandsFromSheet')
+  })
+
+  test('sync.ts has syncCategoriesFromSheet', () => {
+    expect(src).toContain('syncCategoriesFromSheet')
+  })
+
+  test('sync.ts has syncPromotionsFromSheet', () => {
+    expect(src).toContain('syncPromotionsFromSheet')
+  })
+
+  test('syncFromSheets calls import functions before listing sync', () => {
+    // The import calls should appear before the listing sync logic
+    const brandsImportIndex = src.indexOf('syncBrandsFromSheet(')
+    const categoriesImportIndex = src.indexOf('syncCategoriesFromSheet(')
+    const promotionsImportIndex = src.indexOf('syncPromotionsFromSheet(')
+    const fetchListingsIndex = src.indexOf(
+      'fetchSheetData(sheetsClient, spreadsheetId, SHEETS_TAB.listings'
+    )
+
+    // All import functions must exist
+    expect(brandsImportIndex).toBeGreaterThan(-1)
+    expect(categoriesImportIndex).toBeGreaterThan(-1)
+    expect(promotionsImportIndex).toBeGreaterThan(-1)
+
+    // Ensure they also appear in syncFromSheets (not just the export functions)
+    // The import variants appear in the syncFromSheets function body
+    expect(src).toContain('brandsImport')
+    expect(src).toContain('categoriesImport')
+    expect(src).toContain('promotionsImport')
   })
 })

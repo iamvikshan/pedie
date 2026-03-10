@@ -26,7 +26,7 @@ export async function GET() {
   }
 }
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
     const user = await getUser()
     if (!user) {
@@ -38,23 +38,55 @@ export async function POST() {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Dynamic import to avoid cold-start issues
-    const { syncFromSheets } = await import('@lib/sheets/sync')
+    let direction: 'pull' | 'push' | 'both' = 'pull'
+    try {
+      const body = await request.json()
+      if (
+        body.direction === 'push' ||
+        body.direction === 'pull' ||
+        body.direction === 'both'
+      ) {
+        direction = body.direction
+      }
+    } catch {
+      // No body or invalid JSON — default to 'pull'
+    }
+
+    const { syncFromSheets, syncToSheets } = await import('@lib/sheets/sync')
     const startedAt = new Date().toISOString()
 
     try {
-      const report = await syncFromSheets()
+      let pullReport = null
+      let pushReport = null
+
+      if (direction === 'pull' || direction === 'both') {
+        pullReport = await syncFromSheets('admin')
+      }
+
+      if (direction === 'push' || direction === 'both') {
+        pushReport = await syncToSheets({ mode: 'additive', source: 'admin' })
+      }
+
+      const totalRows =
+        (pullReport ? pullReport.created + pullReport.updated : 0) +
+        (pushReport ? pushReport.rows : 0)
+      const totalErrors = (pullReport?.errors ?? 0) + (pushReport?.errors ?? 0)
 
       try {
         await logSyncResult({
           triggered_by: user.id,
-          status: report.errors > 0 ? 'partial' : 'success',
-          rows_synced: report.created + report.updated,
+          status: totalErrors > 0 ? 'partial' : 'success',
+          rows_synced: totalRows,
           errors:
-            report.errors > 0 && Array.isArray(report.details)
-              ? (report.details as unknown[]).filter(
-                  (d): d is string => typeof d === 'string'
-                )
+            totalErrors > 0
+              ? [
+                  ...(pullReport?.details ?? []).filter(
+                    (d): d is string => typeof d === 'string'
+                  ),
+                  ...(pushReport?.details ?? []).filter(
+                    (d): d is string => typeof d === 'string'
+                  ),
+                ]
               : undefined,
           started_at: startedAt,
           completed_at: new Date().toISOString(),
@@ -65,7 +97,9 @@ export async function POST() {
 
       return NextResponse.json({
         success: true,
-        report,
+        direction,
+        report: pullReport,
+        exportReport: pushReport,
         started_at: startedAt,
       })
     } catch (syncError) {

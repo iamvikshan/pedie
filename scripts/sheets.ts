@@ -15,7 +15,7 @@ const mode =
     ? 'full'
     : 'additive'
 
-const options: ExportOptions = { mode }
+const options: ExportOptions = { mode, source: 'system' }
 
 console.log(`Starting ${mode} sync…`)
 
