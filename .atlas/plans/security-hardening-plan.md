@@ -80,55 +80,16 @@ Harden the Pedie e-commerce application against OWASP Top 10 vulnerabilities ide
    - **Summary:** Simplified CreateOrderInput to {listing_id, quantity}[] only. createOrder() now fetches listings from DB, computes all pricing server-side. PayPal create route requires auth + ownership, derives amount from DB. Capture routes verify amount with +/-$0.50 tolerance and check pending status before confirming. 24 new tests across 3 test files.
    - **[Phase 2 Details](.atlas/plans/security-hardening-phase-2-complete.md)**
 
-3. **[ ] Phase 3: Rate Limiting & Input Validation (HIGH)**
+3. **[x] Phase 3: Rate Limiting & Input Validation (HIGH)**
    - **Objective:** Add Upstash-backed rate limiting to abuse-prone endpoints. Add Zod schema validation for admin routes, replacing manual allowlisting and `as never` casts. Sanitize admin email fields. Fix resolve-username user enumeration vulnerability.
-   - **Files/Functions to create/modify:**
-     - `src/lib/security/rateLimit.ts` -- NEW: Upstash-backed rate limiter using `@upstash/ratelimit` with `@upstash/redis`. Export `createRateLimiter(prefix, config)` factory. Use sliding window algorithm. Return `{ success, limit, remaining, reset }`. Graceful fallback if Upstash env vars are missing (log warning, allow request -- avoids blocking app when Redis is down).
-     - `src/app/api/newsletter/route.ts` -- Add rate limiting (10 req/min per IP)
-     - `src/app/api/auth/resolve-username/route.ts` -- **SECURITY FIX:** Eliminate user enumeration. Stop returning email to client. Instead, create a server-side `/api/auth/signin` route that accepts `{identifier, password}`, resolves username internally via `resolveUsername()`, calls `signInWithPassword()`, and returns only session tokens. The resolve-username endpoint returns generic `{ status: 'received' }` for all inputs (valid or invalid). Update `signinForm.tsx` to call `/api/auth/signin` instead. Add rate limiting (5 req/min per IP).
-     - `src/app/api/auth/signin/route.ts` -- NEW: Server-side signin route. Accepts `{identifier, password}`. If identifier is not an email, calls `resolveUsername()` internally. Calls `signInWithPassword()`. Returns session tokens only, never the resolved email. Add rate limiting (5 req/min per IP).
-     - `src/components/auth/signinForm.tsx` -- Update to call `/api/auth/signin` instead of resolve-username + client-side Supabase auth.
-     - `src/app/api/payments/mpesa/stkpush/route.ts` -- Add rate limiting (3 req/min per user)
-     - `src/app/api/payments/paypal/create/route.ts` -- Add rate limiting (5 req/min per user)
-     - `src/app/api/orders/route.ts` -- Add rate limiting (5 req/min per user)
-     - `src/app/api/email/send/route.ts` -- Add rate limiting (10 req/min per admin). Sanitize `to` and `subject` fields using `sanitize-html` (the `html` field is intentionally raw HTML for admin-crafted email -- admin-only gate is sufficient).
-     - `src/lib/data/admin.ts` -- Define Zod schemas (`productCreateSchema`, `productUpdateSchema`, `listingCreateSchema`, `listingUpdateSchema`, `categoryCreateSchema`, `categoryUpdateSchema`). Parse incoming data through Zod `.parse()` and use the validated output directly for DB operations. Remove all 7 `as never` casts (lines 261, 280, 350, 369, 418, 437, 471). Export schemas.
-     - `src/app/api/admin/products/route.ts` -- Import and use Zod schema from admin.ts for POST validation
-     - `src/app/api/admin/products/[id]/route.ts` -- Import and use Zod schema for PUT validation
-     - `src/app/api/admin/listings/route.ts` -- Import and use Zod schema for POST validation
-     - `src/app/api/admin/listings/[id]/route.ts` -- Import and use Zod schema for PUT validation
-     - `src/app/api/admin/categories/route.ts` -- Import and use Zod schema for POST validation
-     - `src/app/api/admin/categories/[id]/route.ts` -- Import and use Zod schema for PUT validation
-   - **Tests to Write/modify:**
-     - `tests/lib/security/rate-limit.test.ts`:
-       - "should allow requests under the limit"
-       - "should block requests over the limit"
-       - "should allow requests when Upstash is not configured (graceful fallback)"
-     - `tests/api/admin/validation.test.ts`:
-       - "should reject product create with missing required fields"
-       - "should reject listing create with non-numeric price"
-       - "should accept valid product payload"
-     - `tests/api/email-send.test.ts`:
-       - "should sanitize to/subject fields with sanitize-html"
-       - "should pass html field through unchanged for admin"
-     - `tests/api/auth/signin.test.ts`:
-       - "should authenticate with email and password"
-       - "should authenticate with username and password (resolves internally)"
-       - "should return generic error for invalid credentials (no enumeration)"
-       - "should never return the resolved email in the response"
-       - "should be rate limited"
-   - **Quality Gates:** `bun run f` -> `bun check` -> `bun test`
-   - **Steps:**
-     1. Install dependencies: `bun add zod @upstash/ratelimit @upstash/redis`
-     2. Create rate limiter utility with graceful fallback
-     3. Apply rate limits to 7 target routes (newsletter, resolve-username, signin, mpesa stkpush, paypal create, orders, email send)
-     4. Define Zod schemas in src/lib/data/admin.ts
-     5. Replace manual allowlisting and all `as never` casts with Zod-validated data
-     6. Add to/subject sanitization to email send route
-     7. Write tests
-     8. Run quality gates
+   - **Summary:** Installed zod v4, @upstash/ratelimit, @upstash/redis. Created rate limiter factory (rateLimit.ts) with Upstash sliding window + graceful fallback. Rate-limited 7 routes. Server-side signin route eliminates email enumeration. Zod schemas for all 6 admin mutations, 7 `as never` casts replaced with proper Supabase types. Email to/subject sanitized. PayPal error logging sanitized. 14 new tests, 8 existing test files updated.
+   - **Changes from plan:** Zod v4 installed (imported from 'zod/v4'). Added listing_type to listings allowlists (was missing). Removed redundant manual validation from listings routes.
+   - **[Phase 3 Details](.atlas/plans/security-hardening-phase-3-complete.md)**
 
-4. **[ ] Phase 4: Security Headers & Audit Logging (MEDIUM)**
+4. **[x] Phase 4: Security Headers & Audit Logging (MEDIUM)**
+   - **Summary:** Hybrid CSP (static 'self', dynamic 'self' + nonce) and HSTS (2yr) in proxy.ts + vercel.json. sync_log renamed to admin_log with 5 audit columns. Fire-and-forget logAdminEvent integrated into all 7 admin mutation routes. Sentry R1 found 4 issues (nonce propagation, static rendering, PromiseLike .catch, order action) -- all resolved. R2 approved with 2 non-blocking fixes applied (cookie options, docs).
+   - **Changes from plan:** Dynamic CSP uses `'self' 'nonce-{nonce}'` instead of `'strict-dynamic'` (simpler, no framework nonce propagation needed). Root layout does not call `headers()` (preserves static rendering). JSON-LD is CSP-exempt, no nonce needed.
+   - **[Phase 4 Details](.atlas/plans/security-hardening-phase-4-complete.md)**
    - **Objective:** Add CSP (enforcing) and HSTS headers. Repurpose existing `sync_log` table to `admin_log` with extended schema for admin audit logging.
    - **CSP Implementation Detail (Hybrid Approach):** Use a two-tier CSP strategy to preserve prerendering for static pages:
      - **Static pages** (product listings, categories, home, sitemap): Static CSP with `script-src 'self'` -- no nonce needed, fully compatible with ISR/SSG/PPR. Note: `<script type="application/ld+json">` blocks on storefront pages are data-only (not executable) and are exempt from CSP `script-src` restrictions per the HTML spec. If any browsers enforce CSP on them, workers must move JSON-LD to external `.json` files or promote those routes to nonce-based CSP.

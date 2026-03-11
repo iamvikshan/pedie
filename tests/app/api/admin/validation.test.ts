@@ -15,6 +15,10 @@ mock.module('@lib/auth/admin', () => ({
   isUserAdmin: mock(() => true),
 }))
 
+mock.module('@lib/data/audit', () => ({
+  logAdminEvent: mock(),
+}))
+
 const mockCreateProduct = mock()
 const { productCreateSchema, listingCreateSchema } = await import('@data/admin')
 

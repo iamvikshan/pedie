@@ -5,6 +5,7 @@ import {
   getAdminListings,
   listingCreateSchema,
 } from '@data/admin'
+import { logAdminEvent } from '@lib/data/audit'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
@@ -104,6 +105,8 @@ export async function POST(request: Request) {
     }
 
     const listing = await createListing(parsed.data)
+
+    logAdminEvent(user.id, 'create', 'listing', listing.id as string)
 
     // Fire-and-forget: sync to sheets
     import('@lib/sheets/sync')

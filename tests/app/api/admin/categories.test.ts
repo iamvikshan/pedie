@@ -15,6 +15,10 @@ mock.module('@lib/auth/admin', () => ({
   isUserAdmin: mockIsUserAdmin,
 }))
 
+mock.module('@lib/data/audit', () => ({
+  logAdminEvent: mock(),
+}))
+
 const mockGetAdminCategories = mock(() =>
   Promise.resolve([{ id: 'cat-1', name: 'Phones', slug: 'phones' }])
 )

@@ -15,6 +15,10 @@ mock.module('@lib/auth/admin', () => ({
   isUserAdmin: mockIsUserAdmin,
 }))
 
+mock.module('@lib/data/audit', () => ({
+  logAdminEvent: mock(),
+}))
+
 const mockGetAdminOrders = mock<any>(() =>
   Promise.resolve({
     data: [],
@@ -37,15 +41,21 @@ const mockUpdateOrder = mock<any>(() =>
 )
 
 const {
-  productCreateSchema, productUpdateSchema,
-  listingCreateSchema, listingUpdateSchema,
-  categoryCreateSchema, categoryUpdateSchema,
+  productCreateSchema,
+  productUpdateSchema,
+  listingCreateSchema,
+  listingUpdateSchema,
+  categoryCreateSchema,
+  categoryUpdateSchema,
 } = await import('@data/admin')
 
 mock.module('@data/admin', () => ({
-  productCreateSchema, productUpdateSchema,
-  listingCreateSchema, listingUpdateSchema,
-  categoryCreateSchema, categoryUpdateSchema,
+  productCreateSchema,
+  productUpdateSchema,
+  listingCreateSchema,
+  listingUpdateSchema,
+  categoryCreateSchema,
+  categoryUpdateSchema,
   getAdminOrders: mockGetAdminOrders,
   getAdminOrderDetail: mockGetAdminOrderDetail,
   updateOrder: mockUpdateOrder,

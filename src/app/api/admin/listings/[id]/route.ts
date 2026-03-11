@@ -1,6 +1,7 @@
 import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
 import { deleteListing, updateListing, listingUpdateSchema } from '@data/admin'
+import { logAdminEvent } from '@lib/data/audit'
 import { NextResponse } from 'next/server'
 
 export async function PUT(
@@ -67,6 +68,8 @@ export async function PUT(
 
     const listing = await updateListing(id, parsed.data)
 
+    logAdminEvent(user.id, 'update', 'listing', id)
+
     // Fire-and-forget: sync to sheets
     import('@lib/sheets/sync')
       .then(({ syncToSheets }) =>
@@ -101,6 +104,7 @@ export async function DELETE(
 
     const { id } = await params
     await deleteListing(id)
+    logAdminEvent(user.id, 'delete', 'listing', id)
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Failed to delete listing:', error)

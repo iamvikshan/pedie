@@ -397,3 +397,29 @@ Product (brand_id -> brands.name + product.name)
 | Listing detail         | Route-level `loading.tsx` skeleton            |
 | Collection page        | Route-level `loading.tsx` skeleton            |
 | Search page            | Route-level `loading.tsx` skeleton            |
+
+---
+
+## Admin Audit Logging
+
+All admin mutations (create, update, delete on products, listings, categories, and order status changes) are recorded in the `admin_log` table. The `logAdminEvent()` utility (`src/lib/data/audit.ts`) uses a fire-and-forget pattern -- it inserts asynchronously via `.then()`, catches errors with `console.error`, and never throws. This ensures audit failures never block the admin action that triggered them.
+
+The same table stores sync history (formerly `sync_log`), preserving backward compatibility for the sync dashboard.
+
+---
+
+## CSP Strategy
+
+Hybrid Content Security Policy approach:
+
+- **Static routes** (storefront, product pages, collections): `script-src 'self'`. No nonce required, preserving ISR/static caching.
+- **Dynamic routes** (`/checkout`, `/admin`, `/account`, `/auth`, `/api`): Nonce-based CSP with `script-src 'self' 'nonce-{nonce}'`. A `crypto.randomUUID()` nonce is generated per request in the middleware (`src/proxy.ts`) and forwarded via the `x-csp-nonce` request header. Sub-layouts can read this header via `headers()` if they need nonce access for inline scripts.
+- **Development**: `'unsafe-eval'` is appended to `script-src` to support hot module replacement.
+
+HSTS is set to 2 years with `includeSubDomains` and `preload` both in the middleware and in `vercel.json` global headers.
+
+---
+
+## M-Pesa Accepted Risk
+
+Safaricom Daraja API does not provide HMAC signatures for callback verification. The current security model uses IP allowlist combined with a header secret. This is the documented best practice from Safaricom and is an accepted risk for M-Pesa integration in Kenya.

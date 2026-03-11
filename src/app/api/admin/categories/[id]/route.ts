@@ -5,6 +5,7 @@ import {
   updateCategory,
   categoryUpdateSchema,
 } from '@data/admin'
+import { logAdminEvent } from '@lib/data/audit'
 import { NextResponse } from 'next/server'
 
 export async function PUT(
@@ -42,6 +43,7 @@ export async function PUT(
     }
 
     const category = await updateCategory(id, parsed.data)
+    logAdminEvent(user.id, 'update', 'category', id)
     return NextResponse.json(category)
   } catch (error) {
     console.error('Failed to update category:', error)
@@ -69,6 +71,7 @@ export async function DELETE(
 
     const { id } = await params
     await deleteCategory(id)
+    logAdminEvent(user.id, 'delete', 'category', id)
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Failed to delete category:', error)

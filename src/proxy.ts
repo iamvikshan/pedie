@@ -43,6 +43,58 @@ export async function proxy(request: NextRequest) {
     'Permissions-Policy',
     'camera=(), microphone=(), geolocation=()'
   )
+  supabaseResponse.headers.set(
+    'Strict-Transport-Security',
+    'max-age=63072000; includeSubDomains; preload'
+  )
+
+  // Hybrid CSP: static for storefront (preserves ISR), nonce-based for dynamic routes
+  const DYNAMIC_PREFIXES = ['/checkout', '/admin', '/account', '/auth', '/api']
+  const pathname = request.nextUrl.pathname
+  const isDynamic = DYNAMIC_PREFIXES.some(p => pathname.startsWith(p))
+
+  const imgSrc = "img-src 'self' data: https://opygpszamajcdujoslob.supabase.co"
+  const baseCsp = `${imgSrc}; font-src 'self'; connect-src 'self' https://*.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; style-src 'self' 'unsafe-inline'`
+  const isDev = process.env.NODE_ENV === 'development'
+
+  let scriptSrc: string
+  if (isDynamic) {
+    const nonce = crypto.randomUUID()
+    scriptSrc = `script-src 'self' 'nonce-${nonce}'${isDev ? " 'unsafe-eval'" : ''}`
+    // Forward nonce via request headers so downstream pages can read it
+    const requestHeaders = new Headers(request.headers)
+    requestHeaders.set('x-csp-nonce', nonce)
+    const updatedResponse = NextResponse.next({
+      request: { headers: requestHeaders },
+    })
+    // Preserve Supabase auth cookies on the new response
+    supabaseResponse.cookies.getAll().forEach(cookie => {
+      updatedResponse.cookies.set(cookie)
+    })
+    supabaseResponse = updatedResponse
+    // Re-apply security headers on the new response
+    supabaseResponse.headers.set('X-Content-Type-Options', 'nosniff')
+    supabaseResponse.headers.set('X-Frame-Options', 'DENY')
+    supabaseResponse.headers.set(
+      'Referrer-Policy',
+      'strict-origin-when-cross-origin'
+    )
+    supabaseResponse.headers.set(
+      'Permissions-Policy',
+      'camera=(), microphone=(), geolocation=()'
+    )
+    supabaseResponse.headers.set(
+      'Strict-Transport-Security',
+      'max-age=63072000; includeSubDomains; preload'
+    )
+  } else {
+    scriptSrc = `script-src 'self'${isDev ? " 'unsafe-eval'" : ''}`
+  }
+
+  supabaseResponse.headers.set(
+    'Content-Security-Policy',
+    `${scriptSrc}; ${baseCsp}`
+  )
 
   return supabaseResponse
 }

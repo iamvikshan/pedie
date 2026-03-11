@@ -1,6 +1,7 @@
 import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
 import { getAdminOrderDetail, updateOrder } from '@data/admin'
+import { logAdminEvent } from '@lib/data/audit'
 import {
   sendDeliveryConfirmation,
   sendOrderCancelled,
@@ -106,6 +107,12 @@ export async function PUT(
     if (status) {
       void sendStatusEmail(id, status, order)
     }
+
+    logAdminEvent(user.id, 'update', 'order', id, {
+      status,
+      tracking_info,
+      notes,
+    })
 
     return NextResponse.json(order)
   } catch (error) {

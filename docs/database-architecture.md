@@ -541,21 +541,26 @@ Tracks sync provenance for listings and products. Replaces `sheets_row_id` on li
 
 ---
 
-### `sync_log`
+### `admin_log`
 
-Audit trail for sync operations.
+Audit trail for sync operations and admin actions.
 
-| Column         | Type        | Constraints                     | Description                         |
-| -------------- | ----------- | ------------------------------- | ----------------------------------- |
-| `id`           | uuid        | PK, default `gen_random_uuid()` |                                     |
-| `triggered_by` | text        | NOT NULL, default 'system'      | Who triggered the sync              |
-| `status`       | text        | NOT NULL, default 'running'     | running, completed, failed, partial |
-| `rows_synced`  | integer     | default 0                       |                                     |
-| `errors`       | jsonb       | default '[]'                    | Error details                       |
-| `started_at`   | timestamptz | NOT NULL, default now()         |                                     |
-| `completed_at` | timestamptz | nullable                        |                                     |
+| Column         | Type        | Constraints                     | Description                                |
+| -------------- | ----------- | ------------------------------- | ------------------------------------------ |
+| `id`           | uuid        | PK, default `gen_random_uuid()` |                                            |
+| `triggered_by` | text        | NOT NULL, default 'system'      | Who triggered the action                   |
+| `status`       | text        | NOT NULL, default 'running'     | running, completed, failed, partial        |
+| `rows_synced`  | integer     | default 0                       |                                            |
+| `errors`       | jsonb       | default '[]'                    | Error details                              |
+| `started_at`   | timestamptz | NOT NULL, default now()         |                                            |
+| `completed_at` | timestamptz | nullable                        |                                            |
+| `actor_id`     | uuid        | FK profiles(id)                 | Admin who performed the action             |
+| `action`       | text        | nullable                        | Action type (create, update, delete, sync) |
+| `entity_type`  | text        | nullable                        | Entity type (product, listing, etc)        |
+| `entity_id`    | text        | nullable                        | ID of the affected entity                  |
+| `details`      | jsonb       | nullable                        | Additional action context                  |
 
-**RLS:** Admin SELECT. Service role INSERT (via bypassing RLS).
+**RLS:** Admin SELECT. Service role INSERT.
 
 ---
 
@@ -615,7 +620,7 @@ The sync pipeline uses Google Sheets as a lightweight admin interface for catalo
 - Listings are upserted by SKU; new listings get auto-generated SKUs
 - Promotions are upserted by `(name, listing_sku/product_slug)` combination
 - The sync writes to `sync_metadata` for provenance tracking
-- The sync writes to `sync_log` for audit trail
+- The sync writes to `admin_log` for audit trail
 
 **User data (profiles, orders, reviews, wishlist) is NEVER synced via Sheets.** PII stays in the database and is managed exclusively through the admin UI.
 

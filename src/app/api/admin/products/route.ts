@@ -6,6 +6,7 @@ import {
   productCreateSchema,
 } from '@data/admin'
 import { createAdminClient } from '@lib/supabase/admin'
+import { logAdminEvent } from '@lib/data/audit'
 import { productSlug } from '@utils/slug'
 import { NextResponse } from 'next/server'
 
@@ -146,6 +147,8 @@ export async function POST(request: Request) {
     const product = await createProduct(parsed.data)
 
     await syncPrimaryCategory(product.id as string, categoryId)
+
+    logAdminEvent(user.id, 'create', 'product', product.id as string)
 
     return NextResponse.json(product, { status: 201 })
   } catch (error) {

@@ -2,6 +2,7 @@ import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
 import { deleteProduct, updateProduct, productUpdateSchema } from '@data/admin'
 import { createAdminClient } from '@lib/supabase/admin'
+import { logAdminEvent } from '@lib/data/audit'
 import { NextResponse } from 'next/server'
 
 async function syncPrimaryCategory(
@@ -101,6 +102,8 @@ export async function PUT(
       await syncPrimaryCategory(id, categoryId)
     }
 
+    logAdminEvent(user.id, 'update', 'product', id)
+
     return NextResponse.json(product)
   } catch (error) {
     console.error('Failed to update product:', error)
@@ -128,6 +131,7 @@ export async function DELETE(
 
     const { id } = await params
     await deleteProduct(id)
+    logAdminEvent(user.id, 'delete', 'product', id)
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Failed to delete product:', error)

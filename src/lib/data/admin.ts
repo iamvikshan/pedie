@@ -810,7 +810,7 @@ export async function getSyncHistory(
   const supabase = createAdminClient()
 
   const { data, error } = await supabase
-    .from('sync_log')
+    .from('admin_log')
     .select('*')
     .order('started_at', { ascending: false })
     .limit(limit)
@@ -834,7 +834,7 @@ export async function logSyncResult(input: {
   const supabase = createAdminClient()
 
   const { data, error } = await supabase
-    .from('sync_log')
+    .from('admin_log')
     .insert({
       triggered_by: input.triggered_by,
       status: input.status,

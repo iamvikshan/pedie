@@ -5,6 +5,7 @@ import {
   getAdminCategories,
   categoryCreateSchema,
 } from '@data/admin'
+import { logAdminEvent } from '@lib/data/audit'
 import { slugify } from '@utils/slug'
 import { NextResponse } from 'next/server'
 
@@ -77,6 +78,7 @@ export async function POST(request: Request) {
     }
 
     const category = await createCategory(parsed.data)
+    logAdminEvent(user.id, 'create', 'category', category.id as string)
     return NextResponse.json(category, { status: 201 })
   } catch (error) {
     console.error('Failed to create category:', error)

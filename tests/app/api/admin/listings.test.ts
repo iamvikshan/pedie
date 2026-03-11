@@ -15,6 +15,10 @@ mock.module('@lib/auth/admin', () => ({
   isUserAdmin: mockIsUserAdmin,
 }))
 
+mock.module('@lib/data/audit', () => ({
+  logAdminEvent: mock(),
+}))
+
 const mockGetAdminListings = mock<any>(() =>
   Promise.resolve({
     data: [],

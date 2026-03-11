@@ -621,9 +621,14 @@ export type Database = {
         }
         Relationships: []
       }
-      sync_log: {
+      admin_log: {
         Row: {
+          action: string | null
+          actor_id: string | null
           completed_at: string | null
+          details: Json | null
+          entity_id: string | null
+          entity_type: string | null
           errors: Json | null
           id: string
           rows_synced: number | null
@@ -632,7 +637,12 @@ export type Database = {
           triggered_by: string
         }
         Insert: {
+          action?: string | null
+          actor_id?: string | null
           completed_at?: string | null
+          details?: Json | null
+          entity_id?: string | null
+          entity_type?: string | null
           errors?: Json | null
           id?: string
           rows_synced?: number | null
@@ -641,7 +651,12 @@ export type Database = {
           triggered_by?: string
         }
         Update: {
+          action?: string | null
+          actor_id?: string | null
           completed_at?: string | null
+          details?: Json | null
+          entity_id?: string | null
+          entity_type?: string | null
           errors?: Json | null
           id?: string
           rows_synced?: number | null
@@ -649,7 +664,15 @@ export type Database = {
           status?: string
           triggered_by?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: 'admin_log_actor_id_fkey'
+            columns: ['actor_id']
+            isOneToOne: false
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
       }
       sync_metadata: {
         Row: {
