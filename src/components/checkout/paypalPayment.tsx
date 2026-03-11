@@ -1,11 +1,9 @@
 'use client'
 
 import { Button } from '@components/ui/button'
-import { kesToUsd } from '@utils/currency'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 interface PaypalPaymentProps {
-  amountKes: number
   orderId: string
   onSuccess: (paypalOrderId: string) => void
   onError: (message: string) => void
@@ -14,7 +12,6 @@ interface PaypalPaymentProps {
 type PaymentStatus = 'idle' | 'creating' | 'redirecting' | 'failed'
 
 export function PaypalPayment({
-  amountKes,
   orderId,
   onSuccess,
   onError,
@@ -48,7 +45,7 @@ export function PaypalPayment({
       const res = await fetch('/api/payments/paypal/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amountKes, orderId }),
+        body: JSON.stringify({ orderId }),
       })
 
       const data = await res.json()
@@ -154,22 +151,13 @@ export function PaypalPayment({
       setMessage(msg)
       onError(msg)
     }
-  }, [amountKes, orderId, onSuccess, onError])
-
-  const amountUsd = kesToUsd(amountKes)
+  }, [orderId, onSuccess, onError])
 
   return (
     <div className='space-y-4'>
       <div className='rounded-lg border border-pedie-border bg-pedie-card p-4'>
-        <div className='flex items-center justify-between'>
-          <span className='text-sm text-pedie-text-muted'>Amount (USD)</span>
-          <span className='text-lg font-semibold text-pedie-text'>
-            ${amountUsd}
-          </span>
-        </div>
-        <p className='mt-1 text-xs text-pedie-text-muted'>
-          Converted from KES {amountKes.toLocaleString('en-KE')} at approximate
-          rate
+        <p className='text-sm text-pedie-text-muted'>
+          You will be redirected to PayPal to complete your deposit payment.
         </p>
       </div>
 
@@ -222,7 +210,7 @@ export function PaypalPayment({
             ? 'Opening PayPal...'
             : status === 'failed'
               ? 'Retry with PayPal'
-              : `Pay $${amountUsd} with PayPal`}
+              : 'Pay with PayPal'}
       </Button>
     </div>
   )

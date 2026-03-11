@@ -9,7 +9,7 @@ import { PaypalPayment } from '@components/checkout/paypalPayment'
 import type { ShippingData } from '@components/checkout/shippingForm'
 import { ShippingForm } from '@components/checkout/shippingForm'
 import { Button } from '@components/ui/button'
-import { calculateDeposit, formatKes } from '@helpers'
+import { formatKes } from '@helpers'
 import { useCartStore } from '@lib/cart/store'
 import { useRouter } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
@@ -55,12 +55,7 @@ export default function CheckoutPage() {
     try {
       const orderItems = items.map(listing => ({
         listing_id: listing.id,
-        product_name: listing.product.name,
-        unit_price_kes: listing.sale_price_kes ?? listing.price_kes,
-        deposit_kes:
-          listing.listing_type === 'preorder'
-            ? calculateDeposit(listing.sale_price_kes ?? listing.price_kes)
-            : 0,
+        quantity: 1,
       }))
 
       const res = await fetch('/api/orders', {
@@ -68,9 +63,6 @@ export default function CheckoutPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           items: orderItems,
-          subtotal,
-          depositTotal,
-          shippingFee: SHIPPING_FEE,
           shippingAddress: {
             full_name: shipping.fullName,
             phone: shipping.phone,
@@ -95,7 +87,7 @@ export default function CheckoutPage() {
     } finally {
       setIsSubmitting(false)
     }
-  }, [shipping, items, subtotal, depositTotal, paymentMethod])
+  }, [shipping, items, paymentMethod])
 
   const handlePaymentSuccess = useCallback(
     (receipt: string) => {
@@ -255,7 +247,6 @@ export default function CheckoutPage() {
             />
           ) : (
             <PaypalPayment
-              amountKes={depositTotal}
               orderId={orderId}
               onSuccess={handlePaymentSuccess}
               onError={handlePaymentError}

@@ -1,10 +1,9 @@
 import { getUser } from '@helpers/auth'
 import type { CreateOrderInput } from '@data/orders'
-import { createOrder } from '@data/orders'
+import { createOrder, getOrderById } from '@data/orders'
 import { sendOrderConfirmation } from '@lib/email/send'
 import { NextResponse } from 'next/server'
 
-// TODO(security): Recompute prices server-side from listing_id lookups instead of trusting client payload
 export async function POST(request: Request) {
   try {
     const user = await getUser()
@@ -13,29 +12,36 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json()
-
-    const {
-      items,
-      subtotal,
-      depositTotal,
-      shippingFee,
-      shippingAddress,
-      paymentMethod,
-      paymentRef,
-      notes,
-    } = body
+    const { items, shippingAddress, paymentMethod, paymentRef, notes } = body
 
     if (
       !Array.isArray(items) ||
       items.length === 0 ||
-      subtotal == null ||
       !shippingAddress ||
       !paymentMethod
     ) {
       return NextResponse.json(
         {
           error:
-            'items (non-empty array), subtotal, shippingAddress, and paymentMethod are required',
+            'items (non-empty array), shippingAddress, and paymentMethod are required',
+        },
+        { status: 400 }
+      )
+    }
+
+    const validItems = items.every(
+      (i: unknown) =>
+        typeof i === 'object' &&
+        i !== null &&
+        typeof (i as Record<string, unknown>).listing_id === 'string' &&
+        Number.isInteger((i as Record<string, unknown>).quantity) &&
+        ((i as Record<string, unknown>).quantity as number) > 0
+    )
+    if (!validItems) {
+      return NextResponse.json(
+        {
+          error:
+            'Each item must have a listing_id (string) and quantity (positive integer)',
         },
         { status: 400 }
       )
@@ -43,10 +49,10 @@ export async function POST(request: Request) {
 
     const input: CreateOrderInput = {
       userId: user.id,
-      items,
-      subtotal,
-      depositTotal: depositTotal || 0,
-      shippingFee: shippingFee || 0,
+      items: items.map((i: { listing_id: string; quantity: number }) => ({
+        listing_id: i.listing_id,
+        quantity: i.quantity,
+      })),
       shippingAddress,
       paymentMethod,
       paymentRef,
@@ -55,22 +61,22 @@ export async function POST(request: Request) {
 
     const order = await createOrder(input)
 
-    // Fire-and-forget order confirmation email
     if (user.email) {
+      const fullOrder = await getOrderById(order.id)
       sendOrderConfirmation(user.email, {
         userName:
           user.user_metadata?.full_name ||
           user.user_metadata?.name ||
           'Customer',
         orderId: order.id,
-        items: items.map(
+        items: (fullOrder?.items ?? []).map(
           (item: { product_name: string; unit_price_kes: number }) => ({
             name: item.product_name,
             price: item.unit_price_kes,
           })
         ),
-        total: subtotal + (shippingFee || 0),
-        depositAmount: depositTotal || 0,
+        total: order.total_kes ?? 0,
+        depositAmount: order.deposit_amount_kes ?? 0,
         paymentMethod,
       }).catch(console.error)
     }

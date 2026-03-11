@@ -1,17 +1,16 @@
+import { getOrderById } from '@data/orders'
+import { getUser } from '@helpers/auth'
 import { createPayPalOrder, getApprovalUrl } from '@lib/payments/paypal'
 import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
   try {
-    const { amountKes, orderId, description } = await request.json()
-
-    const parsedAmount = Number(amountKes)
-    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
-      return NextResponse.json(
-        { error: 'amountKes must be a positive number' },
-        { status: 400 }
-      )
+    const user = await getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const { orderId } = await request.json()
 
     if (!orderId) {
       return NextResponse.json(
@@ -20,12 +19,32 @@ export async function POST(request: Request) {
       )
     }
 
-    const order = await createPayPalOrder({
-      amountKes: parsedAmount,
-      orderId,
-      description,
-    })
-    const approvalUrl = getApprovalUrl(order)
+    const order = await getOrderById(orderId)
+    if (!order || order.user_id !== user.id) {
+      return NextResponse.json(
+        { error: 'Order not available' },
+        { status: 400 }
+      )
+    }
+
+    if (order.status !== 'pending') {
+      return NextResponse.json(
+        { error: 'Order is not in pending status' },
+        { status: 400 }
+      )
+    }
+
+    const amountKes = order.deposit_amount_kes ?? 0
+
+    if (amountKes <= 0) {
+      return NextResponse.json(
+        { error: 'Order deposit amount must be positive' },
+        { status: 400 }
+      )
+    }
+
+    const paypalOrder = await createPayPalOrder({ amountKes, orderId })
+    const approvalUrl = getApprovalUrl(paypalOrder)
 
     if (!approvalUrl) {
       return NextResponse.json(
@@ -35,9 +54,9 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({
-      paypalOrderId: order.id,
+      paypalOrderId: paypalOrder.id,
       approvalUrl,
-      status: order.status,
+      status: paypalOrder.status,
     })
   } catch (error) {
     console.error('PayPal create error:', error)

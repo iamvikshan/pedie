@@ -2,7 +2,10 @@ import { getOrderById, updateOrderStatus } from '@data/orders'
 import { sendPaymentConfirmation } from '@lib/email/send'
 import { capturePayPalPayment } from '@lib/payments/paypal'
 import { createAdminClient } from '@lib/supabase/admin'
+import { kesToUsd } from '@utils/currency'
 import { NextResponse } from 'next/server'
+
+const AMOUNT_TOLERANCE_USD = 0.5
 
 export async function POST(request: Request) {
   try {
@@ -17,27 +20,55 @@ export async function POST(request: Request) {
 
     const result = await capturePayPalPayment(paypalOrderId)
     const captureId = result.purchase_units?.[0]?.payments?.captures?.[0]?.id
+    const capturedAmount =
+      result.purchase_units?.[0]?.payments?.captures?.[0]?.amount
     const orderId = result.purchase_units?.[0]?.reference_id
 
     if (result.status === 'COMPLETED' && orderId) {
+      const order = await getOrderById(orderId)
+      if (!order) {
+        console.error(`[SECURITY] PayPal capture for unknown order: ${orderId}`)
+        return NextResponse.json({ error: 'Order not found' }, { status: 404 })
+      }
+
+      if (order.status !== 'pending') {
+        console.error(
+          `[SECURITY] PayPal capture for non-pending order: ${orderId} (status: ${order.status})`
+        )
+        return NextResponse.json(
+          { error: 'Order is not in pending status' },
+          { status: 400 }
+        )
+      }
+
+      const expectedUsd = parseFloat(kesToUsd(order.deposit_amount_kes ?? 0))
+      const capturedUsd = parseFloat(capturedAmount?.value ?? '0')
+
+      if (Math.abs(capturedUsd - expectedUsd) > AMOUNT_TOLERANCE_USD) {
+        console.error(
+          `[SECURITY] PayPal amount mismatch for order ${orderId}: captured $${capturedUsd}, expected $${expectedUsd}`
+        )
+        return NextResponse.json(
+          { error: 'Payment amount mismatch' },
+          { status: 400 }
+        )
+      }
+
       await updateOrderStatus(orderId, 'confirmed', captureId)
 
       // Fire-and-forget email notification
       void (async () => {
         try {
-          const order = await getOrderById(orderId)
-          if (order?.user_id) {
+          if (order.user_id) {
             const supabase = createAdminClient()
             const { data: userData } = await supabase.auth.admin.getUserById(
               order.user_id
             )
-            const capturedAmount =
-              result.purchase_units?.[0]?.payments?.captures?.[0]?.amount
             if (userData?.user?.email) {
               await sendPaymentConfirmation(userData.user.email, {
                 userName: userData.user.user_metadata?.full_name || 'Customer',
                 orderId,
-                amount: Number(capturedAmount?.value ?? 0),
+                amount: capturedUsd,
                 paymentMethod: 'paypal',
                 receiptNumber: captureId ?? result.id ?? orderId,
               })
@@ -55,7 +86,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       status: result.status,
       captureId,
-      amount: result.purchase_units?.[0]?.payments?.captures?.[0]?.amount,
+      amount: capturedAmount,
     })
   } catch (error) {
     console.error('PayPal capture error:', error)
@@ -88,28 +119,59 @@ export async function GET(request: Request) {
 
     const orderId = result.purchase_units?.[0]?.reference_id
     const captureId = result.purchase_units?.[0]?.payments?.captures?.[0]?.id
+    const capturedAmount =
+      result.purchase_units?.[0]?.payments?.captures?.[0]?.amount
 
     if (result.status === 'COMPLETED') {
       if (orderId) {
+        const order = await getOrderById(orderId)
+
+        if (!order) {
+          console.error(
+            `[SECURITY] PayPal redirect capture for unknown order: ${orderId}`
+          )
+          return NextResponse.redirect(
+            new URL('/checkout?error=order_not_found', request.url)
+          )
+        }
+
+        if (order.status !== 'pending') {
+          console.error(
+            `[SECURITY] PayPal redirect capture for non-pending order: ${orderId} (status: ${order.status})`
+          )
+          return NextResponse.redirect(
+            new URL('/checkout?error=order_not_pending', request.url)
+          )
+        }
+
+        const expectedUsd = parseFloat(kesToUsd(order.deposit_amount_kes ?? 0))
+        const capturedUsd = parseFloat(capturedAmount?.value ?? '0')
+
+        if (Math.abs(capturedUsd - expectedUsd) > AMOUNT_TOLERANCE_USD) {
+          console.error(
+            `[SECURITY] PayPal redirect amount mismatch for order ${orderId}: captured $${capturedUsd}, expected $${expectedUsd}`
+          )
+          return NextResponse.redirect(
+            new URL('/checkout?error=amount_mismatch', request.url)
+          )
+        }
+
         await updateOrderStatus(orderId, 'confirmed', captureId)
 
         // Fire-and-forget email notification
         void (async () => {
           try {
-            const order = await getOrderById(orderId)
-            if (order?.user_id) {
+            if (order.user_id) {
               const supabase = createAdminClient()
               const { data: userData } = await supabase.auth.admin.getUserById(
                 order.user_id
               )
-              const capturedAmount =
-                result.purchase_units?.[0]?.payments?.captures?.[0]?.amount
               if (userData?.user?.email) {
                 await sendPaymentConfirmation(userData.user.email, {
                   userName:
                     userData.user.user_metadata?.full_name || 'Customer',
                   orderId,
-                  amount: Number(capturedAmount?.value ?? 0),
+                  amount: parseFloat(capturedAmount?.value ?? '0'),
                   paymentMethod: 'paypal',
                   receiptNumber: captureId ?? result.id ?? orderId,
                 })

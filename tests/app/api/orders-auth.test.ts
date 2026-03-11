@@ -13,13 +13,22 @@ mock.module('@helpers/auth', () => ({
 
 // Mock orders data
 const mockCreateOrder = mock(() =>
-  Promise.resolve({ id: 'order-new-123', status: 'pending' })
+  Promise.resolve({
+    id: 'order-new-123',
+    status: 'pending',
+    total_kes: 50000,
+    deposit_amount_kes: 2500,
+  })
 )
 
 mock.module('@data/orders', () => ({
   createOrder: mockCreateOrder,
   getOrderById: mock(() => Promise.resolve(null)),
   getOrdersByUser: mock(() => Promise.resolve([])),
+}))
+
+mock.module('@lib/email/send', () => ({
+  sendOrderConfirmation: mock(() => Promise.resolve()),
 }))
 
 // Import AFTER mocking
@@ -29,17 +38,7 @@ const { POST } = await import('@/app/api/orders/route')
 
 describe('POST /api/orders (auth)', () => {
   const validBody = {
-    items: [
-      {
-        listing_id: 'PD-ABC12',
-        product_name: 'iPhone 12',
-        unit_price_kes: 50000,
-        deposit_kes: 2500,
-      },
-    ],
-    subtotal: 50000,
-    depositTotal: 2500,
-    shippingFee: 0,
+    items: [{ listing_id: 'PD-ABC12', quantity: 1 }],
     shippingAddress: {
       full_name: 'John Doe',
       phone: '+254700000000',
@@ -57,6 +56,8 @@ describe('POST /api/orders (auth)', () => {
     mockCreateOrder.mockResolvedValue({
       id: 'order-new-123',
       status: 'pending',
+      total_kes: 50000,
+      deposit_amount_kes: 2500,
     })
   })
 
