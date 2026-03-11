@@ -710,7 +710,7 @@ export async function syncFromSheets(
   return report
 }
 
-const SHEET_HEADERS = [
+const listingHeaders = [
   'SKU',
   'Brand',
   'Model',
@@ -743,16 +743,16 @@ async function syncBrandsToSheet(
 
   if (error || !brands) return { rows: 0, errors: 1 }
 
-  const headers = [
-    'name',
-    'slug',
-    'logo_url',
-    'website_url',
-    'is_active',
-    'sort_order',
+  const brandHeaders = [
+    'Name',
+    'Slug',
+    'Logo URL',
+    'Website URL',
+    'Is Active',
+    'Sort Order',
   ]
   const rows: string[][] = [
-    headers,
+    brandHeaders,
     ...brands.map(b => [
       b.name,
       b.slug,
@@ -794,18 +794,18 @@ async function syncCategoriesToSheet(
 
   if (error || !categories) return { rows: 0, errors: 1 }
 
-  const headers = [
-    'name',
-    'slug',
-    'description',
-    'image_url',
-    'icon',
-    'parent_id',
-    'is_active',
-    'sort_order',
+  const categoriesHeaders = [
+    'Name',
+    'Slug',
+    'Description',
+    'Image URL',
+    'Icon',
+    'Parent ID',
+    'Is Active',
+    'Sort Order',
   ]
   const rows: string[][] = [
-    headers,
+    categoriesHeaders,
     ...categories.map(c => [
       c.name,
       c.slug,
@@ -849,20 +849,20 @@ async function syncPromotionsToSheet(
 
   if (error || !promotions) return { rows: 0, errors: 1 }
 
-  const headers = [
-    'name',
-    'type',
-    'listing_id',
-    'product_id',
-    'discount_pct',
-    'discount_amount_kes',
-    'starts_at',
-    'ends_at',
-    'is_active',
-    'sort_order',
+  const promotionsHeaders = [
+    'Name',
+    'Type',
+    'Listing ID',
+    'Product ID',
+    'Discount Pct',
+    'Discount Amount (KES)',
+    'Starts At',
+    'Ends At',
+    'Is Active',
+    'Sort Order',
   ]
   const rows: string[][] = [
-    headers,
+    promotionsHeaders,
     ...promotions.map(p => [
       p.name,
       p.type,
@@ -979,7 +979,7 @@ export async function syncToSheets(
       }
     }
 
-    /** Convert a listing row to a string array matching SHEET_HEADERS */
+    /** Convert a listing row to a string array matching listingHeaders */
     function toRow(listing: ListingRow): string[] {
       const product = listing.products as unknown as {
         name: string
@@ -1011,7 +1011,7 @@ export async function syncToSheets(
 
     if (mode === 'full') {
       // Full overwrite -- replace entire sheet
-      const sheetRows: string[][] = [SHEET_HEADERS]
+      const sheetRows: string[][] = [listingHeaders]
 
       for (const listing of listings) {
         try {
@@ -1066,7 +1066,7 @@ export async function syncToSheets(
             spreadsheetId,
             range: SHEETS_TAB.listings,
             valueInputOption: 'RAW',
-            requestBody: { values: [SHEET_HEADERS, ...newRows] },
+            requestBody: { values: [listingHeaders, ...newRows] },
           })
         } else {
           await sheetsClient.spreadsheets.values.append({

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { calculateDiscount, formatKes, getPricingTier } from '@helpers'
+import { calculateDiscount, formatKes } from '@helpers'
 import type { Listing, ProductFamily } from '@app-types/product'
 import { mockNextImage, mockNextLink, render, screen } from '../../utils'
 
@@ -35,21 +35,9 @@ describe('ProductFamilyCard Component', () => {
   })
 
   // Pure logic tests
-  test('sale tier: sale_price_kes < price_kes', () => {
-    const tier = getPricingTier({ price_kes: 150000, sale_price_kes: 100000 })
-    expect(tier).toBe('sale')
+  test('calculates discount correctly', () => {
     const discount = calculateDiscount(150000, 100000)
     expect(discount).toBe(33)
-  })
-
-  test('regular tier: no sale and price < 100000', () => {
-    const tier = getPricingTier({ price_kes: 50000 })
-    expect(tier).toBe('regular')
-  })
-
-  test('premium tier: no sale and price >= 100000', () => {
-    const tier = getPricingTier({ price_kes: 150000 })
-    expect(tier).toBe('premium')
   })
 
   test('formats price in KES', () => {

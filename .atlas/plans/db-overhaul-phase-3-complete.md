@@ -6,7 +6,7 @@ Rewrote the Google Sheets sync pipeline and promotions data layer to align with 
 - SheetRow interface rewritten: removed listing_id, source_listing_id, final_price_kes, original_price_kes, price_usd; added sale_price_kes, ram, includes, admin_notes, source_id
 - findOrCreateProduct() resolves brands via slug FK, creates products with brand_id, enforces product_categories junction (respects partial unique index for one-primary-per-product)
 - syncFromSheets() uses source_id for dedup, 'active' default status, 'archived' for soft-delete, includes new columns
-- syncToSheets() exports listings via SKU dedup, 18-column SHEET_HEADERS, plus Brands/Categories/Promotions tabs (tabs always exported even when no listing rows)
+- syncToSheets() exports listings via SKU dedup, 18-column listingHeaders, plus Brands/Categories/Promotions tabs (tabs always exported even when no listing rows)
 - applyPromotionDiscount() applies discount_pct or discount_amount_kes, preserves existing sale_price if better
 - getActivePromotions() queries promotions table with date bounds and is_active
 - fetchPromotionListings() merges sale_price listings with promotions table data (listing-targeted + product-targeted), allows product promos to improve existing listings

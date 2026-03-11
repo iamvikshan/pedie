@@ -4,8 +4,7 @@ import { createOrder } from '@data/orders'
 import { sendOrderConfirmation } from '@lib/email/send'
 import { NextResponse } from 'next/server'
 
-// TODO (Phase 6): Validate listing prices server-side to prevent client-side tampering.
-// Currently trusts client-supplied subtotal/depositTotal/shippingFee.
+// TODO(security): Recompute prices server-side from listing_id lookups instead of trusting client payload
 export async function POST(request: Request) {
   try {
     const user = await getUser()
@@ -65,8 +64,8 @@ export async function POST(request: Request) {
           'Customer',
         orderId: order.id,
         items: items.map(
-          (item: { listing_id: string; unit_price_kes: number }) => ({
-            name: item.listing_id,
+          (item: { product_name: string; unit_price_kes: number }) => ({
+            name: item.product_name,
             price: item.unit_price_kes,
           })
         ),

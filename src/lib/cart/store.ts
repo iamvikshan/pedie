@@ -30,29 +30,32 @@ export const useCartStore = create<CartStore>()(
           return
 
         const { items } = get()
-        if (items.some(item => item.listing_id === listing.listing_id)) return
+        if (items.some(item => item.id === listing.id)) return
         set({ items: [...items, listing] })
       },
 
       removeListing: listingId => {
         set({
-          items: get().items.filter(item => item.listing_id !== listingId),
+          items: get().items.filter(item => item.id !== listingId),
         })
       },
 
       clearCart: () => set({ items: [] }),
 
-      hasListing: listingId =>
-        get().items.some(item => item.listing_id === listingId),
+      hasListing: listingId => get().items.some(item => item.id === listingId),
 
       getTotal: () =>
-        get().items.reduce((sum, item) => sum + item.price_kes, 0),
+        get().items.reduce(
+          (sum, item) => sum + (item.sale_price_kes ?? item.price_kes),
+          0
+        ),
 
       getDepositTotal: () =>
         get()
           .items.filter(item => item.listing_type === 'preorder')
           .reduce(
-            (sum, item) => sum + calculateDeposit(item.final_price_kes),
+            (sum, item) =>
+              sum + calculateDeposit(item.sale_price_kes ?? item.price_kes),
             0
           ),
 

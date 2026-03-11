@@ -13,7 +13,7 @@ Replaced single-tab SHEETS_TAB_NAME config with multi-tab SHEETS_TAB object, add
 - Admin sync route accepts direction param ('pull' | 'push' | 'both')
 - Admin listing create/update fire-and-forget syncToSheets via dynamic import
 - Apps Script template default tab name updated to 'Listings'
-- Human-readable SHEET_HEADERS used for export columns
+- Human-readable listingHeaders used for export columns
 - Case-insensitive SKU header matching for additive sync mode
 - All Google Sheets API calls wrapped in try/catch per CodeRabbit feedback
 

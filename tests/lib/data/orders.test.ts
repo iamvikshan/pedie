@@ -9,6 +9,7 @@ describe('Order Management', () => {
         items: [
           {
             listing_id: 'listing-1',
+            product_name: 'iPhone 12',
             unit_price_kes: 50000,
             deposit_kes: 2500,
           },
@@ -46,9 +47,24 @@ describe('Order Management', () => {
 
     test('supports multiple items', () => {
       const items = [
-        { listing_id: 'l1', unit_price_kes: 30000, deposit_kes: 1500 },
-        { listing_id: 'l2', unit_price_kes: 50000, deposit_kes: 2500 },
-        { listing_id: 'l3', unit_price_kes: 80000, deposit_kes: 8000 },
+        {
+          listing_id: 'l1',
+          product_name: 'iPhone 12',
+          unit_price_kes: 30000,
+          deposit_kes: 1500,
+        },
+        {
+          listing_id: 'l2',
+          product_name: 'iPhone 13',
+          unit_price_kes: 50000,
+          deposit_kes: 2500,
+        },
+        {
+          listing_id: 'l3',
+          product_name: 'iPhone 14',
+          unit_price_kes: 80000,
+          deposit_kes: 8000,
+        },
       ]
 
       const subtotal = items.reduce((sum, i) => sum + i.unit_price_kes, 0)

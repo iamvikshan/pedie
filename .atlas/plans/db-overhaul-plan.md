@@ -47,7 +47,7 @@ Overhaul the Pedie database schema from a phone-centric PoC to an industry-stand
      - `final_price_kes` column -> does not exist (use `sale_price_kes`)
      - Missing fields to add: `ram`, `sale_price_kes`, `includes`, `admin_notes`, `warranty_months`
    - **Files/Functions:**
-     - `src/lib/sheets/sync.ts` -- rewrite `findOrCreateProduct()` (brand FK, junction table), rewrite `syncFromSheets()` listing data (fix all column refs), rewrite `syncToSheets()` (new select + toRow + SHEET_HEADERS), add Brands/Categories/Promotions sheet export
+     - `src/lib/sheets/sync.ts` -- rewrite `findOrCreateProduct()` (brand FK, junction table), rewrite `syncFromSheets()` listing data (fix all column refs), rewrite `syncToSheets()` (new select + toRow + listingHeaders), add Brands/Categories/Promotions sheet export
      - `src/lib/sheets/parser.ts` -- update `SheetRow` type: remove `listing_id`/`final_price_kes`/`source_listing_id`, add `sale_price_kes`/`ram`/`includes`/`admin_notes`/`warranty_months`/`source_id`
      - `src/lib/data/listings.ts` -- extend `fetchPromotionListings()` to query `promotions` table (date-bounded, `is_active`), apply `discount_pct`/`discount_amount_kes`, merge with `sale_price_kes` listings
      - `src/lib/sync/conditionMapping.ts` -- add `new` and `for_parts` mappings
@@ -68,7 +68,7 @@ Overhaul the Pedie database schema from a phone-centric PoC to an industry-stand
      - `src/lib/sheets/parser.ts` -- update header mapping for human-readable names (e.g. "Price (KES)" -> `price_kes`, "Listing Type" -> `listing_type`)
      - `src/lib/sheets/sync.ts`:
        - Use `SHEETS_TAB.*` constants throughout (replace hardcoded 'brands', 'categories', 'promotions' range strings)
-       - Add human-readable `SHEET_HEADERS` mapping (display name <-> field name)
+       - Add human-readable `listingHeaders` mapping (display name <-> field name)
        - Add `syncBrandsFromSheet()`, `syncCategoriesFromSheet()`, `syncProductsFromSheet()`, `syncPromotionsFromSheet()` import functions
        - Add loop-prevention: check `sync_metadata.last_synced_at` vs `updated_at`, accept `source` flag ('admin' | 'sheets' | 'system') to skip same-source re-sync
        - `syncFromSheets()` reads all tabs, not just listings
@@ -107,28 +107,33 @@ Overhaul the Pedie database schema from a phone-centric PoC to an industry-stand
      - Role assignment updates profile
    - **Quality Gates:** `bun check` -> `bun test`
 
-5. **[ ] Phase 5A: Cart, Pricing & Core Type Consumers**
+5. **[x] Phase 5A: Cart, Pricing & Core Type Consumers**
    - **Objective:** Fix the cart system, remove `getPricingTier`/`PricingTier` (keep other pricing helpers), and update core type consumers that listing/catalog components depend on.
+   - **Summary:** Fixed cart identity (listing.id), effective pricing (sale_price_kes ?? price_kes) in getTotal/getDepositTotal, conditional deposit for preorder only, product_name in orders/email. Removed getPricingTier/PricingTier. 13 files changed, 25 tests passing in modified files.
+   - **Changes from plan:** Removed 'onsale' status test (not valid enum). 20 consumer test failures remain (Phase 5C scope).
+   - **[Phase 5A Details](.atlas/plans/db-overhaul-phase-5A-complete.md)**
    - **Files/Functions to modify:**
-     - `src/lib/cart/store.ts` -- replace `listing.listing_id` with `listing.id`; replace `item.final_price_kes` with `item.sale_price_kes ?? item.price_kes` for totals; use same effective price for `calculateDeposit()`
-     - `src/components/cart/cartItem.tsx` -- update price display: `price_kes` as regular price, `sale_price_kes` as discounted; remove `original_price_kes`/`final_price_kes` refs
+     - `src/lib/cart/store.ts` -- replace `listing.listing_id` with `listing.id`; replace `item.final_price_kes` with `item.sale_price_kes ?? item.price_kes` for totals; update `getTotal()` to also use `sale_price_kes ?? price_kes` (currently uses bare `price_kes` which is now the base price, not effective price); use same effective price for `calculateDeposit()`
+     - `src/components/cart/cartItem.tsx` -- update price display: `price_kes` as regular price, `sale_price_kes` as discounted; remove `original_price_kes`/`final_price_kes` refs; fix `product.brand` -> `product.brand.name`, `product.model` -> `product.name`; use `listing.sku` for display badge and `listing.id` for store key/remove call
      - `src/app/(store)/cart/client.tsx` -- fix `listing_id` -> `listing.id`
-     - `src/app/(store)/checkout/page.tsx` -- fix `listing_id` and price field references
+     - `src/app/(store)/checkout/page.tsx` -- ensure deposit calculation uses `sale_price_kes ?? price_kes`; update `unit_price_kes` to `listing.sale_price_kes ?? listing.price_kes` (currently records base price, not effective price); verify no remaining `listing.listing_id` refs (file already uses `.id`); add `product_name: listing.product.name` to `orderItems` map (required by `CreateOrderInput`)
      - `src/helpers/pricing.ts` -- remove ONLY `getPricingTier()` function and `PricingTier` type export; keep `calculateDeposit`, `formatKes`, `usdToKes`, `calculateDiscount`
      - `src/helpers/index.ts` -- verify barrel re-export still works after removal
      - `src/app/api/orders/route.ts` -- verify listing_id usage (valid FK); fix email items map: replace `name: item.listing_id` with `name: item.product_name` so confirmation emails show product names instead of UUIDs
      - `src/components/orders/orderItems.tsx` -- fix any listing_id display references
    - **Tests to update:**
-     - `tests/lib/cart/store.test.ts` (26 errors) -- update mock data: remove `final_price_kes`, add `price_kes`/`sale_price_kes`/`sku`/`product_id`; fix assertions
+     - `tests/lib/cart/store.test.ts` (26 errors) -- update mock data: remove `final_price_kes` from all `makeListing()` overrides, add `price_kes`/`sale_price_kes`/`sku`/`product_id`; update nested `product` shape: `brand` -> `{ id, name, slug, ... }` (Brand object), rename `model` -> `name`; update all `items[0].listing_id` assertions to `.id`; fix price assertions; replace `status: 'available'` with `'active'`, `status: 'onsale'` with `'active'`; add test case where `sale_price_kes < price_kes` to verify `getTotal()` uses effective price
      - `tests/packages/pricing.test.ts` -- remove only the `getPricingTier` describe block; keep tests for surviving functions
      - `tests/lib/data/orders.test.ts` (1 error) -- add missing `product_name` to mock `CreateOrderInput` items
-   - **Quality Gates:** `bun run f` -> `bun check` (expect remaining errors only in phases 5B/5C scope) -> `bun test`
+     - `tests/components/ui/product-card.test.tsx` -- remove inline test case calling `getPricingTier` directly (1 test); remove `getPricingTier` from import line
+     - `tests/components/ui/product-family-card.test.tsx` -- remove inline test cases calling `getPricingTier` directly (3 tests: 'sale tier', 'regular tier', 'premium tier'); remove `getPricingTier` from import line
+   - **Quality Gates:** `bun run f` -> `bun check` (expected residual errors: `productCard.tsx` and `productFamilyCard.tsx` will have broken `getPricingTier` import until 5C; listing component errors until 5B) -> `bun test`
 
 6. **[ ] Phase 5B: Listing Components & Detail Pages**
    - **Objective:** Update all listing display components and the listing detail page for the new schema. Rename route from `[listingId]` to `[sku]`.
    - **Files/Functions to modify:**
      - `src/components/listing/productDetailClient.tsx` -- replace `listing_id` with `listing.id`, `product.model` with `product.name`, `product.brand` (string) with `product.brand.name`, `product.category` with category from junction, `original_price_kes`/`final_price_kes` with `price_kes`/`sale_price_kes`
-     - `src/components/listing/listingInfo.tsx` -- `price_kes`/`sale_price_kes` instead of `final_price_kes`/`original_price_kes`
+     - `src/components/listing/listingInfo.tsx` -- `price_kes`/`sale_price_kes` instead of `final_price_kes`/`original_price_kes`; `listing.listing_id` -> `listing.sku`; `product.brand` -> `product.brand.name`; `product.model` -> `product.name`; remove `listing.carrier` block (carrier removed from schema)
      - `src/components/listing/addToCart.tsx` -- `listing.listing_id` -> `listing.id` (UUID for cart store identification)
      - `src/components/listing/similarListings.tsx` -- update listing field references
      - `src/components/listing/betterDealNudge.tsx` -- `betterDeal.listing_id` -> `betterDeal.sku` in href URL (component has no source_id/source_listing_id)
@@ -136,10 +141,10 @@ Overhaul the Pedie database schema from a phone-centric PoC to an industry-stand
      - `src/components/listing/priceDisplay.tsx` -- make `originalPriceKes` prop optional (`number | null`), guard `calculateDiscount` and `formatKes` calls for null
      - `src/components/listing/youMayAlsoLike.tsx` -- update listing field references
      - `src/lib/data/listings.ts` -- add `getListingBySku(sku: string)` function that queries `.eq('sku', sku)` instead of `.eq('id', ...)`. Keep existing `getListingById()` for admin UUID lookups.
-     - `src/app/(store)/listings/[listingId]/` -- RENAME directory to `[sku]/`; update `page.tsx`: look up listing via new `getListingBySku()`, fix all field refs (`model`->`product.name`, `category`->`product_categories`, `listing_id`->`id`, `final_price_kes`->`sale_price_kes`, `original_price_kes` removed, `category_id` type fix)
-     - `src/app/(store)/products/[slug]/page.tsx` -- fix `product.brand`/`product.model` -> `product.brand.name`/`product.name`, `final_price_kes`->`sale_price_kes`, `category_id`->`product_categories`, `product.category` references
-     - `src/app/sitemap.ts` -- update listing URLs from `l.id` to `l.sku`; update category derivation to use junction table
-   - **Redirect strategy:** Add a rewrite/redirect in `next.config.ts` for `/listings/:id([0-9a-f-]{36})` -> `/listings/:sku` if needed, or accept the break (AGENTS.md permits breaking changes). Decision: accept break -- URLs are not indexed yet (pre-launch product).
+     - `src/app/(store)/listings/[listingId]/` -- RENAME directory to `[sku]/` (move both `page.tsx` and `loading.tsx`); update `page.tsx`: look up listing via new `getListingBySku()`, fix all field refs (`model`->`product.name`, `category`->`product_categories`, `listing_id`->`id`, `final_price_kes`->`sale_price_kes`, `original_price_kes` removed, `category_id` type fix); update `getRelatedListings` call to pass only `listing.product_id` (remove category_id arg)
+     - `src/app/(store)/products/[slug]/page.tsx` -- fix `product.brand`/`product.model` -> `product.brand.name`/`product.name`, `final_price_kes`->`sale_price_kes`, `category_id`->`product_categories`, `product.category` references; update `getRelatedListings` call to pass only `product.id` (remove category_id arg)
+     - `src/app/sitemap.ts` -- update `.select('id, updated_at')` to `.select('sku, updated_at')`; update listing URLs from `l.id` to `l.sku`; update category derivation to use junction table
+   - **Redirect strategy:** Accept the `/listings/[uuid]` -> `/listings/[sku]` URL break (AGENTS.md permits breaking changes, pre-launch product, URLs not indexed). Document the breaking change in Phase 6 docs.
    - **Tests to update:**
      - `tests/components/listing/variant-selector.test.tsx` (5 errors) -- update mock listing shape
      - `tests/components/listing/add-to-cart.test.tsx` (2 errors) -- update mock listing shape
@@ -155,9 +160,10 @@ Overhaul the Pedie database schema from a phone-centric PoC to an industry-stand
        - `src/components/catalog/activeFilters.tsx` -- align with new filter shape (no carrier)
        - `src/components/catalog/productGrid.tsx` -- update listing field mapping
        - `src/components/home/customerFavorites.tsx` -- fix `product.brand`/`product.model` -> `product.brand.name`/`product.name`, fix price fields
-       - `src/components/ui/productCard.tsx` -- promotion badges, `sale_price_kes` display logic
-       - `src/components/ui/productFamilyCard.tsx` -- updated pricing fields
        - `src/components/layout/searchBar.tsx` -- fix category references if any
+     - **UI components (resolves 5A residual):**
+       - `src/components/ui/productCard.tsx` -- inline `isSale = (listing.sale_price_kes != null && listing.sale_price_kes < listing.price_kes)`; remove `getPricingTier`/`PricingTier` import; promotion badges, `sale_price_kes` display logic
+       - `src/components/ui/productFamilyCard.tsx` -- inline `isSale` logic; remove `getPricingTier`/`PricingTier` import; updated pricing fields
      - **Storefront pages:**
        - `src/app/(store)/shop/page.tsx` -- remove `carrier` from filters
        - `src/app/(store)/collections/[slug]/page.tsx` -- remove `carrier` from filters
@@ -172,13 +178,13 @@ Overhaul the Pedie database schema from a phone-centric PoC to an industry-stand
        - `src/app/(admin)/admin/listings/[id]/client.tsx` -- fix `Product` type usage (brand/model shape)
        - `src/app/(admin)/admin/listings/new/client.tsx` -- fix `Product` type usage
        - `src/app/(admin)/admin/products/columns.tsx` -- update local `ProductRow` interface: `brand`/`model` -> `name`/`brand: { name }`
-       - `src/app/(admin)/admin/reviews/columns.tsx` -- update `ReviewRow.product` interface
+       - `src/app/(admin)/admin/reviews/columns.tsx` -- update local `ReviewRow` interface: `product: { brand: { name: string }; name: string } | null`; update cell renderer: `product.brand` -> `product.brand?.name`, `product.model` -> `product.name`
        - `src/app/(admin)/admin/prices/page.tsx` -- update `ComparisonRow.product` interface
        - `src/app/(admin)/admin/orders/[id]/page.tsx` -- replace `listing_id` display with `listing.sku`, fix `product.brand`/`product.model`
      - **Account pages:**
        - `src/app/(account)/account/wishlist/page.tsx` -- remove `original_price_kes`, update `product.brand`/`product.model` to `product.brand.name`/`product.name`
      - **Dead code deletion:**
-       - DELETE `scripts/crawlers/` directory if present (all files commented out)
+       - Verify `scripts/crawlers/` does not exist (already removed in earlier phases). If somehow present, delete it.
        - Note: `.github/workflows/crawler.yml` and `tests/scripts/crawlers/` were already removed in earlier phases -- skip if absent
    - **Tests to update:**
      - `tests/components/catalog/filter-sidebar.test.tsx` (1 error) -- remove carrier filter mock
@@ -187,7 +193,12 @@ Overhaul the Pedie database schema from a phone-centric PoC to an industry-stand
      - `tests/components/layout/sidebarPanel.test.tsx` (2 errors) -- update mock shape
      - `tests/lib/auth/helpers.test.ts` (1 error) -- fix type mismatch
      - `tests/lib/data/wishlist.test.ts` (1 error) -- update mock listing shape
-     - `tests/lib/data/listings.test.ts` (2 errors) -- update mock/assertion shape
+     - `tests/lib/data/listings.test.ts` (2 errors) -- BEHAVIORAL REWRITE required: test asserting `listing.listing_id` by field name must become `listing.sku` with `getListingBySku` function; not just a mock-shape swap
+     - `tests/app/products/page.test.tsx` -- source-analysis: update `product.brand`/`product.model` assertions
+     - `tests/app/listings/page.test.tsx` -- update mock data: remove `listing_id`, `source_listing_id`, `original_price_kes`; update dynamic import path from `[listingId]/page` to `[sku]/page`; update `readFileSync` path string; change `Promise.resolve({ listingId })` to `{ sku }`; update content assertions for SKU format
+     - `tests/lib/data/search.test.ts` -- update mock data: remove `listing_id`, `source_listing_id`, `original_price_kes`
+     - `tests/lib/data/admin.test.ts` -- update mock listing IDs from string to UUID format
+     - `tests/app/admin/orders.test.tsx` -- update mock data: remove `listing_id`
    - **Quality Gates:** `bun run f` -> `bun check` (ZERO errors required) -> `bun test`
 
 8. **[ ] Phase 6: Documentation & Build Validation**
@@ -196,6 +207,7 @@ Overhaul the Pedie database schema from a phone-centric PoC to an industry-stand
      - `docs/product-architecture.md` -- update data model section: Product (brand_id FK, no model/brand strings), Listing (id+sku, price_kes/sale_price_kes, no final_price_kes/original_price_kes), ProductFamily, category junction, promotion system
      - `docs/database-architecture.md` -- verify accuracy against live schema; update any sections referencing old column names or old migration file names
      - `docs/DESIGN.md` -- update if component naming or UI patterns changed (productCard pricing display, promotion badges)
+     - Note: document the `/listings/[uuid]` -> `/listings/[sku]` URL breaking change in product-architecture.md
    - **Quality Gates:** `bun run f` -> `bun check` -> `bun test` -> `bun run build`
 
 ---

@@ -29,18 +29,3 @@ export function calculateDiscount(original: number, current: number): number {
   const discount = Math.round(((original - current) / original) * 100)
   return Math.max(0, Math.min(100, discount))
 }
-
-export type PricingTier = 'sale' | 'regular' | 'premium'
-
-export function getPricingTier(listing: {
-  price_kes: number
-  sale_price_kes?: number | null
-}): PricingTier {
-  if (
-    listing.sale_price_kes != null &&
-    listing.sale_price_kes < listing.price_kes
-  )
-    return 'sale'
-  if (listing.price_kes >= 100000) return 'premium'
-  return 'regular'
-}

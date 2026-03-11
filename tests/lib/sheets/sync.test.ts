@@ -505,7 +505,7 @@ describe('sync source analysis', () => {
     expect(src).toContain('product_categories')
   })
 
-  test('includes sku in SHEET_HEADERS', () => {
+  test('includes sku in listingHeaders', () => {
     expect(src).toContain("'sku'")
   })
 
@@ -536,7 +536,7 @@ describe('SHEETS_TAB config', () => {
 })
 
 describe('human-readable headers round-trip', () => {
-  test('SHEET_HEADERS in sync.ts use human-readable names', () => {
+  test('listingHeaders in sync.ts use human-readable names', () => {
     expect(src).toContain("'SKU'")
     expect(src).toContain("'Brand'")
     expect(src).toContain("'Price (KES)'")

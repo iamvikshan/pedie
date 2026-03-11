@@ -30,7 +30,12 @@ const { POST } = await import('@/app/api/orders/route')
 describe('POST /api/orders (auth)', () => {
   const validBody = {
     items: [
-      { listing_id: 'PD-ABC12', unit_price_kes: 50000, deposit_kes: 2500 },
+      {
+        listing_id: 'PD-ABC12',
+        product_name: 'iPhone 12',
+        unit_price_kes: 50000,
+        deposit_kes: 2500,
+      },
     ],
     subtotal: 50000,
     depositTotal: 2500,

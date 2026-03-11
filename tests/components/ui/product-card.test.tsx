@@ -2,7 +2,7 @@ import { describe, expect, test } from 'bun:test'
 import type { ListingWithProduct } from '@app-types/product'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { calculateDiscount, formatKes, getPricingTier } from '@helpers'
+import { calculateDiscount, formatKes } from '@helpers'
 import { mockNextImage, mockNextLink, render, screen } from '../../utils'
 
 mockNextLink()
@@ -66,9 +66,7 @@ describe('ProductCard Component', () => {
   }
 
   // Pure logic tests
-  test('tier 1 (sale): sale_price_kes < price_kes', () => {
-    const tier = getPricingTier({ price_kes: 150000, sale_price_kes: 100000 })
-    expect(tier).toBe('sale')
+  test('calculates discount correctly', () => {
     const discount = calculateDiscount(150000, 100000)
     expect(discount).toBe(33)
   })

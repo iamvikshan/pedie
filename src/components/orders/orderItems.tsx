@@ -26,7 +26,8 @@ export function OrderItemsList({ items }: OrderItemsListProps) {
             className='flex items-center justify-between py-3 first:pt-0 last:pb-0'
           >
             <div>
-              <p className='text-sm font-mono text-pedie-text-muted'>
+              <p className='text-sm text-pedie-text'>{item.product_name}</p>
+              <p className='text-xs font-mono text-pedie-text-muted'>
                 {item.listing_id?.slice(0, 12)}...
               </p>
             </div>

@@ -55,8 +55,12 @@ export default function CheckoutPage() {
     try {
       const orderItems = items.map(listing => ({
         listing_id: listing.id,
-        unit_price_kes: listing.price_kes,
-        deposit_kes: calculateDeposit(listing.price_kes),
+        product_name: listing.product.name,
+        unit_price_kes: listing.sale_price_kes ?? listing.price_kes,
+        deposit_kes:
+          listing.listing_type === 'preorder'
+            ? calculateDeposit(listing.sale_price_kes ?? listing.price_kes)
+            : 0,
       }))
 
       const res = await fetch('/api/orders', {
@@ -222,11 +226,7 @@ export default function CheckoutPage() {
               onClick={orderId ? () => setStep(3) : handleCreateOrder}
               disabled={isSubmitting}
             >
-              {isSubmitting
-                ? 'Creating Order...'
-                : orderId
-                  ? 'Continue to Payment'
-                  : 'Continue to Payment'}
+              {isSubmitting ? 'Creating Order...' : 'Continue to Payment'}
             </Button>
           </div>
         </div>

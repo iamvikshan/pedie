@@ -3,7 +3,6 @@ import {
   calculateDeposit,
   calculateDiscount,
   formatKes,
-  getPricingTier,
   usdToKes,
 } from '@helpers/pricing'
 import { DEPOSIT_THRESHOLD_KES, KES_USD_RATE } from '@/config'
@@ -71,45 +70,5 @@ describe('calculateDiscount', () => {
 
   test('rounds to nearest integer', () => {
     expect(calculateDiscount(300, 200)).toBe(33)
-  })
-})
-
-describe('getPricingTier', () => {
-  test("returns 'sale' when sale_price_kes is set and lower than price_kes", () => {
-    expect(getPricingTier({ price_kes: 150000, sale_price_kes: 100000 })).toBe(
-      'sale'
-    )
-  })
-
-  test("returns 'regular' when no sale and price < 100000", () => {
-    expect(getPricingTier({ price_kes: 50000 })).toBe('regular')
-  })
-
-  test("returns 'premium' when no sale and price >= 100000", () => {
-    expect(getPricingTier({ price_kes: 150000 })).toBe('premium')
-  })
-
-  test("returns 'regular' when sale_price_kes is null", () => {
-    expect(getPricingTier({ price_kes: 50000, sale_price_kes: null })).toBe(
-      'regular'
-    )
-  })
-
-  test("returns 'premium' when sale_price_kes equals price_kes (not a discount)", () => {
-    expect(getPricingTier({ price_kes: 150000, sale_price_kes: 150000 })).toBe(
-      'premium'
-    )
-  })
-
-  test("returns 'sale' for small discount with sale_price_kes", () => {
-    expect(getPricingTier({ price_kes: 150000, sale_price_kes: 149000 })).toBe(
-      'sale'
-    )
-  })
-
-  test("returns 'regular' when sale_price_kes exceeds price_kes", () => {
-    expect(getPricingTier({ price_kes: 50000, sale_price_kes: 60000 })).toBe(
-      'regular'
-    )
   })
 })

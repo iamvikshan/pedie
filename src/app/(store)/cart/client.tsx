@@ -53,7 +53,7 @@ export function CartPageClient() {
       <div className='grid gap-8 lg:grid-cols-3'>
         <div className='lg:col-span-2 space-y-4'>
           {items.map(item => (
-            <CartItem key={item.listing_id} listing={item} />
+            <CartItem key={item.id} listing={item} />
           ))}
         </div>
 
