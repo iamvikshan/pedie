@@ -1,6 +1,10 @@
 import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
-import { createCategory, getAdminCategories } from '@data/admin'
+import {
+  createCategory,
+  getAdminCategories,
+  categoryCreateSchema,
+} from '@data/admin'
 import { slugify } from '@utils/slug'
 import { NextResponse } from 'next/server'
 
@@ -64,7 +68,15 @@ export async function POST(request: Request) {
       sort_order: body.sort_order,
     }
 
-    const category = await createCategory(allowed)
+    const parsed = categoryCreateSchema.safeParse(allowed)
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Invalid category data' },
+        { status: 400 }
+      )
+    }
+
+    const category = await createCategory(parsed.data)
     return NextResponse.json(category, { status: 201 })
   } catch (error) {
     console.error('Failed to create category:', error)

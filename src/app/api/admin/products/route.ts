@@ -1,6 +1,10 @@
 import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
-import { createProduct, getAdminProducts } from '@data/admin'
+import {
+  createProduct,
+  getAdminProducts,
+  productCreateSchema,
+} from '@data/admin'
 import { createAdminClient } from '@lib/supabase/admin'
 import { productSlug } from '@utils/slug'
 import { NextResponse } from 'next/server'
@@ -131,7 +135,15 @@ export async function POST(request: Request) {
       specs: body.specs,
     }
 
-    const product = await createProduct(allowed)
+    const parsed = productCreateSchema.safeParse(allowed)
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Invalid product data' },
+        { status: 400 }
+      )
+    }
+
+    const product = await createProduct(parsed.data)
 
     await syncPrimaryCategory(product.id as string, categoryId)
 

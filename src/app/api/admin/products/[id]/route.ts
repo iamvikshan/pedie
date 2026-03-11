@@ -1,6 +1,6 @@
 import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
-import { deleteProduct, updateProduct } from '@data/admin'
+import { deleteProduct, updateProduct, productUpdateSchema } from '@data/admin'
 import { createAdminClient } from '@lib/supabase/admin'
 import { NextResponse } from 'next/server'
 
@@ -87,7 +87,15 @@ export async function PUT(
       )
     }
 
-    const product = await updateProduct(id, filtered)
+    const parsed = productUpdateSchema.safeParse(filtered)
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Invalid product data' },
+        { status: 400 }
+      )
+    }
+
+    const product = await updateProduct(id, parsed.data)
 
     if (body.category_id !== undefined) {
       await syncPrimaryCategory(id, categoryId)

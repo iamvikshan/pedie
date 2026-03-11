@@ -1,13 +1,24 @@
 import { getOrderById } from '@data/orders'
 import { getUser } from '@helpers/auth'
 import { createPayPalOrder, getApprovalUrl } from '@lib/payments/paypal'
+import { createRateLimiter } from '@lib/security/rateLimit'
 import { NextResponse } from 'next/server'
+
+const rateLimiter = createRateLimiter('paypal-create', {
+  requests: 5,
+  window: '1 m',
+})
 
 export async function POST(request: Request) {
   try {
     const user = await getUser()
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { success } = await rateLimiter.limit(user.id)
+    if (!success) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
     }
 
     const { orderId } = await request.json()
@@ -59,7 +70,8 @@ export async function POST(request: Request) {
       status: paypalOrder.status,
     })
   } catch (error) {
-    console.error('PayPal create error:', error)
+    const errorName = error instanceof Error ? error.name : 'UnknownError'
+    console.error('PayPal create error:', { errorType: errorName })
     return NextResponse.json(
       { error: 'Failed to create PayPal order' },
       { status: 500 }

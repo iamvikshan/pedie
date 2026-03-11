@@ -46,7 +46,7 @@ Harden the Pedie e-commerce application against OWASP Top 10 vulnerabilities ide
      7. Write tests
      8. Run quality gates
 
-2. **[ ] Phase 2: Server-Side Pricing Trust (CRITICAL)**
+2. **[x] Phase 2: Server-Side Pricing Trust (CRITICAL)**
    - **Objective:** Re-derive all order totals server-side from listing prices in the database. Clients send only listing IDs and quantities, never prices. Close the PayPal create route pricing leak.
    - **Files/Functions to create/modify:**
      - `src/lib/data/orders.ts` -- Modify `CreateOrderInput` interface: remove `subtotal`, `depositTotal`, `shippingFee`, `items[].unit_price_kes`, `items[].deposit_kes`, `items[].product_name`. New `items` shape: `{ listing_id: string; quantity: number }[]`. Modify `createOrder()` to: (a) fetch listing rows by listing_id from DB, (b) derive `product_name` from listing's product.name, (c) compute `unit_price_kes` as effective price (isSale logic), (d) compute `deposit_kes` via `calculateDeposit()`, (e) sum `subtotal_kes`, `deposit_total`, `shipping_fee`.
@@ -77,6 +77,8 @@ Harden the Pedie e-commerce application against OWASP Top 10 vulnerabilities ide
      6. Add PayPal capture amount verification with tolerance
      7. Write tests
      8. Run quality gates
+   - **Summary:** Simplified CreateOrderInput to {listing_id, quantity}[] only. createOrder() now fetches listings from DB, computes all pricing server-side. PayPal create route requires auth + ownership, derives amount from DB. Capture routes verify amount with +/-$0.50 tolerance and check pending status before confirming. 24 new tests across 3 test files.
+   - **[Phase 2 Details](.atlas/plans/security-hardening-phase-2-complete.md)**
 
 3. **[ ] Phase 3: Rate Limiting & Input Validation (HIGH)**
    - **Objective:** Add Upstash-backed rate limiting to abuse-prone endpoints. Add Zod schema validation for admin routes, replacing manual allowlisting and `as never` casts. Sanitize admin email fields. Fix resolve-username user enumeration vulnerability.

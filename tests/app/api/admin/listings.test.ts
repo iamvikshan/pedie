@@ -31,7 +31,22 @@ const mockUpdateListing = mock<any>(() =>
 )
 const mockDeleteListing = mock<any>(() => Promise.resolve(true))
 
+const {
+  listingCreateSchema,
+  listingUpdateSchema,
+  productCreateSchema,
+  productUpdateSchema,
+  categoryCreateSchema,
+  categoryUpdateSchema,
+} = await import('@data/admin')
+
 mock.module('@data/admin', () => ({
+  listingCreateSchema,
+  listingUpdateSchema,
+  productCreateSchema,
+  productUpdateSchema,
+  categoryCreateSchema,
+  categoryUpdateSchema,
   getAdminListings: mockGetAdminListings,
   createListing: mockCreateListing,
   updateListing: mockUpdateListing,
@@ -257,7 +272,7 @@ describe('PUT /api/admin/listings/[id]', () => {
 
     expect(res.status).toBe(400)
     expect(await res.json()).toEqual({
-      error: 'sale_price_kes must be a non-negative number',
+      error: 'Invalid listing data',
     })
     expect(mockUpdateListing).not.toHaveBeenCalled()
   })
@@ -273,7 +288,7 @@ describe('PUT /api/admin/listings/[id]', () => {
 
     expect(res.status).toBe(400)
     expect(await res.json()).toEqual({
-      error: 'cost_kes must be a non-negative number',
+      error: 'Invalid listing data',
     })
     expect(mockUpdateListing).not.toHaveBeenCalled()
   })
@@ -289,7 +304,7 @@ describe('PUT /api/admin/listings/[id]', () => {
 
     expect(res.status).toBe(400)
     expect(await res.json()).toEqual({
-      error: 'warranty_months must be a non-negative number',
+      error: 'Invalid listing data',
     })
     expect(mockUpdateListing).not.toHaveBeenCalled()
   })

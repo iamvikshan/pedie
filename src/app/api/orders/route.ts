@@ -2,13 +2,21 @@ import { getUser } from '@helpers/auth'
 import type { CreateOrderInput } from '@data/orders'
 import { createOrder, getOrderById } from '@data/orders'
 import { sendOrderConfirmation } from '@lib/email/send'
+import { createRateLimiter } from '@lib/security/rateLimit'
 import { NextResponse } from 'next/server'
+
+const rateLimiter = createRateLimiter('orders', { requests: 5, window: '1 m' })
 
 export async function POST(request: Request) {
   try {
     const user = await getUser()
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { success } = await rateLimiter.limit(user.id)
+    if (!success) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
     }
 
     const body = await request.json()

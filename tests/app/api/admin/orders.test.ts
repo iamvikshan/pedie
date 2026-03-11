@@ -36,7 +36,16 @@ const mockUpdateOrder = mock<any>(() =>
   Promise.resolve({ id: 'order-1', status: 'shipped', user_id: 'user-1' })
 )
 
+const {
+  productCreateSchema, productUpdateSchema,
+  listingCreateSchema, listingUpdateSchema,
+  categoryCreateSchema, categoryUpdateSchema,
+} = await import('@data/admin')
+
 mock.module('@data/admin', () => ({
+  productCreateSchema, productUpdateSchema,
+  listingCreateSchema, listingUpdateSchema,
+  categoryCreateSchema, categoryUpdateSchema,
   getAdminOrders: mockGetAdminOrders,
   getAdminOrderDetail: mockGetAdminOrderDetail,
   updateOrder: mockUpdateOrder,

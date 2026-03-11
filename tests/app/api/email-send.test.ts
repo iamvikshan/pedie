@@ -4,6 +4,12 @@ import { beforeEach, describe, expect, mock, test } from 'bun:test'
 
 // ── Mocks ──────────────────────────────────────────────────────────────────
 
+mock.module('@lib/security/rateLimit', () => ({
+  createRateLimiter: () => ({
+    limit: async () => ({ success: true, limit: 10, remaining: 9, reset: 0 }),
+  }),
+}))
+
 const mockSendEmail = mock(() => Promise.resolve())
 const mockIsEmailConfigured = mock(() => true)
 

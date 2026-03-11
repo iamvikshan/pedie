@@ -1,6 +1,10 @@
 import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
-import { createListing, getAdminListings } from '@data/admin'
+import {
+  createListing,
+  getAdminListings,
+  listingCreateSchema,
+} from '@data/admin'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
@@ -57,15 +61,6 @@ export async function POST(request: Request) {
 
     const body = await request.json()
 
-    const { product_id, price_kes, condition } = body
-
-    if (!product_id || price_kes == null || !condition) {
-      return NextResponse.json(
-        { error: 'product_id, price_kes, and condition are required' },
-        { status: 400 }
-      )
-    }
-
     const allowed = {
       product_id: body.product_id,
       storage: body.storage,
@@ -78,6 +73,7 @@ export async function POST(request: Request) {
       images: body.images,
       is_featured: body.is_featured,
       status: body.status,
+      listing_type: body.listing_type,
       source: body.source,
       source_id: body.source_id,
       source_url: body.source_url,
@@ -99,27 +95,15 @@ export async function POST(request: Request) {
       allowed.notes = null
     }
 
-    // Validate non-negative prices
-    if (
-      allowed.sale_price_kes != null &&
-      (typeof allowed.sale_price_kes !== 'number' || allowed.sale_price_kes < 0)
-    ) {
+    const parsed = listingCreateSchema.safeParse(allowed)
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: 'sale_price_kes must be a non-negative number' },
-        { status: 400 }
-      )
-    }
-    if (
-      allowed.cost_kes != null &&
-      (typeof allowed.cost_kes !== 'number' || allowed.cost_kes < 0)
-    ) {
-      return NextResponse.json(
-        { error: 'cost_kes must be a non-negative number' },
+        { error: 'Invalid listing data' },
         { status: 400 }
       )
     }
 
-    const listing = await createListing(allowed)
+    const listing = await createListing(parsed.data)
 
     // Fire-and-forget: sync to sheets
     import('@lib/sheets/sync')

@@ -4,6 +4,12 @@ import { beforeEach, describe, expect, mock, test } from 'bun:test'
 
 // ── Mocks ──────────────────────────────────────────────────────────────────
 
+mock.module('@lib/security/rateLimit', () => ({
+  createRateLimiter: () => ({
+    limit: async () => ({ success: true, limit: 5, remaining: 4, reset: 0 }),
+  }),
+}))
+
 const mockGetOrderById = mock(() => Promise.resolve(null as any))
 mock.module('@data/orders', () => ({
   getOrderById: mockGetOrderById,

@@ -24,47 +24,38 @@ export function SignInForm({ redirectTo }: SignInFormProps) {
     setLoading(true)
     setError(null)
 
-    let loginEmail = identifier.trim()
+    try {
+      const res = await fetch('/api/auth/signin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ identifier: identifier.trim(), password }),
+      })
 
-    if (!loginEmail.includes('@')) {
-      try {
-        const res = await fetch('/api/auth/resolve-username', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: loginEmail }),
-        })
-        if (!res.ok) {
-          setError('Invalid username or password')
-          setLoading(false)
-          return
-        }
-        const data = await res.json()
-        loginEmail = data.email
-      } catch {
+      if (!res.ok) {
         setError('Invalid username or password')
         setLoading(false)
         return
       }
-    }
 
-    const supabase = createClient()
-    const { error } = await supabase.auth.signInWithPassword({
-      email: loginEmail,
-      password,
-    })
+      const { access_token, refresh_token } = await res.json()
+      const supabase = createClient()
+      const { error } = await supabase.auth.setSession({
+        access_token,
+        refresh_token,
+      })
 
-    if (error) {
-      setError(
-        error.message === 'Invalid login credentials'
-          ? 'Invalid username or password'
-          : error.message
-      )
+      if (error) {
+        setError('Invalid username or password')
+        setLoading(false)
+        return
+      }
+
+      router.push(redirectTo || '/')
+      router.refresh()
+    } catch {
+      setError('Invalid username or password')
       setLoading(false)
-      return
     }
-
-    router.push(redirectTo || '/')
-    router.refresh()
   }
 
   const handleGoogleSignIn = async () => {

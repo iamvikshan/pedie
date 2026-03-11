@@ -74,7 +74,22 @@ mock.module('@lib/supabase/admin', () => ({
   })),
 }))
 
+const {
+  productCreateSchema,
+  productUpdateSchema,
+  listingCreateSchema,
+  listingUpdateSchema,
+  categoryCreateSchema,
+  categoryUpdateSchema,
+} = await import('@data/admin')
+
 mock.module('@data/admin', () => ({
+  productCreateSchema,
+  productUpdateSchema,
+  listingCreateSchema,
+  listingUpdateSchema,
+  categoryCreateSchema,
+  categoryUpdateSchema,
   getAdminListings: mock(() =>
     Promise.resolve({ data: [], total: 0, page: 1, totalPages: 0 })
   ),

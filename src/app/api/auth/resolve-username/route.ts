@@ -1,8 +1,21 @@
 import { isValidUsername, resolveUsername } from '@lib/auth/username'
+import { createRateLimiter } from '@lib/security/rateLimit'
 import { NextResponse } from 'next/server'
+
+const rateLimiter = createRateLimiter('resolve-username', {
+  requests: 5,
+  window: '1 m',
+})
 
 export async function POST(request: Request) {
   try {
+    const ip =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+    const { success } = await rateLimiter.limit(ip)
+    if (!success) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+    }
+
     const body = await request.json()
     const { username } = body
 
@@ -18,16 +31,10 @@ export async function POST(request: Request) {
       )
     }
 
-    const email = await resolveUsername(normalized)
-    if (!email) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
-    }
+    await resolveUsername(normalized)
 
-    return NextResponse.json({ email })
+    return NextResponse.json({ status: 'received' })
   } catch {
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ status: 'received' })
   }
 }

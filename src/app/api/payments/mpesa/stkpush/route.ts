@@ -1,9 +1,26 @@
 import { updateOrderStatus } from '@data/orders'
+import { getUser } from '@helpers/auth'
 import { initiateSTKPush } from '@lib/payments/mpesa'
+import { createRateLimiter } from '@lib/security/rateLimit'
 import { NextResponse } from 'next/server'
+
+const rateLimiter = createRateLimiter('mpesa-stkpush', {
+  requests: 3,
+  window: '1 m',
+})
 
 export async function POST(request: Request) {
   try {
+    const user = await getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const { success } = await rateLimiter.limit(user.id)
+    if (!success) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+    }
+
     const { phone, amount, orderId } = await request.json()
 
     if (!phone || amount == null || !orderId) {

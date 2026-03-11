@@ -1,6 +1,6 @@
 import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
-import { deleteListing, updateListing } from '@data/admin'
+import { deleteListing, updateListing, listingUpdateSchema } from '@data/admin'
 import { NextResponse } from 'next/server'
 
 export async function PUT(
@@ -21,32 +21,6 @@ export async function PUT(
     const { id } = await params
     const body = await request.json()
 
-    const validateNonNegativeNumber = (
-      value: unknown,
-      field: string
-    ): NextResponse | null => {
-      if (
-        value != null &&
-        (typeof value !== 'number' || !Number.isFinite(value) || value < 0)
-      ) {
-        return NextResponse.json(
-          { error: `${field} must be a non-negative number` },
-          { status: 400 }
-        )
-      }
-
-      return null
-    }
-
-    const numericValidationError =
-      validateNonNegativeNumber(body.sale_price_kes, 'sale_price_kes') ??
-      validateNonNegativeNumber(body.cost_kes, 'cost_kes') ??
-      validateNonNegativeNumber(body.warranty_months, 'warranty_months')
-
-    if (numericValidationError) {
-      return numericValidationError
-    }
-
     const allowed = {
       product_id: body.product_id,
       storage: body.storage,
@@ -59,6 +33,7 @@ export async function PUT(
       images: body.images,
       is_featured: body.is_featured,
       status: body.status,
+      listing_type: body.listing_type,
       source: body.source,
       source_id: body.source_id,
       source_url: body.source_url,
@@ -82,7 +57,15 @@ export async function PUT(
       )
     }
 
-    const listing = await updateListing(id, filtered)
+    const parsed = listingUpdateSchema.safeParse(filtered)
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Invalid listing data' },
+        { status: 400 }
+      )
+    }
+
+    const listing = await updateListing(id, parsed.data)
 
     // Fire-and-forget: sync to sheets
     import('@lib/sheets/sync')

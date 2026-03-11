@@ -3,6 +3,12 @@ import { isValidUsername } from '@lib/auth/username'
 
 // ── Mocks ──────────────────────────────────────────────────────────────────
 
+mock.module('@lib/security/rateLimit', () => ({
+  createRateLimiter: () => ({
+    limit: async () => ({ success: true, limit: 5, remaining: 4, reset: 0 }),
+  }),
+}))
+
 const mockResolveUsername = mock<(username: string) => Promise<string | null>>(
   () => Promise.resolve(null)
 )
@@ -46,19 +52,21 @@ describe('POST /api/auth/resolve-username', () => {
     expect(data.error).toBe('Invalid username format')
   })
 
-  test('returns 404 for nonexistent username', async () => {
+  test('returns generic response for nonexistent username', async () => {
     mockResolveUsername.mockResolvedValueOnce(null)
     const res = await POST(makeRequest({ username: 'nobody' }))
-    expect(res.status).toBe(404)
+    expect(res.status).toBe(200)
     const data = await res.json()
-    expect(data.error).toBe('User not found')
+    expect(data.status).toBe('received')
+    expect(data.email).toBeUndefined()
   })
 
-  test('returns email for valid username', async () => {
+  test('returns generic response for valid username without leaking email', async () => {
     mockResolveUsername.mockResolvedValueOnce('alice@example.com')
     const res = await POST(makeRequest({ username: 'alice' }))
     expect(res.status).toBe(200)
     const data = await res.json()
-    expect(data.email).toBe('alice@example.com')
+    expect(data.status).toBe('received')
+    expect(data.email).toBeUndefined()
   })
 })

@@ -26,7 +26,22 @@ const mockUpdateCategory = mock(() =>
 )
 const mockDeleteCategory = mock(() => Promise.resolve(true))
 
+const {
+  categoryCreateSchema,
+  categoryUpdateSchema,
+  productCreateSchema,
+  productUpdateSchema,
+  listingCreateSchema,
+  listingUpdateSchema,
+} = await import('@data/admin')
+
 mock.module('@data/admin', () => ({
+  categoryCreateSchema,
+  categoryUpdateSchema,
+  productCreateSchema,
+  productUpdateSchema,
+  listingCreateSchema,
+  listingUpdateSchema,
   getAdminCategories: mockGetAdminCategories,
   createCategory: mockCreateCategory,
   updateCategory: mockUpdateCategory,

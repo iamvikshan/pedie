@@ -1,6 +1,13 @@
 import { getUser, isAdmin } from '@helpers/auth'
 import { isEmailConfigured, sendEmail } from '@lib/email/gmail'
+import { createRateLimiter } from '@lib/security/rateLimit'
 import { NextResponse } from 'next/server'
+import sanitize from 'sanitize-html'
+
+const rateLimiter = createRateLimiter('email-send', {
+  requests: 10,
+  window: '1 m',
+})
 
 export async function POST(request: Request) {
   try {
@@ -12,6 +19,11 @@ export async function POST(request: Request) {
     const admin = await isAdmin()
     if (!admin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
+    const { success } = await rateLimiter.limit(user.id)
+    if (!success) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
     }
 
     let body: Record<string, unknown>
@@ -43,7 +55,15 @@ export async function POST(request: Request) {
       )
     }
 
-    await sendEmail(to, subject, html)
+    const sanitizedTo = sanitize(to as string, {
+      allowedTags: [],
+      allowedAttributes: {},
+    })
+    const sanitizedSubject = sanitize(subject as string, {
+      allowedTags: [],
+      allowedAttributes: {},
+    })
+    await sendEmail(sanitizedTo, sanitizedSubject, html as string)
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Admin email send error:', error)

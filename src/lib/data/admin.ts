@@ -1,10 +1,85 @@
 import type { Database, Json } from '@app-types/database'
 import { createAdminClient } from '@lib/supabase/admin'
+import { z } from 'zod/v4'
 
 type OrderStatus = Database['public']['Enums']['order_status']
 type ListingStatus = Database['public']['Enums']['listing_status']
 type ConditionGrade = Database['public']['Enums']['condition_grade']
 type UserRole = Database['public']['Enums']['user_role']
+
+type ProductInsert = Database['public']['Tables']['products']['Insert']
+type ProductUpdate = Database['public']['Tables']['products']['Update']
+type ListingInsert = Database['public']['Tables']['listings']['Insert']
+type ListingUpdate = Database['public']['Tables']['listings']['Update']
+type CategoryInsert = Database['public']['Tables']['categories']['Insert']
+type CategoryUpdate = Database['public']['Tables']['categories']['Update']
+type OrderUpdate = Database['public']['Tables']['orders']['Update']
+
+const conditionGrades = [
+  'new',
+  'premium',
+  'excellent',
+  'good',
+  'acceptable',
+  'for_parts',
+] as const
+const listingStatuses = [
+  'draft',
+  'active',
+  'reserved',
+  'sold',
+  'returned',
+  'archived',
+] as const
+const listingTypes = ['standard', 'preorder', 'affiliate', 'referral'] as const
+
+export const productCreateSchema = z.object({
+  brand_id: z.string().min(1),
+  name: z.string().min(1),
+  slug: z.string().min(1),
+  description: z.string().nullish(),
+  images: z.array(z.string()).nullish(),
+  key_features: z.array(z.string()).nullish(),
+  specs: z.record(z.string(), z.unknown()).nullish(),
+})
+
+export const productUpdateSchema = productCreateSchema.partial()
+
+export const listingCreateSchema = z.object({
+  product_id: z.string().min(1),
+  price_kes: z.number().positive(),
+  condition: z.enum(conditionGrades),
+  storage: z.string().nullish(),
+  color: z.string().nullish(),
+  battery_health: z.number().min(0).max(100).nullish(),
+  sale_price_kes: z.number().nonnegative().nullish(),
+  cost_kes: z.number().nonnegative().nullish(),
+  images: z.array(z.string()).nullish(),
+  is_featured: z.boolean().optional(),
+  status: z.enum(listingStatuses).optional(),
+  listing_type: z.enum(listingTypes).optional(),
+  source: z.string().nullish(),
+  source_id: z.string().nullish(),
+  source_url: z.string().url().nullish(),
+  warranty_months: z.number().nonnegative().nullish(),
+  attributes: z.record(z.string(), z.unknown()).nullish(),
+  includes: z.array(z.string()).nullish(),
+  admin_notes: z.string().nullish(),
+  quantity: z.number().int().nonnegative().optional(),
+  notes: z.union([z.string(), z.array(z.string())]).nullish(),
+})
+
+export const listingUpdateSchema = listingCreateSchema.partial()
+
+export const categoryCreateSchema = z.object({
+  name: z.string().min(1),
+  slug: z.string().min(1),
+  image_url: z.string().url().nullish(),
+  parent_id: z.string().nullish(),
+  sort_order: z.number().int().nonnegative().optional(),
+})
+
+export const categoryUpdateSchema = categoryCreateSchema.partial()
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -258,7 +333,7 @@ export async function createListing(
 
   const { data: listing, error } = await supabase
     .from('listings')
-    .insert(data as never)
+    .insert(data as ListingInsert)
     .select()
     .single()
 
@@ -277,7 +352,7 @@ export async function updateListing(
 
   const { data: listing, error } = await supabase
     .from('listings')
-    .update(data as never)
+    .update(data as ListingUpdate)
     .eq('id', id)
     .select()
     .single()
@@ -347,7 +422,7 @@ export async function createProduct(
 
   const { data: product, error } = await supabase
     .from('products')
-    .insert(data as never)
+    .insert(data as ProductInsert)
     .select()
     .single()
 
@@ -366,7 +441,7 @@ export async function updateProduct(
 
   const { data: product, error } = await supabase
     .from('products')
-    .update(data as never)
+    .update(data as ProductUpdate)
     .eq('id', id)
     .select()
     .single()
@@ -415,7 +490,7 @@ export async function createCategory(
 
   const { data: category, error } = await supabase
     .from('categories')
-    .insert(data as never)
+    .insert(data as CategoryInsert)
     .select()
     .single()
 
@@ -434,7 +509,7 @@ export async function updateCategory(
 
   const { data: category, error } = await supabase
     .from('categories')
-    .update(data as never)
+    .update(data as CategoryUpdate)
     .eq('id', id)
     .select()
     .single()
@@ -468,7 +543,7 @@ export async function updateOrder(
 
   const { data: order, error } = await supabase
     .from('orders')
-    .update({ ...data, updated_at: new Date().toISOString() } as never)
+    .update({ ...data, updated_at: new Date().toISOString() } as OrderUpdate)
     .eq('id', id)
     .select('*, profile:profiles(full_name, phone)')
     .single()

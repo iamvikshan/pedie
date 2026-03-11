@@ -1,8 +1,20 @@
+import { createRateLimiter } from '@lib/security/rateLimit'
 import { createAdminClient } from '@lib/supabase/admin'
 import { NextResponse } from 'next/server'
 
+const rateLimiter = createRateLimiter('newsletter', {
+  requests: 10,
+  window: '1 m',
+})
+
 export async function POST(request: Request) {
   try {
+    const ip =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+    const { success } = await rateLimiter.limit(ip)
+    if (!success) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
+    }
     const { email } = await request.json()
 
     if (!email || typeof email !== 'string') {

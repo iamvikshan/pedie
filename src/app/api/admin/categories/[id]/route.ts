@@ -1,6 +1,10 @@
 import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
-import { deleteCategory, updateCategory } from '@data/admin'
+import {
+  deleteCategory,
+  updateCategory,
+  categoryUpdateSchema,
+} from '@data/admin'
 import { NextResponse } from 'next/server'
 
 export async function PUT(
@@ -29,7 +33,15 @@ export async function PUT(
       sort_order: body.sort_order,
     }
 
-    const category = await updateCategory(id, allowed)
+    const parsed = categoryUpdateSchema.safeParse(allowed)
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Invalid category data' },
+        { status: 400 }
+      )
+    }
+
+    const category = await updateCategory(id, parsed.data)
     return NextResponse.json(category)
   } catch (error) {
     console.error('Failed to update category:', error)
