@@ -92,7 +92,3 @@ testDir: tests/
 | DOM tests                | Testing Library with happy-dom. Shared mocks/utilities from `tests/utils.tsx` |
 | Source-analysis tests    | Config, CSS, imports, and page structure validation                           |
 | Logic / mock-heavy tests | `mock.module()` for business logic and API/data code                          |
-
-```
-
-```

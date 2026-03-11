@@ -16,7 +16,10 @@ Harden the Pedie e-commerce application against OWASP Top 10 vulnerabilities ide
 
 ### Phases
 
-1. **[ ] Phase 1: Database Hardening (CRITICAL)**
+1. **[x] Phase 1: Database Hardening (CRITICAL)**
+   - **Summary:** Implemented role immutability trigger, subscribed column, removed deprecated headers/dead code, replaced escapeHtml with sanitize-html, fixed 3 ESLint warnings. All tests passing (1256). Sentry APPROVED (iteration 3).
+   - **Changes from plan:** Added sanitize-html adoption (user request). Fixed 3 pre-existing ESLint warnings (user request). Applied migration to live DB via Supabase MCP (user request).
+   - [Phase 1 Details](/.atlas/plans/security-hardening-phase-1-complete.md)
    - **Objective:** Prevent privilege escalation via profiles self-update; fix newsletter schema mismatch; remove deprecated/dead code.
    - **Files/Functions to create/modify:**
      - `supabase/migrations/20250801000000_security_hardening.sql` -- NEW: (a) Add BEFORE UPDATE trigger `enforce_role_immutability()` on profiles that raises exception when `NEW.role != OLD.role` unless `is_admin()` returns true. (b) Add `subscribed boolean NOT NULL DEFAULT true` column to `newsletter_subscribers`.
@@ -76,11 +79,13 @@ Harden the Pedie e-commerce application against OWASP Top 10 vulnerabilities ide
      8. Run quality gates
 
 3. **[ ] Phase 3: Rate Limiting & Input Validation (HIGH)**
-   - **Objective:** Add Upstash-backed rate limiting to abuse-prone endpoints. Add Zod schema validation for admin routes, replacing manual allowlisting and `as never` casts. Sanitize admin email HTML using existing `escapeHtml()`.
+   - **Objective:** Add Upstash-backed rate limiting to abuse-prone endpoints. Add Zod schema validation for admin routes, replacing manual allowlisting and `as never` casts. Sanitize admin email fields. Fix resolve-username user enumeration vulnerability.
    - **Files/Functions to create/modify:**
      - `src/lib/security/rateLimit.ts` -- NEW: Upstash-backed rate limiter using `@upstash/ratelimit` with `@upstash/redis`. Export `createRateLimiter(prefix, config)` factory. Use sliding window algorithm. Return `{ success, limit, remaining, reset }`. Graceful fallback if Upstash env vars are missing (log warning, allow request -- avoids blocking app when Redis is down).
      - `src/app/api/newsletter/route.ts` -- Add rate limiting (10 req/min per IP)
-     - `src/app/api/auth/resolve-username/route.ts` -- Add rate limiting (5 req/min per IP)
+     - `src/app/api/auth/resolve-username/route.ts` -- **SECURITY FIX:** Eliminate user enumeration. Stop returning email to client. Instead, create a server-side `/api/auth/signin` route that accepts `{identifier, password}`, resolves username internally via `resolveUsername()`, calls `signInWithPassword()`, and returns only session tokens. The resolve-username endpoint returns generic `{ status: 'received' }` for all inputs (valid or invalid). Update `signinForm.tsx` to call `/api/auth/signin` instead. Add rate limiting (5 req/min per IP).
+     - `src/app/api/auth/signin/route.ts` -- NEW: Server-side signin route. Accepts `{identifier, password}`. If identifier is not an email, calls `resolveUsername()` internally. Calls `signInWithPassword()`. Returns session tokens only, never the resolved email. Add rate limiting (5 req/min per IP).
+     - `src/components/auth/signinForm.tsx` -- Update to call `/api/auth/signin` instead of resolve-username + client-side Supabase auth.
      - `src/app/api/payments/mpesa/stkpush/route.ts` -- Add rate limiting (3 req/min per user)
      - `src/app/api/payments/paypal/create/route.ts` -- Add rate limiting (5 req/min per user)
      - `src/app/api/orders/route.ts` -- Add rate limiting (5 req/min per user)
@@ -104,11 +109,17 @@ Harden the Pedie e-commerce application against OWASP Top 10 vulnerabilities ide
      - `tests/api/email-send.test.ts`:
        - "should sanitize to/subject fields with sanitize-html"
        - "should pass html field through unchanged for admin"
+     - `tests/api/auth/signin.test.ts`:
+       - "should authenticate with email and password"
+       - "should authenticate with username and password (resolves internally)"
+       - "should return generic error for invalid credentials (no enumeration)"
+       - "should never return the resolved email in the response"
+       - "should be rate limited"
    - **Quality Gates:** `bun run f` -> `bun check` -> `bun test`
    - **Steps:**
      1. Install dependencies: `bun add zod @upstash/ratelimit @upstash/redis`
      2. Create rate limiter utility with graceful fallback
-     3. Apply rate limits to 6 target routes
+     3. Apply rate limits to 7 target routes (newsletter, resolve-username, signin, mpesa stkpush, paypal create, orders, email send)
      4. Define Zod schemas in src/lib/data/admin.ts
      5. Replace manual allowlisting and all `as never` casts with Zod-validated data
      6. Add to/subject sanitization to email send route
@@ -117,7 +128,15 @@ Harden the Pedie e-commerce application against OWASP Top 10 vulnerabilities ide
 
 4. **[ ] Phase 4: Security Headers & Audit Logging (MEDIUM)**
    - **Objective:** Add CSP (enforcing) and HSTS headers. Repurpose existing `sync_log` table to `admin_log` with extended schema for admin audit logging.
-   - **CSP Implementation Detail:** Generate a cryptographically random nonce in `proxy.ts` (middleware) using `crypto.randomUUID()`. Set it as a custom request header (`x-csp-nonce`). Root `layout.tsx` reads the nonce via `headers()` and passes it as a prop to any inline `<script>` tags (e.g., JSON-LD structured data). CSP directive: `script-src 'nonce-{nonce}' 'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://opygpszamajcdujoslob.supabase.co; font-src 'self'; connect-src 'self' https://*.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self'`. Deploy as enforcing `Content-Security-Policy` header. Workers must audit all inline `<script>` tags and `dangerouslySetInnerHTML` blocks for nonce application before deploying.
+   - **CSP Implementation Detail (Hybrid Approach):** Use a two-tier CSP strategy to preserve prerendering for static pages:
+     - **Static pages** (product listings, categories, home, sitemap): Static CSP with `script-src 'self'` -- no nonce needed, fully compatible with ISR/SSG/PPR. Note: `<script type="application/ld+json">` blocks on storefront pages are data-only (not executable) and are exempt from CSP `script-src` restrictions per the HTML spec. If any browsers enforce CSP on them, workers must move JSON-LD to external `.json` files or promote those routes to nonce-based CSP.
+     - **Dynamic pages** (checkout, admin, account, auth): Nonce-based CSP. Generate nonce in `proxy.ts` via `crypto.randomUUID()`, set as `x-csp-nonce` request header. `layout.tsx` reads nonce via `headers()` and passes to inline `<script>` tags.
+     - **Route detection:** Middleware checks pathname against dynamic route prefixes (`/checkout`, `/admin`, `/account`, `/auth`, `/api`). Dynamic routes get nonce CSP; all others get static CSP.
+     - **Static CSP:** `script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://opygpszamajcdujoslob.supabase.co; font-src 'self'; connect-src 'self' https://*.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self'`
+     - **Dynamic CSP:** `script-src 'nonce-{nonce}' 'strict-dynamic'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://opygpszamajcdujoslob.supabase.co; font-src 'self'; connect-src 'self' https://*.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self'`
+     - **Dev environment:** Add `'unsafe-eval'` to `script-src` when `NODE_ENV === 'development'` (required for React Fast Refresh / HMR).
+     - **Trade-off note:** Nonce-based CSP forces per-request rendering (disables ISR, SSG, PPR) for the routes it applies to. The hybrid approach limits this cost to pages that already require server-side rendering (auth, checkout, admin). Static storefront pages remain fully prerenderable.
+     - Workers must audit all inline `<script>` tags and `dangerouslySetInnerHTML` blocks in dynamic routes for nonce application before deploying.
    - **Files/Functions to create/modify:**
      - `src/proxy.ts` -- Generate nonce, add enforcing CSP header (`Content-Security-Policy`), add HSTS header (`Strict-Transport-Security: max-age=63072000; includeSubDomains; preload`)
      - `src/app/layout.tsx` -- Read `x-csp-nonce` from `headers()`, pass nonce to inline scripts. Audit existing `<script>` and `dangerouslySetInnerHTML` for nonce application.
@@ -165,7 +184,7 @@ Harden the Pedie e-commerce application against OWASP Top 10 vulnerabilities ide
 
 1. **Upstash Redis** -- RESOLVED: Available. `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` are provisioned. Graceful fallback retained for resilience.
 
-2. **CSP strictness** -- RESOLVED: Deploy as enforcing `Content-Security-Policy` immediately. Workers must audit all inline scripts before deploying. Framer Motion uses inline styles (`style-src: 'unsafe-inline'` handles this). Next.js hydration scripts require nonce.
+2. **CSP strictness** -- RESOLVED: Deploy as enforcing `Content-Security-Policy` with hybrid approach. Static storefront pages use hash-based CSP (`script-src 'self'`) preserving prerendering. Dynamic pages (checkout, admin, auth, account) use nonce-based CSP. Workers must audit inline scripts in dynamic routes. Framer Motion uses inline styles (`style-src: 'unsafe-inline'` handles this). Dev environment adds `'unsafe-eval'` for React Fast Refresh.
 
 3. **M-Pesa signature validation** -- RESOLVED: Accepted risk. Safaricom's Daraja API does not provide HMAC signatures. Current IP allowlist + header secret is documented best practice. Document as accepted risk in product-architecture.md.
 

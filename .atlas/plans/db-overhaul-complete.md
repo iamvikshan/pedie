@@ -1,8 +1,8 @@
 ## Plan Complete: Database Centralization & Overhaul
 
-Overhauled the Pedie database schema from a phone-centric PoC to an industry-standard, category-agnostic e-commerce schema. Introduced SKU system, promotions table, brand normalization via FK, junction-table categories, inline isSale pricing model, username-based auth, and Google Sheets sync expansion. All breaking changes applied across 8 phases.
+Overhauled the Pedie database schema from a phone-centric PoC to an industry-standard, category-agnostic e-commerce schema. Introduced SKU system, promotions table, brand normalization via FK, junction-table categories, inline isSale pricing model, username-based auth, and Google Sheets sync expansion.
 
-**Phases Completed:** 8 of 8
+**Phases Completed:** 6 phases (9 entries including sub-phases 3.5, 5A/5B/5C)
 
 1. [x] Phase 1: Unified Schema Migration
 2. [x] Phase 2: Data Access Layer Rewrite

@@ -1,6 +1,6 @@
 ## Phase 5B Complete: Listing Components & Detail Pages
 
-Updated all listing display components and detail pages for the new database schema. Renamed the listing route from `[listingId]` to `[sku]`, added `getListingBySku()` data function, and updated all field references across 14 source files and 11 test files. Deleted dead `youMayAlsoLike.tsx`. Added `getPrimaryCategoryForProduct()` helper for junction-based breadcrumbs.
+Updated all listing display components and detail pages for the new database schema. Renamed the listing route from `[listingId]` to `[sku]`, added `getListingBySku()` data function, and updated all field references across 17 source files and 12 test files. Deleted dead `youMayAlsoLike.tsx`. Added `getPrimaryCategoryForProduct()` helper for junction-based breadcrumbs.
 
 **Details:**
 
