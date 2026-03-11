@@ -207,14 +207,10 @@ Overhaul the Pedie database schema from a phone-centric PoC to an industry-stand
      - `tests/app/admin/orders.test.tsx` -- update mock data: remove `listing_id`
    - **Quality Gates:** `bun run f` -> `bun check` (ZERO errors required) -> `bun test`
 
-8. **[ ] Phase 6: Documentation & Build Validation**
-   - **Objective:** Update architecture docs to reflect all schema and frontend changes. Full build validation.
-   - **Files/Functions to modify:**
-     - `docs/product-architecture.md` -- update data model section: Product (brand_id FK, no model/brand strings), Listing (id+sku, price_kes/sale_price_kes, no final_price_kes/original_price_kes), ProductFamily, category junction, promotion system
-     - `docs/database-architecture.md` -- verify accuracy against live schema; update any sections referencing old column names or old migration file names
-     - `docs/DESIGN.md` -- update if component naming or UI patterns changed (productCard pricing display, promotion badges)
-     - Note: document the `/listings/[uuid]` -> `/listings/[sku]` URL breaking change in product-architecture.md
-   - **Quality Gates:** `bun run f` -> `bun check` -> `bun test` -> `bun run build`
+8. **[x] Phase 6: Documentation & Build Validation**
+   - **Summary:** Updated product-architecture.md with full schema changes (brand_id FK, product.name, junction categories, SKU system, inline pricing with isSale logic, promotions, ProductFamily type). Updated DESIGN.md with inline pricing section and [sku] routes. database-architecture.md verified accurate (no changes needed). Build skipped due to pre-existing missing Supabase env vars in dev container.
+   - **Changes from plan:** Build validation skipped (pre-existing env limitation, not introduced by overhaul). Fixed pricing model description to distinguish SQL/cart COALESCE from UI isSale guard. Fixed ProductFamily type to match actual types/product.ts (ProductWithBrand, Listing[], Listing).
+   - **[Phase 6 Details](.atlas/plans/db-overhaul-phase-6-complete.md)**
 
 ---
 

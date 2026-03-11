@@ -13,32 +13,95 @@ A **product** is a unique brand + model combination (e.g., "Samsung Galaxy S24")
 | Field          | Type       | Description                                |
 | -------------- | ---------- | ------------------------------------------ |
 | `id`           | `uuid`     | Primary key                                |
-| `brand`        | `string`   | Manufacturer (Samsung, Apple, etc.)        |
-| `model`        | `string`   | Model name (Galaxy S24, iPhone 15)         |
-| `slug`         | `string`   | URL-safe identifier (`samsung-galaxy-s24`) |
-| `category_id`  | `uuid`     | FK → categories                            |
-| `images`       | `string[]` | Product-level images                       |
-| `description`  | `string`   | Marketing description                      |
-| `key_features` | `string[]` | Bullet-point feature list                  |
+| `brand_id`     | `uuid`     | FK -> brands (normalized brand reference)  |
+| `name`         | `text`     | Model name (Galaxy S24, iPhone 15)         |
+| `slug`         | `text`     | URL-safe identifier (`samsung-galaxy-s24`) |
+| `description`  | `text`     | Marketing description                      |
+| `key_features` | `text[]`   | Bullet-point feature list                  |
+| `images`       | `text[]`   | Product-level images                       |
 | `specs`        | `jsonb`    | Technical specifications                   |
+| `is_active`    | `boolean`  | Soft-delete flag                           |
+| `fts`          | `tsvector` | Full-text search (brand + name + desc)     |
+
+Products reference brands via `brand_id` FK (not a free-text string). Categories are assigned via the `product_categories` junction table -- there is no `category_id` on products.
+
+### Brand
+
+Normalized brand registry. All products FK here.
+
+| Field         | Type      | Description                       |
+| ------------- | --------- | --------------------------------- |
+| `id`          | `uuid`    | Primary key                       |
+| `name`        | `text`    | Display name ("Apple", "Samsung") |
+| `slug`        | `text`    | URL-safe, unique                  |
+| `logo_url`    | `text`    | Brand logo image URL              |
+| `website_url` | `text`    | Official brand website            |
+| `is_active`   | `boolean` | Show in storefront filters        |
+
+### ProductCategories (Junction)
+
+Many-to-many between products and categories.
+
+| Field         | Type      | Description                            |
+| ------------- | --------- | -------------------------------------- |
+| `product_id`  | `uuid`    | FK -> products                         |
+| `category_id` | `uuid`    | FK -> categories                       |
+| `is_primary`  | `boolean` | Canonical category for breadcrumbs/nav |
+
+Every product must have exactly one row with `is_primary = true`. The primary category is resolved at query time via `getPrimaryCategoryForProduct()`.
 
 ### Listing (Variant)
 
-A **listing** is a specific purchasable item — one variant of a product with a defined condition, storage, color, and price.
+A **listing** is a specific purchasable item -- one variant of a product with a defined condition, storage, color, and price.
 
-| Field             | Type             | Description                                     |
-| ----------------- | ---------------- | ----------------------------------------------- |
-| `listing_id`      | `string`         | Human-readable ID (e.g., `PD-A001`)             |
-| `product_id`      | `uuid`           | FK → products                                   |
-| `listing_type`    | `enum`           | `standard`, `preorder`, `affiliate`, `referral` |
-| `status`          | `enum`           | `available`, `sold`, `reserved`, `onsale`       |
-| `condition`       | `ConditionGrade` | `premium`, `excellent`, `good`, `acceptable`    |
-| `storage`         | `string`         | e.g., "128GB"                                   |
-| `ram`             | `string`         | e.g., "8GB"                                     |
-| `color`           | `string`         | e.g., "Phantom Black"                           |
-| `price_kes`       | `number`         | Original price in KES                           |
-| `final_price_kes` | `number`         | Selling price (after discount if any)           |
-| `images`          | `string[]`       | Listing-specific images                         |
+| Field             | Type              | Description                                                      |
+| ----------------- | ----------------- | ---------------------------------------------------------------- |
+| `id`              | `uuid`            | Primary key (internal)                                           |
+| `sku`             | `text`            | Auto-generated unique ID (e.g., `SWP-APL-IP15P-EXC-001`)         |
+| `product_id`      | `uuid`            | FK -> products                                                   |
+| `condition`       | `condition_grade` | `new`, `premium`, `excellent`, `good`, `acceptable`, `for_parts` |
+| `color`           | `text`            | e.g., "Phantom Black"                                            |
+| `storage`         | `text`            | e.g., "128GB"                                                    |
+| `ram`             | `text`            | e.g., "8GB"                                                      |
+| `battery_health`  | `integer`         | Battery percentage (0-100)                                       |
+| `warranty_months` | `integer`         | Warranty period in months                                        |
+| `attributes`      | `jsonb`           | Category-specific fields (screen_size, gpu, etc.)                |
+| `cost_kes`        | `numeric`         | What Pedie paid (internal, never shown)                          |
+| `price_kes`       | `numeric`         | Retail price in KES                                              |
+| `sale_price_kes`  | `numeric`         | Promotional price (if discounted)                                |
+| `images`          | `text[]`          | Listing-specific photos                                          |
+| `quantity`        | `integer`         | Stock count (usually 1 for refurbished)                          |
+| `listing_type`    | `listing_type`    | `standard`, `preorder`, `affiliate`, `referral`                  |
+| `status`          | `listing_status`  | `draft`, `active`, `reserved`, `sold`, `returned`, `archived`    |
+| `is_featured`     | `boolean`         | Featured on homepage                                             |
+| `admin_notes`     | `text`            | Internal notes (not user-facing)                                 |
+| `notes`           | `text[]`          | User-facing notes ("Minor scratch on back")                      |
+| `includes`        | `text[]`          | What comes with it ("Charger", "Original box")                   |
+| `source`          | `text`            | Where acquired (swappa, reebelo, etc.)                           |
+| `source_url`      | `text`            | Original listing URL                                             |
+| `source_id`       | `text`            | ID on the source platform                                        |
+
+**Pricing model:** There is no `final_price_kes` column -- the effective price is computed inline. At the SQL/cart layer, `COALESCE(sale_price_kes, price_kes)` selects the best available price. At the UI card layer, a stricter `isSale` guard applies: `sale_price_kes` is only used when non-null AND less than `price_kes` (see Pricing Display below).
+
+**SKU** is auto-generated by a database trigger on INSERT. Format: `{SRC}-{BRAND}-{MODEL}-{CONDITION}-{SEQ}` (e.g., `SWP-APL-IP15P-EXC-001`).
+
+### Promotions
+
+Table-driven promotional events. An item can be a deal even without a discount.
+
+| Field                 | Type             | Description                                          |
+| --------------------- | ---------------- | ---------------------------------------------------- |
+| `id`                  | `uuid`           | Primary key                                          |
+| `name`                | `text`           | Display name ("Flash Sale Friday")                   |
+| `type`                | `promotion_type` | flash_sale, deal, clearance, featured, seasonal      |
+| `listing_id`          | `uuid`           | Target specific listing (or null)                    |
+| `product_id`          | `uuid`           | Target all listings of a product (or null)           |
+| `discount_pct`        | `numeric`        | Percentage discount (mutually exclusive with amount) |
+| `discount_amount_kes` | `numeric`        | Fixed amount discount                                |
+| `starts_at`           | `timestamptz`    | Promotion start                                      |
+| `ends_at`             | `timestamptz`    | Promotion end                                        |
+
+Promotion discounts are applied via `applyPromotionDiscount()` and reflected in `sale_price_kes`.
 
 ### ProductFamily (Aggregation)
 
@@ -46,9 +109,9 @@ The `ProductFamily` type (defined in `types/product.ts`) is the runtime aggregat
 
 ```ts
 interface ProductFamily {
-  product: Product
-  listings: ListingWithProduct[]
-  representative: ListingWithProduct // "best" listing shown on cards
+  product: ProductWithBrand
+  listings: Listing[]
+  representative: Listing // "best" listing shown on cards
   variantCount: number
 }
 ```
@@ -74,31 +137,38 @@ Cart validation (`src/lib/cart/validation.ts`) blocks `affiliate` and `referral`
 
 ### ProductFamilyCard
 
-| File      | `src/components/ui/productFamilyCard.tsx`              |
-| --------- | ------------------------------------------------------ |
-| Data type | `ProductFamily`                                        |
-| Links to  | `/products/{product.slug}`                             |
-| Shows     | Representative listing's price, condition, model name  |
-| Used by   | CustomerFavorites, CategoryShowcase, ProductFamilyGrid |
+| File      | `src/components/ui/productFamilyCard.tsx`               |
+| --------- | ------------------------------------------------------- |
+| Data type | `ProductFamily`                                         |
+| Links to  | `/products/{product.slug}`                              |
+| Shows     | Representative listing's price, condition, product name |
+| Used by   | CustomerFavorites, CategoryShowcase, ProductFamilyGrid  |
 
 ### ProductCard
 
 | File      | `src/components/ui/productCard.tsx`                              |
 | --------- | ---------------------------------------------------------------- |
 | Data type | `ListingWithProduct`                                             |
-| Links to  | `/listings/{listing.listing_id}` (or external URL for affiliate) |
-| Shows     | Individual listing's price, condition, type badges, model name   |
+| Links to  | `/listings/{listing.sku}` (or external URL for affiliate)        |
+| Shows     | Individual listing's price, condition, type badges, product name |
 | Used by   | HotDeals, ProductGrid, SimilarListings, DealsPage                |
 
-### Pricing Display (3-Tier)
+### Pricing Display (Inline)
 
-Both cards use `getPricingTier()` from `@helpers/pricing`:
+Both cards compute pricing inline using `isSale` logic:
 
-| Tier           | Trigger                                     | Visual                                                               |
-| -------------- | ------------------------------------------- | -------------------------------------------------------------------- |
-| **Sale**       | `final < original` AND `status = 'onsale'`  | `TbFlame` "Flash Sale" badge, red bold price, strikethrough original |
-| **Discounted** | `final < original` AND `status != 'onsale'` | Accent price + small discount % pill, strikethrough                  |
-| **Normal**     | `final >= original`                         | Single accent price, no discount display                             |
+```ts
+const isSale =
+  listing.sale_price_kes != null && listing.sale_price_kes < listing.price_kes
+const effectivePrice = isSale ? listing.sale_price_kes : listing.price_kes
+```
+
+| State      | Trigger                      | Visual                                       |
+| ---------- | ---------------------------- | -------------------------------------------- |
+| **Sale**   | `sale_price_kes < price_kes` | Discount % pill, strikethrough original, red |
+| **Normal** | No sale price or not lower   | Single accent price, no discount display     |
+
+Sale state is driven by the `sale_price_kes` field on listings, which can be set directly or via promotion discounts (`applyPromotionDiscount()`). There is no `onsale` status value.
 
 **Card dimensions (Phase 6c):**
 
@@ -208,26 +278,26 @@ Displays a **ProductFamily** — all variants of a single product.
 | Specs              | `ProductSpecs`        | Technical specifications table                         |
 | Similar Listings   | `SimilarListings`     | `ProductCard` ×N — related listings from same category |
 
-### Listing Detail (`/listings/[listingId]`)
+### Listing Detail (`/listings/[sku]`)
 
-File: `src/app/(store)/listings/[listingId]/page.tsx`
-Loading: `src/app/(store)/listings/[listingId]/loading.tsx`
+File: `src/app/(store)/listings/[sku]/page.tsx`
+Loading: `src/app/(store)/listings/[sku]/loading.tsx`
 
-Displays a **single listing** — one specific variant.
+Displays a **single listing** -- one specific variant.
 
-| Section           | Component            | Description                               |
-| ----------------- | -------------------- | ----------------------------------------- |
-| Image Gallery     | `ImageGallery`       | Listing-specific images                   |
-| Listing Info      | `ListingInfo`        | Brand, model, condition, storage/RAM      |
-| Price Display     | `PriceDisplay`       | 3-tier pricing                            |
-| Variant Selector  | `VariantSelector`    | Switch between sibling variants in family |
-| Better Deal Nudge | `BetterDealNudge`    | Cross-sell if cheaper variant exists      |
-| Shipping Info     | `ShippingInfo`       | Delivery estimates                        |
-| Add to Cart       | `AddToCart`          | Type-aware (blocks affiliate/referral)    |
-| Description       | `ProductDescription` | From product-level data                   |
-| Specs             | `ProductSpecs`       | From product-level data                   |
-| Reviews           | `CustomerReviews`    | User reviews + rating stats               |
-| Similar Listings  | `SimilarListings`    | `ProductCard` ×N                          |
+| Section           | Component            | Description                                      |
+| ----------------- | -------------------- | ------------------------------------------------ |
+| Image Gallery     | `ImageGallery`       | Listing-specific images                          |
+| Listing Info      | `ListingInfo`        | Brand name, product name, condition, storage/RAM |
+| Price Display     | `PriceDisplay`       | Inline isSale pricing                            |
+| Variant Selector  | `VariantSelector`    | Switch between sibling variants in family        |
+| Better Deal Nudge | `BetterDealNudge`    | Cross-sell if cheaper variant exists             |
+| Shipping Info     | `ShippingInfo`       | Delivery estimates                               |
+| Add to Cart       | `AddToCart`          | Type-aware (blocks affiliate/referral)           |
+| Description       | `ProductDescription` | From product-level data                          |
+| Specs             | `ProductSpecs`       | From product-level data                          |
+| Reviews           | `CustomerReviews`    | User reviews + rating stats                      |
+| Similar Listings  | `SimilarListings`    | `ProductCard` ×N                                 |
 
 ### Collection Page (`/collections/[slug]`)
 
@@ -236,12 +306,12 @@ Loading: `src/app/(store)/collections/[slug]/loading.tsx`
 
 Displays filtered listings for a category with sidebar filters, sort, and pagination.
 
-| Section        | Component          | Card Used     | Description                                      |
-| -------------- | ------------------ | ------------- | ------------------------------------------------ |
-| Banner         | `CollectionBanner` | _(custom)_    | Category image + count                           |
-| Filter Sidebar | `FilterSidebar`    | _(custom)_    | Condition, brand, storage, color, price, carrier |
-| Product Grid   | `ProductGrid`      | `ProductCard` | Paginated listing grid                           |
-| Pagination     | `Pagination`       | _(custom)_    | Page navigation                                  |
+| Section        | Component          | Card Used     | Description                             |
+| -------------- | ------------------ | ------------- | --------------------------------------- |
+| Banner         | `CollectionBanner` | _(custom)_    | Category image + count                  |
+| Filter Sidebar | `FilterSidebar`    | _(custom)_    | Condition, brand, storage, color, price |
+| Product Grid   | `ProductGrid`      | `ProductCard` | Paginated listing grid                  |
+| Pagination     | `Pagination`       | _(custom)_    | Page navigation                         |
 
 ### Deals Page (`/deals`)
 
@@ -277,14 +347,14 @@ Full-text search with filters and pagination.
 ## Data Flow Summary
 
 ```
-Product (brand + model)
-  └── ProductFamily (aggregation with representative + variants)
-       ├── → ProductFamilyCard (homepage favorites, category showcase)
-       │     links to /products/[slug]
-       └── listings[]
-            ├── → ProductCard (deals, grids, similar listings)
-            │     links to /listings/[listingId] or external URL
-            └── → VariantSelector (on product/listing detail pages)
+Product (brand_id -> brands.name + product.name)
+  +-- ProductFamily (aggregation with representative + variants)
+       +-- -> ProductFamilyCard (homepage favorites, category showcase)
+       |     links to /products/[slug]
+       +-- listings[]
+            +-- -> ProductCard (deals, grids, similar listings)
+            |     links to /listings/[sku] or external URL
+            +-- -> VariantSelector (on product/listing detail pages)
                   client-side state, no network calls
 ```
 

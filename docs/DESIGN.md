@@ -121,15 +121,22 @@ Defined in `src/app/globals.css`:
 
 > Full product/listing/card architecture: [`docs/product-architecture.md`](product-architecture.md)
 
-### Product Card (3-Tier Pricing)
+### Product Card (Inline Pricing)
 
-Cards use `getPricingTier(finalPriceKes, priceKes, status)` from `@helpers/pricing`:
+Cards compute pricing inline -- no `getPricingTier()` helper:
 
-| Tier           | Trigger                                     | Visual                                         |
-| -------------- | ------------------------------------------- | ---------------------------------------------- |
-| **Sale**       | `final < original` AND `status = 'onsale'`  | Red discount pill, crossed-out price, bold red |
-| **Discounted** | `final < original` AND `status != 'onsale'` | Inline strikethrough + small % pill            |
-| **Normal**     | `final >= original`                         | Single price, no discount display              |
+```ts
+const isSale =
+  listing.sale_price_kes != null && listing.sale_price_kes < listing.price_kes
+const effectivePrice = isSale ? listing.sale_price_kes : listing.price_kes
+```
+
+| State      | Trigger                      | Visual                                       |
+| ---------- | ---------------------------- | -------------------------------------------- |
+| **Sale**   | `sale_price_kes < price_kes` | Discount % pill, strikethrough original, red |
+| **Normal** | No sale price or not lower   | Single accent price, no discount display     |
+
+Sale pricing is driven by `sale_price_kes` on listings, which can be set directly or via the `promotions` table. There is no `onsale` listing status.
 
 **Card design (Phase 6c):**
 
@@ -315,7 +322,7 @@ Applied globally to all page sections. Exception: Hero banner remains full-bleed
 | `/deals`              | `src/app/(store)/deals/page.tsx`              | Discounted listings                          |
 | `/search`             | `src/app/(store)/search/page.tsx`             | Full-text search                             |
 | `/products/[slug]`    | `src/app/(store)/products/[slug]/page.tsx`    | Product family detail                        |
-| `/listings/[id]`      | `src/app/(store)/listings/[id]/page.tsx`      | Single listing detail                        |
+| `/listings/[sku]`     | `src/app/(store)/listings/[sku]/page.tsx`     | Single listing detail                        |
 | `/collections/[slug]` | `src/app/(store)/collections/[slug]/page.tsx` | Category collection                          |
 
 ---
