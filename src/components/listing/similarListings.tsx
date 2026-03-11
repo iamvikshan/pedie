@@ -15,7 +15,7 @@ export function SimilarListings({ listings }: SimilarListingsProps) {
       </h2>
       <div className='grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4'>
         {listings.map(listing => (
-          <ProductCard key={listing.listing_id} listing={listing} />
+          <ProductCard key={listing.id} listing={listing} />
         ))}
       </div>
     </section>

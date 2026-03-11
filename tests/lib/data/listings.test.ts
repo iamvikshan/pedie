@@ -4,54 +4,56 @@ import { resolve } from 'node:path'
 
 const listingsSrc = readFileSync(resolve('src/lib/data/listings.ts'), 'utf-8')
 
-// --- Mock Setup ---
-
 const mockCategoryData = { id: 'cat-123', slug: 'phones' }
 
 const mockListings = [
   {
     id: 'uuid-1',
-    listing_id: 'L001',
+    sku: 'L001',
     product_id: 'prod-1',
     storage: '128GB',
     color: 'Black',
-    carrier: 'Unlocked',
     condition: 'excellent',
     battery_health: 92,
     price_kes: 45000,
-    original_price_usd: 300,
-    landed_cost_kes: 40000,
+    sale_price_kes: null,
+    cost_kes: 40000,
     source: 'swappa',
-    source_listing_id: null,
+    source_id: null,
     source_url: null,
     images: null,
     is_featured: true,
-    status: 'available',
-    sheets_row_id: null,
+    listing_type: 'standard' as const,
+    ram: null,
+    warranty_months: null,
+    attributes: null,
+    includes: null,
+    admin_notes: null,
+    quantity: 1,
+    status: 'active' as const,
     notes: null,
     created_at: '2025-06-01T00:00:00Z',
     updated_at: '2025-06-01T00:00:00Z',
     product: {
       id: 'prod-1',
-      brand: 'Apple',
-      model: 'iPhone 13',
+      name: 'iPhone 13',
       slug: 'apple-iphone-13',
-      category_id: 'cat-123',
+      brand_id: 'brand-1',
       description: null,
       specs: null,
       key_features: null,
       images: null,
-      original_price_kes: 60000,
+      is_active: true,
       created_at: '2025-06-01T00:00:00Z',
       updated_at: '2025-06-01T00:00:00Z',
       fts: null,
-      category: {
-        id: 'cat-123',
-        name: 'Phones',
-        slug: 'phones',
-        description: null,
-        image_url: null,
-        parent_id: null,
+      brand: {
+        id: 'brand-1',
+        name: 'Apple',
+        slug: 'apple',
+        logo_url: null,
+        website_url: null,
+        is_active: true,
         sort_order: 1,
         created_at: '2025-06-01T00:00:00Z',
         updated_at: '2025-06-01T00:00:00Z',
@@ -60,46 +62,59 @@ const mockListings = [
   },
   {
     id: 'uuid-2',
-    listing_id: 'L002',
+    sku: 'L002',
     product_id: 'prod-2',
     storage: '256GB',
     color: 'White',
-    carrier: 'Safaricom',
     condition: 'good',
     battery_health: 85,
     price_kes: 55000,
-    original_price_usd: 400,
-    landed_cost_kes: 50000,
+    sale_price_kes: null,
+    cost_kes: 50000,
     source: 'swappa',
-    source_listing_id: null,
+    source_id: null,
     source_url: null,
     images: null,
     is_featured: false,
-    status: 'available',
-    sheets_row_id: null,
+    listing_type: 'standard' as const,
+    ram: null,
+    warranty_months: null,
+    attributes: null,
+    includes: null,
+    admin_notes: null,
+    quantity: 1,
+    status: 'active' as const,
     notes: null,
     created_at: '2025-06-02T00:00:00Z',
     updated_at: '2025-06-02T00:00:00Z',
     product: {
       id: 'prod-2',
-      brand: 'Samsung',
-      model: 'Galaxy S22',
+      name: 'Galaxy S22',
       slug: 'samsung-galaxy-s22',
-      category_id: 'cat-123',
+      brand_id: 'brand-2',
       description: null,
       specs: null,
       key_features: null,
       images: null,
-      original_price_kes: 70000,
+      is_active: true,
       created_at: '2025-06-02T00:00:00Z',
       updated_at: '2025-06-02T00:00:00Z',
       fts: null,
-      category: null,
+      brand: {
+        id: 'brand-2',
+        name: 'Samsung',
+        slug: 'samsung',
+        logo_url: null,
+        website_url: null,
+        is_active: true,
+        sort_order: 2,
+        created_at: '2025-06-02T00:00:00Z',
+        updated_at: '2025-06-02T00:00:00Z',
+      },
     },
   },
 ]
 
-// Chainable mock builder
 function chainable(resolveValue: {
   data: unknown
   error: unknown
@@ -132,18 +147,17 @@ mock.module('@lib/supabase/server', () => ({
   ),
 }))
 
-// Mock getCategoryAndDescendantIds — returns the input ID plus a child
 mock.module('@data/categories', () => ({
   getCategoryAndDescendantIds: mock((categoryId: string) =>
     Promise.resolve([categoryId, `${categoryId}-child`])
   ),
 }))
 
-// Import after mock
 import {
   getAvailableFilters,
   getFilteredListings,
   getListingById,
+  getListingBySku,
   getSimilarListings,
 } from '@data/listings'
 
@@ -154,7 +168,29 @@ describe('Listings Data Functions', () => {
         if (table === 'categories') {
           return chainable({ data: mockCategoryData, error: null })
         }
-        // listings table - for count query (head: true) or data query
+        if (table === 'product_categories') {
+          return chainable({
+            data: [
+              {
+                product_id: 'prod-1',
+                category_id: 'cat-123',
+                category: { name: 'Phones', slug: 'phones' },
+              },
+              {
+                product_id: 'prod-2',
+                category_id: 'cat-123-child',
+                category: { name: 'Phones', slug: 'phones' },
+              },
+            ],
+            error: null,
+          })
+        }
+        if (table === 'brands') {
+          return chainable({ data: [{ id: 'brand-1' }], error: null })
+        }
+        if (table === 'products') {
+          return chainable({ data: [{ id: 'prod-1' }], error: null })
+        }
         return chainable({ data: mockListings, error: null, count: 2 })
       }
     })
@@ -196,10 +232,10 @@ describe('Listings Data Functions', () => {
           condition: ['excellent', 'good'],
           storage: ['128GB'],
           color: ['Black'],
-          carrier: ['Unlocked'],
-          brand: ['Apple'],
+          brand: ['apple'],
           priceMin: 30000,
           priceMax: 60000,
+          category: ['phones'],
         },
         'price-asc',
         { page: 1, perPage: 10 }
@@ -257,10 +293,10 @@ describe('Listings Data Functions', () => {
       fromHandler = () => chainable({ data: mockListings[0], error: null })
     })
 
-    test('returns a listing by listing_id', async () => {
-      const listing = await getListingById('L001')
+    test('returns a listing by id', async () => {
+      const listing = await getListingById('uuid-1')
       expect(listing).not.toBeNull()
-      expect(listing!.listing_id).toBe('L001')
+      expect(listing!.id).toBe('uuid-1')
     })
 
     test('returns null when not found', async () => {
@@ -272,25 +308,45 @@ describe('Listings Data Functions', () => {
     })
   })
 
+  describe('getListingBySku', () => {
+    beforeEach(() => {
+      fromHandler = () => chainable({ data: mockListings[0], error: null })
+    })
+
+    test('returns a listing by sku', async () => {
+      const listing = await getListingBySku('L001')
+      expect(listing).not.toBeNull()
+      expect(listing!.sku).toBe('L001')
+    })
+
+    test('returns null when sku is not found', async () => {
+      fromHandler = () =>
+        chainable({ data: null, error: { message: 'Not found' } })
+
+      const listing = await getListingBySku('INVALID')
+      expect(listing).toBeNull()
+    })
+  })
+
   describe('getSimilarListings', () => {
     beforeEach(() => {
       fromHandler = () => chainable({ data: [mockListings[1]], error: null })
     })
 
     test('returns similar listings excluding current', async () => {
-      const listings = await getSimilarListings('prod-1', 'L001', 4)
+      const listings = await getSimilarListings('prod-1', 'uuid-1', 4)
       expect(listings).toBeArray()
     })
 
     test('returns empty array on error', async () => {
       fromHandler = () => chainable({ data: null, error: { message: 'error' } })
 
-      const listings = await getSimilarListings('prod-1', 'L001')
+      const listings = await getSimilarListings('prod-1', 'uuid-1')
       expect(listings).toEqual([])
     })
 
     test('uses default limit of 4', async () => {
-      const listings = await getSimilarListings('prod-1', 'L001')
+      const listings = await getSimilarListings('prod-1', 'uuid-1')
       expect(listings).toBeArray()
     })
   })
@@ -301,28 +357,38 @@ describe('Listings Data Functions', () => {
         if (table === 'categories') {
           return chainable({ data: mockCategoryData, error: null })
         }
-        if (table === 'products') {
+        if (table === 'product_categories') {
           return chainable({
-            data: [{ brand: 'Apple' }, { brand: 'Samsung' }],
+            data: [
+              {
+                product_id: 'prod-1',
+                category_id: 'cat-123',
+                category: { name: 'Phones', slug: 'phones' },
+              },
+              {
+                product_id: 'prod-2',
+                category_id: 'cat-123-child',
+                category: { name: 'Phones', slug: 'phones' },
+              },
+            ],
             error: null,
           })
         }
-        // listings
         return chainable({
           data: [
             {
               storage: '128GB',
               color: 'Black',
-              carrier: 'Unlocked',
               condition: 'excellent',
               price_kes: 45000,
+              product: { brand: { name: 'Apple', slug: 'apple' } },
             },
             {
               storage: '256GB',
               color: 'White',
-              carrier: 'Safaricom',
               condition: 'good',
               price_kes: 55000,
+              product: { brand: { name: 'Samsung', slug: 'samsung' } },
             },
           ],
           error: null,
@@ -369,26 +435,22 @@ describe('Listings Data Functions', () => {
 
     test('getFilteredListings uses getCategoryAndDescendantIds for category filtering', () => {
       expect(listingsSrc).toContain('getCategoryAndDescendantIds')
-      expect(listingsSrc).toContain('.in(')
-      expect(listingsSrc).toContain("'category_id', descendantIds")
+      expect(listingsSrc).toContain(".in('category_id', descendantIds)")
+      expect(listingsSrc).toContain(".from('product_categories')")
     })
 
     test('getFilteredListings skips category filter when categorySlug is null', () => {
-      // The function should have a conditional branch for null categorySlug
       expect(listingsSrc).toContain('categorySlug')
-      // It should not always require category lookup
       expect(listingsSrc).toContain('if (categorySlug')
     })
 
     test('getAvailableFilters accepts null categorySlug', () => {
-      // The second function signature should also accept null
       const signatures = listingsSrc.match(/categorySlug: string \| null/g)
       expect(signatures).not.toBeNull()
       expect(signatures!.length).toBeGreaterThanOrEqual(2)
     })
 
     test('getAvailableFilters uses getCategoryAndDescendantIds', () => {
-      // Both functions should use descendant IDs
       expect(listingsSrc).toContain(
         "import { getCategoryAndDescendantIds } from '@data/categories'"
       )
@@ -397,24 +459,19 @@ describe('Listings Data Functions', () => {
     test('getAvailableFilters populates categories array', () => {
       expect(listingsSrc).toContain('categoryCounts')
       expect(listingsSrc).toContain('cat.slug')
-      // The final return should use the computed categories, not a hardcoded empty array
       expect(listingsSrc).toContain('categories,')
     })
 
     test('getFilteredListings handles filters.category', () => {
       expect(listingsSrc).toContain('filters.category')
-      expect(listingsSrc).toContain("'slug', filters.category")
+      expect(listingsSrc).toContain(".in('slug', filters.category)")
     })
   })
 
   describe('getFilteredListings with null categorySlug', () => {
     beforeEach(() => {
-      fromHandler = (table: string) => {
-        if (table === 'categories') {
-          return chainable({ data: mockCategoryData, error: null })
-        }
-        return chainable({ data: mockListings, error: null, count: 2 })
-      }
+      fromHandler = () =>
+        chainable({ data: mockListings, error: null, count: 2 })
     })
 
     test('returns all products when categorySlug is null', async () => {
@@ -430,18 +487,26 @@ describe('Listings Data Functions', () => {
   describe('getAvailableFilters with null categorySlug', () => {
     beforeEach(() => {
       fromHandler = (table: string) => {
-        if (table === 'categories') {
-          return chainable({ data: mockCategoryData, error: null })
+        if (table === 'product_categories') {
+          return chainable({
+            data: [
+              {
+                product_id: 'prod-1',
+                category_id: 'cat-123',
+                category: { name: 'Phones', slug: 'phones' },
+              },
+            ],
+            error: null,
+          })
         }
         return chainable({
           data: [
             {
               storage: '128GB',
               color: 'Black',
-              carrier: 'Unlocked',
               condition: 'excellent',
               price_kes: 45000,
-              product: { brand: 'Apple' },
+              product: { brand: { name: 'Apple', slug: 'apple' } },
             },
           ],
           error: null,

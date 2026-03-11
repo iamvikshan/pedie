@@ -12,13 +12,13 @@ export function ListingInfo({ listing }: ListingInfoProps) {
     <div>
       <div className='mb-3 flex flex-wrap items-center gap-2'>
         <span className='inline-flex items-center rounded bg-pedie-card px-2 py-1 text-xs font-mono text-pedie-text-muted border border-pedie-border'>
-          {listing.listing_id}
+          {listing.sku}
         </span>
         <ConditionBadge condition={listing.condition} />
       </div>
 
       <h1 className='text-2xl font-bold text-pedie-text md:text-3xl'>
-        {product.brand} {product.model}
+        {product.brand.name} {product.name}
       </h1>
 
       <div className='mt-4 grid grid-cols-2 gap-3'>
@@ -35,14 +35,6 @@ export function ListingInfo({ listing }: ListingInfoProps) {
             <span className='block text-xs text-pedie-text-muted'>Color</span>
             <span className='text-sm font-medium text-pedie-text'>
               {listing.color}
-            </span>
-          </div>
-        )}
-        {listing.carrier && (
-          <div className='rounded-md bg-pedie-card p-3 border border-pedie-border'>
-            <span className='block text-xs text-pedie-text-muted'>Carrier</span>
-            <span className='text-sm font-medium text-pedie-text'>
-              {listing.carrier}
             </span>
           </div>
         )}

@@ -229,6 +229,25 @@ export async function getListingById(
   return data as unknown as ListingWithProduct
 }
 
+export async function getListingBySku(
+  sku: string
+): Promise<ListingWithProduct | null> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('listings')
+    .select(LISTING_SELECT)
+    .eq('sku', sku)
+    .single()
+
+  if (error || !data) {
+    console.error(`Error fetching listing by SKU ${sku}:`, error)
+    return null
+  }
+
+  return data as unknown as ListingWithProduct
+}
+
 export async function getSimilarListings(
   productId: string,
   excludeListingId: string,

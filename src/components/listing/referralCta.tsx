@@ -10,10 +10,10 @@ interface ReferralCtaProps {
 
 export function ReferralCta({ listing }: ReferralCtaProps) {
   const { product } = listing
-  const brand = product?.brand || ''
-  const model = product?.model || ''
+  const brand = product?.brand?.name || ''
+  const name = product?.name || ''
   const message = encodeURIComponent(
-    `Hi, I'm interested in ${brand} ${model} (${listing.listing_id})`.trim()
+    `Hi, I'm interested in ${brand} ${name} (${listing.sku})`.trim()
   )
   // Strip the + from the number for wa.me URL
   const phoneNumber = (WHATSAPP_NUMBER || '').replace('+', '')
@@ -25,7 +25,7 @@ export function ReferralCta({ listing }: ReferralCtaProps) {
       target='_blank'
       rel='noopener noreferrer'
       className='inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pedie-accent bg-pedie-green text-white hover:bg-pedie-green-dark h-11 px-8 text-lg w-full'
-      aria-label={`Ask about ${brand} ${model} on WhatsApp`}
+      aria-label={`Ask about ${brand} ${name} on WhatsApp`}
     >
       <TbBrandWhatsapp className='w-5 h-5' aria-hidden='true' />
       WhatsApp

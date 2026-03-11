@@ -3,7 +3,7 @@ import { calculateDeposit, calculateDiscount, formatKes } from '@helpers'
 
 interface PriceDisplayProps {
   priceKes: number
-  originalPriceKes: number
+  originalPriceKes: number | null
   isPreorder: boolean
 }
 
@@ -12,7 +12,8 @@ export function PriceDisplay({
   originalPriceKes,
   isPreorder,
 }: PriceDisplayProps) {
-  const discount = calculateDiscount(originalPriceKes, priceKes)
+  const discount =
+    originalPriceKes != null ? calculateDiscount(originalPriceKes, priceKes) : 0
   const deposit = calculateDeposit(priceKes)
 
   return (
@@ -21,7 +22,7 @@ export function PriceDisplay({
         <span className='text-3xl font-bold text-pedie-green'>
           {formatKes(priceKes)}
         </span>
-        {discount > 0 && (
+        {discount > 0 && originalPriceKes != null && (
           <>
             <span className='text-lg text-pedie-text-muted line-through'>
               {formatKes(originalPriceKes)}

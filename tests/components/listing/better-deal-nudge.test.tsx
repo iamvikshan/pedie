@@ -18,7 +18,7 @@ describe('BetterDealNudge', () => {
   })
 
   test('links to /listings/ path', () => {
-    expect(src).toContain('href={`/listings/${betterDeal.listing_id}`}')
+    expect(src).toContain('href={`/listings/${betterDeal.sku}`}')
   })
 
   test('uses formatKes for savings display', () => {

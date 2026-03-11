@@ -1,5 +1,8 @@
 import { getProductFamilyBySlug, getRelatedListings } from '@data/products'
-import { getCategoryBreadcrumb } from '@data/categories'
+import {
+  getCategoryBreadcrumb,
+  getPrimaryCategoryForProduct,
+} from '@data/categories'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { formatKes } from '@helpers'
@@ -18,16 +21,20 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { slug } = await params
-  const family = await getProductFamilyBySlug(slug)
-  if (!family) return { title: 'Product Not Found | Pedie' }
+  const productFamilyResult = await getProductFamilyBySlug(slug)
+  if (!productFamilyResult) return { title: 'Product Not Found | Pedie' }
 
-  const { product, representative } = family
+  const productFamily = productFamilyResult
+  const product = productFamily.product
+  const representative = productFamily.representative
+  const effectivePrice =
+    representative.sale_price_kes ?? representative.price_kes
   return {
-    title: `${product.brand} ${product.model} | Pedie`,
-    description: `Buy ${product.brand} ${product.model} from ${formatKes(representative.final_price_kes)} — ${family.variantCount} variants available`,
+    title: `${product.brand.name} ${product.name} | Pedie`,
+    description: `Buy ${product.brand.name} ${product.name} from ${formatKes(effectivePrice)} — ${productFamily.variantCount} variants available`,
     openGraph: {
-      title: `${product.brand} ${product.model}`,
-      description: `From ${formatKes(representative.final_price_kes)} — ${family.variantCount} options`,
+      title: `${product.brand.name} ${product.name}`,
+      description: `From ${formatKes(effectivePrice)} — ${productFamily.variantCount} options`,
       images: product.images?.[0] ? [product.images[0]] : undefined,
     },
   }
@@ -35,21 +42,22 @@ export async function generateMetadata({
 
 export default async function ProductPage({ params }: PageProps) {
   const { slug } = await params
-  const family = await getProductFamilyBySlug(slug)
+  const productFamilyResult = await getProductFamilyBySlug(slug)
 
-  if (!family) {
-    notFound()
+  if (!productFamilyResult) {
+    return notFound()
   }
 
-  const { product } = family
+  const productFamily = productFamilyResult
+  const product = productFamily.product
 
-  const relatedListings = await getRelatedListings(
-    product.category_id,
-    product.id
-  )
+  const [relatedListings, primaryCategory] = await Promise.all([
+    getRelatedListings(product.id),
+    getPrimaryCategoryForProduct(product.id),
+  ])
 
-  const breadcrumbTrail = product.category?.slug
-    ? await getCategoryBreadcrumb(product.category.slug)
+  const breadcrumbTrail = primaryCategory?.slug
+    ? await getCategoryBreadcrumb(primaryCategory.slug)
     : []
 
   return (
@@ -60,7 +68,7 @@ export default async function ProductPage({ params }: PageProps) {
             name: seg.name,
             href: `/collections/${seg.slug}`,
           })),
-          { name: `${product.brand} ${product.model}` },
+          { name: `${product.brand.name} ${product.name}` },
         ]}
       />
       <div className='grid grid-cols-1 md:grid-cols-2 gap-8 mb-16'>
@@ -68,7 +76,7 @@ export default async function ProductPage({ params }: PageProps) {
         <div>
           <ImageGallery
             images={product.images || []}
-            productName={`${product.brand} ${product.model}`}
+            productName={`${product.brand.name} ${product.name}`}
           />
         </div>
 
@@ -76,11 +84,11 @@ export default async function ProductPage({ params }: PageProps) {
         <div className='flex flex-col gap-6'>
           <div>
             <h1 className='text-3xl font-bold tracking-tight mb-2'>
-              {product.brand} {product.model}
+              {product.brand.name} {product.name}
             </h1>
           </div>
 
-          <ProductDetailClient family={family} product={product} />
+          <ProductDetailClient family={productFamily} product={product} />
         </div>
       </div>
 

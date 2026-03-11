@@ -33,7 +33,7 @@ export default function BetterDealNudge({
         </span>
       </div>
       <Link
-        href={`/listings/${betterDeal.listing_id}`}
+        href={`/listings/${betterDeal.sku}`}
         className='text-sm font-medium text-pedie-green hover:underline'
       >
         {difference ? `Save ${difference}` : 'View better deal'} &rarr;

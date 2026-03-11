@@ -22,19 +22,19 @@ describe('ReferralCta', () => {
     expect(src).toContain(".replace('+', '')")
   })
 
-  test('includes product brand, model and listing_id in message', () => {
+  test('includes product brand, name and sku in message', () => {
     expect(src).toContain('brand')
-    expect(src).toContain('model')
-    expect(src).toContain('listing.listing_id')
+    expect(src).toContain('name')
+    expect(src).toContain('listing.sku')
   })
 
   test('encodes message for URL', () => {
     expect(src).toContain('encodeURIComponent')
   })
 
-  test('defensively defaults product brand and model', () => {
-    expect(src).toContain("product?.brand || ''")
-    expect(src).toContain("product?.model || ''")
+  test('defensively defaults product brand and name', () => {
+    expect(src).toContain("product?.brand?.name || ''")
+    expect(src).toContain("product?.name || ''")
   })
 
   test('validates WHATSAPP_NUMBER before building URL', () => {

@@ -162,6 +162,29 @@ export async function getCategoryBreadcrumb(
   return trail
 }
 
+export async function getPrimaryCategoryForProduct(
+  productId: string
+): Promise<Category | null> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from('product_categories')
+    .select('category:categories(*)')
+    .eq('product_id', productId)
+    .eq('is_primary', true)
+    .single()
+
+  if (error || !data) {
+    console.error(
+      `Error fetching primary category for product ${productId}:`,
+      error
+    )
+    return null
+  }
+
+  return (data as { category: Category | null }).category
+}
+
 /**
  * Returns the given category ID plus all descendant category IDs.
  * Useful for querying products in a parent category and all subcategories.

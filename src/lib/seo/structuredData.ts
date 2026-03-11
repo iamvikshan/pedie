@@ -28,7 +28,7 @@ export function productJsonLd(listing: ListingWithProduct) {
     },
     offers: {
       '@type': 'Offer' as const,
-      url: `${SITE_URL}/listings/${listing.id}`,
+      url: `${SITE_URL}/listings/${listing.sku}`,
       priceCurrency: 'KES',
       price: listing.sale_price_kes ?? listing.price_kes,
       availability:

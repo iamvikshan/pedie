@@ -1,8 +1,8 @@
 import type {
   Listing,
   ListingWithProduct,
-  Product,
   ProductFamily,
+  ProductWithBrand,
 } from '@app-types/product'
 import { getCategoryAndDescendantIds } from '@data/categories'
 import { createClient } from '@lib/supabase/server'
@@ -49,7 +49,7 @@ export async function getProductFamilyBySlug(
   if (!representative) return null
 
   return {
-    product: product as unknown as Product,
+    product: product as unknown as ProductWithBrand,
     listings: allListings,
     representative,
     variantCount: allListings.length,
@@ -98,7 +98,7 @@ export async function getProductFamilies(
     if (!representative) continue
 
     families.push({
-      product: product as unknown as Product,
+      product: product as unknown as ProductWithBrand,
       listings: allListings,
       representative,
       variantCount: allListings.length,
@@ -182,7 +182,7 @@ export async function getRelatedFamilies(
     if (!representative) continue
 
     families.push({
-      product: product as unknown as Product,
+      product: product as unknown as ProductWithBrand,
       listings: allListings,
       representative,
       variantCount: allListings.length,
@@ -312,7 +312,7 @@ export async function getProductFamiliesByCategory(
     if (!representative) continue
 
     families.push({
-      product: product as unknown as Product,
+      product: product as unknown as ProductWithBrand,
       listings: allListings,
       representative,
       variantCount: allListings.length,

@@ -11,7 +11,7 @@ interface AddToCartProps {
 
 export function AddToCart({ listing }: AddToCartProps) {
   const addListing = useCartStore(s => s.addListing)
-  const inCart = useCartStore(s => s.hasListing(listing.listing_id))
+  const inCart = useCartStore(s => s.hasListing(listing.id))
 
   const handleClick = () => {
     addListing(listing)

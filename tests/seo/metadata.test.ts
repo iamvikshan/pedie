@@ -125,9 +125,9 @@ describe('structured data edge cases', () => {
     expect(result.offers.itemCondition).toBe('https://schema.org/UsedCondition')
   })
 
-  test('productJsonLd offers url includes listing id', () => {
+  test('productJsonLd offers url includes listing sku', () => {
     const result = productJsonLd(mockListing)
-    expect(result.offers.url).toBe('https://pedie.tech/listings/1')
+    expect(result.offers.url).toBe('https://pedie.tech/listings/PD-ABC12')
   })
 
   test('collectionJsonLd serializes to valid JSON', () => {

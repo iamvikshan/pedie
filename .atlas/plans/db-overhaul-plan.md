@@ -129,8 +129,11 @@ Overhaul the Pedie database schema from a phone-centric PoC to an industry-stand
      - `tests/components/ui/product-family-card.test.tsx` -- remove inline test cases calling `getPricingTier` directly (3 tests: 'sale tier', 'regular tier', 'premium tier'); remove `getPricingTier` from import line
    - **Quality Gates:** `bun run f` -> `bun check` (expected residual errors: `productCard.tsx` and `productFamilyCard.tsx` will have broken `getPricingTier` import until 5C; listing component errors until 5B) -> `bun test`
 
-6. **[ ] Phase 5B: Listing Components & Detail Pages**
+6. **[x] Phase 5B: Listing Components & Detail Pages**
    - **Objective:** Update all listing display components and the listing detail page for the new schema. Rename route from `[listingId]` to `[sku]`.
+   - **Summary:** Renamed listing route to `[sku]`, added `getListingBySku()`, updated all listing components for new schema fields (sku, brand.name, product.name, effective pricing). Fixed ProductFamily data producers to return `ProductWithBrand`. Added `getPrimaryCategoryForProduct()` helper. PriceDisplay accepts optional `originalPriceKes`. Updated sitemap/JSON-LD for SKU URLs. Deleted dead `youMayAlsoLike.tsx`. 130 tests passing across 12 files.
+   - **Changes from plan:** Added `getPrimaryCategoryForProduct()` in categories.ts. Updated structuredData.ts for SKU URLs. Fixed ProductFamily casts in products.ts. Deleted dead youMayAlsoLike.tsx instead of updating commented code.
+   - **[Phase 5B Details](.atlas/plans/db-overhaul-phase-5B-complete.md)**
    - **Files/Functions to modify:**
      - `src/components/listing/productDetailClient.tsx` -- replace `listing_id` with `listing.id`, `product.model` with `product.name`, `product.brand` (string) with `product.brand.name`, `product.category` with category from junction, `original_price_kes`/`final_price_kes` with `price_kes`/`sale_price_kes`
      - `src/components/listing/listingInfo.tsx` -- `price_kes`/`sale_price_kes` instead of `final_price_kes`/`original_price_kes`; `listing.listing_id` -> `listing.sku`; `product.brand` -> `product.brand.name`; `product.model` -> `product.name`; remove `listing.carrier` block (carrier removed from schema)

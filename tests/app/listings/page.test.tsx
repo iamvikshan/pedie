@@ -40,60 +40,88 @@ mock.module('next/link', () => ({
 
 // Mock @data/products
 mock.module('@data/products', () => ({
-  getProductFamilyBySlug: mock(() =>
-    Promise.resolve({
-      product: { slug: 'test' },
-      listings: [],
-      representative: {},
-      variantCount: 1,
-    })
-  ),
+  getProductFamilyBySlug: mock(() => Promise.resolve(null)),
   getRelatedListings: mock(() => Promise.resolve([])),
-  findBetterDeal: mock(() => null),
   getRelatedFamilies: mock(() => Promise.resolve([])),
   LISTING_TYPE_PRIORITY: {},
 }))
 
+mock.module('@data/categories', () => ({
+  getCategoryBreadcrumb: mock(() =>
+    Promise.resolve([{ name: 'Phones', slug: 'phones' }])
+  ),
+  getPrimaryCategoryForProduct: mock(() =>
+    Promise.resolve({
+      id: 'cat-1',
+      name: 'Phones',
+      slug: 'phones',
+      description: null,
+      image_url: null,
+      icon: null,
+      is_active: true,
+      parent_id: null,
+      sort_order: 1,
+      created_at: '2024-01-01T00:00:00Z',
+      updated_at: '2024-01-01T00:00:00Z',
+    })
+  ),
+}))
+
 // Mock @data/listings
 mock.module('@data/listings', () => ({
-  getListingById: mock((id: string) => {
-    if (id === 'PD-TEST1')
+  getListingBySku: mock((sku: string) => {
+    if (sku === 'PD-TEST1')
       return Promise.resolve({
         id: 'uuid-1',
-        listing_id: 'PD-TEST1',
+        sku: 'PD-TEST1',
         product_id: 'prod-1',
         condition: 'excellent',
         price_kes: 45000,
+        sale_price_kes: null,
+        cost_kes: 40000,
         storage: '128GB',
         color: 'Black',
-        carrier: 'Unlocked',
         battery_health: 92,
         is_featured: false,
-        status: 'available',
+        listing_type: 'standard',
+        ram: null,
+        warranty_months: null,
+        attributes: null,
+        includes: null,
+        admin_notes: null,
+        quantity: 1,
+        status: 'active',
         images: ['https://example.com/img.jpg'],
-        original_price_usd: 500,
-        landed_cost_kes: 40000,
         source: null,
-        source_listing_id: null,
+        source_id: null,
         source_url: null,
-        sheets_row_id: null,
         notes: null,
         created_at: '2024-01-01T00:00:00Z',
         updated_at: '2024-01-01T00:00:00Z',
         product: {
           id: 'prod-1',
-          brand: 'Apple',
-          model: 'iPhone 13',
+          name: 'iPhone 13',
           slug: 'apple-iphone-13',
-          original_price_kes: 55000,
+          brand_id: 'brand-1',
           specs: { display: '6.1"', chip: 'A15' },
           key_features: ['5G capable', 'Dual camera'],
           images: [],
-          category_id: 'cat-1',
           description: 'Great phone',
+          is_active: true,
           created_at: '2024-01-01T00:00:00Z',
           updated_at: '2024-01-01T00:00:00Z',
           fts: null,
+          brand: {
+            id: 'brand-1',
+            name: 'Apple',
+            slug: 'apple',
+            logo_url: null,
+            website_url: null,
+            is_active: true,
+            sort_order: 1,
+            created_at: '2024-01-01T00:00:00Z',
+            updated_at: '2024-01-01T00:00:00Z',
+          },
         },
       })
     return Promise.resolve(null)
@@ -113,19 +141,23 @@ mock.module('@data/reviews', () => ({
   ),
 }))
 
+mock.module('@components/listing/similarListings', () => ({
+  SimilarListings: () => React.createElement('div', null, 'SimilarListings'),
+}))
+
 // Import components after mocking
 const { default: ListingPage, generateMetadata } =
-  await import('@/app/(store)/listings/[listingId]/page')
-const { getListingById } = await import('@data/listings')
+  await import('@/app/(store)/listings/[sku]/page')
+const { getListingBySku } = await import('@data/listings')
 
 describe('ListingPage', () => {
   beforeEach(() => {
     mockNotFound.mockClear()
-    ;(getListingById as ReturnType<typeof mock>).mockClear()
+    ;(getListingBySku as ReturnType<typeof mock>).mockClear()
   })
 
   test('renders listing info for a valid listing', async () => {
-    const params = Promise.resolve({ listingId: 'PD-TEST1' })
+    const params = Promise.resolve({ sku: 'PD-TEST1' })
     const element = await ListingPage({ params })
     const html = renderToString(element)
 
@@ -140,15 +172,15 @@ describe('ListingPage', () => {
   })
 
   test('calls notFound for missing listing', async () => {
-    const params = Promise.resolve({ listingId: 'INVALID-ID' })
+    const params = Promise.resolve({ sku: 'INVALID-ID' })
 
     await expect(ListingPage({ params })).rejects.toThrow('NEXT_NOT_FOUND')
 
-    expect(getListingById).toHaveBeenCalledWith('INVALID-ID')
+    expect(getListingBySku).toHaveBeenCalledWith('INVALID-ID')
   })
 
   test('generates metadata for valid listing', async () => {
-    const params = Promise.resolve({ listingId: 'PD-TEST1' })
+    const params = Promise.resolve({ sku: 'PD-TEST1' })
     const metadata = await generateMetadata({ params })
 
     expect(metadata.title).toContain('Apple iPhone 13')
@@ -158,14 +190,14 @@ describe('ListingPage', () => {
   })
 
   test('generates not found metadata for missing listing', async () => {
-    const params = Promise.resolve({ listingId: 'NONEXISTENT' })
+    const params = Promise.resolve({ sku: 'NONEXISTENT' })
     const metadata = await generateMetadata({ params })
 
     expect(metadata.title).toBe('Listing Not Found | Pedie')
   })
 
   test('renders product specs and description', async () => {
-    const params = Promise.resolve({ listingId: 'PD-TEST1' })
+    const params = Promise.resolve({ sku: 'PD-TEST1' })
     const element = await ListingPage({ params })
     const html = renderToString(element)
 
@@ -180,7 +212,7 @@ describe('ListingPage', () => {
   })
 
   test('renders shipping info', async () => {
-    const params = Promise.resolve({ listingId: 'PD-TEST1' })
+    const params = Promise.resolve({ sku: 'PD-TEST1' })
     const element = await ListingPage({ params })
     const html = renderToString(element)
 
@@ -191,7 +223,7 @@ describe('ListingPage', () => {
 
 describe('Phase 3 locked-variant mirror page checks', () => {
   const src = readFileSync(
-    resolve('src/app/(store)/listings/[listingId]/page.tsx'),
+    resolve('src/app/(store)/listings/[sku]/page.tsx'),
     'utf-8'
   )
   test('fetches getProductFamilyBySlug', () => {
@@ -202,5 +234,11 @@ describe('Phase 3 locked-variant mirror page checks', () => {
   })
   test('shows See all variants link', () => {
     expect(src).toContain('See all')
+  })
+
+  test('passes a conditional original price to PriceDisplay for discounted listings', () => {
+    expect(src).toContain(
+      'listing.sale_price_kes != null ? listing.price_kes : null'
+    )
   })
 })

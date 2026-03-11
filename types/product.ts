@@ -111,14 +111,18 @@ export type ProductCategory = {
   is_primary: boolean
 }
 
+export type ProductWithBrand = Product & {
+  brand: Brand
+}
+
 /** A listing joined with its product and brand info */
 export interface ListingWithProduct extends Listing {
-  product: Product & { brand: Brand }
+  product: ProductWithBrand
 }
 
 /** A product with all its available listings grouped as a "family" */
 export interface ProductFamily {
-  product: Product
+  product: ProductWithBrand
   listings: Listing[]
   representative: Listing
   variantCount: number

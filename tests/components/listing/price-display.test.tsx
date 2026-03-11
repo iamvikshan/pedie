@@ -1,7 +1,14 @@
 import { describe, expect, test } from 'bun:test'
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { PriceDisplay } from '@components/listing/priceDisplay'
 import React from 'react'
 import { render, screen } from '../../utils'
+
+const src = readFileSync(
+  resolve('src/components/listing/priceDisplay.tsx'),
+  'utf-8'
+)
 
 describe('PriceDisplay', () => {
   test('shows formatted price', () => {
@@ -16,6 +23,24 @@ describe('PriceDisplay', () => {
     expect(screen.getByText(/45,000/)).toBeInTheDocument()
   })
 
+  test('guards discount rendering when originalPriceKes is null', () => {
+    expect(src).toContain('originalPriceKes != null')
+  })
+
+  test('does not show discount badge or strikethrough when originalPriceKes is null', () => {
+    const { container } = render(
+      <PriceDisplay
+        priceKes={45000}
+        originalPriceKes={null}
+        isPreorder={false}
+      />
+    )
+
+    expect(screen.getByText(/45,000/)).toBeInTheDocument()
+    expect(container.textContent).not.toContain('%')
+    expect(container.innerHTML).not.toContain('line-through')
+  })
+
   test('shows discount when original > current', () => {
     const { container } = render(
       <PriceDisplay
@@ -27,9 +52,8 @@ describe('PriceDisplay', () => {
 
     expect(screen.getByText(/45,000/)).toBeInTheDocument()
     expect(screen.getByText(/55,000/)).toBeInTheDocument()
-    // Discount percentage rendered in DOM (no HTML comments like renderToString)
+    expect(screen.getByText('-18%')).toBeInTheDocument()
     expect(container.textContent).toContain('18%')
-    // line-through class on original price
     const strikethrough = screen.getByText(/55,000/)
     expect(strikethrough.className).toContain('line-through')
   })

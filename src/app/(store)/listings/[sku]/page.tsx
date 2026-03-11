@@ -1,4 +1,5 @@
 import { AddToCart } from '@components/listing/addToCart'
+import BetterDealNudge from '@components/listing/betterDealNudge'
 import { CustomerReviews } from '@components/listing/customerReviews'
 import { ImageGallery } from '@components/listing/imageGallery'
 import { ListingInfo } from '@components/listing/listingInfo'
@@ -9,33 +10,35 @@ import { ProductSpecs } from '@components/listing/productSpecs'
 import { ShippingInfo } from '@components/listing/shippingInfo'
 import { SimilarListings } from '@components/listing/similarListings'
 import VariantSelector from '@components/listing/variantSelector'
-import BetterDealNudge from '@components/listing/betterDealNudge'
 import { Breadcrumbs } from '@components/ui/breadcrumbs'
-import { calculateDeposit, formatKes } from '@helpers'
-import { getListingById } from '@data/listings'
-import { getProductReviews, getReviewStats } from '@data/reviews'
-import { findBetterDeal } from '@utils/products'
+import {
+  getCategoryBreadcrumb,
+  getPrimaryCategoryForProduct,
+} from '@data/categories'
+import { getListingBySku } from '@data/listings'
 import { getProductFamilyBySlug, getRelatedListings } from '@data/products'
-import { getCategoryBreadcrumb } from '@data/categories'
-import Link from 'next/link'
+import { getProductReviews, getReviewStats } from '@data/reviews'
+import { calculateDeposit, formatKes } from '@helpers'
 import {
   breadcrumbJsonLd,
   productJsonLd,
   safeJsonLd,
 } from '@lib/seo/structuredData'
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { SITE_URL } from '@/config'
+import { findBetterDeal } from '@utils/products'
 
 type PageProps = {
-  params: Promise<{ listingId: string }>
+  params: Promise<{ sku: string }>
 }
 
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
-  const { listingId } = await params
-  const listing = await getListingById(listingId)
+  const { sku } = await params
+  const listing = await getListingBySku(sku)
 
   if (!listing) {
     return { title: 'Listing Not Found | Pedie' }
@@ -45,47 +48,53 @@ export async function generateMetadata({
     ...(listing.images || []),
     ...(listing.product.images || []),
   ].filter(Boolean)
+  const effectivePrice = listing.sale_price_kes ?? listing.price_kes
 
   return {
-    title: `${listing.product.brand} ${listing.product.model} - ${listing.listing_id}`,
-    description: `Buy ${listing.product.brand} ${listing.product.model} (${listing.condition}) for ${formatKes(listing.price_kes)}`,
+    title: `${listing.product.brand.name} ${listing.product.name} - ${listing.sku}`,
+    description: `Buy ${listing.product.brand.name} ${listing.product.name} (${listing.condition}) for ${formatKes(effectivePrice)}`,
     openGraph: {
-      title: `${listing.product.brand} ${listing.product.model}`,
-      description: `${listing.condition} condition - ${formatKes(listing.price_kes)}`,
+      title: `${listing.product.brand.name} ${listing.product.name}`,
+      description: `${listing.condition} condition - ${formatKes(effectivePrice)}`,
       images: allImages.length > 0 ? [allImages[0]] : undefined,
     },
   }
 }
 
 export default async function ListingPage({ params }: PageProps) {
-  const { listingId } = await params
-  const listing = await getListingById(listingId)
+  const { sku } = await params
+  const listing = await getListingBySku(sku)
 
   if (!listing) {
     return notFound()
   }
 
   const { product } = listing
+  const productName = `${product.brand.name} ${product.name}`
+  const effectivePrice = listing.sale_price_kes ?? listing.price_kes
   const allImages = [
     ...(listing.images || []),
     ...(product.images || []),
   ].filter(Boolean)
-  const deposit = calculateDeposit(listing.price_kes)
+  const deposit = calculateDeposit(effectivePrice)
 
-  const [similarListings, reviews, reviewStats, family] = await Promise.all([
-    getRelatedListings(listing.product.category_id, listing.product_id),
-    getProductReviews(listing.product_id, { page: 1, perPage: 5 }),
-    getReviewStats(listing.product_id),
-    getProductFamilyBySlug(listing.product.slug),
-  ])
+  const [similarListings, reviews, reviewStats, family, primaryCategory] =
+    await Promise.all([
+      getRelatedListings(listing.product_id),
+      getProductReviews(listing.product_id, { page: 1, perPage: 5 }),
+      getReviewStats(listing.product_id),
+      getProductFamilyBySlug(listing.product.slug),
+      getPrimaryCategoryForProduct(listing.product_id),
+    ])
 
   const betterDeal = family ? findBetterDeal(listing, family.listings) : null
+  const familyVariantCount = family?.variantCount ?? 0
   const savings = betterDeal
-    ? listing.final_price_kes - betterDeal.final_price_kes
+    ? effectivePrice - (betterDeal.sale_price_kes ?? betterDeal.price_kes)
     : 0
 
-  const breadcrumbTrail = listing.product.category?.slug
-    ? await getCategoryBreadcrumb(listing.product.category.slug)
+  const breadcrumbTrail = primaryCategory?.slug
+    ? await getCategoryBreadcrumb(primaryCategory.slug)
     : []
 
   return (
@@ -103,14 +112,14 @@ export default async function ListingPage({ params }: PageProps) {
             breadcrumbJsonLd([
               { name: 'Shop', url: `${SITE_URL}/shop` },
               {
-                name: listing.product.category?.name || 'Products',
-                url: listing.product.category?.slug
-                  ? `${SITE_URL}/collections/${listing.product.category.slug}`
+                name: primaryCategory?.name || 'Products',
+                url: primaryCategory?.slug
+                  ? `${SITE_URL}/collections/${primaryCategory.slug}`
                   : `${SITE_URL}/collections`,
               },
               {
-                name: `${listing.product.brand} ${listing.product.model}`,
-                url: `${SITE_URL}/listings/${listing.listing_id}`,
+                name: productName,
+                url: `${SITE_URL}/listings/${listing.sku}`,
               },
             ])
           ),
@@ -124,21 +133,15 @@ export default async function ListingPage({ params }: PageProps) {
               href: `/collections/${seg.slug}`,
             })),
             {
-              name: `${product.brand} ${product.model}`,
+              name: productName,
               href: `/products/${product.slug}`,
             },
-            { name: listing.listing_id },
+            { name: listing.sku },
           ]}
         />
-        {/* Above the fold: image + info */}
         <div className='grid grid-cols-1 gap-8 md:grid-cols-2'>
-          {/* Left column: Image Gallery */}
-          <ImageGallery
-            images={allImages}
-            productName={`${product.brand} ${product.model}`}
-          />
+          <ImageGallery images={allImages} productName={productName} />
 
-          {/* Right column: Listing Info */}
           <div className='flex flex-col gap-4'>
             <ListingInfo listing={listing} />
 
@@ -154,14 +157,16 @@ export default async function ListingPage({ params }: PageProps) {
                   href={`/products/${listing.product.slug}`}
                   className='text-sm text-pedie-green hover:underline'
                 >
-                  See all {family.variantCount} variants &rarr;
+                  See all {familyVariantCount} variants &rarr;
                 </Link>
               </>
             )}
 
             <PriceDisplay
-              priceKes={listing.price_kes}
-              originalPriceKes={product.original_price_kes}
+              priceKes={effectivePrice}
+              originalPriceKes={
+                listing.sale_price_kes != null ? listing.price_kes : null
+              }
               isPreorder={listing.listing_type === 'preorder'}
             />
 
@@ -176,7 +181,6 @@ export default async function ListingPage({ params }: PageProps) {
           </div>
         </div>
 
-        {/* Below the fold: specs, description */}
         <div className='mt-12 grid grid-cols-1 gap-8 lg:grid-cols-2'>
           <ProductSpecs specs={product.specs} />
           <ProductDescription
@@ -185,7 +189,6 @@ export default async function ListingPage({ params }: PageProps) {
           />
         </div>
 
-        {/* Below the fold: related & reviews */}
         <div className='mt-12'>
           <SimilarListings listings={similarListings} />
           <CustomerReviews

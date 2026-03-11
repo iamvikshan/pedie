@@ -19,6 +19,10 @@ const src = readFileSync(
 )
 
 describe('AddToCart Component', () => {
+  test('checks cart membership by internal listing id', () => {
+    expect(src).toContain('useCartStore(s => s.hasListing(listing.id))')
+  })
+
   test('standard listing renders Add to Cart text', () => {
     expect(src).toContain(
       "listing.listing_type === 'preorder' ? 'Preorder Now' : 'Add to Cart'"
@@ -62,43 +66,55 @@ describe('AddToCart Component', () => {
 describe('AddToCart DOM Rendering', () => {
   const baseListing: ListingWithProduct = {
     id: '1',
-    listing_id: 'PD-12345',
+    sku: 'PD-12345',
     product_id: 'p1',
     storage: '256GB',
     color: 'Space Black',
-    carrier: 'Unlocked',
     condition: 'excellent',
     battery_health: 95,
     price_kes: 120000,
-    final_price_kes: 120000,
-    original_price_usd: 1000,
-    landed_cost_kes: 110000,
+    sale_price_kes: null,
+    cost_kes: 110000,
     source: 'eBay',
-    source_listing_id: 'ebay123',
+    source_id: null,
     source_url: null,
     images: ['/listing-image.jpg'],
     is_featured: true,
     listing_type: 'standard',
     ram: null,
-    status: 'available',
-    sheets_row_id: 'row1',
+    warranty_months: null,
+    attributes: null,
+    includes: null,
+    admin_notes: null,
+    quantity: 1,
+    status: 'active',
     notes: null,
     created_at: '2023-01-01T00:00:00Z',
     updated_at: '2023-01-01T00:00:00Z',
     product: {
       id: 'p1',
-      brand: 'Apple',
-      model: 'iPhone 14 Pro',
+      name: 'iPhone 14 Pro',
       slug: 'apple-iphone-14-pro',
-      category_id: 'cat1',
+      brand_id: 'b1',
       description: 'Great phone',
       specs: null,
       key_features: null,
       images: ['/product-image.jpg'],
-      original_price_kes: 150000,
+      is_active: true,
       created_at: '2023-01-01T00:00:00Z',
       updated_at: '2023-01-01T00:00:00Z',
       fts: null,
+      brand: {
+        id: 'b1',
+        name: 'Apple',
+        slug: 'apple',
+        logo_url: null,
+        website_url: null,
+        is_active: true,
+        sort_order: 1,
+        created_at: '',
+        updated_at: '',
+      },
     },
   }
 

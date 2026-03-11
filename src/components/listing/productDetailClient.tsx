@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import type {
-  Product,
   Listing,
   ProductFamily,
+  ProductWithBrand,
   ListingWithProduct,
 } from '@app-types/product'
 import VariantSelector from '@components/listing/variantSelector'
@@ -19,7 +19,7 @@ import { findBetterDeal } from '@utils/products'
 
 interface ProductDetailClientProps {
   family: ProductFamily
-  product: Product
+  product: ProductWithBrand
 }
 
 export default function ProductDetailClient({
@@ -29,11 +29,13 @@ export default function ProductDetailClient({
   const [selectedListing, setSelectedListing] = useState<Listing>(
     family.representative
   )
+  const effectivePrice =
+    selectedListing.sale_price_kes ?? selectedListing.price_kes
 
   const betterDeal = findBetterDeal(selectedListing, family.listings)
   const isPreorder = selectedListing.listing_type === 'preorder'
   const savings = betterDeal
-    ? selectedListing.final_price_kes - betterDeal.final_price_kes
+    ? effectivePrice - (betterDeal.sale_price_kes ?? betterDeal.price_kes)
     : 0
 
   // Construct a ListingWithProduct for AddToCart
@@ -52,14 +54,18 @@ export default function ProductDetailClient({
       <ConditionBadge condition={selectedListing.condition} />
       <BetterDealNudge betterDeal={betterDeal} savings={savings} />
       <PriceDisplay
-        priceKes={selectedListing.final_price_kes}
-        originalPriceKes={product.original_price_kes}
+        priceKes={effectivePrice}
+        originalPriceKes={
+          selectedListing.sale_price_kes != null
+            ? selectedListing.price_kes
+            : null
+        }
         isPreorder={isPreorder}
       />
       {isPreorder && (
         <PreorderBadge
           isPreorder={isPreorder}
-          depositAmount={calculateDeposit(selectedListing.final_price_kes)}
+          depositAmount={calculateDeposit(effectivePrice)}
         />
       )}
       <AddToCart listing={listingWithProduct} />
