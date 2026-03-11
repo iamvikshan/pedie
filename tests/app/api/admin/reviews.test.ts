@@ -86,7 +86,7 @@ describe('GET /api/admin/reviews', () => {
           id: 'r1',
           rating: 5,
           title: 'Great phone',
-          product: { brand: 'Apple', model: 'iPhone 15' },
+          product: { brand: { name: 'Apple' }, name: 'iPhone 15' },
           profile: { full_name: 'Alice' },
         },
       ],

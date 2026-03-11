@@ -51,6 +51,12 @@ describe('ProductFamilyCard Component', () => {
     expect(src).toContain('TbFlame')
   })
 
+  test('uses sale price only when it is a true discount', () => {
+    expect(src).toContain('const effectivePrice = isSale')
+    expect(src).toContain('? representative.sale_price_kes!')
+    expect(src).toContain(': representative.price_kes')
+  })
+
   test('sale tier does not show discounted tier', () => {
     expect(src).not.toContain("tier === 'discounted'")
   })
@@ -188,6 +194,17 @@ describe('ProductFamilyCard DOM Rendering', () => {
       created_at: '',
       updated_at: '',
       fts: null,
+      brand: {
+        id: 'b1',
+        name: 'Apple',
+        slug: 'apple',
+        logo_url: null,
+        website_url: null,
+        is_active: true,
+        sort_order: 1,
+        created_at: '2023-01-01T00:00:00Z',
+        updated_at: '2023-01-01T00:00:00Z',
+      },
     },
     listings: [mockListing],
     representative: mockListing,
@@ -217,5 +234,27 @@ describe('ProductFamilyCard DOM Rendering', () => {
     render(<ProductFamilyCard family={mockFamily} />)
     const formatted = formatKes(mockListing.price_kes)
     expect(screen.getByText(formatted)).toBeInTheDocument()
+  })
+
+  test('ignores sale_price_kes when it is not lower than price_kes', async () => {
+    const { ProductFamilyCard } =
+      await import('@components/ui/productFamilyCard')
+    render(
+      <ProductFamilyCard
+        family={{
+          ...mockFamily,
+          representative: {
+            ...mockListing,
+            sale_price_kes: 130000,
+          },
+        }}
+      />
+    )
+
+    expect(
+      screen.getByText(formatKes(mockListing.price_kes))
+    ).toBeInTheDocument()
+    expect(screen.queryByText(formatKes(130000))).not.toBeInTheDocument()
+    expect(screen.queryByText('Flash Sale')).not.toBeInTheDocument()
   })
 })

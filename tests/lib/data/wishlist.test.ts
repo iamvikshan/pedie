@@ -31,10 +31,13 @@ const mockWishlistItems = [
     created_at: '2025-01-01',
     product: {
       id: 'prod-1',
-      brand: 'Apple',
-      model: 'iPhone 15',
+      name: 'iPhone 15',
+      brand_id: 'brand-1',
       images: ['img1.jpg'],
-      original_price_kes: 150000,
+      brand: {
+        name: 'Apple',
+        slug: 'apple',
+      },
     },
   },
   {
@@ -44,10 +47,13 @@ const mockWishlistItems = [
     created_at: '2025-01-02',
     product: {
       id: 'prod-2',
-      brand: 'Samsung',
-      model: 'Galaxy S24',
+      name: 'Galaxy S24',
+      brand_id: 'brand-2',
       images: ['img2.jpg'],
-      original_price_kes: 120000,
+      brand: {
+        name: 'Samsung',
+        slug: 'samsung',
+      },
     },
   },
 ]

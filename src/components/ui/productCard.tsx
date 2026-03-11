@@ -1,6 +1,6 @@
 import type { ListingWithProduct } from '@app-types/product'
 import { Badge } from '@components/ui/badge'
-import { calculateDiscount, formatKes, getPricingTier } from '@helpers'
+import { calculateDiscount, formatKes } from '@helpers'
 import Image from 'next/image'
 import Link from 'next/link'
 import {
@@ -27,16 +27,16 @@ export function ProductCard({ listing }: ProductCardProps) {
 
   const { product } = listing
   const productName = product.name
-  const effectivePrice = listing.sale_price_kes ?? listing.price_kes
-  const tier = getPricingTier(listing)
+  const isSale =
+    listing.sale_price_kes != null && listing.sale_price_kes < listing.price_kes
+  const effectivePrice = isSale ? listing.sale_price_kes! : listing.price_kes
   const discount =
-    tier === 'sale'
-      ? calculateDiscount(listing.price_kes, listing.sale_price_kes!)
+    isSale && listing.sale_price_kes != null
+      ? calculateDiscount(listing.price_kes, listing.sale_price_kes)
       : 0
   const imageUrl = listing.images?.[0] || product.images?.[0]
   const isAffiliate = listing.listing_type === 'affiliate' && listing.source_url
   const isReferral = listing.listing_type === 'referral'
-  const isSale = tier === 'sale'
 
   const CardWrapper = isAffiliate ? 'a' : Link
   const wrapperProps = isAffiliate
@@ -46,7 +46,7 @@ export function ProductCard({ listing }: ProductCardProps) {
         rel: 'noopener noreferrer',
       }
     : {
-        href: `/listings/${listing.id}`,
+        href: `/listings/${listing.sku}`,
       }
 
   return (
@@ -116,6 +116,13 @@ export function ProductCard({ listing }: ProductCardProps) {
 
         {/* Top-right badges */}
         <div className='absolute top-2 right-2 flex flex-col gap-1.5 items-end'>
+          <Badge
+            variant='default'
+            size='lg'
+            className='glass bg-pedie-surface/80 backdrop-blur-sm font-mono text-xs'
+          >
+            {listing.sku}
+          </Badge>
           {isSale && (
             <ConditionBadge condition={listing.condition} variant='circle' />
           )}

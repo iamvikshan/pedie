@@ -21,23 +21,52 @@ export async function PUT(
     const { id } = await params
     const body = await request.json()
 
+    const validateNonNegativeNumber = (
+      value: unknown,
+      field: string
+    ): NextResponse | null => {
+      if (
+        value != null &&
+        (typeof value !== 'number' || !Number.isFinite(value) || value < 0)
+      ) {
+        return NextResponse.json(
+          { error: `${field} must be a non-negative number` },
+          { status: 400 }
+        )
+      }
+
+      return null
+    }
+
+    const numericValidationError =
+      validateNonNegativeNumber(body.sale_price_kes, 'sale_price_kes') ??
+      validateNonNegativeNumber(body.cost_kes, 'cost_kes') ??
+      validateNonNegativeNumber(body.warranty_months, 'warranty_months')
+
+    if (numericValidationError) {
+      return numericValidationError
+    }
+
     const allowed = {
       product_id: body.product_id,
       storage: body.storage,
       color: body.color,
-      carrier: body.carrier,
       condition: body.condition,
       battery_health: body.battery_health,
       price_kes: body.price_kes,
-      original_price_usd: body.original_price_usd,
-      landed_cost_kes: body.landed_cost_kes,
+      sale_price_kes: body.sale_price_kes,
+      cost_kes: body.cost_kes,
       images: body.images,
       is_featured: body.is_featured,
       status: body.status,
       source: body.source,
+      source_id: body.source_id,
       source_url: body.source_url,
-      source_listing_id: body.source_listing_id,
-      sheets_row_id: body.sheets_row_id,
+      warranty_months: body.warranty_months,
+      attributes: body.attributes,
+      includes: body.includes,
+      admin_notes: body.admin_notes,
+      quantity: body.quantity,
       notes: body.notes,
     }
 

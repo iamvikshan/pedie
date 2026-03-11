@@ -64,8 +64,8 @@ mock.module('@data/admin', () => ({
           unit_price_kes: 80000,
           deposit_kes: 4000,
           listing: {
-            listing_id: 'PD-ABC12',
-            product: { brand: 'Apple', model: 'iPhone 15' },
+            sku: 'PD-ABC12',
+            product: { brand: { name: 'Apple' }, name: 'iPhone 15' },
           },
         },
       ],

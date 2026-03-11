@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 
 interface EditListingClientProps {
   listing: Record<string, unknown>
-  products: Array<{ id: string; brand: string; model: string }>
+  products: Array<{ id: string; name: string; brand_id: string }>
 }
 
 export function EditListingClient({

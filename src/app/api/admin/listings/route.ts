@@ -79,6 +79,7 @@ export async function POST(request: Request) {
       is_featured: body.is_featured,
       status: body.status,
       source: body.source,
+      source_id: body.source_id,
       source_url: body.source_url,
       warranty_months: body.warranty_months,
       attributes: body.attributes,

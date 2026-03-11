@@ -64,7 +64,12 @@ describe('GET /api/wishlist', () => {
       {
         id: 'w1',
         product_id: 'prod-1',
-        product: { brand: 'Apple', model: 'iPhone 15' },
+        product: {
+          id: 'prod-1',
+          name: 'iPhone 15',
+          brand_id: 'brand-1',
+          brand: { name: 'Apple', slug: 'apple' },
+        },
       },
     ]
     mockGetWishlistByUser.mockResolvedValue(items)

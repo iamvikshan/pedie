@@ -24,7 +24,14 @@ interface ListingData {
   cost_kes?: number | null
   status?: string
   is_featured?: boolean
-  notes?: string | null
+  source?: string | null
+  source_id?: string | null
+  source_url?: string | null
+  warranty_months?: number | null
+  attributes?: Record<string, unknown> | null
+  includes?: string[] | string | null
+  notes?: string[] | string | null
+  admin_notes?: string | null
   images?: string[] | null
 }
 
@@ -62,7 +69,20 @@ export function ListingForm({
     cost_kes: initialData?.cost_kes ?? '',
     status: initialData?.status ?? 'active',
     is_featured: initialData?.is_featured ?? false,
-    notes: initialData?.notes ?? '',
+    source: initialData?.source ?? '',
+    source_id: initialData?.source_id ?? '',
+    source_url: initialData?.source_url ?? '',
+    warranty_months: initialData?.warranty_months ?? '',
+    attributes: initialData?.attributes
+      ? JSON.stringify(initialData.attributes, null, 2)
+      : '',
+    includes: Array.isArray(initialData?.includes)
+      ? initialData.includes.join('\n')
+      : (initialData?.includes ?? ''),
+    notes: Array.isArray(initialData?.notes)
+      ? initialData.notes.join('\n')
+      : (initialData?.notes ?? ''),
+    admin_notes: initialData?.admin_notes ?? '',
   })
 
   const handleChange = (
@@ -87,6 +107,19 @@ export function ListingForm({
       if (isNaN(priceKes) || priceKes < 0) {
         throw new Error('Price must be a valid non-negative number')
       }
+
+      let parsedAttributes: Record<string, unknown> | null = null
+      if (formData.attributes.trim()) {
+        try {
+          parsedAttributes = JSON.parse(formData.attributes) as Record<
+            string,
+            unknown
+          >
+        } catch {
+          throw new Error('Attributes must be valid JSON')
+        }
+      }
+
       const data: Record<string, unknown> = {
         ...formData,
         price_kes: priceKes,
@@ -99,6 +132,19 @@ export function ListingForm({
             ? Number(formData.sale_price_kes)
             : null,
         cost_kes: formData.cost_kes !== '' ? Number(formData.cost_kes) : null,
+        warranty_months:
+          formData.warranty_months !== ''
+            ? Number(formData.warranty_months)
+            : null,
+        attributes: parsedAttributes,
+        includes: formData.includes
+          .split('\n')
+          .map(item => item.trim())
+          .filter(Boolean),
+        notes: formData.notes
+          .split('\n')
+          .map(note => note.trim())
+          .filter(Boolean),
       }
       await onSubmit(data)
     } catch (err) {
@@ -167,6 +213,55 @@ export function ListingForm({
             name='color'
             type='text'
             value={formData.color}
+            onChange={handleChange}
+          />
+        </div>
+      </div>
+
+      {/* Source details */}
+      <div className='grid grid-cols-1 gap-4 md:grid-cols-3'>
+        <div>
+          <label
+            htmlFor='source'
+            className='mb-1 block text-sm font-medium text-pedie-text'
+          >
+            Source
+          </label>
+          <Input
+            id='source'
+            name='source'
+            type='text'
+            value={formData.source}
+            onChange={handleChange}
+          />
+        </div>
+        <div>
+          <label
+            htmlFor='source_id'
+            className='mb-1 block text-sm font-medium text-pedie-text'
+          >
+            Source ID
+          </label>
+          <Input
+            id='source_id'
+            name='source_id'
+            type='text'
+            value={formData.source_id}
+            onChange={handleChange}
+          />
+        </div>
+        <div>
+          <label
+            htmlFor='source_url'
+            className='mb-1 block text-sm font-medium text-pedie-text'
+          >
+            Source URL
+          </label>
+          <Input
+            id='source_url'
+            name='source_url'
+            type='url'
+            value={formData.source_url}
             onChange={handleChange}
           />
         </div>
@@ -268,6 +363,23 @@ export function ListingForm({
         </div>
       </div>
 
+      <div>
+        <label
+          htmlFor='warranty_months'
+          className='mb-1 block text-sm font-medium text-pedie-text'
+        >
+          Warranty (months)
+        </label>
+        <Input
+          id='warranty_months'
+          name='warranty_months'
+          type='number'
+          min={0}
+          value={formData.warranty_months}
+          onChange={handleChange}
+        />
+      </div>
+
       {/* Status */}
       <div>
         <label
@@ -304,6 +416,25 @@ export function ListingForm({
         </label>
       </div>
 
+      {/* Includes */}
+      <div>
+        <label
+          htmlFor='includes'
+          className='mb-1 block text-sm font-medium text-pedie-text'
+        >
+          Includes
+        </label>
+        <textarea
+          id='includes'
+          name='includes'
+          value={formData.includes}
+          onChange={handleChange}
+          rows={3}
+          className='w-full rounded-lg border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text'
+          placeholder='One item per line'
+        />
+      </div>
+
       {/* Notes */}
       <div>
         <label
@@ -319,6 +450,41 @@ export function ListingForm({
           onChange={handleChange}
           rows={3}
           className='w-full rounded-lg border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text'
+          placeholder='One note per line'
+        />
+      </div>
+
+      <div>
+        <label
+          htmlFor='admin_notes'
+          className='mb-1 block text-sm font-medium text-pedie-text'
+        >
+          Admin Notes
+        </label>
+        <textarea
+          id='admin_notes'
+          name='admin_notes'
+          value={formData.admin_notes}
+          onChange={handleChange}
+          rows={3}
+          className='w-full rounded-lg border border-pedie-border bg-pedie-card px-3 py-2 text-sm text-pedie-text'
+        />
+      </div>
+
+      <div>
+        <label
+          htmlFor='attributes'
+          className='mb-1 block text-sm font-medium text-pedie-text'
+        >
+          Attributes (JSON)
+        </label>
+        <textarea
+          id='attributes'
+          name='attributes'
+          value={formData.attributes}
+          onChange={handleChange}
+          rows={6}
+          className='w-full rounded-lg border border-pedie-border bg-pedie-card px-3 py-2 font-mono text-sm text-pedie-text'
         />
       </div>
 

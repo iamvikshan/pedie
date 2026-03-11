@@ -112,14 +112,6 @@ export function ActiveFilters({
           `Remove color filter: ${color}`
         )
       )}
-      {currentFilters.carrier?.map(carrier =>
-        renderFilterBadge(
-          'carrier',
-          carrier,
-          carrier,
-          `Remove carrier filter: ${carrier}`
-        )
-      )}
 
       {currentFilters.category?.map(category =>
         renderFilterBadge(

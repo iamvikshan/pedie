@@ -193,8 +193,8 @@ export default async function AdminOrderDetailPage({
             {(items ?? []).map(item => {
               const listing = item.listing as Record<string, unknown> | null
               const product = listing?.product as {
-                brand: string
-                model: string
+                brand: { name: string } | null
+                name: string
               } | null
               return (
                 <tr
@@ -202,11 +202,13 @@ export default async function AdminOrderDetailPage({
                   className='border-b border-pedie-border last:border-0'
                 >
                   <td className='px-2 py-2 font-mono text-xs text-pedie-text'>
-                    {(listing?.listing_id as string) ??
-                      (item.listing_id as string)}
+                    {(listing?.sku as string) ?? (item.listing_id as string)}
                   </td>
                   <td className='px-2 py-2 text-pedie-text'>
-                    {product ? `${product.brand} ${product.model}` : '—'}
+                    {product
+                      ? `${product.brand?.name ?? ''} ${product.name}`.trim() ||
+                        '—'
+                      : '—'}
                   </td>
                   <td className='px-2 py-2 text-right text-pedie-text'>
                     {formatKes(item.unit_price_kes as number)}

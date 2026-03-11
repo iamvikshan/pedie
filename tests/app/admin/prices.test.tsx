@@ -14,7 +14,7 @@ mock.module('@data/admin', () => ({
         competitor_price_kes: 45000,
         url: 'https://badili.ke/product/iphone-15',
         crawled_at: '2025-06-01T03:00:00Z',
-        product: { brand: 'Apple', model: 'iPhone 15' },
+        product: { brand: { name: 'Apple' }, name: 'iPhone 15' },
       },
       {
         id: 'pc-2',
@@ -23,7 +23,7 @@ mock.module('@data/admin', () => ({
         competitor_price_kes: 44500,
         url: 'https://phoneplacekenya.com/shop/iphone-15',
         crawled_at: '2025-06-01T03:00:00Z',
-        product: { brand: 'Apple', model: 'iPhone 15' },
+        product: { brand: { name: 'Apple' }, name: 'iPhone 15' },
       },
       {
         id: 'pc-3',
@@ -32,7 +32,7 @@ mock.module('@data/admin', () => ({
         competitor_price_kes: 62000,
         url: 'https://badili.ke/product/galaxy-s24',
         crawled_at: '2025-06-01T03:00:00Z',
-        product: { brand: 'Samsung', model: 'Galaxy S24' },
+        product: { brand: { name: 'Samsung' }, name: 'Galaxy S24' },
       },
     ])
   ),

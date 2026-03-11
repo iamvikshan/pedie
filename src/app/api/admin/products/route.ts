@@ -1,8 +1,45 @@
 import { getUser } from '@helpers/auth'
 import { isUserAdmin } from '@lib/auth/admin'
 import { createProduct, getAdminProducts } from '@data/admin'
+import { createAdminClient } from '@lib/supabase/admin'
 import { productSlug } from '@utils/slug'
 import { NextResponse } from 'next/server'
+
+async function getBrandName(brandId: string) {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('brands')
+    .select('name')
+    .eq('id', brandId)
+    .single()
+
+  if (error || !data) {
+    throw new Error('Invalid brand_id')
+  }
+
+  return data.name
+}
+
+async function syncPrimaryCategory(
+  productId: string,
+  categoryId?: string | null
+) {
+  const supabase = createAdminClient()
+
+  if (!categoryId) {
+    return
+  }
+
+  const { error } = await supabase.from('product_categories').insert({
+    product_id: productId,
+    category_id: categoryId,
+    is_primary: true,
+  })
+
+  if (error) {
+    throw new Error(`Failed to link product category: ${error.message}`)
+  }
+}
 
 export async function GET(request: Request) {
   try {
@@ -64,31 +101,40 @@ export async function POST(request: Request) {
       )
     }
 
-    const { brand, model } = body
+    const brandId =
+      typeof body.brand_id === 'string' ? body.brand_id.trim() : ''
+    const name = typeof body.name === 'string' ? body.name.trim() : ''
 
-    if (!brand || !model) {
+    if (!brandId || !name) {
       return NextResponse.json(
-        { error: 'brand and model are required' },
+        { error: 'brand_id and name are required' },
         { status: 400 }
       )
     }
 
+    const brandName = await getBrandName(brandId)
+
     // Auto-generate slug if not provided
-    const slug = body.slug || productSlug(brand, model)
+    const slug = body.slug || productSlug(brandName, name)
+    const categoryId =
+      typeof body.category_id === 'string' && body.category_id.trim()
+        ? body.category_id
+        : null
 
     const allowed = {
-      brand: body.brand,
-      model: body.model,
+      brand_id: brandId,
+      name,
       slug,
-      category_id: body.category_id,
       description: body.description,
       images: body.images,
       key_features: body.key_features,
-      original_price_kes: body.original_price_kes,
       specs: body.specs,
     }
 
     const product = await createProduct(allowed)
+
+    await syncPrimaryCategory(product.id as string, categoryId)
+
     return NextResponse.json(product, { status: 201 })
   } catch (error) {
     console.error('Failed to create product:', error)

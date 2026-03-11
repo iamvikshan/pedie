@@ -26,8 +26,8 @@ export default async function EditListingPage({
     result && Array.isArray(result.data)
       ? result.data.map(p => ({
           id: p.id as string,
-          brand: p.brand as string,
-          model: p.model as string,
+          name: p.name as string,
+          brand_id: p.brand_id as string,
         }))
       : []
 

@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation'
 
 interface EditProductClientProps {
   product: Record<string, unknown>
+  brands: Array<{ id: string; name: string; slug: string }>
   categories: Array<{ id: string; name: string; slug: string }>
 }
 
 export function EditProductClient({
   product,
+  brands,
   categories,
 }: EditProductClientProps) {
   const router = useRouter()
@@ -39,6 +41,7 @@ export function EditProductClient({
   return (
     <ProductForm
       initialData={product as never}
+      brands={brands}
       categories={categories}
       onSubmit={handleSubmit}
     />

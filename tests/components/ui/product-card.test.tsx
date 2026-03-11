@@ -92,15 +92,27 @@ describe('ProductCard Component', () => {
     expect(src).not.toContain('>{listing.listing_id}<')
   })
 
+  test('displays SKU badge and uses SKU in listing link', () => {
+    expect(src).toContain('{listing.sku}')
+    expect(src).toContain('/listings/${listing.sku}')
+  })
+
   test('is not a client component', () => {
     expect(src).not.toContain("'use client'")
     expect(src).not.toContain('"use client"')
   })
 
   test('sale tier shows discount pill and crossed-out price', () => {
-    expect(src).toContain("tier === 'sale'")
+    expect(src).toContain('const isSale =')
+    expect(src).toContain('listing.sale_price_kes < listing.price_kes')
     expect(src).toContain('line-through')
     expect(src).toContain('text-pedie-discount')
+  })
+
+  test('uses sale price only when it is a true discount', () => {
+    expect(src).toContain(
+      'const effectivePrice = isSale ? listing.sale_price_kes! : listing.price_kes'
+    )
   })
 
   test('exports PRODUCT_CARD_ICONS constant', async () => {
@@ -284,11 +296,29 @@ describe('ProductCard DOM Rendering', () => {
     expect(screen.getByText(formatted)).toBeInTheDocument()
   })
 
+  test('ignores sale_price_kes when it is not lower than price_kes', async () => {
+    const { ProductCard } = await import('@components/ui/productCard')
+    render(
+      <ProductCard
+        listing={{
+          ...mockListing,
+          sale_price_kes: 130000,
+        }}
+      />
+    )
+
+    expect(
+      screen.getByText(formatKes(mockListing.price_kes))
+    ).toBeInTheDocument()
+    expect(screen.queryByText(formatKes(130000))).not.toBeInTheDocument()
+    expect(screen.queryByText('Flash Sale')).not.toBeInTheDocument()
+  })
+
   test('renders as link with correct href', async () => {
     const { ProductCard } = await import('@components/ui/productCard')
     render(<ProductCard listing={mockListing} />)
     const link = screen.getByRole('link', { name: /View iPhone 14 Pro/i })
-    expect(link).toHaveAttribute('href', '/listings/1')
+    expect(link).toHaveAttribute('href', '/listings/PD-12345')
   })
 
   test('returns null when product is missing', async () => {

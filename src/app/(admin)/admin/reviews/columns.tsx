@@ -4,7 +4,7 @@ import type { ColumnDef } from '@tanstack/react-table'
 
 interface ReviewRow {
   id: string
-  product: { brand: string; model: string } | null
+  product: { brand: { name: string } | null; name: string } | null
   profile: { full_name: string | null } | null
   rating: number
   title: string | null
@@ -23,7 +23,9 @@ export const reviewColumns: ColumnDef<ReviewRow, unknown>[] = [
     header: 'Product',
     cell: ({ row }) => {
       const product = row.original.product
-      return product ? `${product.brand} ${product.model}` : '—'
+      return product
+        ? `${product.brand?.name ?? ''} ${product.name}`.trim() || '—'
+        : '—'
     },
   },
   {

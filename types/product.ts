@@ -113,6 +113,7 @@ export type ProductCategory = {
 
 export type ProductWithBrand = Product & {
   brand: Brand
+  category?: Category | null
 }
 
 /** A listing joined with its product and brand info */

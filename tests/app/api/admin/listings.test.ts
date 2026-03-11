@@ -24,10 +24,10 @@ const mockGetAdminListings = mock<any>(() =>
   })
 )
 const mockCreateListing = mock<any>(() =>
-  Promise.resolve({ id: 'listing-1', listing_id: 'PD-ABC12' })
+  Promise.resolve({ id: 'listing-1', sku: 'PD-ABC12' })
 )
 const mockUpdateListing = mock<any>(() =>
-  Promise.resolve({ id: 'listing-1', listing_id: 'PD-ABC12' })
+  Promise.resolve({ id: 'listing-1', sku: 'PD-ABC12' })
 )
 const mockDeleteListing = mock<any>(() => Promise.resolve(true))
 
@@ -77,7 +77,7 @@ describe('GET /api/admin/listings', () => {
     mockIsUserAdmin.mockReset()
     mockGetAdminListings.mockReset()
     mockGetAdminListings.mockResolvedValue({
-      data: [{ id: 'l1', listing_id: 'PD-TEST1' }],
+      data: [{ id: 'l1', sku: 'PD-TEST1' }],
       total: 1,
       page: 1,
       totalPages: 1,
@@ -123,7 +123,7 @@ describe('POST /api/admin/listings', () => {
     mockCreateListing.mockReset()
     mockCreateListing.mockResolvedValue({
       id: 'listing-1',
-      listing_id: 'PD-ABC12',
+      sku: 'PD-ABC12',
     })
   })
 
@@ -168,17 +168,17 @@ describe('POST /api/admin/listings', () => {
         product_id: 'prod-1',
         price_kes: 50000,
         condition: 'good',
-        listing_id: 'PD-CUSTOM',
+        sku: 'PD-CUSTOM',
       })
     )
     expect(res.status).toBe(201)
 
     const data = await res.json()
-    expect(data.listing_id).toBe('PD-ABC12')
+    expect(data.sku).toBe('PD-ABC12')
     expect(mockCreateListing).toHaveBeenCalledTimes(1)
   })
 
-  test('creates listing without requiring client-side listing_id', async () => {
+  test('creates listing without requiring client-side sku', async () => {
     mockGetUser.mockResolvedValue(adminUser)
     mockIsUserAdmin.mockResolvedValue(true)
 
@@ -205,7 +205,7 @@ describe('PUT /api/admin/listings/[id]', () => {
     mockUpdateListing.mockReset()
     mockUpdateListing.mockResolvedValue({
       id: 'listing-1',
-      listing_id: 'PD-ABC12',
+      sku: 'PD-ABC12',
       price_kes: 60000,
     })
   })
@@ -244,6 +244,54 @@ describe('PUT /api/admin/listings/[id]', () => {
     expect(mockUpdateListing).toHaveBeenCalledWith('listing-1', {
       price_kes: 60000,
     })
+  })
+
+  test('returns 400 for invalid sale_price_kes', async () => {
+    mockGetUser.mockResolvedValue(adminUser)
+    mockIsUserAdmin.mockResolvedValue(true)
+
+    const req = makeRequest('PUT', { sale_price_kes: -1 })
+    const res = await PUT(req, {
+      params: Promise.resolve({ id: 'listing-1' }),
+    })
+
+    expect(res.status).toBe(400)
+    expect(await res.json()).toEqual({
+      error: 'sale_price_kes must be a non-negative number',
+    })
+    expect(mockUpdateListing).not.toHaveBeenCalled()
+  })
+
+  test('returns 400 for invalid cost_kes', async () => {
+    mockGetUser.mockResolvedValue(adminUser)
+    mockIsUserAdmin.mockResolvedValue(true)
+
+    const req = makeRequest('PUT', { cost_kes: 'invalid' })
+    const res = await PUT(req, {
+      params: Promise.resolve({ id: 'listing-1' }),
+    })
+
+    expect(res.status).toBe(400)
+    expect(await res.json()).toEqual({
+      error: 'cost_kes must be a non-negative number',
+    })
+    expect(mockUpdateListing).not.toHaveBeenCalled()
+  })
+
+  test('returns 400 for invalid warranty_months', async () => {
+    mockGetUser.mockResolvedValue(adminUser)
+    mockIsUserAdmin.mockResolvedValue(true)
+
+    const req = makeRequest('PUT', { warranty_months: -2 })
+    const res = await PUT(req, {
+      params: Promise.resolve({ id: 'listing-1' }),
+    })
+
+    expect(res.status).toBe(400)
+    expect(await res.json()).toEqual({
+      error: 'warranty_months must be a non-negative number',
+    })
+    expect(mockUpdateListing).not.toHaveBeenCalled()
   })
 })
 

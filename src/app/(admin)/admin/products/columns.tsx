@@ -4,8 +4,8 @@ import type { ColumnDef } from '@tanstack/react-table'
 
 interface ProductRow {
   id: string
-  brand: string
-  model: string
+  name: string
+  brand: { name: string } | null
   slug: string
   category: { name: string } | null
   created_at: string | null
@@ -36,10 +36,11 @@ export const productColumns: ColumnDef<ProductRow, unknown>[] = [
   {
     accessorKey: 'brand',
     header: 'Brand',
+    cell: ({ row }) => row.original.brand?.name ?? '—',
   },
   {
-    accessorKey: 'model',
-    header: 'Model',
+    accessorKey: 'name',
+    header: 'Name',
   },
   {
     id: 'category',

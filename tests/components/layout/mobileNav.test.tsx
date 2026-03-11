@@ -37,6 +37,8 @@ const mockCategories: Category[] = [
     slug: 'smartphones',
     description: null,
     image_url: null,
+    icon: null,
+    is_active: true,
     parent_id: null,
     sort_order: 1,
     created_at: '2023-01-01T00:00:00Z',

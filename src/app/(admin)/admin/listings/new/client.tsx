@@ -4,7 +4,7 @@ import { ListingForm } from '@components/admin/listingForm'
 import { useRouter } from 'next/navigation'
 
 interface NewListingClientProps {
-  products: Array<{ id: string; brand: string; model: string }>
+  products: Array<{ id: string; name: string; brand_id: string }>
 }
 
 export function NewListingClient({ products }: NewListingClientProps) {

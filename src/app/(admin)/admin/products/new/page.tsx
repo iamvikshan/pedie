@@ -1,8 +1,12 @@
 import { getAdminCategories } from '@data/admin'
+import { getBrands } from '@lib/data/brands'
 import { NewProductClient } from './client'
 
 export default async function NewProductPage() {
-  const categoriesRaw = await getAdminCategories()
+  const [brands, categoriesRaw] = await Promise.all([
+    getBrands(),
+    getAdminCategories(),
+  ])
 
   const categories = categoriesRaw.map(c => ({
     id: c.id as string,
@@ -16,7 +20,7 @@ export default async function NewProductPage() {
         Create New Product
       </h2>
       <div className='max-w-2xl rounded-lg border border-pedie-border bg-pedie-card p-6'>
-        <NewProductClient categories={categories} />
+        <NewProductClient brands={brands} categories={categories} />
       </div>
     </div>
   )

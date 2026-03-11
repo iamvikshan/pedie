@@ -82,8 +82,9 @@ describe('SearchBar', () => {
     expect(searchBarSource).toContain('aria-expanded')
   })
 
-  test('shows suggestion brand and model', () => {
-    expect(searchBarSource).toContain('s.brand')
-    expect(searchBarSource).toContain('s.model')
+  test('shows suggestion brand name and product name', () => {
+    expect(searchBarSource).toContain('s.brandName')
+    expect(searchBarSource).toContain('s.name')
+    expect(searchBarSource).toContain("filter(Boolean).join(' '")
   })
 })

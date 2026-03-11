@@ -2,7 +2,6 @@
 
 import { useAuth } from '@components/auth/authProvider'
 import { useWishlistContext } from '@components/wishlist/wishlistProvider'
-import { formatKes } from '@helpers'
 import Image from 'next/image'
 import Link from 'next/link'
 import { TbPhoto } from 'react-icons/tb'
@@ -14,10 +13,13 @@ interface WishlistItem {
   created_at: string | null
   product: {
     id: string
-    brand: string
-    model: string
+    name: string
+    brand_id: string
     images: string[] | null
-    original_price_kes: number
+    brand: {
+      name: string
+      slug: string
+    }
   }
 }
 
@@ -133,7 +135,8 @@ export default function WishlistPage() {
         <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3'>
           {items.map(item => {
             const imageUrl = item.product.images?.[0]
-            const productName = `${item.product.brand} ${item.product.model}`
+            const productName =
+              `${item.product.brand?.name ?? ''} ${item.product.name}`.trim()
 
             return (
               <div
@@ -163,9 +166,6 @@ export default function WishlistPage() {
                     <h3 className='font-semibold text-pedie-text'>
                       {productName}
                     </h3>
-                    <p className='text-sm font-bold text-pedie-accent'>
-                      {formatKes(item.product.original_price_kes)}
-                    </p>
                   </div>
 
                   <button

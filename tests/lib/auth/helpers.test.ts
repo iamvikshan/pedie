@@ -135,6 +135,9 @@ describe('auth helpers', () => {
         phone: null,
         avatar_url: null,
         address: null,
+        is_active: true,
+        last_login_at: null,
+        username: null,
         created_at: '2025-01-01',
         updated_at: '2025-01-01',
       }

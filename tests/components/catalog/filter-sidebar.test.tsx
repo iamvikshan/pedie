@@ -18,7 +18,6 @@ const mockAvailableFilters: AvailableFilters = {
   brands: ['Apple', 'Samsung'],
   storages: ['128GB', '256GB'],
   colors: ['Black', 'White'],
-  carriers: ['Unlocked'],
   priceRange: { min: 10000, max: 100000 },
   categories: [],
 }

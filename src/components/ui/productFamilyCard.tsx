@@ -1,5 +1,5 @@
 import type { ProductFamily } from '@app-types/product'
-import { calculateDiscount, formatKes, getPricingTier } from '@helpers'
+import { calculateDiscount, formatKes } from '@helpers'
 import Image from 'next/image'
 import Link from 'next/link'
 import { TbFlame, TbPhoto } from 'react-icons/tb'
@@ -16,15 +16,16 @@ export function ProductFamilyCard({ family }: ProductFamilyCardProps) {
   if (!product || !representative) return null
 
   const productName = product.name
-  const tier = getPricingTier(representative)
-  const effectivePrice =
-    representative.sale_price_kes ?? representative.price_kes
-  const discount =
-    tier === 'sale'
-      ? calculateDiscount(representative.price_kes, effectivePrice)
-      : 0
+  const isSale =
+    representative.sale_price_kes != null &&
+    representative.sale_price_kes < representative.price_kes
+  const effectivePrice = isSale
+    ? representative.sale_price_kes!
+    : representative.price_kes
+  const discount = isSale
+    ? calculateDiscount(representative.price_kes, effectivePrice)
+    : 0
   const imageUrl = representative.images?.[0] || product.images?.[0]
-  const isSale = tier === 'sale'
 
   return (
     <Link

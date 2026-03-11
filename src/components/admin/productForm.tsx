@@ -7,6 +7,12 @@ import { Select } from '@components/ui/select'
 import { productSlug } from '@utils/slug'
 import { useState } from 'react'
 
+interface Brand {
+  id: string
+  name: string
+  slug: string
+}
+
 interface Category {
   id: string
   name: string
@@ -15,37 +21,37 @@ interface Category {
 
 interface ProductData {
   id?: string
-  brand?: string
-  model?: string
+  brand_id?: string
+  name?: string
   slug?: string
   category_id?: string | null
   description?: string | null
   specs?: Record<string, unknown> | null
   key_features?: string[] | null
-  original_price_kes?: number | null
   images?: string[] | null
 }
 
 interface ProductFormProps {
   initialData?: ProductData
+  brands: Brand[]
   categories: Category[]
   onSubmit: (data: Record<string, unknown>) => Promise<void>
 }
 
 export function ProductForm({
   initialData,
+  brands,
   categories,
   onSubmit,
 }: ProductFormProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
-    brand: initialData?.brand ?? '',
-    model: initialData?.model ?? '',
+    brand_id: initialData?.brand_id ?? '',
+    name: initialData?.name ?? '',
     slug: initialData?.slug ?? '',
     category_id: initialData?.category_id ?? '',
     description: initialData?.description ?? '',
-    original_price_kes: initialData?.original_price_kes ?? '',
   })
   const [keyFeatures, setKeyFeatures] = useState<string[]>(
     initialData?.key_features ?? ['']
@@ -59,12 +65,13 @@ export function ProductForm({
     const { name, value } = e.target
     setFormData(prev => {
       const updated = { ...prev, [name]: value }
-      // Auto-generate slug when brand or model changes
-      if ((name === 'brand' || name === 'model') && !initialData?.id) {
-        const brand = name === 'brand' ? value : prev.brand
-        const model = name === 'model' ? value : prev.model
-        if (brand && model) {
-          updated.slug = productSlug(brand, model)
+      // Auto-generate slug when brand or name changes
+      if ((name === 'brand_id' || name === 'name') && !initialData?.id) {
+        const brandId = name === 'brand_id' ? value : prev.brand_id
+        const productName = name === 'name' ? value : prev.name
+        const brandName = brands.find(brand => brand.id === brandId)?.name
+        if (brandName && productName) {
+          updated.slug = productSlug(brandName, productName)
         }
       }
       return updated
@@ -90,9 +97,6 @@ export function ProductForm({
     try {
       const data: Record<string, unknown> = {
         ...formData,
-        original_price_kes: formData.original_price_kes
-          ? Number(formData.original_price_kes)
-          : null,
         category_id: formData.category_id || null,
         key_features: keyFeatures.filter(f => f.trim() !== ''),
       }
@@ -112,34 +116,40 @@ export function ProductForm({
       {/* Brand */}
       <div>
         <label
-          htmlFor='brand'
+          htmlFor='brand_id'
           className='mb-1 block text-sm font-medium text-pedie-text'
         >
           Brand *
         </label>
-        <Input
-          id='brand'
-          name='brand'
-          type='text'
-          value={formData.brand}
+        <Select
+          id='brand_id'
+          name='brand_id'
+          value={formData.brand_id}
           onChange={handleChange}
           required
-        />
+        >
+          <option value=''>Select a brand</option>
+          {brands.map(brand => (
+            <option key={brand.id} value={brand.id}>
+              {brand.name}
+            </option>
+          ))}
+        </Select>
       </div>
 
-      {/* Model */}
+      {/* Name */}
       <div>
         <label
-          htmlFor='model'
+          htmlFor='name'
           className='mb-1 block text-sm font-medium text-pedie-text'
         >
-          Model *
+          Name *
         </label>
         <Input
-          id='model'
-          name='model'
+          id='name'
+          name='name'
           type='text'
-          value={formData.model}
+          value={formData.name}
           onChange={handleChange}
           required
         />
@@ -237,23 +247,6 @@ export function ProductForm({
         >
           + Add Feature
         </button>
-      </div>
-
-      {/* Original Price */}
-      <div>
-        <label
-          htmlFor='original_price_kes'
-          className='mb-1 block text-sm font-medium text-pedie-text'
-        >
-          Original Price (KES)
-        </label>
-        <Input
-          id='original_price_kes'
-          name='original_price_kes'
-          type='number'
-          value={formData.original_price_kes}
-          onChange={handleChange}
-        />
       </div>
 
       {/* Submit */}

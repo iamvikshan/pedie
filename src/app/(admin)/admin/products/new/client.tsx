@@ -4,10 +4,14 @@ import { ProductForm } from '@components/admin/productForm'
 import { useRouter } from 'next/navigation'
 
 interface NewProductClientProps {
+  brands: Array<{ id: string; name: string; slug: string }>
   categories: Array<{ id: string; name: string; slug: string }>
 }
 
-export function NewProductClient({ categories }: NewProductClientProps) {
+export function NewProductClient({
+  brands,
+  categories,
+}: NewProductClientProps) {
   const router = useRouter()
 
   const handleSubmit = async (data: Record<string, unknown>) => {
@@ -31,5 +35,11 @@ export function NewProductClient({ categories }: NewProductClientProps) {
     router.push('/admin/products')
   }
 
-  return <ProductForm categories={categories} onSubmit={handleSubmit} />
+  return (
+    <ProductForm
+      brands={brands}
+      categories={categories}
+      onSubmit={handleSubmit}
+    />
+  )
 }

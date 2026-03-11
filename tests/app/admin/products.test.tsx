@@ -12,8 +12,8 @@ mock.module('@data/admin', () => ({
       data: [
         {
           id: 'prod-1',
-          brand: 'Apple',
-          model: 'iPhone 15',
+          brand: { name: 'Apple' },
+          name: 'iPhone 15',
           slug: 'apple-iphone-15',
           category: { name: 'Phones' },
           created_at: '2025-06-01T10:00:00Z',
@@ -55,6 +55,10 @@ const { productColumns } = await import('@/app/(admin)/admin/products/columns')
 
 describe('Admin Products', () => {
   describe('ProductForm', () => {
+    const mockBrands = [
+      { id: 'brand-1', name: 'Apple', slug: 'apple' },
+      { id: 'brand-2', name: 'Samsung', slug: 'samsung' },
+    ]
     const mockCategories = [
       { id: 'cat-1', name: 'Phones', slug: 'phones' },
       { id: 'cat-2', name: 'Tablets', slug: 'tablets' },
@@ -63,13 +67,14 @@ describe('Admin Products', () => {
     test('renders all required form fields', () => {
       const html = renderToString(
         React.createElement(ProductForm, {
+          brands: mockBrands as any,
           categories: mockCategories as any,
           onSubmit: mock(() => Promise.resolve()),
         })
       )
 
       expect(html).toContain('Brand')
-      expect(html).toContain('Model')
+      expect(html).toContain('Name')
       expect(html).toContain('Slug')
       expect(html).toContain('Category')
     })
@@ -77,6 +82,7 @@ describe('Admin Products', () => {
     test('renders optional fields', () => {
       const html = renderToString(
         React.createElement(ProductForm, {
+          brands: mockBrands as any,
           categories: mockCategories as any,
           onSubmit: mock(() => Promise.resolve()),
         })
@@ -89,8 +95,8 @@ describe('Admin Products', () => {
     test('pre-fills data when editing', () => {
       const initialData = {
         id: 'prod-1',
-        brand: 'Apple',
-        model: 'iPhone 15',
+        brand_id: 'brand-1',
+        name: 'iPhone 15',
         slug: 'apple-iphone-15',
         category_id: 'cat-1',
         description: 'Latest Apple phone',
@@ -99,6 +105,7 @@ describe('Admin Products', () => {
 
       const html = renderToString(
         React.createElement(ProductForm, {
+          brands: mockBrands as any,
           categories: mockCategories as any,
           initialData: initialData as any,
           onSubmit: mock(() => Promise.resolve()),
@@ -114,6 +121,7 @@ describe('Admin Products', () => {
     test('renders submit button', () => {
       const html = renderToString(
         React.createElement(ProductForm, {
+          brands: mockBrands as any,
           categories: mockCategories as any,
           onSubmit: mock(() => Promise.resolve()),
         })
@@ -125,6 +133,7 @@ describe('Admin Products', () => {
     test('renders category select options', () => {
       const html = renderToString(
         React.createElement(ProductForm, {
+          brands: mockBrands as any,
           categories: mockCategories as any,
           onSubmit: mock(() => Promise.resolve()),
         })
@@ -142,7 +151,7 @@ describe('Admin Products', () => {
       )
       expect(columnIds).toContain('select')
       expect(columnIds).toContain('brand')
-      expect(columnIds).toContain('model')
+      expect(columnIds).toContain('name')
       expect(columnIds).toContain('category')
       expect(columnIds).toContain('slug')
       expect(columnIds).toContain('created_at')

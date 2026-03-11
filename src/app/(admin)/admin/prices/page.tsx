@@ -12,7 +12,7 @@ interface ComparisonRow {
   competitor_price_kes: number
   url: string | null
   crawled_at: string | null
-  product: { brand: string; model: string } | null
+  product: { brand: { name: string } | null; name: string } | null
 }
 
 export default async function AdminPricesPage() {
@@ -41,7 +41,7 @@ export default async function AdminPricesPage() {
 
   for (const row of comparisons) {
     const productName = row.product
-      ? `${row.product.brand} ${row.product.model}`
+      ? `${row.product.brand?.name ?? ''} ${row.product.name}`.trim()
       : 'Unknown Product'
 
     if (!productMap.has(row.product_id)) {

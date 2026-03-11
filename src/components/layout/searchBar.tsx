@@ -10,8 +10,8 @@ interface SearchBarProps {
 }
 
 interface Suggestion {
-  brand: string
-  model: string
+  brandName?: string
+  name: string
   slug: string
   category?: string
   minPrice?: number
@@ -92,7 +92,7 @@ export function SearchBar({ defaultExpanded = false }: SearchBarProps) {
         e.preventDefault()
         if (activeIndex >= 0 && activeIndex < suggestions.length) {
           const s = suggestions[activeIndex]
-          navigateToSearch(`${s.brand} ${s.model}`)
+          navigateToSearch([s.brandName, s.name].filter(Boolean).join(' '))
         } else {
           navigateToSearch(query)
         }
@@ -201,12 +201,14 @@ export function SearchBar({ defaultExpanded = false }: SearchBarProps) {
               }`}
               onMouseDown={e => {
                 e.preventDefault()
-                navigateToSearch(`${s.brand} ${s.model}`)
+                navigateToSearch(
+                  [s.brandName, s.name].filter(Boolean).join(' ')
+                )
               }}
               onMouseEnter={() => setActiveIndex(i)}
             >
               <span className='font-medium'>
-                {s.brand} {s.model}
+                {[s.brandName, s.name].filter(Boolean).join(' ')}
               </span>
               {s.category && (
                 <span className='text-xs text-pedie-text-muted capitalize'>

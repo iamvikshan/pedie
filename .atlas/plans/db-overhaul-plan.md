@@ -155,8 +155,11 @@ Overhaul the Pedie database schema from a phone-centric PoC to an industry-stand
      - `tests/components/listing/referral-cta.test.tsx` -- source-analysis test: update `listing.listing_id` assertion to `listing.sku`; update `product?.brand || ''` assertion to `product.brand?.name || ''`; update `product?.model || ''` assertion to `product?.name || ''`; rename test descriptions: remove `listing_id` from first test, replace `model` with `name` in `defensively defaults` test
    - **Quality Gates:** `bun run f` -> `bun check` (expect remaining errors only in 5C scope) -> `bun test`
 
-7. **[ ] Phase 5C: Catalog, Admin, Account & Dead Code Sweep**
+7. **[x] Phase 5C: Catalog, Admin, Account & Dead Code Sweep**
    - **Objective:** Update catalog/filter components, admin forms/APIs, account pages for stale refs. Delete crawler dead code. Achieve zero `bun check` errors.
+   - **Summary:** Replaced `getPricingTier` with inline `isSale` in UI cards. Made product_categories sync non-destructive (upsert). Removed carrier from filters. Updated admin forms/columns/APIs for new schema. Added PUT validation parity. Zero `bun check` errors, 1249 tests passing.
+   - **Changes from plan:** Admin product_categories sync required non-destructive upsert pattern. Added PUT validation parity as security improvement.
+   - **[Phase 5C Details](.atlas/plans/db-overhaul-phase-5C-complete.md)**
    - **Files/Functions to modify:**
      - **Catalog components:**
        - `src/components/catalog/filterSidebar.tsx` -- remove `carrier` filter, update category filter for junction table data

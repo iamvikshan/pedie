@@ -24,14 +24,63 @@ const mockGetAdminProducts = mock<any>(() =>
   })
 )
 const mockCreateProduct = mock<any>(() =>
-  Promise.resolve({ id: 'prod-1', brand: 'Apple', model: 'iPhone 15' })
+  Promise.resolve({ id: 'prod-1', brand_id: 'brand-1', name: 'iPhone 15' })
 )
 const mockUpdateProduct = mock<any>(() =>
-  Promise.resolve({ id: 'prod-1', brand: 'Apple', model: 'iPhone 15 Pro' })
+  Promise.resolve({ id: 'prod-1', brand_id: 'brand-1', name: 'iPhone 15 Pro' })
 )
 const mockDeleteProduct = mock<any>(() => Promise.resolve(true))
 
+const mockAdminSingle = mock(() =>
+  Promise.resolve({ data: { name: 'Apple' }, error: null })
+)
+const mockAdminEq = mock(() => ({ single: mockAdminSingle }))
+const mockAdminSelect = mock(() => ({ eq: mockAdminEq }))
+const mockProductCategoriesInsert = mock(() => Promise.resolve({ error: null }))
+const mockProductCategoriesDeleteEq = mock(() =>
+  Promise.resolve({ error: null })
+)
+const mockProductCategoriesDelete = mock(() => ({
+  eq: mockProductCategoriesDeleteEq,
+}))
+const mockProductCategoriesUpdateEqIsPrimary = mock(() =>
+  Promise.resolve({ error: null })
+)
+const mockProductCategoriesUpdateEqProductId = mock(() => ({
+  eq: mockProductCategoriesUpdateEqIsPrimary,
+}))
+const mockProductCategoriesUpdate = mock(() => ({
+  eq: mockProductCategoriesUpdateEqProductId,
+}))
+const mockProductCategoriesUpsert = mock(() => Promise.resolve({ error: null }))
+
+mock.module('@lib/supabase/admin', () => ({
+  createAdminClient: mock(() => ({
+    from: mock((table: string) => {
+      if (table === 'brands') {
+        return { select: mockAdminSelect }
+      }
+      if (table === 'product_categories') {
+        return {
+          insert: mockProductCategoriesInsert,
+          delete: mockProductCategoriesDelete,
+          update: mockProductCategoriesUpdate,
+          upsert: mockProductCategoriesUpsert,
+        }
+      }
+
+      return { select: mockAdminSelect }
+    }),
+  })),
+}))
+
 mock.module('@data/admin', () => ({
+  getAdminListings: mock(() =>
+    Promise.resolve({ data: [], total: 0, page: 1, totalPages: 0 })
+  ),
+  createListing: mock(),
+  updateListing: mock(),
+  deleteListing: mock(),
   getAdminProducts: mockGetAdminProducts,
   createProduct: mockCreateProduct,
   updateProduct: mockUpdateProduct,
@@ -67,7 +116,7 @@ describe('GET /api/admin/products', () => {
     mockIsUserAdmin.mockReset()
     mockGetAdminProducts.mockReset()
     mockGetAdminProducts.mockResolvedValue({
-      data: [{ id: 'p1', brand: 'Apple', model: 'iPhone 15' }],
+      data: [{ id: 'p1', brand: { name: 'Apple' }, name: 'iPhone 15' }],
       total: 1,
       page: 1,
       totalPages: 1,
@@ -106,8 +155,8 @@ describe('POST /api/admin/products', () => {
     mockCreateProduct.mockReset()
     mockCreateProduct.mockResolvedValue({
       id: 'prod-1',
-      brand: 'Apple',
-      model: 'iPhone 15',
+      brand_id: 'brand-1',
+      name: 'iPhone 15',
     })
   })
 
@@ -115,8 +164,8 @@ describe('POST /api/admin/products', () => {
     mockGetUser.mockResolvedValue(null)
     const res = await POST(
       makeRequest('POST', {
-        brand: 'Apple',
-        model: 'iPhone 15',
+        brand_id: 'brand-1',
+        name: 'iPhone 15',
         slug: 'apple-iphone-15',
       })
     )
@@ -128,8 +177,8 @@ describe('POST /api/admin/products', () => {
     mockIsUserAdmin.mockResolvedValue(false)
     const res = await POST(
       makeRequest('POST', {
-        brand: 'Apple',
-        model: 'iPhone 15',
+        brand_id: 'brand-1',
+        name: 'iPhone 15',
         slug: 'apple-iphone-15',
       })
     )
@@ -139,7 +188,7 @@ describe('POST /api/admin/products', () => {
   test('returns 400 when required fields missing', async () => {
     mockGetUser.mockResolvedValue(adminUser)
     mockIsUserAdmin.mockResolvedValue(true)
-    const res = await POST(makeRequest('POST', { brand: 'Apple' }))
+    const res = await POST(makeRequest('POST', { brand_id: 'brand-1' }))
     expect(res.status).toBe(400)
   })
 
@@ -149,15 +198,15 @@ describe('POST /api/admin/products', () => {
 
     const res = await POST(
       makeRequest('POST', {
-        brand: 'Apple',
-        model: 'iPhone 15',
+        brand_id: 'brand-1',
+        name: 'iPhone 15',
         slug: 'apple-iphone-15',
       })
     )
     expect(res.status).toBe(201)
 
     const data = await res.json()
-    expect(data.brand).toBe('Apple')
+    expect(data.name).toBe('iPhone 15')
     expect(mockCreateProduct).toHaveBeenCalledTimes(1)
   })
 
@@ -167,8 +216,8 @@ describe('POST /api/admin/products', () => {
 
     const res = await POST(
       makeRequest('POST', {
-        brand: 'Apple',
-        model: 'iPhone 15 Pro',
+        brand_id: 'brand-1',
+        name: 'iPhone 15 Pro',
       })
     )
     expect(res.status).toBe(201)
@@ -183,16 +232,34 @@ describe('PUT /api/admin/products/[id]', () => {
     mockGetUser.mockReset()
     mockIsUserAdmin.mockReset()
     mockUpdateProduct.mockReset()
+    mockProductCategoriesDelete.mockReset()
+    mockProductCategoriesDeleteEq.mockReset()
+    mockProductCategoriesUpdate.mockReset()
+    mockProductCategoriesUpdateEqProductId.mockReset()
+    mockProductCategoriesUpdateEqIsPrimary.mockReset()
+    mockProductCategoriesUpsert.mockReset()
     mockUpdateProduct.mockResolvedValue({
       id: 'prod-1',
-      brand: 'Apple',
-      model: 'iPhone 15 Pro',
+      brand_id: 'brand-1',
+      name: 'iPhone 15 Pro',
     })
+    mockProductCategoriesDelete.mockReturnValue({
+      eq: mockProductCategoriesDeleteEq,
+    })
+    mockProductCategoriesUpdate.mockReturnValue({
+      eq: mockProductCategoriesUpdateEqProductId,
+    })
+    mockProductCategoriesUpdateEqProductId.mockReturnValue({
+      eq: mockProductCategoriesUpdateEqIsPrimary,
+    })
+    mockProductCategoriesDeleteEq.mockResolvedValue({ error: null })
+    mockProductCategoriesUpdateEqIsPrimary.mockResolvedValue({ error: null })
+    mockProductCategoriesUpsert.mockResolvedValue({ error: null })
   })
 
   test('returns 401 when not authenticated', async () => {
     mockGetUser.mockResolvedValue(null)
-    const req = makeRequest('PUT', { model: 'iPhone 15 Pro' })
+    const req = makeRequest('PUT', { name: 'iPhone 15 Pro' })
     const res = await PUT(req, { params: Promise.resolve({ id: 'prod-1' }) })
     expect(res.status).toBe(401)
   })
@@ -200,7 +267,7 @@ describe('PUT /api/admin/products/[id]', () => {
   test('returns 403 when not admin', async () => {
     mockGetUser.mockResolvedValue(normalUser)
     mockIsUserAdmin.mockResolvedValue(false)
-    const req = makeRequest('PUT', { model: 'iPhone 15 Pro' })
+    const req = makeRequest('PUT', { name: 'iPhone 15 Pro' })
     const res = await PUT(req, { params: Promise.resolve({ id: 'prod-1' }) })
     expect(res.status).toBe(403)
   })
@@ -209,15 +276,51 @@ describe('PUT /api/admin/products/[id]', () => {
     mockGetUser.mockResolvedValue(adminUser)
     mockIsUserAdmin.mockResolvedValue(true)
 
-    const req = makeRequest('PUT', { model: 'iPhone 15 Pro' })
+    const req = makeRequest('PUT', { name: 'iPhone 15 Pro' })
     const res = await PUT(req, { params: Promise.resolve({ id: 'prod-1' }) })
     expect(res.status).toBe(200)
 
     const data = await res.json()
-    expect(data.model).toBe('iPhone 15 Pro')
+    expect(data.name).toBe('iPhone 15 Pro')
     expect(mockUpdateProduct).toHaveBeenCalledWith('prod-1', {
-      model: 'iPhone 15 Pro',
+      name: 'iPhone 15 Pro',
     })
+  })
+
+  test('updates primary category without deleting secondary memberships', async () => {
+    mockGetUser.mockResolvedValue(adminUser)
+    mockIsUserAdmin.mockResolvedValue(true)
+
+    const req = makeRequest('PUT', {
+      name: 'iPhone 15 Pro',
+      category_id: 'cat-2',
+    })
+    const res = await PUT(req, { params: Promise.resolve({ id: 'prod-1' }) })
+
+    expect(res.status).toBe(200)
+    expect(mockUpdateProduct).toHaveBeenCalledWith('prod-1', {
+      name: 'iPhone 15 Pro',
+    })
+    expect(mockProductCategoriesDelete).not.toHaveBeenCalled()
+    expect(mockProductCategoriesUpdate).toHaveBeenCalledWith({
+      is_primary: false,
+    })
+    expect(mockProductCategoriesUpdateEqProductId).toHaveBeenCalledWith(
+      'product_id',
+      'prod-1'
+    )
+    expect(mockProductCategoriesUpdateEqIsPrimary).toHaveBeenCalledWith(
+      'is_primary',
+      true
+    )
+    expect(mockProductCategoriesUpsert).toHaveBeenCalledWith(
+      {
+        product_id: 'prod-1',
+        category_id: 'cat-2',
+        is_primary: true,
+      },
+      { onConflict: 'product_id,category_id' }
+    )
   })
 })
 

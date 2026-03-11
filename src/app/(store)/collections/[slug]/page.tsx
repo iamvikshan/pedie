@@ -95,9 +95,6 @@ export default async function CollectionPage({
   if (resolvedSearchParams.color) {
     filters.color = resolvedSearchParams.color.split(',')
   }
-  if (resolvedSearchParams.carrier) {
-    filters.carrier = resolvedSearchParams.carrier.split(',')
-  }
   if (resolvedSearchParams.category) {
     filters.category = resolvedSearchParams.category.split(',')
   }

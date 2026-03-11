@@ -44,7 +44,7 @@ function FilterSidebarInner({
     router.push(`${basePath}?${params.toString()}`)
   }
 
-  type ArrayFilterKey = 'condition' | 'storage' | 'color' | 'carrier' | 'brand'
+  type ArrayFilterKey = 'condition' | 'storage' | 'color' | 'brand'
   const handleCheckboxChange = (key: ArrayFilterKey, value: string) => {
     const currentValues = currentFilters[key] || []
     const newValues = currentValues.includes(value)
