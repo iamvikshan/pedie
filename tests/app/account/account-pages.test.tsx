@@ -53,6 +53,8 @@ mock.module('@data/orders', () => ({
   createOrder: mock(() =>
     Promise.resolve({ id: 'order-1', status: 'pending' })
   ),
+  updateOrderStatus: mock(() => Promise.resolve()),
+  getOrderByPaymentRef: mock(() => Promise.resolve(null)),
 }))
 
 // Mock order sub-components

@@ -53,7 +53,8 @@ export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname
   const isDynamic = DYNAMIC_PREFIXES.some(p => pathname.startsWith(p))
 
-  const imgSrc = "img-src 'self' data: https://opygpszamajcdujoslob.supabase.co"
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const imgSrc = `img-src 'self' data: ${supabaseUrl}`
   const baseCsp = `${imgSrc}; font-src 'self'; connect-src 'self' https://*.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; style-src 'self' 'unsafe-inline'`
   const isDev = process.env.NODE_ENV === 'development'
 

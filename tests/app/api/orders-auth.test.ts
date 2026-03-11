@@ -31,10 +31,17 @@ mock.module('@data/orders', () => ({
   createOrder: mockCreateOrder,
   getOrderById: mock(() => Promise.resolve(null)),
   getOrdersByUser: mock(() => Promise.resolve([])),
+  updateOrderStatus: mock(() => Promise.resolve()),
+  getOrderByPaymentRef: mock(() => Promise.resolve(null)),
 }))
 
 mock.module('@lib/email/send', () => ({
+  sendWelcomeEmail: mock(() => Promise.resolve()),
   sendOrderConfirmation: mock(() => Promise.resolve()),
+  sendPaymentConfirmation: mock(() => Promise.resolve()),
+  sendShippingUpdate: mock(() => Promise.resolve()),
+  sendDeliveryConfirmation: mock(() => Promise.resolve()),
+  sendOrderCancelled: mock(() => Promise.resolve()),
 }))
 
 // Import AFTER mocking

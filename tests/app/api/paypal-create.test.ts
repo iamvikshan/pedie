@@ -15,6 +15,8 @@ mock.module('@data/orders', () => ({
   getOrderById: mockGetOrderById,
   createOrder: mock(),
   updateOrderStatus: mock(),
+  getOrdersByUser: mock(() => Promise.resolve([])),
+  getOrderByPaymentRef: mock(() => Promise.resolve(null)),
 }))
 
 const mockCreatePayPalOrder = mock(() =>
@@ -31,7 +33,7 @@ mock.module('@lib/payments/paypal', () => ({
   capturePayPalPayment: mock(),
   getPayPalAccessToken: mock(),
   getPayPalOrderStatus: mock(),
-  kesToUsd: mock(),
+  kesToUsd: (kes: number) => (kes / 130).toFixed(2),
 }))
 
 const mockGetUser = mock(() => Promise.resolve({ id: 'user-123' } as any))

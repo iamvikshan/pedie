@@ -1,6 +1,6 @@
 import type { Database, Json } from '@app-types/database'
 import { createAdminClient } from '@lib/supabase/admin'
-import { z } from 'zod/v4'
+import { z } from 'zod'
 
 type OrderStatus = Database['public']['Enums']['order_status']
 type ListingStatus = Database['public']['Enums']['listing_status']
@@ -66,7 +66,7 @@ export const listingCreateSchema = z.object({
   includes: z.array(z.string()).nullish(),
   admin_notes: z.string().nullish(),
   quantity: z.number().int().nonnegative().optional(),
-  notes: z.union([z.string(), z.array(z.string())]).nullish(),
+  notes: z.array(z.string()).nullish(),
 })
 
 export const listingUpdateSchema = listingCreateSchema.partial()

@@ -10,7 +10,9 @@ const rateLimiter = createRateLimiter('newsletter', {
 export async function POST(request: Request) {
   try {
     const ip =
-      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip')?.trim() ||
+      'unknown'
     const { success } = await rateLimiter.limit(ip)
     if (!success) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 })

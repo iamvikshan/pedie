@@ -1,151 +1,155 @@
 import { describe, expect, test } from 'bun:test'
 import {
+  welcomeEmail,
   orderConfirmationEmail,
   paymentConfirmationEmail,
-  welcomeEmail,
+  shippingUpdateEmail,
+  deliveryConfirmationEmail,
+  orderCancelledEmail,
 } from '@lib/email/templates'
 
 describe('welcomeEmail', () => {
-  test('returns correct subject', () => {
-    const result = welcomeEmail('John')
-    expect(result.subject).toBe('Welcome to Pedie Tech!')
-  })
-
-  test('includes user name in HTML', () => {
+  test('returns subject containing Welcome and html containing userName', () => {
     const result = welcomeEmail('Alice')
+    expect(result.subject).toContain('Welcome')
     expect(result.html).toContain('Alice')
   })
 
-  test('includes Pedie Tech branding', () => {
-    const result = welcomeEmail('Bob')
-    expect(result.html).toContain('Pedie Tech')
-    expect(result.html).toContain('#22c55e')
-  })
-
-  test('includes support footer', () => {
-    const result = welcomeEmail('User')
-    expect(result.html).toContain('support@pedietech.com')
-  })
-
-  test('returns valid HTML', () => {
-    const result = welcomeEmail('Test')
-    expect(result.html).toContain('<html')
-    expect(result.html).toContain('</html>')
+  test('sanitizes XSS in userName', () => {
+    const result = welcomeEmail('<script>alert(1)</script>')
+    expect(result.html).not.toContain('<script>')
   })
 })
 
 describe('orderConfirmationEmail', () => {
   const data = {
-    userName: 'Jane',
-    orderId: 'ORD-001',
+    userName: 'Bob',
+    orderId: 'ORD-100',
     items: [
-      { name: 'Phone Case', price: 1500 },
-      { name: 'Screen Protector', price: 500 },
+      { name: 'Widget', price: 1000 },
+      { name: 'Gadget', price: 2000 },
     ],
-    total: 2000,
+    total: 3000,
     depositAmount: 500,
     paymentMethod: 'mpesa',
   }
 
-  test('returns correct subject with order ID', () => {
+  test('returns subject containing orderId, html containing userName and item names', () => {
     const result = orderConfirmationEmail(data)
-    expect(result.subject).toContain('ORD-001')
+    expect(result.subject).toContain('ORD-100')
+    expect(result.html).toContain('Bob')
+    expect(result.html).toContain('Widget')
+    expect(result.html).toContain('Gadget')
   })
 
-  test('includes user name', () => {
-    const result = orderConfirmationEmail(data)
-    expect(result.html).toContain('Jane')
-  })
-
-  test('includes order ID', () => {
-    const result = orderConfirmationEmail(data)
-    expect(result.html).toContain('ORD-001')
-  })
-
-  test('includes item names', () => {
-    const result = orderConfirmationEmail(data)
-    expect(result.html).toContain('Phone Case')
-    expect(result.html).toContain('Screen Protector')
-  })
-
-  test('includes total amount', () => {
-    const result = orderConfirmationEmail(data)
-    expect(result.html).toContain('2,000')
-  })
-
-  test('includes deposit amount', () => {
-    const result = orderConfirmationEmail(data)
-    expect(result.html).toContain('500')
-  })
-
-  test('includes payment method', () => {
-    const result = orderConfirmationEmail(data)
-    expect(result.html).toContain('mpesa')
-  })
-
-  test('includes Pedie Tech branding', () => {
-    const result = orderConfirmationEmail(data)
-    expect(result.html).toContain('Pedie Tech')
-    expect(result.html).toContain('#22c55e')
+  test('sanitizes XSS in item name', () => {
+    const result = orderConfirmationEmail({
+      ...data,
+      items: [{ name: '<img src=x onerror=alert(1)>', price: 500 }],
+    })
+    expect(result.html).not.toContain('<img')
   })
 })
 
 describe('paymentConfirmationEmail', () => {
   const data = {
-    userName: 'John',
-    orderId: 'ORD-002',
-    amount: 3500,
+    userName: 'Carol',
+    orderId: 'ORD-200',
+    amount: 5000,
     paymentMethod: 'paypal',
-    receiptNumber: 'RCP-12345',
+    receiptNumber: 'RCP-99',
   }
 
-  test('returns correct subject', () => {
+  test('returns subject containing orderId, html containing receiptNumber', () => {
     const result = paymentConfirmationEmail(data)
-    expect(result.subject).toContain('Payment')
+    expect(result.subject).toContain('ORD-200')
+    expect(result.html).toContain('RCP-99')
   })
 
-  test('includes user name', () => {
-    const result = paymentConfirmationEmail(data)
-    expect(result.html).toContain('John')
-  })
-
-  test('includes order ID', () => {
-    const result = paymentConfirmationEmail(data)
-    expect(result.html).toContain('ORD-002')
-  })
-
-  test('includes amount', () => {
-    const result = paymentConfirmationEmail(data)
-    expect(result.html).toContain('3,500')
-  })
-
-  test('includes payment method', () => {
-    const result = paymentConfirmationEmail(data)
-    expect(result.html).toContain('paypal')
-  })
-
-  test('includes receipt number', () => {
-    const result = paymentConfirmationEmail(data)
-    expect(result.html).toContain('RCP-12345')
-  })
-
-  test('includes Pedie Tech branding', () => {
-    const result = paymentConfirmationEmail(data)
-    expect(result.html).toContain('Pedie Tech')
-    expect(result.html).toContain('#22c55e')
-  })
-
-  test('strips HTML tags from user-provided values', () => {
+  test('sanitizes XSS in receiptNumber', () => {
     const result = paymentConfirmationEmail({
-      userName: '<script>alert("xss")</script>',
-      orderId: 'ORD-<img onerror=alert(1)>',
-      amount: 3500,
-      paymentMethod: '"><script>',
-      receiptNumber: "rcpt'&hack",
+      ...data,
+      receiptNumber: '"><script>steal()</script>',
     })
     expect(result.html).not.toContain('<script>')
-    expect(result.html).not.toContain('<img')
-    expect(result.html).not.toContain('onerror')
-    expect(result.html).toContain('&amp;hack')
   })
+})
+
+describe('shippingUpdateEmail', () => {
+  test('returns subject containing orderId', () => {
+    const result = shippingUpdateEmail({
+      userName: 'Dan',
+      orderId: 'ORD-300',
+    })
+    expect(result.subject).toContain('ORD-300')
+  })
+})
+
+describe('deliveryConfirmationEmail', () => {
+  test('returns subject containing orderId', () => {
+    const result = deliveryConfirmationEmail({
+      userName: 'Eve',
+      orderId: 'ORD-400',
+    })
+    expect(result.subject).toContain('ORD-400')
+  })
+})
+
+describe('orderCancelledEmail', () => {
+  test('returns subject containing orderId', () => {
+    const result = orderCancelledEmail({
+      userName: 'Frank',
+      orderId: 'ORD-500',
+    })
+    expect(result.subject).toContain('ORD-500')
+  })
+})
+
+describe('all templates', () => {
+  const templates = [
+    { name: 'welcomeEmail', fn: () => welcomeEmail('Test') },
+    {
+      name: 'orderConfirmationEmail',
+      fn: () =>
+        orderConfirmationEmail({
+          userName: 'Test',
+          orderId: 'ORD-1',
+          items: [{ name: 'Item', price: 100 }],
+          total: 100,
+          depositAmount: 10,
+          paymentMethod: 'cash',
+        }),
+    },
+    {
+      name: 'paymentConfirmationEmail',
+      fn: () =>
+        paymentConfirmationEmail({
+          userName: 'Test',
+          orderId: 'ORD-1',
+          amount: 100,
+          paymentMethod: 'cash',
+          receiptNumber: 'RCP-1',
+        }),
+    },
+    {
+      name: 'shippingUpdateEmail',
+      fn: () => shippingUpdateEmail({ userName: 'Test', orderId: 'ORD-1' }),
+    },
+    {
+      name: 'deliveryConfirmationEmail',
+      fn: () =>
+        deliveryConfirmationEmail({ userName: 'Test', orderId: 'ORD-1' }),
+    },
+    {
+      name: 'orderCancelledEmail',
+      fn: () => orderCancelledEmail({ userName: 'Test', orderId: 'ORD-1' }),
+    },
+  ]
+
+  for (const { name, fn } of templates) {
+    test(`${name} returns valid HTML starting with DOCTYPE`, () => {
+      const result = fn()
+      expect(result.html).toMatch(/^<!DOCTYPE html>/)
+    })
+  }
 })

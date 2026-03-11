@@ -97,12 +97,11 @@ export async function PUT(
     }
 
     const product = await updateProduct(id, parsed.data)
+    logAdminEvent(user.id, 'update', 'product', id)
 
     if (body.category_id !== undefined) {
       await syncPrimaryCategory(id, categoryId)
     }
-
-    logAdminEvent(user.id, 'update', 'product', id)
 
     return NextResponse.json(product)
   } catch (error) {

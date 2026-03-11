@@ -91,6 +91,9 @@ const mockSendDeliveryConfirmation = mock(() => Promise.resolve())
 const mockSendOrderCancelled = mock(() => Promise.resolve())
 
 mock.module('@lib/email/send', () => ({
+  sendWelcomeEmail: mock(() => Promise.resolve()),
+  sendOrderConfirmation: mock(() => Promise.resolve()),
+  sendPaymentConfirmation: mock(() => Promise.resolve()),
   sendShippingUpdate: mockSendShippingUpdate,
   sendDeliveryConfirmation: mockSendDeliveryConfirmation,
   sendOrderCancelled: mockSendOrderCancelled,

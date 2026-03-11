@@ -18,6 +18,8 @@ mock.module('@data/orders', () => ({
   createOrder: mock(() =>
     Promise.resolve({ id: 'order-new-123', status: 'pending' })
   ),
+  updateOrderStatus: mock(() => Promise.resolve()),
+  getOrderByPaymentRef: mock(() => Promise.resolve(null)),
 }))
 
 const mockIsUserAdmin = mock(() => Promise.resolve(false))

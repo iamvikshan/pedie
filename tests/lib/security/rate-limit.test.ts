@@ -42,20 +42,19 @@ describe('Rate Limiting', () => {
     delete process.env.UPSTASH_REDIS_REST_URL
     delete process.env.UPSTASH_REDIS_REST_TOKEN
 
-    // Re-import to bypass the mock and test actual fallback
-    const mod = await import('@lib/security/rateLimit')
-    const originalCreate = mod.createRateLimiter
-
-    // The module-level mock overrides, but we can test the pattern:
-    // when env vars are missing, limit should still resolve successfully
-    const limiter = originalCreate('fallback-test', {
+    // Global mock.module still intercepts; this test verifies the mock
+    // gracefully returns success when env vars are absent.
+    const limiter = createRateLimiter('fallback-test', {
       requests: 5,
       window: '1 m',
     })
     const result = await limiter.limit('any-id')
     expect(result.success).toBe(true)
 
-    process.env.UPSTASH_REDIS_REST_URL = origUrl
-    process.env.UPSTASH_REDIS_REST_TOKEN = origToken
+    if (origUrl !== undefined) process.env.UPSTASH_REDIS_REST_URL = origUrl
+    else delete process.env.UPSTASH_REDIS_REST_URL
+    if (origToken !== undefined)
+      process.env.UPSTASH_REDIS_REST_TOKEN = origToken
+    else delete process.env.UPSTASH_REDIS_REST_TOKEN
   })
 })

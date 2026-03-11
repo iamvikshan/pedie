@@ -33,8 +33,7 @@
         "coderabbit.coderabbit-vscode",
         "DeepScan.vscode-deepscan",
         "jetbrains.qodana-code",
-        "shenyq.gs-lang",
-        "ms-playwright.playwright"
+        "shenyq.gs-lang"
       ]
     }
   },

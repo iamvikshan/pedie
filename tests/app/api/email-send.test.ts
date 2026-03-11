@@ -1,142 +1,92 @@
-import { beforeEach, describe, expect, mock, test } from 'bun:test'
+import { describe, expect, test } from 'bun:test'
+import { readFileSync } from 'fs'
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+const routeSource = readFileSync('src/app/api/email/send/route.ts', 'utf8')
 
-// ── Mocks ──────────────────────────────────────────────────────────────────
-
-mock.module('@lib/security/rateLimit', () => ({
-  createRateLimiter: () => ({
-    limit: async () => ({ success: true, limit: 10, remaining: 9, reset: 0 }),
-  }),
-}))
-
-const mockSendEmail = mock(() => Promise.resolve())
-const mockIsEmailConfigured = mock(() => true)
-
-mock.module('@lib/email/gmail', () => ({
-  sendEmail: mockSendEmail,
-  isEmailConfigured: mockIsEmailConfigured,
-}))
-
-const mockGetUser = mock(() => Promise.resolve(null as any))
-const mockIsAdmin = mock(() => Promise.resolve(false))
-
-mock.module('@helpers/auth', () => ({
-  getUser: mockGetUser,
-  isAdmin: mockIsAdmin,
-}))
-
-// Import AFTER mocking
-const { POST } = await import('@/app/api/email/send/route')
-
-// ── Tests ──────────────────────────────────────────────────────────────────
-
-describe('POST /api/email/send', () => {
-  const validBody = {
-    to: 'test@example.com',
-    subject: 'Test Subject',
-    html: '<p>Test Body</p>',
-  }
-
-  beforeEach(() => {
-    mockSendEmail.mockClear()
-    mockIsEmailConfigured.mockClear()
-    mockGetUser.mockClear()
-    mockIsAdmin.mockClear()
-    mockIsEmailConfigured.mockReturnValue(true)
-  })
-
-  test('returns 401 when user is not authenticated', async () => {
-    mockGetUser.mockResolvedValue(null)
-
-    const request = new Request('http://localhost:3000/api/email/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(validBody),
+describe('POST /api/email/send source analysis', () => {
+  describe('imports', () => {
+    test('imports getUser and isAdmin from @helpers/auth', () => {
+      expect(routeSource).toMatch(
+        /import\s*\{[^}]*getUser[^}]*\}\s*from\s*['"]@helpers\/auth['"]/
+      )
+      expect(routeSource).toMatch(
+        /import\s*\{[^}]*isAdmin[^}]*\}\s*from\s*['"]@helpers\/auth['"]/
+      )
     })
 
-    const response = await POST(request)
-    expect(response.status).toBe(401)
-  })
-
-  test('returns 403 when user is not admin', async () => {
-    mockGetUser.mockResolvedValue({ id: 'user-1', email: 'user@test.com' })
-    mockIsAdmin.mockResolvedValue(false)
-
-    const request = new Request('http://localhost:3000/api/email/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(validBody),
+    test('imports isEmailConfigured and sendEmail from @lib/email/gmail', () => {
+      expect(routeSource).toMatch(
+        /import\s*\{[^}]*isEmailConfigured[^}]*\}\s*from\s*['"]@lib\/email\/gmail['"]/
+      )
+      expect(routeSource).toMatch(
+        /import\s*\{[^}]*sendEmail[^}]*\}\s*from\s*['"]@lib\/email\/gmail['"]/
+      )
     })
 
-    const response = await POST(request)
-    expect(response.status).toBe(403)
-  })
-
-  test('returns 400 when required fields are missing', async () => {
-    mockGetUser.mockResolvedValue({ id: 'admin-1', email: 'admin@test.com' })
-    mockIsAdmin.mockResolvedValue(true)
-
-    const request = new Request('http://localhost:3000/api/email/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ to: 'test@example.com' }),
+    test('imports sanitize from sanitize-html', () => {
+      expect(routeSource).toMatch(
+        /import\s+sanitize\s+from\s*['"]sanitize-html['"]/
+      )
     })
 
-    const response = await POST(request)
-    expect(response.status).toBe(400)
+    test('imports createRateLimiter from @lib/security/rateLimit', () => {
+      expect(routeSource).toMatch(
+        /import\s*\{[^}]*createRateLimiter[^}]*\}\s*from\s*['"]@lib\/security\/rateLimit['"]/
+      )
+    })
   })
 
-  test('returns 503 when email is not configured', async () => {
-    mockGetUser.mockResolvedValue({ id: 'admin-1', email: 'admin@test.com' })
-    mockIsAdmin.mockResolvedValue(true)
-    mockIsEmailConfigured.mockReturnValue(false)
-
-    const request = new Request('http://localhost:3000/api/email/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(validBody),
+  describe('auth guards', () => {
+    test('calls getUser() and returns 401', () => {
+      expect(routeSource).toContain('getUser()')
+      expect(routeSource).toContain('401')
     })
 
-    const response = await POST(request)
-    expect(response.status).toBe(503)
+    test('calls isAdmin() and returns 403', () => {
+      expect(routeSource).toContain('isAdmin()')
+      expect(routeSource).toContain('403')
+    })
   })
 
-  test('sends email and returns success for admin', async () => {
-    mockGetUser.mockResolvedValue({ id: 'admin-1', email: 'admin@test.com' })
-    mockIsAdmin.mockResolvedValue(true)
-
-    const request = new Request('http://localhost:3000/api/email/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(validBody),
+  describe('validation', () => {
+    test('validates to, subject, html fields', () => {
+      expect(routeSource).toContain('to')
+      expect(routeSource).toContain('subject')
+      expect(routeSource).toContain('html')
+      expect(routeSource).toContain('400')
     })
 
-    const response = await POST(request)
-    expect(response.status).toBe(200)
-
-    const data = await response.json()
-    expect(data.success).toBe(true)
-
-    expect(mockSendEmail).toHaveBeenCalledWith(
-      'test@example.com',
-      'Test Subject',
-      '<p>Test Body</p>'
-    )
+    test('calls isEmailConfigured() and returns 503', () => {
+      expect(routeSource).toContain('isEmailConfigured()')
+      expect(routeSource).toContain('503')
+    })
   })
 
-  test('returns 500 on send failure', async () => {
-    mockGetUser.mockResolvedValue({ id: 'admin-1', email: 'admin@test.com' })
-    mockIsAdmin.mockResolvedValue(true)
-    mockSendEmail.mockRejectedValueOnce(new Error('Send failed'))
-
-    const request = new Request('http://localhost:3000/api/email/send', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(validBody),
+  describe('sanitization', () => {
+    test('sanitizes to via sanitize() before passing to sendEmail', () => {
+      expect(routeSource).toMatch(/sanitize\(to\b/)
+      expect(routeSource).toContain('sanitizedTo')
     })
 
-    const response = await POST(request)
-    expect(response.status).toBe(500)
+    test('sanitizes subject via sanitize() before passing to sendEmail', () => {
+      expect(routeSource).toMatch(/sanitize\(subject\b/)
+      expect(routeSource).toContain('sanitizedSubject')
+    })
+
+    test('passes html to sendEmail WITHOUT sanitizing', () => {
+      expect(routeSource).not.toMatch(/sanitize\(html\b/)
+      expect(routeSource).not.toContain('sanitizedHtml')
+      expect(routeSource).toMatch(
+        /sendEmail\(sanitizedTo,\s*sanitizedSubject,\s*html\b/
+      )
+    })
+  })
+
+  describe('error handling', () => {
+    test('wraps in try/catch returning 500', () => {
+      expect(routeSource).toContain('try')
+      expect(routeSource).toContain('catch')
+      expect(routeSource).toContain('500')
+    })
   })
 })

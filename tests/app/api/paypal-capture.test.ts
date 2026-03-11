@@ -10,6 +10,8 @@ mock.module('@data/orders', () => ({
   getOrderById: mockGetOrderById,
   updateOrderStatus: mockUpdateOrderStatus,
   createOrder: mock(),
+  getOrdersByUser: mock(() => Promise.resolve([])),
+  getOrderByPaymentRef: mock(() => Promise.resolve(null)),
 }))
 
 const mockCapturePayPalPayment = mock(() => Promise.resolve({} as any))
@@ -19,11 +21,16 @@ mock.module('@lib/payments/paypal', () => ({
   getApprovalUrl: mock(),
   getPayPalAccessToken: mock(),
   getPayPalOrderStatus: mock(),
-  kesToUsd: mock(),
+  kesToUsd: (kes: number) => (kes / 130).toFixed(2),
 }))
 
 mock.module('@lib/email/send', () => ({
+  sendWelcomeEmail: mock(() => Promise.resolve()),
+  sendOrderConfirmation: mock(() => Promise.resolve()),
   sendPaymentConfirmation: mock(() => Promise.resolve()),
+  sendShippingUpdate: mock(() => Promise.resolve()),
+  sendDeliveryConfirmation: mock(() => Promise.resolve()),
+  sendOrderCancelled: mock(() => Promise.resolve()),
 }))
 
 const mockCreateAdminClient = mock(() => ({

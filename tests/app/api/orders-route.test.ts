@@ -28,10 +28,18 @@ const mockGetOrderById = mock(() => Promise.resolve(null))
 mock.module('@data/orders', () => ({
   createOrder: mockCreateOrder,
   getOrderById: mockGetOrderById,
+  getOrdersByUser: mock(() => Promise.resolve([])),
+  updateOrderStatus: mock(() => Promise.resolve()),
+  getOrderByPaymentRef: mock(() => Promise.resolve(null)),
 }))
 
 mock.module('@lib/email/send', () => ({
+  sendWelcomeEmail: mock(() => Promise.resolve()),
   sendOrderConfirmation: mock(() => Promise.resolve()),
+  sendPaymentConfirmation: mock(() => Promise.resolve()),
+  sendShippingUpdate: mock(() => Promise.resolve()),
+  sendDeliveryConfirmation: mock(() => Promise.resolve()),
+  sendOrderCancelled: mock(() => Promise.resolve()),
 }))
 
 const { POST } = await import('@/app/api/orders/route')
