@@ -541,7 +541,7 @@ export async function getAdminCustomers(
   if (filters.search) {
     const sanitized = filters.search.replace(/[^a-zA-Z0-9\s@._-]/g, '')
     query = query.or(
-      `full_name.ilike.%${sanitized}%,phone.ilike.%${sanitized}%`
+      `full_name.ilike.%${sanitized}%,username.ilike.%${sanitized}%,phone.ilike.%${sanitized}%`
     )
   }
 

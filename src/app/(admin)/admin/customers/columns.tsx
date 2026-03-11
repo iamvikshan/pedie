@@ -6,6 +6,7 @@ import Link from 'next/link'
 interface CustomerRow {
   id: string
   full_name: string | null
+  username: string | null
   email?: string | null
   role: string | null
   phone: string | null
@@ -19,6 +20,20 @@ export const customerColumns: ColumnDef<CustomerRow, unknown>[] = [
     header: 'Name',
     cell: ({ row }) => {
       return (row.getValue('full_name') as string) ?? '—'
+    },
+  },
+  {
+    accessorKey: 'username',
+    header: 'Username',
+    cell: ({ row }) => {
+      const username = row.getValue('username') as string | null
+      return username ? (
+        <span className='font-mono text-sm text-pedie-text-muted'>
+          @{username}
+        </span>
+      ) : (
+        '\u2014'
+      )
     },
   },
   {

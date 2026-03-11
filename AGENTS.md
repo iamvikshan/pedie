@@ -25,7 +25,7 @@ detected: 2026-03-08
 ```yaml
 fileNaming: camelCase (files/modules/components) | PascalCase (exported classes/types) | UPPER_SNAKE_CASE (.env & config.ts constants)
 docs: jsdoc                  # primary language default; actual style is per-file-extension
-planDir: .zeus/plans/
+planDir: .atlas/plans/
 testDir: tests/
 ```
 

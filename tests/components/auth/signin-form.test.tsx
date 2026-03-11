@@ -33,13 +33,13 @@ describe('SignInForm', () => {
     expect(typeof mod.SignInForm).toBe('function')
   })
 
-  test('renders email and password fields', async () => {
+  test('renders identifier and password fields', async () => {
     const { SignInForm } = await import('@components/auth/signinForm')
     const html = renderToString(<SignInForm />)
 
-    expect(html).toContain('email')
+    expect(html).toContain('identifier')
     expect(html).toContain('password')
-    expect(html).toContain('Email')
+    expect(html).toContain('Username or email')
     expect(html).toContain('Password')
   })
 
@@ -68,6 +68,6 @@ describe('SignInForm', () => {
     const { SignInForm } = await import('@components/auth/signinForm')
     const html = renderToString(<SignInForm />)
 
-    expect(html).toContain('you@example.com')
+    expect(html).toContain('you@example.com or username')
   })
 })

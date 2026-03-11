@@ -86,7 +86,7 @@ describe('Admin Customers', () => {
     })
 
     test('has correct number of columns', () => {
-      expect(customerColumns.length).toBe(6)
+      expect(customerColumns.length).toBe(7)
     })
   })
 

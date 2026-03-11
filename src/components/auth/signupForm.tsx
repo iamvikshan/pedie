@@ -11,13 +11,21 @@ interface SignUpFormProps {
   redirectTo?: string
 }
 
+const USERNAME_REGEX = /^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$/
+
 export function SignUpForm({ redirectTo }: SignUpFormProps) {
-  const [fullName, setFullName] = useState('')
+  const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
+
+  const usernameValid =
+    username.length === 0 ||
+    (username.length >= 3 &&
+      username.length <= 20 &&
+      USERNAME_REGEX.test(username))
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -30,7 +38,7 @@ export function SignUpForm({ redirectTo }: SignUpFormProps) {
       password,
       options: {
         data: {
-          full_name: fullName.trim(),
+          username: username.toLowerCase().trim(),
         },
         emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo || '/')}`,
       },
@@ -111,20 +119,29 @@ export function SignUpForm({ redirectTo }: SignUpFormProps) {
       <form onSubmit={handleSignUp} className='space-y-4'>
         <div>
           <label
-            htmlFor='fullName'
+            htmlFor='username'
             className='block text-sm font-medium text-pedie-text mb-1'
           >
-            Full Name
+            Username
           </label>
           <Input
-            id='fullName'
+            id='username'
             type='text'
-            value={fullName}
-            onChange={e => setFullName(e.target.value)}
+            value={username}
+            onChange={e => setUsername(e.target.value.toLowerCase())}
             required
-            placeholder='John Doe'
+            placeholder='e.g. john_doe'
+            minLength={3}
+            maxLength={20}
+            pattern='^[a-z][a-z0-9]*(?:_[a-z0-9]+)*$'
             size='lg'
           />
+          {!usernameValid && (
+            <p className='mt-1 text-xs text-pedie-error'>
+              3-20 chars, lowercase letters, digits, and underscores between
+              words
+            </p>
+          )}
         </div>
         <div>
           <label

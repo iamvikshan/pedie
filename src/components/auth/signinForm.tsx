@@ -14,7 +14,7 @@ interface SignInFormProps {
 
 export function SignInForm({ redirectTo }: SignInFormProps) {
   const router = useRouter()
-  const [email, setEmail] = useState('')
+  const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -24,16 +24,39 @@ export function SignInForm({ redirectTo }: SignInFormProps) {
     setLoading(true)
     setError(null)
 
+    let loginEmail = identifier.trim()
+
+    if (!loginEmail.includes('@')) {
+      try {
+        const res = await fetch('/api/auth/resolve-username', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: loginEmail }),
+        })
+        if (!res.ok) {
+          setError('Invalid username or password')
+          setLoading(false)
+          return
+        }
+        const data = await res.json()
+        loginEmail = data.email
+      } catch {
+        setError('Invalid username or password')
+        setLoading(false)
+        return
+      }
+    }
+
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
+      email: loginEmail,
       password,
     })
 
     if (error) {
       setError(
         error.message === 'Invalid login credentials'
-          ? 'Invalid email or password'
+          ? 'Invalid username or password'
           : error.message
       )
       setLoading(false)
@@ -80,18 +103,18 @@ export function SignInForm({ redirectTo }: SignInFormProps) {
       <form onSubmit={handleEmailSignIn} className='space-y-4'>
         <div>
           <label
-            htmlFor='email'
+            htmlFor='identifier'
             className='block text-sm font-medium text-pedie-text mb-1'
           >
-            Email
+            Username or email
           </label>
           <Input
-            id='email'
-            type='email'
-            value={email}
-            onChange={e => setEmail(e.target.value)}
+            id='identifier'
+            type='text'
+            value={identifier}
+            onChange={e => setIdentifier(e.target.value)}
             required
-            placeholder='you@example.com'
+            placeholder='you@example.com or username'
             size='lg'
           />
         </div>

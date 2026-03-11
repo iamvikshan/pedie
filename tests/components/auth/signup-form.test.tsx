@@ -31,14 +31,14 @@ describe('SignUpForm', () => {
     expect(typeof mod.SignUpForm).toBe('function')
   })
 
-  test('renders full name, email, and password fields', async () => {
+  test('renders username, email, and password fields', async () => {
     const { SignUpForm } = await import('@components/auth/signupForm')
     const html = renderToString(<SignUpForm />)
 
-    expect(html).toContain('Full Name')
+    expect(html).toContain('Username')
     expect(html).toContain('Email')
     expect(html).toContain('Password')
-    expect(html).toContain('fullName')
+    expect(html).toContain('username')
     expect(html).toContain('email')
     expect(html).toContain('password')
   })
@@ -69,7 +69,7 @@ describe('SignUpForm', () => {
     const html = renderToString(<SignUpForm />)
 
     expect(html).toContain('you@example.com')
-    expect(html).toContain('John Doe')
+    expect(html).toContain('e.g. john_doe')
     expect(html).toContain('Min. 6 characters')
   })
 
