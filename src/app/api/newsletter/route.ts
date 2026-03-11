@@ -28,11 +28,9 @@ export async function POST(request: Request) {
 
     const supabase = createAdminClient()
 
-    // Atomic conditional upsert: INSERT new subscriber, or no-op on conflict
-    // if already subscribed. Does NOT re-enable subscribed for users who
-    // previously unsubscribed (handled by the DB-side ON CONFLICT DO UPDATE
-    // only when subscribed IS NOT FALSE — approximated here by using
-    // ignoreDuplicates so existing rows are untouched).
+    // INSERT new subscriber or no-op if the email already exists.
+    // ignoreDuplicates skips the row on conflict, so previously
+    // unsubscribed users are NOT re-subscribed.
     const { error } = await supabase
       .from('newsletter_subscribers')
       .upsert(
@@ -42,12 +40,7 @@ export async function POST(request: Request) {
 
     if (error) {
       return NextResponse.json(
-        {
-          error:
-            process.env.NODE_ENV !== 'production'
-              ? error.message
-              : 'Failed to subscribe',
-        },
+        { error: 'Failed to subscribe' },
         { status: 500 }
       )
     }

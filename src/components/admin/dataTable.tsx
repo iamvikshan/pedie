@@ -30,9 +30,11 @@ export function DataTable<TData, TValue>({
   onPerPageChange,
   perPage = 10,
 }: DataTableProps<TData, TValue>) {
+  'use no memo'
   const [sorting, setSorting] = useState<SortingState>([])
   const [rowSelection, setRowSelection] = useState({})
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,

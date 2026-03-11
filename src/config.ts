@@ -15,8 +15,7 @@ export const DEPOSIT_RATE_HIGH = 0.1 // 10% for items >= KES 70k
 export const SHIPPING_DAYS_MIN = 7
 export const SHIPPING_DAYS_MAX = 14
 
-// ── Listing IDs ───────────────────────────────────────────────────
-export const LISTING_ID_PREFIX = 'PD'
+// ── Collections ──────────────────────────────────────────────────
 export const DEFAULT_COLLECTION_HREF = '/collections'
 
 // ── Google Sheets sync ────────────────────────────────────────────

@@ -641,7 +641,6 @@ Next.js 16 uses `proxy.ts` (instead of `middleware.ts`) for request interception
 - **Security headers injection** — adds protective headers on every response:
   - `X-Content-Type-Options: nosniff`
   - `X-Frame-Options: DENY`
-  - `X-XSS-Protection: 1; mode=block`
   - `Referrer-Policy: strict-origin-when-cross-origin`
   - `Permissions-Policy: camera=(), microphone=(), geolocation=()`
 

@@ -11,9 +11,9 @@
 ```yaml
 language: typescript
 pm: bun
-format: bun run f           # formats changed files only — NEVER use bun f:all
-lint: bun check              # combined lint + typecheck
-typecheck: bun check         # standalone alternative: bunx tsc --noEmit
+format: bun run f # formats changed files only — NEVER use bun f:all
+lint: bun check # combined lint + typecheck
+typecheck: bun check # standalone alternative: bunx tsc --noEmit
 test: bun test
 build: bun run build
 iconLib: react-icons/tb
@@ -24,7 +24,7 @@ detected: 2026-03-08
 
 ```yaml
 fileNaming: camelCase (files/modules/components) | PascalCase (exported classes/types) | UPPER_SNAKE_CASE (.env & config.ts constants)
-docs: jsdoc                  # primary language default; actual style is per-file-extension
+docs: jsdoc # primary language default; actual style is per-file-extension
 planDir: .atlas/plans/
 testDir: tests/
 ```
@@ -45,14 +45,14 @@ testDir: tests/
 
 ## Path Aliases
 
-| Alias | Target |
-|---|---|
-| `@/*` | `src/*` |
-| `@components/*` | `src/components/*` |
-| `@data/*` | `src/lib/data/*` |
-| `@app-types/*` | `types/*` |
+| Alias                     | Target                          |
+| ------------------------- | ------------------------------- |
+| `@/*`                     | `src/*`                         |
+| `@components/*`           | `src/components/*`              |
+| `@data/*`                 | `src/lib/data/*`                |
+| `@app-types/*`            | `types/*`                       |
 | `@helpers` / `@helpers/*` | `src/helpers` / `src/helpers/*` |
-| `@lib/*` | `src/lib/*` |
+| `@lib/*`                  | `src/lib/*`                     |
 
 ---
 
@@ -87,9 +87,12 @@ testDir: tests/
 
 ## Testing Conventions
 
-| Category | Approach |
-|---|---|
-| DOM tests | Testing Library with happy-dom. Shared mocks/utilities from `tests/utils.tsx` |
-| Source-analysis tests | Config, CSS, imports, and page structure validation |
-| Logic / mock-heavy tests | `mock.module()` for business logic and API/data code |
+| Category                 | Approach                                                                      |
+| ------------------------ | ----------------------------------------------------------------------------- |
+| DOM tests                | Testing Library with happy-dom. Shared mocks/utilities from `tests/utils.tsx` |
+| Source-analysis tests    | Config, CSS, imports, and page structure validation                           |
+| Logic / mock-heavy tests | `mock.module()` for business logic and API/data code                          |
+
+```
+
 ```

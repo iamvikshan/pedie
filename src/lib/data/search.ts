@@ -83,9 +83,7 @@ export async function searchListings(
       .select('id')
       .in('brand_id', brandIds)
 
-    const brandProductIds = new Set(
-      (brandProducts ?? []).map(p => p.id)
-    )
+    const brandProductIds = new Set((brandProducts ?? []).map(p => p.id))
 
     productIds = productIds.filter(id => brandProductIds.has(id))
 

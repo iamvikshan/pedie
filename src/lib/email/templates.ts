@@ -1,19 +1,13 @@
+import sanitizeHtml from 'sanitize-html'
+
 export interface EmailTemplate {
   subject: string
   html: string
 }
 
-/**
- * Escape HTML special characters to prevent XSS / injection
- * in email templates.
- */
-export function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;')
+/** Sanitize user input for safe embedding in email HTML templates. */
+function sanitize(str: string): string {
+  return sanitizeHtml(str, { allowedTags: [], allowedAttributes: {} })
 }
 
 function formatKES(amount: number): string {
@@ -50,7 +44,7 @@ function wrapInLayout(content: string): string {
 
 export function welcomeEmail(userName: string): EmailTemplate {
   const content = `
-    <h2 style="color:#18181b;margin:0 0 16px 0;">Welcome, ${escapeHtml(userName)}!</h2>
+    <h2 style="color:#18181b;margin:0 0 16px 0;">Welcome, ${sanitize(userName)}!</h2>
     <p style="color:#3f3f46;line-height:1.6;margin:0 0 16px 0;">
       Thank you for joining Pedie Tech. We're excited to have you on board!
     </p>
@@ -82,7 +76,7 @@ export function orderConfirmationEmail(data: {
     .map(
       item =>
         `<tr>
-          <td style="padding:8px 0;border-bottom:1px solid #e4e4e7;color:#3f3f46;">${escapeHtml(item.name)}</td>
+          <td style="padding:8px 0;border-bottom:1px solid #e4e4e7;color:#3f3f46;">${sanitize(item.name)}</td>
           <td style="padding:8px 0;border-bottom:1px solid #e4e4e7;color:#3f3f46;text-align:right;">KES ${formatKES(item.price)}</td>
         </tr>`
     )
@@ -91,7 +85,7 @@ export function orderConfirmationEmail(data: {
   const content = `
     <h2 style="color:#18181b;margin:0 0 16px 0;">Order Confirmed!</h2>
     <p style="color:#3f3f46;line-height:1.6;margin:0 0 16px 0;">
-      Hi ${escapeHtml(data.userName)}, your order <strong>${escapeHtml(data.orderId)}</strong> has been placed successfully.
+      Hi ${sanitize(data.userName)}, your order <strong>${sanitize(data.orderId)}</strong> has been placed successfully.
     </p>
     <table style="width:100%;border-collapse:collapse;margin:16px 0;">
       <thead>
@@ -107,7 +101,7 @@ export function orderConfirmationEmail(data: {
     <div style="margin:16px 0;padding:16px;background-color:#f4f4f5;border-radius:6px;">
       <p style="margin:0 0 8px 0;color:#3f3f46;"><strong>Total:</strong> KES ${formatKES(data.total)}</p>
       <p style="margin:0 0 8px 0;color:#3f3f46;"><strong>Deposit Paid:</strong> KES ${formatKES(data.depositAmount)}</p>
-      <p style="margin:0;color:#3f3f46;"><strong>Payment Method:</strong> ${escapeHtml(data.paymentMethod)}</p>
+      <p style="margin:0;color:#3f3f46;"><strong>Payment Method:</strong> ${sanitize(data.paymentMethod)}</p>
     </div>
   `
 
@@ -124,16 +118,16 @@ export function shippingUpdateEmail(data: {
   carrier?: string
 }): EmailTemplate {
   const trackingSection = data.trackingInfo
-    ? `<p style="margin:0 0 8px 0;color:#3f3f46;"><strong>Tracking Number:</strong> ${escapeHtml(data.trackingInfo)}</p>`
+    ? `<p style="margin:0 0 8px 0;color:#3f3f46;"><strong>Tracking Number:</strong> ${sanitize(data.trackingInfo)}</p>`
     : ''
   const carrierSection = data.carrier
-    ? `<p style="margin:0 0 8px 0;color:#3f3f46;"><strong>Carrier:</strong> ${escapeHtml(data.carrier)}</p>`
+    ? `<p style="margin:0 0 8px 0;color:#3f3f46;"><strong>Carrier:</strong> ${sanitize(data.carrier)}</p>`
     : ''
 
   const content = `
     <h2 style="color:#18181b;margin:0 0 16px 0;">Your Order Has Shipped!</h2>
     <p style="color:#3f3f46;line-height:1.6;margin:0 0 16px 0;">
-      Hi ${escapeHtml(data.userName)}, your order <strong>${escapeHtml(data.orderId)}</strong> is on its way!
+      Hi ${sanitize(data.userName)}, your order <strong>${sanitize(data.orderId)}</strong> is on its way!
     </p>
     <div style="margin:16px 0;padding:16px;background-color:#f4f4f5;border-radius:6px;">
       ${carrierSection}
@@ -157,7 +151,7 @@ export function deliveryConfirmationEmail(data: {
   const content = `
     <h2 style="color:#18181b;margin:0 0 16px 0;">Your Order Has Been Delivered!</h2>
     <p style="color:#3f3f46;line-height:1.6;margin:0 0 16px 0;">
-      Hi ${escapeHtml(data.userName)}, your order <strong>${escapeHtml(data.orderId)}</strong> has been delivered.
+      Hi ${sanitize(data.userName)}, your order <strong>${sanitize(data.orderId)}</strong> has been delivered.
     </p>
     <p style="color:#3f3f46;line-height:1.6;margin:0 0 16px 0;">
       We hope you love your purchase! If you have any questions or feedback, don't hesitate to reach out.
@@ -181,13 +175,13 @@ export function orderCancelledEmail(data: {
   reason?: string
 }): EmailTemplate {
   const reasonSection = data.reason
-    ? `<p style="color:#3f3f46;line-height:1.6;margin:0 0 16px 0;"><strong>Reason:</strong> ${escapeHtml(data.reason)}</p>`
+    ? `<p style="color:#3f3f46;line-height:1.6;margin:0 0 16px 0;"><strong>Reason:</strong> ${sanitize(data.reason)}</p>`
     : ''
 
   const content = `
     <h2 style="color:#18181b;margin:0 0 16px 0;">Order Cancelled</h2>
     <p style="color:#3f3f46;line-height:1.6;margin:0 0 16px 0;">
-      Hi ${escapeHtml(data.userName)}, your order <strong>${escapeHtml(data.orderId)}</strong> has been cancelled.
+      Hi ${sanitize(data.userName)}, your order <strong>${sanitize(data.orderId)}</strong> has been cancelled.
     </p>
     ${reasonSection}
     <p style="color:#3f3f46;line-height:1.6;margin:0 0 16px 0;">
@@ -216,12 +210,12 @@ export function paymentConfirmationEmail(data: {
   const content = `
     <h2 style="color:#18181b;margin:0 0 16px 0;">Payment Received!</h2>
     <p style="color:#3f3f46;line-height:1.6;margin:0 0 16px 0;">
-      Hi ${escapeHtml(data.userName)}, we've received your payment for order <strong>${escapeHtml(data.orderId)}</strong>.
+      Hi ${sanitize(data.userName)}, we've received your payment for order <strong>${sanitize(data.orderId)}</strong>.
     </p>
     <div style="margin:16px 0;padding:16px;background-color:#f4f4f5;border-radius:6px;">
       <p style="margin:0 0 8px 0;color:#3f3f46;"><strong>Amount:</strong> KES ${formatKES(data.amount)}</p>
-      <p style="margin:0 0 8px 0;color:#3f3f46;"><strong>Payment Method:</strong> ${escapeHtml(data.paymentMethod)}</p>
-      <p style="margin:0;color:#3f3f46;"><strong>Receipt Number:</strong> ${escapeHtml(data.receiptNumber)}</p>
+      <p style="margin:0 0 8px 0;color:#3f3f46;"><strong>Payment Method:</strong> ${sanitize(data.paymentMethod)}</p>
+      <p style="margin:0;color:#3f3f46;"><strong>Receipt Number:</strong> ${sanitize(data.receiptNumber)}</p>
     </div>
     <p style="color:#3f3f46;line-height:1.6;margin:16px 0 0 0;">
       Thank you for shopping with Pedie Tech!

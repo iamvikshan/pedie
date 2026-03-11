@@ -4,6 +4,7 @@ import { resolve } from 'path'
 import {
   cleanNumericString,
   parseSheetRow,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   HEADER_MAP,
 } from '@lib/sheets/parser'
 import { SHEETS_TAB } from '@/config'
@@ -629,10 +630,6 @@ describe('multi-tab import functions', () => {
     const brandsImportIndex = src.indexOf('syncBrandsFromSheet(')
     const categoriesImportIndex = src.indexOf('syncCategoriesFromSheet(')
     const promotionsImportIndex = src.indexOf('syncPromotionsFromSheet(')
-    const fetchListingsIndex = src.indexOf(
-      'fetchSheetData(sheetsClient, spreadsheetId, SHEETS_TAB.listings'
-    )
-
     // All import functions must exist
     expect(brandsImportIndex).toBeGreaterThan(-1)
     expect(categoriesImportIndex).toBeGreaterThan(-1)

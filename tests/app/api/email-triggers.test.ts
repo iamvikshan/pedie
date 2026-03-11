@@ -53,12 +53,12 @@ describe('Email trigger: sendWelcomeEmail', () => {
     ).resolves.toBeUndefined()
   })
 
-  test('escapes HTML in userName in the email body', async () => {
+  test('strips HTML tags from userName in the email body', async () => {
     await sendWelcomeEmail('test@example.com', '<script>alert(1)</script>')
 
     const [, , html] = (mockSendEmail.mock.calls as any[][])[0]
     expect(html).not.toContain('<script>alert(1)</script>')
-    expect(html).toContain('&lt;script&gt;')
+    expect(html).not.toContain('<script>')
   })
 })
 
@@ -102,7 +102,7 @@ describe('Email trigger: sendOrderConfirmation', () => {
     ).resolves.toBeUndefined()
   })
 
-  test('escapes HTML in item names', async () => {
+  test('strips HTML tags from item names', async () => {
     const xssData = {
       ...data,
       items: [{ name: '<img src=x onerror=alert(1)>', price: 500 }],
@@ -112,7 +112,7 @@ describe('Email trigger: sendOrderConfirmation', () => {
 
     const [, , html] = (mockSendEmail.mock.calls as any[][])[0]
     expect(html).not.toContain('<img src=x onerror=alert(1)>')
-    expect(html).toContain('&lt;img')
+    expect(html).not.toContain('<img')
   })
 
   test('does not call sendEmail when config is missing', async () => {
@@ -160,14 +160,14 @@ describe('Email trigger: sendPaymentConfirmation', () => {
     ).resolves.toBeUndefined()
   })
 
-  test('escapes HTML in receipt number', async () => {
+  test('strips HTML tags from receipt number', async () => {
     const xssData = { ...data, receiptNumber: '"><script>steal()</script>' }
 
     await sendPaymentConfirmation('carol@example.com', xssData)
 
     const [, , html] = (mockSendEmail.mock.calls as any[][])[0]
     expect(html).not.toContain('<script>steal()</script>')
-    expect(html).toContain('&lt;script&gt;')
+    expect(html).not.toContain('<script>')
   })
 
   test('does not call sendEmail when config is missing', async () => {

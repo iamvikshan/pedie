@@ -492,11 +492,12 @@ The RPC function is `SECURITY DEFINER` and does NOT expose the email to the clie
 
 ### `newsletter_subscribers`
 
-| Column          | Type        | Constraints                     | Description |
-| --------------- | ----------- | ------------------------------- | ----------- |
-| `id`            | uuid        | PK, default `gen_random_uuid()` |             |
-| `email`         | text        | NOT NULL, UNIQUE                |             |
-| `subscribed_at` | timestamptz | default now()                   |             |
+| Column          | Type        | Constraints                     | Description                        |
+| --------------- | ----------- | ------------------------------- | ---------------------------------- |
+| `id`            | uuid        | PK, default `gen_random_uuid()` |                                    |
+| `email`         | text        | NOT NULL, UNIQUE                |                                    |
+| `subscribed`    | boolean     | NOT NULL, default true          | Opt-out flag: false = unsubscribed |
+| `subscribed_at` | timestamptz | default now()                   |                                    |
 
 **RLS:** Public INSERT. Admin ALL.
 
@@ -587,6 +588,10 @@ Trigger on `auth.users` INSERT that creates a corresponding `profiles` row.
 ### `update_product_fts()`
 
 Trigger on products INSERT/UPDATE that rebuilds the `fts` tsvector including the brand name from the `brands` table.
+
+### `enforce_role_immutability()`
+
+Trigger on `profiles` BEFORE UPDATE. Prevents non-admin, non-service-role users from changing the `role` column. If `OLD.role <> NEW.role` and the caller is neither an admin nor using the service role key, the update is rejected with an exception. This ensures role escalation cannot happen through a direct profile update.
 
 ---
 

@@ -199,16 +199,19 @@ export type Database = {
         Row: {
           email: string
           id: string
+          subscribed: boolean
           subscribed_at: string | null
         }
         Insert: {
           email: string
           id?: string
+          subscribed?: boolean
           subscribed_at?: string | null
         }
         Update: {
           email?: string
           id?: string
+          subscribed?: boolean
           subscribed_at?: string | null
         }
         Relationships: []

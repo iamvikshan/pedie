@@ -27,4 +27,14 @@ describe('Config', () => {
     const config = await import('@/config')
     expect('SHEETS_TAB_NAME' in config).toBe(false)
   })
+
+  test('LISTING_ID_PREFIX is not exported', async () => {
+    const config = await import('@/config')
+    expect('LISTING_ID_PREFIX' in config).toBe(false)
+  })
+
+  test('DEFAULT_COLLECTION_HREF is exported', async () => {
+    const { DEFAULT_COLLECTION_HREF } = await import('@/config')
+    expect(DEFAULT_COLLECTION_HREF).toBe('/collections')
+  })
 })

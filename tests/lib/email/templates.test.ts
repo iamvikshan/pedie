@@ -1,40 +1,9 @@
 import { describe, expect, test } from 'bun:test'
 import {
-  escapeHtml,
   orderConfirmationEmail,
   paymentConfirmationEmail,
   welcomeEmail,
 } from '@lib/email/templates'
-
-describe('escapeHtml', () => {
-  test('escapes ampersands', () => {
-    expect(escapeHtml('AT&T')).toBe('AT&amp;T')
-  })
-
-  test('escapes angle brackets', () => {
-    expect(escapeHtml('<script>alert("xss")</script>')).toBe(
-      '&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;'
-    )
-  })
-
-  test('escapes double quotes', () => {
-    expect(escapeHtml('"hello"')).toBe('&quot;hello&quot;')
-  })
-
-  test('escapes single quotes', () => {
-    expect(escapeHtml("it's")).toBe('it&#39;s')
-  })
-
-  test('returns plain text unchanged', () => {
-    expect(escapeHtml('Hello World')).toBe('Hello World')
-  })
-
-  test('escapes all special chars together', () => {
-    expect(escapeHtml('<b>"Tom & Jerry\'s"</b>')).toBe(
-      '&lt;b&gt;&quot;Tom &amp; Jerry&#39;s&quot;&lt;/b&gt;'
-    )
-  })
-})
 
 describe('welcomeEmail', () => {
   test('returns correct subject', () => {
@@ -166,7 +135,7 @@ describe('paymentConfirmationEmail', () => {
     expect(result.html).toContain('#22c55e')
   })
 
-  test('escapes special characters in user-provided values', () => {
+  test('strips HTML tags from user-provided values', () => {
     const result = paymentConfirmationEmail({
       userName: '<script>alert("xss")</script>',
       orderId: 'ORD-<img onerror=alert(1)>',
@@ -176,7 +145,7 @@ describe('paymentConfirmationEmail', () => {
     })
     expect(result.html).not.toContain('<script>')
     expect(result.html).not.toContain('<img')
-    expect(result.html).toContain('&lt;script&gt;')
+    expect(result.html).not.toContain('onerror')
     expect(result.html).toContain('&amp;hack')
   })
 })
