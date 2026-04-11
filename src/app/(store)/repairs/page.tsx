@@ -8,7 +8,7 @@ export const metadata = {
 
 export default function RepairsPage() {
   return (
-    <main className='flex min-h-[60vh] flex-col items-center justify-center px-4 text-center'>
+    <section className='flex min-h-[60vh] flex-col items-center justify-center px-4 text-center'>
       <TbTool className='h-16 w-16 text-pedie-text-muted mb-6' />
       <h1 className='text-3xl font-bold text-pedie-text mb-3'>Repairs</h1>
       <p className='max-w-md text-pedie-text-muted mb-6'>
@@ -19,6 +19,6 @@ export default function RepairsPage() {
       <span className='inline-flex items-center rounded-full bg-pedie-green/10 px-4 py-2 text-sm font-medium text-pedie-green'>
         Coming Soon
       </span>
-    </main>
+    </section>
   )
 }

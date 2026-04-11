@@ -27,7 +27,7 @@ export default function CollectionLoading() {
         </aside>
 
         {/* Main Content Skeleton */}
-        <main className='w-full lg:w-3/4'>
+        <section className='w-full lg:w-3/4'>
           <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4'>
             <div className='h-6 w-32 bg-pedie-card rounded' />
             <div className='h-10 w-48 bg-pedie-card rounded-md' />
@@ -50,7 +50,7 @@ export default function CollectionLoading() {
               </div>
             ))}
           </div>
-        </main>
+        </section>
       </div>
     </div>
   )

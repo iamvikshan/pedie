@@ -2,7 +2,9 @@
 
 - Prefer little code that does more. Reach for mature packages instead of reinventing common solutions.
 - Keep modules cohesive, reusable, and easy to share without creating needless file sprawl.
-- Breaking changes are acceptable in this repo. Remove dead code instead of adding backward-compatibility or deprecation layers.
+- Breaking changes are acceptable in this repo. Remove dead code instead of adding rollback/backward-compatibility or deprecation layers.
+- `node/npx/npm run` is prohibited (unless explicitly required for a specific task), use `bun` at all times.
+- Absolutely no downgrading packages or tools for the sake of compatibility with old code. Update old code to be compatible with up-to-date tools and packages.
 
 ---
 
@@ -25,7 +27,7 @@ detected: 2026-03-08
 ```yaml
 fileNaming: camelCase (files/modules/components) | PascalCase (exported classes/types) | UPPER_SNAKE_CASE (.env & config.ts constants)
 docs: jsdoc # primary language default; actual style is per-file-extension
-planDir: .atlas/plans/
+planDir: .agents/plans/
 testDir: tests/
 ```
 

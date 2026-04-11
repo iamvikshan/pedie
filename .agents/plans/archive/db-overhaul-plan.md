@@ -22,19 +22,19 @@ Overhaul the Pedie database schema from a phone-centric PoC to an industry-stand
    - **Objective:** Replace the old schema with the new one via a single Supabase migration
    - **Summary:** Removed 13 old migration files, created single unified migration `20250800000000_schema.sql` with 7 enums, 16 tables, 10 functions, 12 triggers, 24 indexes, 37 RLS policies. Applied to live Supabase. Updated seed script and RLS tests. Regenerated TypeScript types.
    - **Changes from plan:** Added `promotions` CHECK constraints (target required, flash_sale needs discount). Added brand FTS cascade trigger. Added `sku` column DEFAULT for TS ergonomics. Policy names use `snake_case` naming convention instead of quoted descriptive names. `types/database.ts` regenerated in this phase (originally planned for Phase 6).
-   - **Completion:** [Phase 1 details](.atlas/plans/db-overhaul-phase-1-complete.md)
+   - **Completion:** [Phase 1 details](.agents/plans/db-overhaul-phase-1-complete.md)
 
 2. **[x] Phase 2: Data Access Layer Rewrite**
    - **Objective:** Rewrite `src/lib/data/*` queries for the new schema
    - **Summary:** Rewrote all data access layer queries, types, and helpers. 48 files modified. All public queries use `.eq('status', 'active')` (security fix from review). Brand filtering uses slugs consistently, with pre-resolved product IDs for count queries. Admin notes normalized to string[]. Deleted `deals.ts` -- promotion listing logic inlined in `listings.ts` as `getPromotionListings()` / `getHotPromotionListings()`. 1274 tests pass.
    - **Changes from plan:** Status filter initially used old `.not('status')` pattern -- fixed during review. Brand filter mismatch between available filters (names) and data queries (slugs) -- fixed. Brand count query: pre-resolve brand slugs to product IDs instead of unsupported nested relation filter on head/count queries (both listings.ts and search.ts). Admin notes scalar-to-array conversion added at API boundary. `getPricingTier()` returns `'sale'|'regular'|'premium'` -- will be removed in Phase 5 (cards handle display). `deals.ts` deleted and promotion logic moved to `listings.ts` (Phase 3 promotions data layer will extend this, not create a separate file). `bun check` gate skipped -- remaining errors are Phase 5 consumer files. Storefront consumer propagation deferred to Phase 5.
-   - **Completion:** [Phase 2 details](.atlas/plans/db-overhaul-phase-2-complete.md)
+   - **Completion:** [Phase 2 details](.agents/plans/db-overhaul-phase-2-complete.md)
 
 3. **[x] Phase 3: Sync Pipeline & Promotions Data Layer**
    - **Objective:** Fix sync pipeline for new schema (many broken column references), extend promotions data layer to query `promotions` table, add Brands/Categories/Promotions sheet tabs, add `new`/`for_parts` condition mappings, comment out crawlers.
    - **Summary:** Rewrote sheets sync pipeline (parser.ts, sync.ts), promotions data layer (listings.ts), and condition mapping (conditionMapping.ts). Added 8 behavioral tests for `applyPromotionDiscount()`. Disabled all 9 crawler files + 9 crawler test files. 1231 tests pass. Review required 2 rounds: fixed syncToSheets tab export bypass on empty listings, findOrCreateProduct product_categories enforcement with partial unique index awareness, product-level promotion merge logic, and replaced shallow source-string tests with behavioral tests.
    - **Changes from plan:** Crawlers disabled with single-line comments (Prettier compatibility). findOrCreateProduct handles the `idx_product_categories_one_primary` partial unique index by checking if product already has a primary category before upserting. Source-string assertion tests in deals.test.ts fully replaced by behavioral tests rather than supplemented.
-   - **Completion:** [Phase 3 details](.atlas/plans/db-overhaul-phase-3-complete.md)
+   - **Completion:** [Phase 3 details](.agents/plans/db-overhaul-phase-3-complete.md)
    - **Schema mismatches to fix in sync.ts:**
      - Product lookup: `.eq('brand', brand)` (string) -> resolve via `brands` table FK (`brand_id`)
      - Product category: `category_id` column -> `product_categories` junction table
@@ -88,7 +88,7 @@ Overhaul the Pedie database schema from a phone-centric PoC to an industry-stand
      - Multi-tab import parses brands/categories/promotions tabs
      - Admin sync route accepts direction parameter
    - **Quality Gates:** `bun run f` -> `bun test`
-   - **Changes from plan:** Loop prevention is architectural (import/export are separate endpoints) rather than timestamp-based filtering. Admin fire-and-forget sync uses additive mode (append-only); full update-by-SKU semantics deferred to Phase 5. See [db-overhaul-phase-3.5-complete.md](.atlas/plans/db-overhaul-phase-3.5-complete.md).
+   - **Changes from plan:** Loop prevention is architectural (import/export are separate endpoints) rather than timestamp-based filtering. Admin fire-and-forget sync uses additive mode (append-only); full update-by-SKU semantics deferred to Phase 5. See [db-overhaul-phase-3.5-complete.md](.agents/plans/db-overhaul-phase-3.5-complete.md).
 
 4. **[x] Phase 4: Auth & User Management**
    - **Objective:** Username login support, signup form update (remove full_name), admin user management page
@@ -111,7 +111,7 @@ Overhaul the Pedie database schema from a phone-centric PoC to an industry-stand
    - **Objective:** Fix the cart system, remove `getPricingTier`/`PricingTier` (keep other pricing helpers), and update core type consumers that listing/catalog components depend on.
    - **Summary:** Fixed cart identity (listing.id), effective pricing (sale_price_kes ?? price_kes) in getTotal/getDepositTotal, conditional deposit for preorder only, product_name in orders/email. Removed getPricingTier/PricingTier. 13 files changed, 25 tests passing in modified files.
    - **Changes from plan:** Removed 'onsale' status test (not valid enum). 20 consumer test failures remain (Phase 5C scope).
-   - **[Phase 5A Details](.atlas/plans/db-overhaul-phase-5A-complete.md)**
+   - **[Phase 5A Details](.agents/plans/db-overhaul-phase-5A-complete.md)**
    - **Files/Functions to modify:**
      - `src/lib/cart/store.ts` -- replace `listing.listing_id` with `listing.id`; replace `item.final_price_kes` with `item.sale_price_kes ?? item.price_kes` for totals; update `getTotal()` to also use `sale_price_kes ?? price_kes` (currently uses bare `price_kes` which is now the base price, not effective price); use same effective price for `calculateDeposit()`
      - `src/components/cart/cartItem.tsx` -- update price display: `price_kes` as regular price, `sale_price_kes` as discounted; remove `original_price_kes`/`final_price_kes` refs; fix `product.brand` -> `product.brand.name`, `product.model` -> `product.name`; use `listing.sku` for display badge and `listing.id` for store key/remove call
@@ -133,7 +133,7 @@ Overhaul the Pedie database schema from a phone-centric PoC to an industry-stand
    - **Objective:** Update all listing display components and the listing detail page for the new schema. Rename route from `[listingId]` to `[sku]`.
    - **Summary:** Renamed listing route to `[sku]`, added `getListingBySku()`, updated all listing components for new schema fields (sku, brand.name, product.name, effective pricing). Fixed ProductFamily data producers to return `ProductWithBrand`. Added `getPrimaryCategoryForProduct()` helper. PriceDisplay accepts optional `originalPriceKes`. Updated sitemap/JSON-LD for SKU URLs. Deleted dead `youMayAlsoLike.tsx`. 130 tests passing across 12 files.
    - **Changes from plan:** Added `getPrimaryCategoryForProduct()` in categories.ts. Updated structuredData.ts for SKU URLs. Fixed ProductFamily casts in products.ts. Deleted dead youMayAlsoLike.tsx instead of updating commented code.
-   - **[Phase 5B Details](.atlas/plans/db-overhaul-phase-5B-complete.md)**
+   - **[Phase 5B Details](.agents/plans/db-overhaul-phase-5B-complete.md)**
    - **Files/Functions to modify:**
      - `src/components/listing/productDetailClient.tsx` -- replace `listing_id` with `listing.id`, `product.model` with `product.name`, `product.brand` (string) with `product.brand.name`, `product.category` with category from junction, `original_price_kes`/`final_price_kes` with `price_kes`/`sale_price_kes`
      - `src/components/listing/listingInfo.tsx` -- `price_kes`/`sale_price_kes` instead of `final_price_kes`/`original_price_kes`; `listing.listing_id` -> `listing.sku`; `product.brand` -> `product.brand.name`; `product.model` -> `product.name`; remove `listing.carrier` block (carrier removed from schema)
@@ -159,7 +159,7 @@ Overhaul the Pedie database schema from a phone-centric PoC to an industry-stand
    - **Objective:** Update catalog/filter components, admin forms/APIs, account pages for stale refs. Delete crawler dead code. Achieve zero `bun check` errors.
    - **Summary:** Replaced `getPricingTier` with inline `isSale` in UI cards. Made product_categories sync non-destructive (upsert). Removed carrier from filters. Updated admin forms/columns/APIs for new schema. Added PUT validation parity. Zero `bun check` errors, 1249 tests passing.
    - **Changes from plan:** Admin product_categories sync required non-destructive upsert pattern. Added PUT validation parity as security improvement.
-   - **[Phase 5C Details](.atlas/plans/db-overhaul-phase-5C-complete.md)**
+   - **[Phase 5C Details](.agents/plans/db-overhaul-phase-5C-complete.md)**
    - **Files/Functions to modify:**
      - **Catalog components:**
        - `src/components/catalog/filterSidebar.tsx` -- remove `carrier` filter, update category filter for junction table data
@@ -210,7 +210,7 @@ Overhaul the Pedie database schema from a phone-centric PoC to an industry-stand
 8. **[x] Phase 6: Documentation & Build Validation**
    - **Summary:** Updated product-architecture.md with full schema changes (brand_id FK, product.name, junction categories, SKU system, inline pricing with isSale logic, promotions, ProductFamily type). Updated DESIGN.md with inline pricing section and [sku] routes. database-architecture.md verified accurate (no changes needed). Build skipped due to pre-existing missing Supabase env vars in dev container.
    - **Changes from plan:** Build validation skipped (pre-existing env limitation, not introduced by overhaul). Fixed pricing model description to distinguish SQL/cart COALESCE from UI isSale guard. Fixed ProductFamily type to match actual types/product.ts (ProductWithBrand, Listing[], Listing).
-   - **[Phase 6 Details](.atlas/plans/db-overhaul-phase-6-complete.md)**
+   - **[Phase 6 Details](.agents/plans/db-overhaul-phase-6-complete.md)**
 
 ---
 

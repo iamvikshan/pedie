@@ -125,7 +125,7 @@ export default async function ListingPage({ params }: PageProps) {
           ),
         }}
       />
-      <main className='pedie-container py-8'>
+      <section className='pedie-container py-8'>
         <Breadcrumbs
           segments={[
             ...breadcrumbTrail.map(seg => ({
@@ -197,7 +197,7 @@ export default async function ListingPage({ params }: PageProps) {
             totalReviews={reviewStats.totalReviews}
           />
         </div>
-      </main>
+      </section>
     </>
   )
 }

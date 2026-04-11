@@ -173,7 +173,7 @@ export default async function CollectionPage({
           </aside>
 
           {/* Main Content */}
-          <main className='w-full lg:w-3/4'>
+          <section className='w-full lg:w-3/4'>
             <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4'>
               <h2 className='text-xl font-semibold text-pedie-text'>
                 {paginatedResult.total}{' '}
@@ -191,7 +191,7 @@ export default async function CollectionPage({
               totalPages={paginatedResult.totalPages}
               categorySlug={slug}
             />
-          </main>
+          </section>
         </div>
       </div>
     </>

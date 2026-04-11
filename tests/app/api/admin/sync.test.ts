@@ -21,15 +21,21 @@ const mockLogSyncResult = mock<any>(() =>
 )
 
 const {
-  productCreateSchema, productUpdateSchema,
-  listingCreateSchema, listingUpdateSchema,
-  categoryCreateSchema, categoryUpdateSchema,
+  productCreateSchema,
+  productUpdateSchema,
+  listingCreateSchema,
+  listingUpdateSchema,
+  categoryCreateSchema,
+  categoryUpdateSchema,
 } = await import('@data/admin')
 
 mock.module('@data/admin', () => ({
-  productCreateSchema, productUpdateSchema,
-  listingCreateSchema, listingUpdateSchema,
-  categoryCreateSchema, categoryUpdateSchema,
+  productCreateSchema,
+  productUpdateSchema,
+  listingCreateSchema,
+  listingUpdateSchema,
+  categoryCreateSchema,
+  categoryUpdateSchema,
   getSyncHistory: mockGetSyncHistory,
   logSyncResult: mockLogSyncResult,
   getAdminOrders: mock(),

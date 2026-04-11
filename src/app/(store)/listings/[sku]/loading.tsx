@@ -1,6 +1,6 @@
 export default function ListingLoading() {
   return (
-    <main className='pedie-container py-8'>
+    <section className='pedie-container py-8'>
       <div className='grid grid-cols-1 gap-8 md:grid-cols-2'>
         {/* Image skeleton */}
         <div>
@@ -41,6 +41,6 @@ export default function ListingLoading() {
         <div className='h-48 animate-pulse rounded-lg bg-pedie-card border border-pedie-border' />
         <div className='h-48 animate-pulse rounded-lg bg-pedie-card border border-pedie-border' />
       </div>
-    </main>
+    </section>
   )
 }

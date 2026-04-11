@@ -1,6 +1,10 @@
 export default function ProductDetailLoading() {
   return (
-    <main className='pedie-container py-8' role='status' aria-label='Loading'>
+    <section
+      className='pedie-container py-8'
+      role='status'
+      aria-label='Loading'
+    >
       {/* Hero: 2-col grid */}
       <div className='grid grid-cols-1 md:grid-cols-2 gap-8 mb-16'>
         {/* Left column — image gallery */}
@@ -69,6 +73,6 @@ export default function ProductDetailLoading() {
           ))}
         </div>
       </div>
-    </main>
+    </section>
   )
 }

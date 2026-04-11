@@ -19,7 +19,7 @@ Harden the Pedie e-commerce application against OWASP Top 10 vulnerabilities ide
 1. **[x] Phase 1: Database Hardening (CRITICAL)**
    - **Summary:** Implemented role immutability trigger, subscribed column, removed deprecated headers/dead code, replaced escapeHtml with sanitize-html, fixed 3 ESLint warnings. All tests passing (1256). Sentry APPROVED (iteration 3).
    - **Changes from plan:** Added sanitize-html adoption (user request). Fixed 3 pre-existing ESLint warnings (user request). Applied migration to live DB via Supabase MCP (user request).
-   - [Phase 1 Details](/.atlas/plans/security-hardening-phase-1-complete.md)
+   - [Phase 1 Details](/.agents/plans/security-hardening-phase-1-complete.md)
    - **Objective:** Prevent privilege escalation via profiles self-update; fix newsletter schema mismatch; remove deprecated/dead code.
    - **Files/Functions to create/modify:**
      - `supabase/migrations/20250801000000_security_hardening.sql` -- NEW: (a) Add BEFORE UPDATE trigger `enforce_role_immutability()` on profiles that raises exception when `NEW.role != OLD.role` unless `is_admin()` returns true. (b) Add `subscribed boolean NOT NULL DEFAULT true` column to `newsletter_subscribers`.
@@ -78,18 +78,18 @@ Harden the Pedie e-commerce application against OWASP Top 10 vulnerabilities ide
      7. Write tests
      8. Run quality gates
    - **Summary:** Simplified CreateOrderInput to {listing_id, quantity}[] only. createOrder() now fetches listings from DB, computes all pricing server-side. PayPal create route requires auth + ownership, derives amount from DB. Capture routes verify amount with +/-$0.50 tolerance and check pending status before confirming. 24 new tests across 3 test files.
-   - **[Phase 2 Details](.atlas/plans/security-hardening-phase-2-complete.md)**
+   - **[Phase 2 Details](.agents/plans/security-hardening-phase-2-complete.md)**
 
 3. **[x] Phase 3: Rate Limiting & Input Validation (HIGH)**
    - **Objective:** Add Upstash-backed rate limiting to abuse-prone endpoints. Add Zod schema validation for admin routes, replacing manual allowlisting and `as never` casts. Sanitize admin email fields. Fix resolve-username user enumeration vulnerability.
    - **Summary:** Installed zod v4, @upstash/ratelimit, @upstash/redis. Created rate limiter factory (rateLimit.ts) with Upstash sliding window + graceful fallback. Rate-limited 7 routes. Server-side signin route eliminates email enumeration. Zod schemas for all 6 admin mutations, 7 `as never` casts replaced with proper Supabase types. Email to/subject sanitized. PayPal error logging sanitized. 14 new tests, 8 existing test files updated.
    - **Changes from plan:** Zod v4 installed (imported from 'zod/v4'). Added listing_type to listings allowlists (was missing). Removed redundant manual validation from listings routes.
-   - **[Phase 3 Details](.atlas/plans/security-hardening-phase-3-complete.md)**
+   - **[Phase 3 Details](.agents/plans/security-hardening-phase-3-complete.md)**
 
 4. **[x] Phase 4: Security Headers & Audit Logging (MEDIUM)**
    - **Summary:** Hybrid CSP (static 'self', dynamic 'self' + nonce) and HSTS (2yr) in proxy.ts + vercel.json. sync_log renamed to admin_log with 5 audit columns. Fire-and-forget logAdminEvent integrated into all 7 admin mutation routes. Sentry R1 found 4 issues (nonce propagation, static rendering, PromiseLike .catch, order action) -- all resolved. R2 approved with 2 non-blocking fixes applied (cookie options, docs).
    - **Changes from plan:** Dynamic CSP uses `'self' 'nonce-{nonce}'` instead of `'strict-dynamic'` (simpler, no framework nonce propagation needed). Root layout does not call `headers()` (preserves static rendering). JSON-LD is CSP-exempt, no nonce needed.
-   - **[Phase 4 Details](.atlas/plans/security-hardening-phase-4-complete.md)**
+   - **[Phase 4 Details](.agents/plans/security-hardening-phase-4-complete.md)**
    - **Objective:** Add CSP (enforcing) and HSTS headers. Repurpose existing `sync_log` table to `admin_log` with extended schema for admin audit logging.
    - **CSP Implementation Detail (Hybrid Approach):** Use a two-tier CSP strategy to preserve prerendering for static pages:
      - **Static pages** (product listings, categories, home, sitemap): Static CSP with `script-src 'self'` -- no nonce needed, fully compatible with ISR/SSG/PPR. Note: `<script type="application/ld+json">` blocks on storefront pages are data-only (not executable) and are exempt from CSP `script-src` restrictions per the HTML spec. If any browsers enforce CSP on them, workers must move JSON-LD to external `.json` files or promote those routes to nonce-based CSP.

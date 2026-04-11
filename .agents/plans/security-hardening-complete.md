@@ -20,4 +20,4 @@ All 13+ vulnerabilities from the security audit have been addressed across 4 pha
 
 - Total tests: 1302 | Passing: Yes (0 failures)
 
-_(Master plan and phase files archived to `.atlas/plans/archive/`.)_
+_(Master plan and phase files archived to `.agents/plans/archive/`.)_

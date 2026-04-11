@@ -61,7 +61,7 @@ export default async function ProductPage({ params }: PageProps) {
     : []
 
   return (
-    <main className='pedie-container py-8'>
+    <section className='pedie-container py-8'>
       <Breadcrumbs
         segments={[
           ...breadcrumbTrail.map(seg => ({
@@ -112,6 +112,6 @@ export default async function ProductPage({ params }: PageProps) {
        */}
 
       <SimilarListings listings={relatedListings} />
-    </main>
+    </section>
   )
 }

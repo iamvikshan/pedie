@@ -1,9 +1,12 @@
-import type { Json } from '@app-types/database'
+import type { Database, Json } from '@app-types/database'
 import type { ShippingAddress } from '@app-types/order'
 import { calculateDeposit } from '@helpers/pricing'
 import { createAdminClient } from '@lib/supabase/admin'
 
 const SHIPPING_FEE_KES = 0
+
+type OrderStatus = Database['public']['Enums']['order_status']
+type OrderUpdate = Database['public']['Tables']['orders']['Update']
 
 export interface CreateOrderInput {
   userId: string
@@ -133,12 +136,12 @@ export async function getOrderById(orderId: string) {
 
 export async function updateOrderStatus(
   orderId: string,
-  status: string,
+  status: OrderStatus,
   paymentRef?: string
 ) {
   const supabase = createAdminClient()
 
-  const updates: Record<string, unknown> = {
+  const updates: OrderUpdate = {
     status,
     updated_at: new Date().toISOString(),
   }

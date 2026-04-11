@@ -38,11 +38,11 @@ describe('proxy', () => {
     expect(proxySource).toContain('max-age=63072000')
   })
 
-  test('should implement hybrid CSP with dynamic route detection', () => {
+  test('should implement nonce-based CSP for all routes', () => {
     const proxySource = readFileSync('src/proxy.ts', 'utf8')
-    expect(proxySource).toContain('DYNAMIC_PREFIXES')
     expect(proxySource).toContain('nonce')
     expect(proxySource).toContain("'self' 'nonce-")
+    expect(proxySource).toContain('x-csp-nonce')
   })
 
   test('should add unsafe-eval only in development', () => {

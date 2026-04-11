@@ -26,21 +26,17 @@
       "extensions": [
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
-        "eamodio.gitlens",
         "oven.bun-vscode",
         "ms-azuretools.vscode-docker",
         "WakaTime.vscode-wakatime",
         "coderabbit.coderabbit-vscode",
         "DeepScan.vscode-deepscan",
-        "jetbrains.qodana-code",
         "shenyq.gs-lang"
       ]
     }
   },
 
-  // Use 'postCreateCommand' to run commands after the container is created.
-  "postCreateCommand": "[ -f scripts/iamvikshan.sh ] && chmod +x scripts/iamvikshan.sh; bun install && sudo ln -sf /usr/share/zoneinfo/Africa/Nairobi /etc/localtime && curl -fsSL https://cli.coderabbit.ai/install.sh | sh",
-
+  "postCreateCommand": "chmod +x scripts/dvcntnr.sh && scripts/dvcntnr.sh",
   // Set `remoteUser` to `root` to connect as root.
   "remoteUser": "root",
 
