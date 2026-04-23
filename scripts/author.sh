@@ -15,7 +15,7 @@
 #   ./author.sh [--repo <repository-url>] [--force|--yes]
 #
 # Options:
-#   --repo <url>       Override the target repository URL (default: https://github.com/iamvikshan/pedie)
+#   --repo <url>       Override the target repository URL (default: https://github.com/iamvikshan/devcontainers)
 #   --force, --yes     Force changes without prompting (required in non-interactive mode for remote URL changes)
 #
 # Environment variables:
@@ -535,18 +535,14 @@ if [[ "$HAS_SIGNING_SCOPE" != "true" ]]; then
 fi
 
 # Use consistent key name for reuse across environments
-SIGNING_KEY_PATH="$HOME/.ssh/pedie-id_ed25519_signing"
+SIGNING_KEY_PATH="$HOME/.ssh/devcontainers-id_ed25519_signing"
 SIGNING_KEY_PUB="$SIGNING_KEY_PATH.pub"
-
-# Normalize the public key to the canonical "type base64" form used by GitHub's
-# SSH signing key API. Public key files often include a trailing comment.
-NORMALIZED_SIGNING_KEY=$(awk '{print $1 " " $2}' "$SIGNING_KEY_PUB" 2>/dev/null || echo "")
 
 remote_signing_key_exists() {
   local normalized_key="$1"
   local remote_keys=""
 
-  if ! remote_keys=$(gh api /user/ssh_signing_keys --paginate --jq '.[] | .key' 2>/dev/null); then
+  if ! remote_keys=$(gh api /user/ssh_signing_keys --paginate --jq '.[] | .key' 2> /dev/null); then
     return 1
   fi
 
@@ -569,7 +565,7 @@ else
   #         where interactive passphrase entry is not practical.
   # Implications:
   #   - The private key is protected only by filesystem permissions
-  #   - Anyone with read access to ~/.ssh/pedie-id_ed25519_signing can use it
+  #   - Anyone with read access to ~/.ssh/devcontainers-id_ed25519_signing can use it
   # For production/high-security environments:
   #   - Consider using a passphrase and ssh-agent for key caching
   #   - Or use hardware security keys (e.g., YubiKey)
@@ -580,6 +576,10 @@ else
   ssh-keygen -t ed25519 -C "$GIT_EMAIL" -f "$SIGNING_KEY_PATH" -N "" -q
   echo "✓ SSH signing key generated: $SIGNING_KEY_PATH"
 fi
+
+# Normalize the public key to the canonical "type base64" form used by GitHub's
+# SSH signing key API. Public key files often include a trailing comment.
+NORMALIZED_SIGNING_KEY=$(awk '{print $1 " " $2}' "$SIGNING_KEY_PUB" 2> /dev/null || echo "")
 
 # Check if this key is already on GitHub and add if needed
 # Skip GitHub upload if we know the token lacks write scope (it will fail anyway)
@@ -601,7 +601,7 @@ else
       # Try to create the key through the documented REST API.
       # NOTE: Defensive '|| ADD_EXIT_CODE=$?' pattern prevents 'set -e' from killing the script.
       ADD_EXIT_CODE=0
-      ADD_OUTPUT=$(gh api -X POST /user/ssh_signing_keys -f key="$NORMALIZED_SIGNING_KEY" -f title="pedie-$GIT_USER signing key" 2>&1) || ADD_EXIT_CODE=$?
+      ADD_OUTPUT=$(gh api -X POST /user/ssh_signing_keys -f key="$NORMALIZED_SIGNING_KEY" -f title="devcontainers-$GIT_USER signing key" 2>&1) || ADD_EXIT_CODE=$?
 
       if [[ $ADD_EXIT_CODE -eq 0 ]]; then
         echo "✓ SSH signing key added to GitHub"
