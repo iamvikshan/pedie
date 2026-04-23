@@ -54,7 +54,7 @@ MARKER_START="# iamvikshan development setup"
 MARKER_END="# End iamvikshan development setup"
 
 # Default target repository (can be overridden by TARGET_REPO env var or --repo argument)
-DEFAULT_TARGET_REPO="https://github.com/iamvikshan/devcontainers"
+DEFAULT_TARGET_REPO="https://github.com/iamvikshan/pedie"
 TARGET_REPO="${TARGET_REPO:-$DEFAULT_TARGET_REPO}"
 
 # Flag to force remote URL changes without prompting (for non-interactive use)
