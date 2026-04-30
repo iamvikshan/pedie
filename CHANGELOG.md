@@ -1,3 +1,9 @@
+## [1.2.2](https://github.com/iamvikshan/pedie/compare/v1.2.1...v1.2.2) (2026-04-30)
+
+### Bug Fixes
+
+* **deps:** update dependency next to v16.2.4 ([#10](https://github.com/iamvikshan/pedie/issues/10)) ([7cd4dc7](https://github.com/iamvikshan/pedie/commit/7cd4dc7c33dee7aae13e35c10ba7934f82d8aa39))
+
 ## [1.2.1](https://github.com/iamvikshan/pedie/compare/v1.2.0...v1.2.1) (2026-04-30)
 
 ### Bug Fixes
