@@ -1,3 +1,9 @@
+## [1.2.1](https://github.com/iamvikshan/pedie/compare/v1.2.0...v1.2.1) (2026-04-30)
+
+### Bug Fixes
+
+* **deps:** update dependency @supabase/supabase-js to ^2.103.3 ([#9](https://github.com/iamvikshan/pedie/issues/9)) ([feb1ab8](https://github.com/iamvikshan/pedie/commit/feb1ab8d152a8424d2db3cf6a8ced7cb15ec750a))
+
 ## [1.2.0](https://github.com/iamvikshan/pedie/compare/v1.1.0...v1.2.0) (2026-04-23)
 
 ### Features
