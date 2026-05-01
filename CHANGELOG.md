@@ -1,3 +1,11 @@
+## [1.2.3](https://github.com/iamvikshan/pedie/compare/v1.2.2...v1.2.3) (2026-05-01)
+
+### Bug Fixes
+
+* **deps:** update dependency @supabase/supabase-js to ^2.105.0 ([#14](https://github.com/iamvikshan/pedie/issues/14)) ([148ef5c](https://github.com/iamvikshan/pedie/commit/148ef5c005bc95791d1b2a010400aa2c42e68299))
+* **deps:** update dependency sanitize-html to ^2.17.3 ([#11](https://github.com/iamvikshan/pedie/issues/11)) ([24e9ba8](https://github.com/iamvikshan/pedie/commit/24e9ba83967dfc497a45af65b6ae22721ad3f424))
+* **deps:** update typescript and types ([#12](https://github.com/iamvikshan/pedie/issues/12)) ([f0ea71f](https://github.com/iamvikshan/pedie/commit/f0ea71f78ccfdbc1ea8989dd439a35cb88c38f2c))
+
 ## [1.2.2](https://github.com/iamvikshan/pedie/compare/v1.2.1...v1.2.2) (2026-04-30)
 
 ### Bug Fixes
